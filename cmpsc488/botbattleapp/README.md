@@ -2,7 +2,7 @@
 
 # botbattleapp
 
-THis is in the initconfig branch
+THis is in the initconfig branch2
 
 ## Usage
 
