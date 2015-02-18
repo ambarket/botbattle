@@ -25,5 +25,7 @@ var server = https.createServer(options, app).listen(6058);
 
 var io = require('socket.io').listen(server);
 
-var runExtern = require('../multiclient_prototype/runExtern');
-runExtern(app, io);
+var initalconfiguration = require('/home/amb6470/git/cmpsc488/botbattleapp/initialconfigpage_prototype/initialConfiguration.js');
+
+
+//runExtern(app, io);
