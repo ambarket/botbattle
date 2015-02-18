@@ -2,7 +2,7 @@
 
 # botbattleapp
 
-THis is in the initconfig branch3
+
 
 ## Usage
 
