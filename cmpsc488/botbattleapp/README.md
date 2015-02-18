@@ -2,8 +2,8 @@
 
 # botbattleapp
 
+THis is in the initconfig branch2
 
-this is the master
 ## Usage
 
 
