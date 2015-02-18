@@ -2,7 +2,7 @@
 
 # botbattleapp
 
-THis is in the master
+
 
 ## Usage
 
