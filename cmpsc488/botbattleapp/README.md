@@ -3,7 +3,7 @@
 # botbattleapp
 
 
-dfgsdfgsdfgsdfgsdfg
+this is the master
 ## Usage
 
 
