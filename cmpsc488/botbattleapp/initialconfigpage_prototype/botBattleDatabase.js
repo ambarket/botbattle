@@ -116,28 +116,4 @@ BotBattleDatabase.unitTest = botBattleDatabaseUnitTest;
 module.exports = BotBattleDatabase;
 
 
-/*
- * http://docs.mongodb.org/manual/tutorial/enable-authentication-without-bypass/
-use admin
-db.createUser(
-  {
-    user: "siteUserAdmin",
-    pwd: "password",
-    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
-  }
-)
- */
 
-/*
- * mongo --port 27017 -u siteUserAdmin -p password --authenticationDatabase admin
-use testDB
-db.createUser(
-    {
-      user: "testUser",
-      pwd: "testPass",
-      roles: [
-         { role: "readWrite", db: "testDB" }
-      ]
-    }
-)
-*/
