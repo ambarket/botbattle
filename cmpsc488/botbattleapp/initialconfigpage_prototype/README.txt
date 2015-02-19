@@ -30,6 +30,13 @@ http://docs.mongodb.org/manual/tutorial/enable-authentication-without-bypass/
   )
 
 
+
+windows mongodb http://docs.mongodb.org/manual/tutorial/install-mongodb-on-windows/
+
+C:\mongodb\bin\mongod.exe --dbpath d:\test\mongodb\data
+
+
+
 Install Eclipse Luna by following instrustions on website
 
 Install Nodeclipse plugin according to http://www.nodeclipse.org/updates/
