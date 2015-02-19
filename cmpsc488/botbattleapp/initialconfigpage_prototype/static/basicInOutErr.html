@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+    </head>
+    <body onbeforeunload="return leave()" class="centered" >
+        <p> <b>Status:</b> <div style="height:120px;width:autopx;border:1px solid;overflow:auto;"  id="status"></div> </p>
+		
+        <form name="uploadForm"  enctype = "multipart/form-data" method='POST'>
+			<p> <b>Upload:</b>  <input type="file" required name="fileInput"> 
+			<input type="submit" value="Upload">
+			<input hidden type="text" id = "theID"  name="theID"> 
+
+            </p>
+        </form>
+    
+        <p> <button id = "compile"> Compile </button> 
+         <button id = "run"> Run </button></p>
+    
+        <p> <b>StdIn:</b> <textarea id="stdin"></textarea> <button id = "send_stdin">Send</button> </p>
+        <div><p> <b>StdOut:</b> <div style="height:120px;width:autopx;border:1px solid;overflow:auto;" id="stdout"></div> </p>
+        <div><p> <b>StdErr:</b><div style="height:120px;width:autopx;border:1px solid;overflow:auto;" id="stderr"></div> </p>
+		<div> <a href="http://www.w3schools.com">Visit W3Schools.com!</a> </div>
+		
+		<script>
+		function leave() {
+			return "Leaving the page will stop your program from running!";
+		}
+		</script>
+		
+    </body>
+</html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+
+<script>
+var id = null;
+////////////////////////////////////////  method 1
+//$(window).unload(function () {
+//	var oReq = new XMLHttpRequest();
+//	oReq.open("GET", "killChild?id=" + id, true);
+//	oReq.send();
+//});
+////////////////////////////////////////  method 2
+var unloadHandler = function () {
+	$.ajax( {
+		async: false,
+		data: {
+			//current_uri: document.location.toString(),
+			id: id
+		},
+		error: function () {
+			alert('Close notification error');
+		},
+		success: function ( data ) {
+			alert('Successful close notification');
+		},
+		url: '/killChild'
+	} );
+}
+
+$( function () {
+	$( window ).unload( function () {
+		unloadHandler();
+	} );
+	$( 'a.outlink' ).click( function () {
+		unloadHandler = function () {};
+	} );
+} );	
+// http://www.quora.com/What-is-best-way-to-detect-a-close-browser-event
+// http://zombie.labnotes.org/API
+// https://github.com/Automattic/socket.io/wiki/Exposed-events
+// http://socket.io/docs/
+/////////////////////////////////////////////  
+$('#run').hide();
+$('#compile').hide();
+$('#reload').hide();
+
+var socket = io.connect();
+socket.on('status', function(data){
+    $('#status').html( '<p>' + data.output + '</p>' + $('#status').html());
+});
+socket.on('id', function(data){
+    id = data.id;
+    $('#status').html( '<p>' + 'id:' + id + '</p>' + $('#status').html());
+    $('#theID').val(data.id);
+});
+socket.on('stdout', function(data){
+    $('#stdout').html( '<p>' + data.output + '</p>' + $('#stdout').html());
+});
+socket.on('stderr', function(data){
+    $('#stderr').html( '<p>' + data.output + '</p>' + $('#stderr').html());
+});
+socket.on('compiled', function(data){
+    $('#status').html( '<p>' + data.output + '</p>' + $('#status').html());
+    $('#run').show();
+});
+socket.on('uploaded', function(data){
+    $('#status').html( '<p>' + data.output + '</p>' + $('#status').html());
+    $('#compile').show();
+});
+socket.on('reload', function(data){
+	if (window.confirm(data.output))
+	{
+		var oReq = new XMLHttpRequest();
+        oReq.open("GET", "reloadBot?id=" + id, true);
+        oReq.send();
+	}
+	else
+	{
+		// They clicked no
+	}	
+});
+
+$(document).ready(function(){
+    $('#send_stdin').click(function(e){
+        socket.emit('stdin', {'id': id, 'input': $('#stdin').val() });
+        $('#stdin').text("");
+    });
+});
+
+$(document).ready(function(){
+    $('#compile').click(function(e){
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", "compileBot?id=" + id, true);
+        oReq.send();
+    });
+});
+
+$(document).ready(function(){
+    $('#run').click(function(e){
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", "runBot?id=" + id, true);
+        oReq.send();
+    });
+});
+    
+var form = document.forms.namedItem("uploadForm");
+form.addEventListener('submit', function(ev) {
+  $('#run').hide();
+  $('#compile').hide();
+  $('#reload').hide();
+
+  var
+    oOutput = document.getElementById("status"),
+    oData = new FormData(document.forms.namedItem("uploadForm"));
+    //console.log("here");
+  //oData.append("CustomField", "This is some extra data");
+
+  var oReq = new XMLHttpRequest();
+  oReq.open("POST", "processBotUpload", true);
+  oReq.onload = function(oEvent) {
+    if (oReq.status == 200) {
+     // oOutput.innerHTML = "Uploaded!";
+    } else {
+     // oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
+    }
+  };
+
+  oReq.send(oData);
+  ev.preventDefault();
+}, false);
+</script>

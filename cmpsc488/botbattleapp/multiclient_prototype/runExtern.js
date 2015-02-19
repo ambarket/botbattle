@@ -72,7 +72,7 @@ app.use(multer({ dest: './uploads/',
 app.post('/processBotUpload',function(req,res){
     if(done==true){
         var id = req.body.theID;
-	console.log(req.session);
+	console.log("the body: " + JSON.stringify(req.body));
         
         if (db[id] != undefined)
         {

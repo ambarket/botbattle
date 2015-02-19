@@ -4,15 +4,17 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "body-parser": "*",
-    "cookie-parser": "*",
-    "express": "*",
-    "express-session": "*",
-    "sanitizer": "*",
+    "body-parser": "^1.9.2",
+    "cookie-parser": "^1.3.3",
+    "express": "^4.10.2",
+    "express-session": "^1.9.1",
+    "sanitizer": "^0.1.2",
     "socket.io": "~1.3.4",
     "async": "*",
     "mongodb": "1.3.19 ",
     "bson": "0.2.4",
-    "assert": "*"
+    "assert": "*",
+    "util": "*",
+    "multer": "~0.1.7"
   }
 }
