@@ -1,16 +1,36 @@
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
+var BotBattleDatabase = require('./botBattleDatabase');
+
+
 function InitialConfiguration() {
     
     var self = this;
 
+    this.run = function(form) {
+	/* What the form object looks like by default
+	{   "databaseHost":"127.0.0.1",
+	    "databasePort":"27017",
+	    "databaseName":"testDB",
+	    "databaseUserName":"testUser",
+	    "databasePassword":"testPass"
+	}
+	*/
 
-    
-    this.run = function() {
-	for (var i = 0; i < 10; i++) {
-		self.emit('task_done', null);
-    	}
-	self.emit('config_complete', null);
+	var database = new BotBattleDatabase(form.databaseHost, form.databasePort, 
+		form.databaseName, form.databaseUserName, form.databasePassword);
+
+	
+	database.connect(function(err, database) {
+	    if (err)
+	    {
+		self.emit('config_error', err);
+	    }
+	    else {
+		self.emit('progress_update', 100);
+		self.emit('config_complete', database);
+	    }
+	})
     }
 }
 util.inherits(InitialConfiguration, EventEmitter);
@@ -19,11 +39,7 @@ module.exports = new InitialConfiguration();
 
 
 
-var async = require('async');
-var assert = require('assert');
-var MongoClient = require('mongodb').MongoClient;
 
-var botBattleDatabase = require('./botBattleDatabase');
 
 
 

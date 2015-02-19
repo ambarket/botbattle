@@ -39,12 +39,23 @@ server.on('connection', function (socket) {
 
 var setupApp = new (require('./setupApp'))(expressApp, socketIO);
 
-setupApp.on('setup_complete', function(err, data) {
-    socketIO.emit('closing', null);
+setupApp.on('setup_complete', function(database) {
+    console.log("Setup completed successfully! heres the BotBattleDatabase");
+    console.log(database);
+    socketIO.emit('setup_complete', null);
     
-    /* Commenting this while working on the initconfig page*/
-    // Close the server
-    server.close(function () { 
+    // Destroy all open sockets (connections to server), but wait a little to allow the 
+    //	io.emit('closing') above to get through to the client. This is necessary in order 
+    //	to ensure the server.close() event will actually fire.
+    setTimeout(function() {
+	    for (var socketId in sockets) {
+	      console.log('socket', socketId, 'destroyed');
+	      sockets[socketId].destroy();
+	    }
+    }, 2000); 
+    
+    // Close the server, then load a new one to serve the botBattleApp
+    server.close(function (err) { 
 	socketIO = null;
 	server = null;
 	expressApp = null;
@@ -54,19 +65,22 @@ setupApp.on('setup_complete', function(err, data) {
 	var server = https.createServer(options, expressApp).listen(6058);
 	var socketIO = require('socket.io').listen(server);
 	var botBattleApp = require('./botBattleApp');
-	botBattleApp(expressApp, socketIO);
+	botBattleApp(expressApp, socketIO, database);
     });
     
-    // Destroy all open sockets, but wait a little to allow the io.emit('closing') above to get through
-    // This is necessary in order to ensure the server.close() event will actually fire.
-    setTimeout(function() {
-	    for (var socketId in sockets) {
-	      console.log('socket', socketId, 'destroyed');
-	      sockets[socketId].destroy();
-	    }
-    }, 2000); 
-  
+
 });
+
+setupApp.on('setup_error', function(err) {
+    console.log("There was an error during setup");
+    console.log(err.message);
+    socketIO.emit('setup_error', err.message);
+});
+
+setupApp.on('progress_update', function(progress) {
+    socketIO.emit('progress_update', progress)
+});
+
 
 
 function registerCommonMiddleware(app)

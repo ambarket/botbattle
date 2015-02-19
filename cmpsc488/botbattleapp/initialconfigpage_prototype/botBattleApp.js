@@ -1,7 +1,7 @@
 /* checkout
 https://www.npmjs.com/package/fs-extra
 */
-module.exports=function(app, io) {
+module.exports=function(app, io, database) {
 
 var multer = require('multer');
 var express=require('express');
