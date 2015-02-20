@@ -1,14 +1,19 @@
-function SetupApp(app, io) {
+function SetupApp(app) {
     var self = this;
     
     var initialconfiguration = require('./initialConfiguration.js');
     
-    initialconfiguration.on('config_complete', function(err, data) {
-        self.emit('setup_complete', data)
+    initialconfiguration.on('config_complete', function(database) {
+	// Database will be a reference to the authenticated BotBattleDatabase object
+        self.emit('setup_complete', database)
     });
     
-    initialconfiguration.on('task_done', function(err, data) {
-        io.emit('task_done', data)
+    initialconfiguration.on('config_error', function(err) {
+        self.emit('setup_error', err)
+    });
+    
+    initialconfiguration.on('progress_update', function(progress) {
+        self.emit('progress_update', progress)
     });
     
     app.get('/',function(req,res){
@@ -17,13 +22,19 @@ function SetupApp(app, io) {
 
     app.post('/processInitialConfiguration', function(req, res) {
 	console.log(JSON.stringify(req.body));
-	initialconfiguration.run(req.body); 
+	var sanitizer=require('sanitizer');
+	var sanitizedSubmission = {
+		databaseHost: sanitizer.sanitize(req.body.databaseHost),
+		databasePort: sanitizer.sanitize(req.body.databasePort),
+		databaseName: sanitizer.sanitize(req.body.databaseName),
+		databaseUserName: sanitizer.sanitize(req.body.databaseUserName),
+		databasePassword: sanitizer.sanitize(req.body.databasePassword),	
+	}
+	console.log(JSON.stringify(sanitizedSubmission));
+	
+	initialconfiguration.run(sanitizedSubmission); 
     });
     
-    this.removeRoutes = function()
-    {
-	console.log(app.stack);
-    }
 }
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;

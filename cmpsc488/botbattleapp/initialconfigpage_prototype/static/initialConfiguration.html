@@ -10,7 +10,7 @@
 <body class="centered">
 	<p id="message"></p>
 	<form id="initConfigForm" enctype="multipart/form-data" method="POST">
-		<b>Upload:</b> <input type="file" required name="fileInput">
+		<!-- <b>Upload:</b> <input type="file" required name="fileInput"> -->
 
 		<div class="form-group">
 			<div class="form-item">
@@ -32,7 +32,21 @@
           Database Name
           <span class="form-required" title="This field is required."> * </span>
         </label>
-        <input name="databaseName" type="text" maxlength="5" size="10" value="testDB" placeholder="botbattle" required></input>
+        <input name="databaseName" type="text" maxlength="60" size="10" value="testDB" placeholder="botbattle" required></input>
+      </div>
+      <div class="form-item">
+        <label for="databaseUserName">
+          Database Name
+          <span class="form-required" title="This field is required."> * </span>
+        </label>
+        <input name="databaseUserName" type="text" maxlength="60" size="10" value="testUser" placeholder="testUser" required></input>
+      </div>
+      <div class="form-item">
+        <label for="databasePassword">
+          Database Password
+          <span class="form-required" title="This field is required."> * </span>
+        </label>
+        <input name="databasePassword" type="password" maxlength="60" size="10" value="testPass" required></input>
       </div>
       
     </div>
@@ -52,21 +66,23 @@
 
 <script>
 var socket = io.connect();
-socket.on('task_done', function(data){
+socket.on('progress_update', function(progress){
+   /*
    var old = $('#progress').val();
    old += 10;
-   $('#progress').val(old);
+   */
+   $('#progress').val(progress);
 });
 /*
 socket.on('closing', function(err,data){
      setInterval(function (){ location.reload(); }, 5000);
 });
 */
-socket.on('closing', function(err,data){
+socket.on('setup_complete', function(data){
      var count = 5;
      setInterval(function (){ 
       
-      document.getElementById('message').innerHTML = "The page will reload in " + count + " seconds";
+      document.getElementById('message').innerHTML = "Configuration Successful!<br>The page will reload in " + count + " seconds and take you to the Public Portal";
       count--;
       if (count == 0)
       {
@@ -75,14 +91,15 @@ socket.on('closing', function(err,data){
      }, 1000);
 });
 
+socket.on('setup_error', function(err){
+      document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
+});
+
 
 var form = document.getElementById("initConfigForm");
 form.addEventListener('submit', function(ev) {
         var req = new XMLHttpRequest();
         var theForm = new FormData(form);
-        console.log(form);
-        theForm.append("serialnumber", 1);
-        console.log(theForm);
         req.open("POST", "processInitialConfiguration", true);
         req.send(theForm);
         
