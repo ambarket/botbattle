@@ -73,6 +73,7 @@ Then exit shell and start again passing the new credentials
     mongo --port 27017 -u siteUserAdmin -p password --authenticationDatabase admin
 
 Then run this to create and associate the user that the app should connect with in the database it should connect to
+
     use testDB
     db.createUser(
         {
