@@ -1,8 +1,10 @@
   
-#YUIDoc (http://yui.github.io/yuidoc/)
+#YUIDoc 
+http://yui.github.io/yuidoc/
 
 I needed to do this on ubuntu to get YUIDoc to find node
-sudo ln -s /usr/bin/nodejs /usr/bin/node
+
+    sudo ln -s /usr/bin/nodejs /usr/bin/node
   
 To get YUIDoc to work (from website above)
 
