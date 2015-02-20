@@ -6,11 +6,16 @@ sudo ln -s /usr/bin/nodejs /usr/bin/node
   
 TO get YUIDoc to work (from website above)
     Download and install Node.js
-    Run npm -g install yuidocjs. (can run it anywhere as -g installs it globally)
-    Run yuidoc . at the top of your JS source tree.
+    
+    ```
+    npm -g install yuidocjs  //install yuidoc globally
+    yuidoc .                 // Run at the top of your JS source tree
+    ```
     
     To get it to not only compile the documentation but also serve it on a simple webserver use
+    ```
     yuidoc --server 5000 . 
+    ```
     
     Then go to http://127.0.0.1:5000 to see the documentation
 
