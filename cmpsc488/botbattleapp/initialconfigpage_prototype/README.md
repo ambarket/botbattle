@@ -4,55 +4,53 @@
 I needed to do this on ubuntu to get YUIDoc to find node
 sudo ln -s /usr/bin/nodejs /usr/bin/node
   
-TO get YUIDoc to work (from website above)
-    Download and install Node.js
-    
-    ```
+To get YUIDoc to work (from website above)
+
     npm -g install yuidocjs  //install yuidoc globally
     yuidoc .                 // Run at the top of your JS source tree
-    ```
+
     
-    To get it to not only compile the documentation but also serve it on a simple webserver use
-    ```
+To get it to not only compile the documentation but also serve it on a simple webserver use
+
     yuidoc --server 5000 . 
-    ```
+
+
+Then go to http://127.0.0.1:5000 to see the documentation
+
+    ###Example Class Block
     
-    Then go to http://127.0.0.1:5000 to see the documentation
-
-###Example Class Block
-
-/**
-* This is the description for my class.
-*
-* @class MyClass
-* @constructor
-*/
-
-###Example Method Block
-
-/**
-* My method description.  Like other pieces of your comment blocks, 
-* this can span multiple lines.
-*
-* @method methodName
-* @param {String} foo Argument 1
-* @param {Object} config A config object
-* @param {String} config.name The name on the config object
-* @param {Function} config.callback A callback function on the config object
-* @param {Boolean} [extra=false] Do extra, optional work
-* @return {Boolean} Returns true on success
-*/
-
-###Example Property Block
-
-/**
-* My property description.  Like other pieces of your comment blocks, 
-* this can span multiple lines.
-* 
-* @property propertyName
-* @type {Object}
-* @default "foo"
-*/
+    /**
+    * This is the description for my class.
+    *
+    * @class MyClass
+    * @constructor
+    */
+    
+    ###Example Method Block
+    
+    /**
+    * My method description.  Like other pieces of your comment blocks, 
+    * this can span multiple lines.
+    *
+    * @method methodName
+    * @param {String} foo Argument 1
+    * @param {Object} config A config object
+    * @param {String} config.name The name on the config object
+    * @param {Function} config.callback A callback function on the config object
+    * @param {Boolean} [extra=false] Do extra, optional work
+    * @return {Boolean} Returns true on success
+    */
+    
+    ###Example Property Block
+    
+    /**
+    * My property description.  Like other pieces of your comment blocks, 
+    * this can span multiple lines.
+    * 
+    * @property propertyName
+    * @type {Object}
+    * @default "foo"
+    */
 
 _______________________________________________________________________________________
 #Installing mondodb
