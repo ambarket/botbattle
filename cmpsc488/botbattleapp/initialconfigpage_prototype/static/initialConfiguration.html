@@ -61,58 +61,8 @@
 
 
 <script src="/socket.io/socket.io.js"></script>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+<script defer="defer" src="/static/javascript/initialConfigurationClient.js"></script>
 
-<script>
-var socket = io.connect();
-socket.on('progress_update', function(progress){
-   /*
-   var old = $('#progress').val();
-   old += 10;
-   */
-   $('#progress').val(progress);
-});
-/*
-socket.on('closing', function(err,data){
-     setInterval(function (){ location.reload(); }, 5000);
-});
-*/
-socket.on('setup_complete', function(data){
-     var count = 5;
-     setInterval(function (){ 
-      
-      document.getElementById('message').innerHTML = "Configuration Successful!<br>The page will reload in " + count + " seconds and take you to the Public Portal";
-      count--;
-      if (count == 0)
-      {
-        location.reload();
-      }
-     }, 1000);
-});
-
-socket.on('setup_error', function(err){
-      document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
-});
-
-
-var form = document.getElementById("initConfigForm");
-form.addEventListener('submit', function(ev) {
-        var req = new XMLHttpRequest();
-        var theForm = new FormData(form);
-        req.open("POST", "processInitialConfiguration", true);
-        req.send(theForm);
-        
-        req.onload = function(event) {
-          if (req.status == 200) {
-             console.log("onload");
-          } else {
-             console.log("error onload");
-          }
-        };
-  ev.preventDefault();
-}, false);
-
-</script>
 
 </html>

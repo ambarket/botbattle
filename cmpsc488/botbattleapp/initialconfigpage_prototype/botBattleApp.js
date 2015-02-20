@@ -1,8 +1,11 @@
 /* checkout
 https://www.npmjs.com/package/fs-extra
 */
-module.exports=function(app, io, database) {
+module.exports=function(botBattleAppServer, botBattleDatabase) {
 
+  app = botBattleAppServer.expressApp;
+  io = botBattleAppServer.socketIO;
+  
 var multer = require('multer');
 var express=require('express');
 var sanitizer=require('sanitizer');
@@ -50,27 +53,13 @@ io.sockets.on('connection', function(socket){  // if a bot is running and a user
 
 var done=false;
 var filePath = null;
-/*
-/*Configure the multer.*/
-app.use(multer({ dest: './uploads/',
-    rename: function (fieldname, filename) {
-        //return filename+Date.now();
-        return filename;
-    },
-    onFileUploadStart: function (file) {
-        //db[id].sock.emit('status',  { 'output' : "Upload of " + file.originalname + " is starting ..." });
-    },
-    onFileUploadComplete: function (file) {
-        //db[id].sock.emit('status', { 'output' : file.fieldname + ' successfully uploaded to  ' + file.path});
-        done=true;
-    }
-}));
+
 
 /*Handling routes.*/
 
 
 app.post('/processBotUpload',function(req,res){
-    if(done==true){
+    //if(done==true){
         var id = req.body.theID;
 	console.log(req.session);
         
@@ -106,7 +95,7 @@ app.post('/processBotUpload',function(req,res){
 				console.log("db " + db[id] + " is null.\n");
 				db[id].sock.emit('status', {'output': "Error: Please refresh the page."});
 			}		
-    }
+//    }
     res.end();
 });
 
