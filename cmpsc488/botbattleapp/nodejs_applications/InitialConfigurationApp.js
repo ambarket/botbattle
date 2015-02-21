@@ -12,6 +12,8 @@
 */
 function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
+  var fileManager = new (require('./FileManager'));
+  
   /**
   *  An object containing all fields submitted in the initial configuration form after sanitization.
   *  @property sanitizedFormData
@@ -171,12 +173,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       });
 	  
 	  initConfigAppServer.addDynamicRoute('get', '/folderTest',function(req,res){
-	    var fileManager = new (require('./FileManager'));
-	    console.log(fileManager);
         fileManager.createFolder(req.query.path, function(result){
-          console.log("emmiting self");
-          console.log("initConfigAppServer is " + initConfigAppServer);
-          console.log(initConfigAppServer.emitOverSocketIO);
           initConfigAppServer.emitOverSocketIO('folderCreatedResult', result);
         });
       });
