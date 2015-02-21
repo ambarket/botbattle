@@ -12,7 +12,7 @@
 */
 function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
-  var fileManager = new (require('./FileManager'));
+  var fileManager = new (require('./FileManager'))();
   
   /**
   *  An object containing all fields submitted in the initial configuration form after sanitization.
@@ -70,7 +70,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initDatabaseTask(callback) {
-    BotBattleDatabase = require('./botBattleDatabase');
+    var BotBattleDatabase = require('./botBattleDatabase'); 
     
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);
@@ -178,6 +178,12 @@ function InitialConfigurationApp(initConfigAppServer) {
         });
       });
 	  
+	  initConfigAppServer.addDynamicRoute('get', '/fileTest',function(req,res){
+        fileManager.createFile(req.query.path, function(result){
+          initConfigAppServer.emitOverSocketIO('fileCreatedResult', result);
+        });
+      });
+	  
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration', function(req, res) {
       console.log(JSON.stringify(req.body));
       var sanitizer=require('sanitizer');
@@ -187,7 +193,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         databaseName: sanitizer.sanitize(req.body.databaseName),
         databaseUserName: sanitizer.sanitize(req.body.databaseUserName),
         databasePassword: sanitizer.sanitize(req.body.databasePassword),    
-      }
+      };
       console.log(JSON.stringify(sanitizedFormData));
 
       executeAllInitialConfigurationTasksInSequence();
