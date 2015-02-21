@@ -20,8 +20,12 @@ var socketIO = io.connect()
     document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
   })
   .on('folderCreatedResult', function(result) {
-    console.log("called folder crap in client");
     document.getElementById('folderCreated').innerHTML = result;
+    $('#submitFolder').show();
+  })
+  .on('fileCreatedResult', function(result) {
+    document.getElementById('fileCreated').innerHTML = result;
+    $('#submitFile').show();
   });
 
 // Submit the form via an ajax request.
@@ -42,11 +46,24 @@ form.addEventListener('submit', function(ev) {
   ev.preventDefault();
 }, false);
 
-// create file on server
+// create folder on server
 $(document).ready(function(){
   $('#submitFolder').click(function(e){
       var Req = new XMLHttpRequest();
       Req.open("GET", "folderTest?path=" + document.getElementById("folderCreate").value, true);
       Req.send();
+      $('#submitFolder').hide();
+      document.getElementById('folderCreated').innerHTML = "Waiting on call back";
+  });
+});
+
+//create file on server
+$(document).ready(function(){
+  $('#submitFile').click(function(e){
+      var Req = new XMLHttpRequest();
+      Req.open("GET", "fileTest?path=" + document.getElementById("fileCreate").value, true);
+      Req.send();
+      $('#submitFile').hide();
+      document.getElementById('fileCreated').innerHTML = "Waiting on call back";
   });
 });
