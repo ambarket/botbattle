@@ -169,7 +169,18 @@ function InitialConfigurationApp(initConfigAppServer) {
 	  initConfigAppServer.addDynamicRoute('get', '/',function(req,res){
         res.sendFile(__dirname + '/static/initialConfiguration.html');
       });
-
+	  
+	  initConfigAppServer.addDynamicRoute('get', '/folderTest',function(req,res){
+	    var fileManager = new (require('./FileManager'));
+	    console.log(fileManager);
+        fileManager.createFolder(req.query.path, function(result){
+          console.log("emmiting self");
+          console.log("initConfigAppServer is " + initConfigAppServer);
+          console.log(initConfigAppServer.emitOverSocketIO);
+          initConfigAppServer.emitOverSocketIO('folderCreatedResult', result);
+        });
+      });
+	  
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration', function(req, res) {
       console.log(JSON.stringify(req.body));
       var sanitizer=require('sanitizer');

@@ -18,6 +18,10 @@ var socketIO = io.connect()
   })
   .on('config_error', function(err) {
     document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
+  })
+  .on('folderCreatedResult', function(result) {
+    console.log("called folder crap in client");
+    document.getElementById('folderCreated').innerHTML = result;
   });
 
 // Submit the form via an ajax request.
@@ -37,3 +41,12 @@ form.addEventListener('submit', function(ev) {
   };
   ev.preventDefault();
 }, false);
+
+// create file on server
+$(document).ready(function(){
+  $('#submitFolder').click(function(e){
+      var Req = new XMLHttpRequest();
+      Req.open("GET", "folderTest?path=" + document.getElementById("folderCreate").value, true);
+      Req.send();
+  });
+});
