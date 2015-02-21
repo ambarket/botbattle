@@ -11,20 +11,27 @@ module.exports = function FileManager() {
     var fs = require('fs');
     var self = this;
     
-     //  create folder
-        this.createFolder = function(path, callback){
-            fs.mkdir(path, function(err){
-              if (err) {
-                console.log("Error creating directory: " + err);
-                callback("Failure to create folder.");
-              }
-              else{
-                console.log("Created " + path);
-                console.log("filemanager callback " + callback);
-                callback("Folder creation successful.");
-              }
-            });
-          };
+    /**
+     * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback
+     * to return the success or fail message.
+     * @method createFolder
+     * @param {String} path - absolute path for folder to be created
+     * @param {Function} callback(result) - used to return the result of the folder creation 
+     * @public
+     */
+    this.createFolder = function(path, callback){
+      //can udate to take modes for file with POSIX (ignored on windows) or use fs. mod commands
+       fs.mkdir(path, function(err){
+          if (err) {
+            console.log("Error creating directory: " + err);
+            callback("Error creating directory: " + err);
+          }
+          else{
+            console.log("Created " + path);
+            callback("Created " + path);
+          }
+       });
+     };
        
      // when testing this the page kept trying to submit the folder periodically and new sockets kept getting created     
      // this method is async so multiple button pushes are bad.  Can look for file before is it created.  sync is io blocking
