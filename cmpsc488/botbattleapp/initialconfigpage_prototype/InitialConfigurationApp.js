@@ -163,11 +163,12 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   (function registerInitialConfigurationRoutes() {
-    initConfigAppServer.expressApp.get('/',function(req,res){
-      res.sendFile(__dirname + '/static/initialConfiguration.html');
-    });
+   
+	  initConfigAppServer.addDynamicRoute('get', '/',function(req,res){
+        res.sendFile(__dirname + '/static/initialConfiguration.html');
+      });
 
-    initConfigAppServer.expressApp.post('/processInitialConfiguration', function(req, res) {
+    initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration', function(req, res) {
       console.log(JSON.stringify(req.body));
       var sanitizer=require('sanitizer');
       sanitizedFormData = {

@@ -12,7 +12,7 @@ var sanitizer=require('sanitizer');
 var spawn = require('child_process').spawn;
 
 //app.use('/basicInOutErr(.html)?', express.static(__dirname + '/static/basicInOutErr.html'));
-app.get('/',function(req,res){
+botBattleAppServer.addDynamicRoute('get', '/',function(req,res){
       res.sendFile(__dirname + '/static/basicInOutErr.html');
 });
 
@@ -58,7 +58,7 @@ var filePath = null;
 /*Handling routes.*/
 
 
-app.post('/processBotUpload',function(req,res){
+botBattleAppServer.addDynamicRoute('post', '/processBotUpload',function(req,res){
     //if(done==true){
         var id = req.body.theID;
 	console.log(req.session);
@@ -99,7 +99,7 @@ app.post('/processBotUpload',function(req,res){
     res.end();
 });
 
-app.get('/compileBot', function(req,res) { 
+botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) { 
         console.log("compilebot: " + req.query.id +"\n");
         var id = req.query.id;
         if (db[id] != undefined)
@@ -109,9 +109,10 @@ app.get('/compileBot', function(req,res) {
 				{
 					db[id].compile = spawn('g++', [db[id].filePath, '-o'+db[id].filePath+'.out']); // should warn users if they don't have the compuler
 				}
-				else
+				else if (db[id].language == 'java')
 				{
-					db[id].compile = spawn('javac', [db[id].filePath]); // compiler ware here too
+					db[id].compile = spawn('javac', [__dirname + '\\' + db[id].filePath]); // compiler ware here too
+					console.log(__dirname + '\\' + db[id].filePath);
 				}
 			}
 			else{
@@ -148,7 +149,7 @@ app.get('/compileBot', function(req,res) {
     res.end();
 });
 
-app.get('/runBot', function(req, res) 
+botBattleAppServer.addDynamicRoute('get', '/runBot', function(req, res) 
 {
         console.log("runbot: " + req.query.id);
         var id = req.query.id;
@@ -210,7 +211,7 @@ app.get('/runBot', function(req, res)
     res.end();
 });
 
-app.get('/reloadBot', function(req, res) 
+botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res) 
 {
 	
 	var id = req.query.id;
@@ -276,7 +277,7 @@ app.get('/reloadBot', function(req, res)
     res.end();
 });
 
-app.get('/killChild', function(req, res) {
+botBattleAppServer.addDynamicRoute('get', '/killChild', function(req, res) {
         var id = req.query.id;
         if (db[id] != undefined)
         {

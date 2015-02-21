@@ -12,8 +12,9 @@ module.exports = function BotBattleServer() {
    * 
    * @property expressApp
    * @type {Object}
+   * @private
    */
-  this.expressApp = null;
+  var expressApp = null;
 
   /**
    * An instance of the https module used to listen and serve requests.
@@ -50,14 +51,14 @@ module.exports = function BotBattleServer() {
    * @return The initialized and started BotBattleServer object
    */
   this.initAndStartListening = function(port) {
-    self.expressApp = require('express')();
+    expressApp = require('express')();
     registerCommonMiddleware();
     registerCommonRoutes();
     
     var https = require('https');
     var fs = require('fs');
     var options = { key : fs.readFileSync('server.key'), cert : fs.readFileSync('server.crt') };
-    self.httpsServer = https.createServer(options, self.expressApp).listen(port);
+    self.httpsServer = https.createServer(options, expressApp).listen(port);
     
     self.socketIO = require('socket.io').listen(self.httpsServer);
     
@@ -82,9 +83,50 @@ module.exports = function BotBattleServer() {
     self.httpsServer.close(function(err) {
       self.socketIO = null;
       self.server = null;
-      self.expressApp = null;
+      expressApp = null;
       callback(err);
     });
+  }
+  
+  /**
+   * Requests to the specified url will be routed to the static file 
+   * or directory specified in relativePath
+   * 
+   * @param {String} url 
+   * @param {String} relativePath 
+   * @method addStaticRoute
+   */
+  this.addStaticRoute = function(url, relativePath) {
+	  expressApp.use(url, require('express').static(__dirname + relativePath));
+  }
+  
+  /**
+   * Requests to the specified url and method will be processed by 
+   * the specified callback or directory specified in relativePath.
+   * 
+   * @param {String} method Either 'get' or 'post' 
+   * @param {String} url 
+   * @param {Function} callback Callback with signature function(req, res)
+   * @method addStaticRoute
+   */
+  this.addDynamicRoute = function(method, url, callback) {
+    method = method.toLowerCase(method);
+    if (method == 'get' || method == 'post') {
+      expressApp[method](url, callback);
+    }
+    else {
+      console.log("Failed to add dynamic route to " + method + ":" + url);
+    }
+  }
+  
+  /**
+   * Adds the specified middleware to the express stack.
+   * 
+   * @param {Function} middleware function suitable for use as express middleware.
+   * @method addStaticRoute
+   */
+  this.addMiddleware = function(middleware) {
+    expressApp.use(middleware);
   }
   
   
@@ -107,18 +149,18 @@ module.exports = function BotBattleServer() {
       resave : true,
       saveUninitialized : true
     });
-    self.expressApp.use(sessionStore);
+    expressApp.use(sessionStore);
 
     // Add body-parser
     var bodyParser = require('body-parser');
-    self.expressApp.use(bodyParser.json());
-    self.expressApp.use(bodyParser.urlencoded({
+    self.addMiddleware(bodyParser.json());
+    self.addMiddleware(bodyParser.urlencoded({
       extended : true
     }));
     
     // Add multer
     var multer = require('multer');
-    self.expressApp.use(multer({
+    self.addMiddleware(multer({
       dest : './uploads/',
       rename : function(fieldname, filename) {
         return filename;
@@ -135,17 +177,17 @@ module.exports = function BotBattleServer() {
    */
   function registerCommonRoutes() {
     // Log every incoming request, then pass along for further processing
-    self.expressApp.use(function(req, res, next) {
+    self.addMiddleware(function(req, res, next) {
       console.log('%s %s', req.method, req.url);
       next();
     });
 
     var express = require('express');
     // Serve static css files
-    self.expressApp.use('/static/css', express.static(__dirname + '/static/css/'));
+    self.addStaticRoute('/static/css', '/static/css/');
     
     // Serve static javascript files
-    self.expressApp.use('/static/javascript', express.static(__dirname + '/static/javascript/'));
+    self.addStaticRoute('/static/javascript', '/static/javascript/');
   }
 }
 
