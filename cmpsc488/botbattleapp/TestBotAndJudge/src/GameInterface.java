@@ -12,4 +12,5 @@ public interface GameInterface {
 	boolean isValidMove(String move);
 	boolean isGameOver();
 	String getHTMLForBoard();
+	
 }
