@@ -92,7 +92,7 @@ Then run this to create and associate the user that the app should connect with 
 ##windows mongodb 
 http://docs.mongodb.org/manual/tutorial/install-mongodb-on-windows/
 
-    C:\mongodb\bin\mongod.exe --dbpath d:\test\mongodb\data
+    mongod.exe --dbpath K:\mongodb\data
 
 
 
