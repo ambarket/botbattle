@@ -121,7 +121,7 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
             {
 	            db[id].compile.on('close', function (code) 
 	            {
-			        if (code !=== 0) {
+			        if (code !== 0) {
 		                db[id].sock.emit('status', {'output': "Compilation failed with error code " + code});
 			        }
 			        else
@@ -150,11 +150,11 @@ botBattleAppServer.addDynamicRoute('get', '/runBot', function(req, res)
 {
         console.log("runbot: " + req.query.id);
         var id = req.query.id;
-        if (db[id] != undefined)
+        if (db[id])
         {
-            if (db[id].run === null)
+            if (!db[id].run)
             {
-				if(db[id].filePath != null){
+				if(db[id].filePath){
 					if (db[id].language === 'cpp')
 					{
 						db[id].run  = spawn(db[id].filePath + '.out');
@@ -212,7 +212,7 @@ botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res)
 {
 	
 	var id = req.query.id;
-	if (db[id] != undefined)
+	if (db[id])
 	{
 		console.log("End Child: " + db[req.query.id].run.pid +"\n");
 		db[id].run.stdin.pause();
@@ -220,9 +220,9 @@ botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res)
 		db[id].run = null;
 		db[id].sock.emit('status', {'output': "Child dead."}); 
 			
-		if (db[id].run === null)
+		if (!db[id].run)
 		{			
-			if(db[id].filePath != null)
+			if(db[id].filePath)
 			{
 				if (db[id].language === 'cpp')
 				{
@@ -276,13 +276,13 @@ botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res)
 
 botBattleAppServer.addDynamicRoute('get', '/killChild', function(req, res) {
         var id = req.query.id;
-        if (db[id] != undefined)
+        if (db[id])
         {
 			console.log("\nUser disconnected");
 			console.log("Assigned id " + id +"\n");
 			console.log("User id: " + db[id].sock.id);
 				
-            if (db[id].run != null)
+            if (db[id].run)
             {    		        
 				//console.log(db[id]);
 				console.log("End Child: " + db[req.query.id].run.pid +"\n");
