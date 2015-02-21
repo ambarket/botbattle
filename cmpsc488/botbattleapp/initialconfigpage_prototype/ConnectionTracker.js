@@ -5,12 +5,14 @@
  * @param {Object} server The instance of https to track.
  */
 module.exports = function ConnectionTracker(server) {
-  //TODO Use a better datastruture than an array to avoid explosion 
+  
+  //TODO Use a better data structure than an array to avoid explosion 
   //        of unused space resulting from former sockets closing
   
   // Private member to store the sockets
   var sockets = {}, nextSocketId = 0;
   server.on('connection', function(socket) {
+    
     // Add a newly connected socket
     var socketId = nextSocketId++;
     sockets[socketId] = socket;

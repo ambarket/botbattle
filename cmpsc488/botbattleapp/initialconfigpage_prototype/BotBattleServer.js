@@ -6,40 +6,10 @@
 */
 module.exports = function BotBattleServer() {
   var self = this;
-  
-  /**
-   * An instance of express() used to route requests to this server.
-   * 
-   * @property expressApp
-   * @type {Object}
-   * @private
-   */
   var expressApp = null;
-
-  /**
-   * An instance of the https module used to listen and serve requests.
-   * 
-   * @property httpsServer
-   * @type {Object}
-   */
-  this.httpsServer = null;
-  
-  /**
-   * An instance of socket.io module used for bidirectional communication with web clients.
-   * 
-   * @property socketIO
-   * @type {Object}
-   */
-  this.socketIO = null;
-  
-  /**
-   * An instance of ConnectionTracker module used to retain references to all connected clients
-   *    in case they are needed at a later time.
-   * 
-   * @property connectionTracker
-   * @type {Object}
-   */
-  this.connectionTracker = null;
+  var httpsServer = null;
+  var socketIO = null;  
+  var connectionTracker = null;
   
   /**
    * Initialize the expressApp, httpsServer, socketIO, and connectionTracker properties 
@@ -58,11 +28,11 @@ module.exports = function BotBattleServer() {
     var https = require('https');
     var fs = require('fs');
     var options = { key : fs.readFileSync('server.key'), cert : fs.readFileSync('server.crt') };
-    self.httpsServer = https.createServer(options, expressApp).listen(port);
+    httpsServer = https.createServer(options, expressApp).listen(port);
     
-    self.socketIO = require('socket.io').listen(self.httpsServer);
+    socketIO = require('socket.io').listen(httpsServer);
     
-    self.connectionTracker = new (require('./ConnectionTracker'))(self.httpsServer);
+    connectionTracker = new (require('./ConnectionTracker'))(httpsServer);
     
     return self;
   }
@@ -78,10 +48,10 @@ module.exports = function BotBattleServer() {
     // Destroy all open connections to server, but wait a little to allow any last minute 
     //  messages to get through to the client. 
     // This is necessary in order to ensure the httpsServer.close event will actually fire.
-    setTimeout(function() { self.connectionTracker.closeAllConnections(); }, 2000);
+    setTimeout(function() {connectionTracker.closeAllConnections(); }, 2000);
     
-    self.httpsServer.close(function(err) {
-      self.socketIO = null;
+    httpsServer.close(function(err) {
+      socketIO = null;
       self.server = null;
       expressApp = null;
       callback(err);
@@ -107,7 +77,7 @@ module.exports = function BotBattleServer() {
    * @param {String} method Either 'get' or 'post' 
    * @param {String} url 
    * @param {Function} callback Callback with signature function(req, res)
-   * @method addStaticRoute
+   * @method addDynamicRoute
    */
   this.addDynamicRoute = function(method, url, callback) {
     method = method.toLowerCase(method);
@@ -123,12 +93,33 @@ module.exports = function BotBattleServer() {
    * Adds the specified middleware to the express stack.
    * 
    * @param {Function} middleware function suitable for use as express middleware.
-   * @method addStaticRoute
+   * @method addMiddleware
    */
   this.addMiddleware = function(middleware) {
     expressApp.use(middleware);
   }
   
+  /**
+   * Emits the message over this servers socket.io
+   * 
+   * @param {String} event Event to fire.
+   * @param {Object} data Object to be passed.
+   * @method emitOverSocketIO
+   */
+  this.emitOverSocketIO = function(event, data) {
+    socketIO.emit(event, data);
+  }
+  
+  /**
+   * Register a callback to process the data on the event.
+   * 
+   * @param {String} event Event to be processed.
+   * @param {Function} callback Callback with the prototype "function(data)" 
+   * @method onReceiveSocketIO
+   */
+  this.onReceiveSocketIO = function(event, callback) {
+    socketIO.on(event, callback);
+  }
   
   /**
    * Create and register instances of the following middleware to this object's expressApp property
