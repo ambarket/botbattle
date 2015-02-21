@@ -12,14 +12,20 @@ module.exports = function FileManager() {
     var self = this;
     
     /* 
-     *  create file
-     *  create folder
-     *  read file
-     *  read folder
-     *  perhaps relate funtions to users instead of just set or get
-    // Create Game Modules Directory
-    // Create Private Tournament Directory
-    // Create Public Tournaments Directory
-    // Create Test Arenas Tmp Directory 
+       create file
+       create folder
+       read file
+       read folder
+       perhaps relate funtions to users instead of just set or get
+       
+       Create Game Modules Directory
+       Create Private Tournament Directory
+       Create Public Tournaments Directory
+       Create Test Arenas Tmp Directory 
+    
+       Setup the Game Module
+       Create sub directory in Game Modules
+       Save the Game.java file
+       Save the rules.pdf file
      */
 };
