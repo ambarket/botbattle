@@ -98,7 +98,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      
      this.insertThenFindUnitTest = function(collectionName) {
        console.log("Running simple unit test of DB connection, insertion, and retrieval...");
-       if (databaseClient == null) {
+       if (databaseClient === null) {
          console.log("You haven't called connect yet!");
        }
        else {

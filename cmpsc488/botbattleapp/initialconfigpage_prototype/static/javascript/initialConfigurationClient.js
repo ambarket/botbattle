@@ -11,7 +11,7 @@ var socketIO = io.connect()
         count--;
         document.getElementById('message').innerHTML = "Configuration Successful!<br>The page will reload in "
             + count + " seconds and take you to the Public Portal";
-        if (count == 0) {
+        if (count === 0) {
           location.reload();
         }
       }, 1000);
@@ -29,7 +29,7 @@ form.addEventListener('submit', function(ev) {
   req.send(theForm);
 
   req.onload = function(event) {
-    if (req.status == 200) {
+    if (req.status === 200) {
       console.log("onload");
     } else {
       console.log("error onload");

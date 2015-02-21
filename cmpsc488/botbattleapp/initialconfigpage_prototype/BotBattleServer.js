@@ -81,7 +81,7 @@ module.exports = function BotBattleServer() {
    */
   this.addDynamicRoute = function(method, url, callback) {
     method = method.toLowerCase(method);
-    if (method == 'get' || method == 'post') {
+    if (method === 'get' || method === 'post') {
       expressApp[method](url, callback);
     }
     else {

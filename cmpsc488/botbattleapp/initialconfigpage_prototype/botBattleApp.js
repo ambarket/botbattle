@@ -102,11 +102,11 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
         if (db[id] != undefined)
         {
 			if(db[id].filePath != null){
-				if (db[id].language == 'cpp')
+				if (db[id].language === 'cpp')
 				{
 					db[id].compile = spawn('g++', [db[id].filePath, '-o'+db[id].filePath+'.out']); // should warn users if they don't have the compuler
 				}
-				else if (db[id].language == 'java')
+				else if (db[id].language === 'java')
 				{
 					db[id].compile = spawn('javac', [__dirname + '\\' + db[id].filePath]); // compiler ware here too
 					console.log(__dirname + '\\' + db[id].filePath);
@@ -121,7 +121,7 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
             {
 	            db[id].compile.on('close', function (code) 
 	            {
-			        if (code !== 0) {
+			        if (code !=== 0) {
 		                db[id].sock.emit('status', {'output': "Compilation failed with error code " + code});
 			        }
 			        else
@@ -152,10 +152,10 @@ botBattleAppServer.addDynamicRoute('get', '/runBot', function(req, res)
         var id = req.query.id;
         if (db[id] != undefined)
         {
-            if (db[id].run == null)
+            if (db[id].run === null)
             {
 				if(db[id].filePath != null){
-					if (db[id].language == 'cpp')
+					if (db[id].language === 'cpp')
 					{
 						db[id].run  = spawn(db[id].filePath + '.out');
 						db[id].sock.emit('status', {'output': "Running the compiled program"});
@@ -220,11 +220,11 @@ botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res)
 		db[id].run = null;
 		db[id].sock.emit('status', {'output': "Child dead."}); 
 			
-		if (db[id].run == null)
+		if (db[id].run === null)
 		{			
 			if(db[id].filePath != null)
 			{
-				if (db[id].language == 'cpp')
+				if (db[id].language === 'cpp')
 				{
 					db[id].run  = spawn(db[id].filePath + '.out');
 					db[id].sock.emit('status', {'output': "Running the compiled program"});
