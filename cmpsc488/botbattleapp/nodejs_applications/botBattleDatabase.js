@@ -22,7 +22,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @method getDatabaseClient
      * @return A reference to the MongoDB client of this BotBattleDatabase.
      */
-    this.getDatabaseClient = function() { return databaseClient;}
+    this.getDatabaseClient = function() { return databaseClient;};
     
     /**
      * Upon successful completion, a reference to this BotBattleDatabase object, containing a
@@ -42,7 +42,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           callback(err, (err) ? null : self );
         }
       );              
-    }
+    };
     
     /**
      * Upon successful completion, a connected MongoClient object will be passed as an argument
@@ -55,7 +55,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     {
       var MongoClient = require('mongodb').MongoClient;
       MongoClient.connect(url, {native_parser:true}, callback);
-    };
+    }
     
     /**
      * Upon successful completion, the private databaseClient property will be set to a
@@ -74,25 +74,25 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         }
         callback(err);
       });
-    };
+    }
     
     this.close = function () {
       databaseClient.close();
-    }
+    };
     
     this.queryTournament = function(tournamentName) {
       if (databaseClient)
       {
         // Perform the query
       }
-    }
+    };
     
      this.insertTournament = function(tournamentMetadata) {
         if (databaseClient)
         {
           // Perform the insert
         }
-      }
+      };
     // ... and so on
     
      
@@ -134,7 +134,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
              }
            });
          }
-     }
+     };
 };
 
 

@@ -12,6 +12,8 @@
 */
 function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
+  var fileManager = new (require('./FileManager'))();
+  
   /**
   *  An object containing all fields submitted in the initial configuration form after sanitization.
   *  @property sanitizedFormData
@@ -68,7 +70,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initDatabaseTask(callback) {
-    BotBattleDatabase = require('./botBattleDatabase');
+    var BotBattleDatabase = require('./botBattleDatabase'); 
     
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);
@@ -86,6 +88,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initFileSystemTask(callback) {
     self.emit('progress_update', 20);
     //TODO Implement
+    // Call FileManager to handle
     // Create Game Modules Directory
     // Create Private Tournament Directory
     // Create Public Tournaments Directory
@@ -127,11 +130,12 @@ function InitialConfigurationApp(initConfigAppServer) {
     self.emit('progress_update', 60);
   //TODO Implement
     //Setup the Game Module
+    // Call FileManager to handle
     // Create sub directory in Game Modules
         // Save the Game.java file
         // Save the rules.pdf file
 
-    // Compile the Game Module (resulting .class shoudl stay in the Game Module
+    // Compile the Game Module (resulting .class should stay in the Game Module
     // sub directory)
     
     // Store an entry in the DB for the Game Module
@@ -167,7 +171,19 @@ function InitialConfigurationApp(initConfigAppServer) {
 	  initConfigAppServer.addDynamicRoute('get', '/',function(req,res){
         res.sendFile(__dirname + '/static/initialConfiguration.html');
       });
-
+	  
+	  initConfigAppServer.addDynamicRoute('get', '/folderTest',function(req,res){
+        fileManager.createFolder(req.query.path, function(result){
+          initConfigAppServer.emitOverSocketIO('folderCreatedResult', result);
+        });
+      });
+	  
+	  initConfigAppServer.addDynamicRoute('get', '/fileTest',function(req,res){
+        fileManager.createFile(req.query.path, function(result){
+          initConfigAppServer.emitOverSocketIO('fileCreatedResult', result);
+        });
+      });
+	  
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration', function(req, res) {
       console.log(JSON.stringify(req.body));
       var sanitizer=require('sanitizer');
@@ -177,7 +193,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         databaseName: sanitizer.sanitize(req.body.databaseName),
         databaseUserName: sanitizer.sanitize(req.body.databaseUserName),
         databasePassword: sanitizer.sanitize(req.body.databasePassword),    
-      }
+      };
       console.log(JSON.stringify(sanitizedFormData));
 
       executeAllInitialConfigurationTasksInSequence();
