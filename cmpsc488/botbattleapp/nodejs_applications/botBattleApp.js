@@ -37,7 +37,7 @@ botBattleAppServer.onReceiveSocketIO('connection', function(socket){  // if a bo
        //io.sockets.on('error', function(err) { console.log(err); });
        socket.on('error', function(err) { console.log(err); });
        socket.on('stdin', function(data){
-			if (db[data.id].run != null)
+			if (db[data.id].run)
 			{
 				db[data.id].run.stdin.write(data.input + '\n');
 			}
@@ -60,17 +60,17 @@ botBattleAppServer.addDynamicRoute('post', '/processBotUpload',function(req,res)
         var id = req.body.theID;
 	console.log(req.session);
         
-        if (db[id] != undefined)
+        if (db[id])
         {
             db[id].filePath = req.files.fileInput.path;
             var javaRE = /.*\.java/;
             var cppRE = /(.*\.cpp)|(.*\.cxx)/;
 			
-            if (db[id].filePath.match(javaRE) != null)
+            if (db[id].filePath.match(javaRE))
             {
                 db[id].language = 'java';
             }
-            else if (db[id].filePath.match(cppRE) != null)
+            else if (db[id].filePath.match(cppRE))
             {
                 db[id].language = 'cpp';
             }
@@ -79,7 +79,7 @@ botBattleAppServer.addDynamicRoute('post', '/processBotUpload',function(req,res)
                 db[id].sock.emit('status', {'output': "File must end in .cpp, .cxx, or .java"});
             }
 			
-			if(db[id].filePath != null){
+			if(db[id].filePath){
 				db[id].sock.emit('uploaded', {'output': "File uploaded to " + db[id].filePath});
 				console.log("uploadbot: " + id +"\n");
 			}
@@ -99,9 +99,9 @@ botBattleAppServer.addDynamicRoute('post', '/processBotUpload',function(req,res)
 botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) { 
         console.log("compilebot: " + req.query.id +"\n");
         var id = req.query.id;
-        if (db[id] != undefined)
+        if (db[id])
         {
-			if(db[id].filePath != null){
+			if(db[id].filePath){
 				if (db[id].language === 'cpp')
 				{
 					db[id].compile = spawn('g++', [db[id].filePath, '-o'+db[id].filePath+'.out']); // should warn users if they don't have the compuler
@@ -117,7 +117,7 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
 				db[id].sock.emit('status', {'output': "Error: File is null. Upload the file again."});
 			}
 			
-            if (db[id].compile != null)
+            if (db[id].compile)
             {
 	            db[id].compile.on('close', function (code) 
 	            {
