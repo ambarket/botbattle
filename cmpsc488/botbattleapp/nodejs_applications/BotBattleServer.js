@@ -68,7 +68,7 @@ module.exports = function BotBattleServer() {
    */
   this.addStaticRoute = function(url, relativePath) {
 	  expressApp.use(url, require('express').static(__dirname + relativePath));
-  }
+  };
   
   /**
    * Requests to the specified url and method will be processed by 
@@ -87,7 +87,7 @@ module.exports = function BotBattleServer() {
     else {
       console.log("Failed to add dynamic route to " + method + ":" + url);
     }
-  }
+  };
   
   /**
    * Adds the specified middleware to the express stack.
@@ -97,7 +97,7 @@ module.exports = function BotBattleServer() {
    */
   this.addMiddleware = function(middleware) {
     expressApp.use(middleware);
-  }
+  };
   
   /**
    * Emits the message over this servers socket.io
@@ -108,7 +108,7 @@ module.exports = function BotBattleServer() {
    */
   this.emitOverSocketIO = function(event, data) {
     socketIO.emit(event, data);
-  }
+  };
   
   /**
    * Register a callback to process the data on the event.
@@ -119,7 +119,7 @@ module.exports = function BotBattleServer() {
    */
   this.onReceiveSocketIO = function(event, callback) {
     socketIO.on(event, callback);
-  }
+  };
   
   /**
    * Create and register instances of the following middleware to this object's expressApp property
