@@ -25,7 +25,7 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
     console.log('socket', socketId, 'opened');
 
     // Remove the socket when it closes
-    socket.on('close', function() {
+    socket.on('disconnect', function() {
       console.log('socket', socketId, 'closed');
       delete sockets[socketId];
     });
