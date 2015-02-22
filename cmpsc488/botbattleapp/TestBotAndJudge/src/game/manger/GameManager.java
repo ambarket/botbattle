@@ -50,5 +50,8 @@ public class GameManager implements Runnable {
 			i++;
 		}
 	}
-
+	
+	public String getHTMLForEntireGame(){ //TODO implement getHTML function in gameManager
+		return null;
+	}
 }
