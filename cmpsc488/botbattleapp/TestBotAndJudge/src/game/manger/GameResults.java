@@ -13,7 +13,7 @@ public class GameResults {
 		boards = new ArrayList<String>();
 		player1Moves = new ArrayList<String>();
 		player2Moves = new ArrayList<String>();
-		winner = -1; //TODO use enumeration
+		winner = -1; //TODO use enumeration for players
 	}
 	
 	public void addMove(String move, int player){
@@ -35,5 +35,8 @@ public class GameResults {
 		this.winner = winner;
 	}
 	
-	
+	public String toJSONobject(){
+		return null;
+		//TODO implement toJSON function in game results
+	}
 }
