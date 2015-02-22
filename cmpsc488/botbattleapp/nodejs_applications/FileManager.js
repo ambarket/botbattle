@@ -8,7 +8,7 @@
 // BotBattleApp with multer to limit file upload size
 module.exports = function FileManager() {
     // Private variables
-    var fs = require('fs');
+    var fs = require('fs-extra');
     var self = this;
     var fileManager = require('./FileManager');
     
