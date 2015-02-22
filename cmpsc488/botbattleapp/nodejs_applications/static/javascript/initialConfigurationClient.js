@@ -1,14 +1,42 @@
 // Listen for notifications of the status of the initial configuration.
 var socketIO = io.connect();
-
-// Separated io.connect() from socket.on('connect', ...) and others as suggested by
-// https://github.com/Automattic/socket.io/issues/430#issuecomment-7261120 
-// I have a feeling this isn't the whole problem but worth a shot.
-socket.on('connect', function() {
-  console.log('User connected!');
+console.log(socketIO);
+//Separated io.connect() from socket.on('connect', ...) and others as suggested by
+//https://github.com/Automattic/socket.io/issues/430#issuecomment-7261120 
+//I have a feeling this isn't the whole problem but worth a shot.
+// Added just about all client side callbacks defined here
+//http://socket.io/docs/client-api/
+// After examining the id's in each of the socketIO's they are all the same all the way through
+//  connect, reconnecting, reconnect, and connect are you sure its not fixed?
+socketIO.on('connect', function() {
+  console.log('socketIO connected!');
+  console.log(socketIO);
 })
 
-socket.on('progress_update', function(progress) {
+socketIO.on('error', function(err) {
+  console.log('socketIO error! ' + err.message);
+  console.log(socketIO);
+})
+socketIO.on('reconnect', function() {
+  console.log('socketIO reconnect!');
+  console.log(socketIO);
+})
+socketIO.on('reconnecting', function(number) {
+  console.log('socketIO reconnecting! attempt# ' + number);
+  console.log(socketIO);
+})
+socketIO.on('reconnect_error', function(err) {
+  console.log('socketIO reconnect error! ' + err.message);
+  console.log(socketIO);
+})
+
+
+socketIO.on('disconnect', function() {
+  console.log('socketIO disconnect!');
+  console.log(socketIO);
+})
+
+socketIO.on('progress_update', function(progress) {
     $('#progress').val(progress);
   })
   .on('config_success', function(data) {

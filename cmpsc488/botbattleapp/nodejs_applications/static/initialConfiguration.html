@@ -9,7 +9,7 @@
 </head>
 <body class="centered">
 	<p id="message"></p>
-	<form id="initConfigForm" enctype="multipart/form-data" method="POST">
+	<form id="initConfigForm" enctype="multipart/form-data"">
 		<!-- <b>Upload:</b> <input type="file" required name="fileInput"> -->
 
 		<div class="form-group">
@@ -80,7 +80,10 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
-<script defer="defer" src="/static/javascript/initialConfigurationClient.js"></script>
+<!--  Seemed like trying to defer this script actually caused the io referercen error in the browser
+      and also may have resulting is some weird behavior of socket.io.
+ -->
+<script src="/static/javascript/initialConfigurationClient.js"></script>
 
 
 </html>
