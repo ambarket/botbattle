@@ -5,15 +5,11 @@
  * @param {Object} server The instance of https to track.
  */
 
-module.exports = function ConnectionTracker(server) {
+module.exports = function HttpsServerConnectionTracker(server) {
   
   // https://auth0.com/blog/2014/01/15/auth-with-socket-io/
   // http://socket.io/docs/rooms-and-namespaces/
   // https://github.com/Automattic/socket.io/wiki/Authorizing
-  
-  
-  //TODO Use a better data structure than an array to avoid explosion 
-  //        of unused space resulting from former sockets closing
   
   // Private member to store the sockets
   var sockets = {}, nextSocketId = 0;

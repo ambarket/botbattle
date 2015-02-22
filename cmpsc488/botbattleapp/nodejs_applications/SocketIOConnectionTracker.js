@@ -11,10 +11,6 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
   // http://socket.io/docs/rooms-and-namespaces/
   // https://github.com/Automattic/socket.io/wiki/Authorizing
   
-  
-  //TODO Use a better data structure than an array to avoid explosion 
-  //        of unused space resulting from former sockets closing
-  
   // Private member to store the sockets
   var sockets = {};
   socketIO.on('connection', function(socket) {
@@ -22,14 +18,15 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
     // Add a newly connected socket
     var socketId = socket.id;
     sockets[socketId] = socket;
-    console.log('socket', socketId, 'opened');
+    console.log('socket', socketId, 'connection');
 
     // Remove the socket when it closes
     socket.on('disconnect', function() {
-      console.log('socket', socketId, 'closed');
+      console.log('socket', socketId, 'disconnect');
       delete sockets[socketId];
-    });
+    })
   });
+  
   
   /**
   * @method getConnections

@@ -9,7 +9,8 @@ module.exports = function BotBattleServer() {
   var expressApp = null;
   var httpsServer = null;
   var socketIO = null;  
-  var connectionTracker = null;
+  var httpsServerconnectionTracker = null;
+  var socketIOConnectionTracker = null;
   
   /**
    * Initialize the expressApp, httpsServer, socketIO, and connectionTracker properties 
@@ -32,8 +33,8 @@ module.exports = function BotBattleServer() {
     
     socketIO = require('socket.io').listen(httpsServer);
     
-    connectionTracker = new (require('./ConnectionTracker'))(httpsServer);
-    SocketIOConnectionTracker = new (require('./SocketIOConnectionTracker'))(socketIO);
+    httpsServerconnectionTracker = new (require('./HttpsServerConnectionTracker'))(httpsServer);
+    socketIOConnectionTracker = new (require('./SocketIOConnectionTracker'))(socketIO);
     
     return self;
   }
