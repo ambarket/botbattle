@@ -4,10 +4,15 @@ package game.manger;
  * @author Randall Hudson
  *
  */
-public class Game implements GameInterface {
+public class SaveTheIslandGame implements GameInterface {
 	
 	private String board;
 	
+	public SaveTheIslandGame() {
+		//TODO:
+		this.board = "";
+	}
+
 	/* (non-Javadoc)
 	 * @see game.manger.GameInterface#getBoard()
 	 */
