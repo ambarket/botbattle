@@ -26,4 +26,14 @@ public class GameResults {
 	public void addBoard(String board){
 		boards.add(board);
 	}
+
+	public int getWinner() {
+		return winner;
+	}
+
+	public void setWinner(int winner) {
+		this.winner = winner;
+	}
+	
+	
 }
