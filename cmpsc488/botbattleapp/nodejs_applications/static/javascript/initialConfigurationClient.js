@@ -1,6 +1,14 @@
 // Listen for notifications of the status of the initial configuration.
-var socketIO = io.connect()
-  .on('progress_update', function(progress) {
+var socketIO = io.connect();
+
+// Separated io.connect() from socket.on('connect', ...) and others as suggested by
+// https://github.com/Automattic/socket.io/issues/430#issuecomment-7261120 
+// I have a feeling this isn't the whole problem but worth a shot.
+socket.on('connect', function() {
+  console.log('User connected!');
+})
+
+socket.on('progress_update', function(progress) {
     $('#progress').val(progress);
   })
   .on('config_success', function(data) {
