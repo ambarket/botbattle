@@ -12,7 +12,7 @@
 */
 function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
-  var fileManager = new (require('./FileManager'))();
+  var fileManager = new (require('./FileManager'));
   
   /**
   *  An object containing all fields submitted in the initial configuration form after sanitization.

@@ -15,6 +15,7 @@
     "bson": "0.2.4",
     "assert": "*",
     "util": "*",
-    "multer": "~0.1.7"
+    "multer": "~0.1.7",
+    "fs-extra": "*"
   }
 }

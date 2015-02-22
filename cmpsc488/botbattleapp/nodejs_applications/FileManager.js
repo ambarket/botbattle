@@ -8,9 +8,8 @@
 // BotBattleApp with multer to limit file upload size
 module.exports = function FileManager() {
     // Private variables
-    var fs = require('fs');
+    var fse = require('fs-extra');
     var self = this;
-    var fileManager = require('./FileManager');
     
     /**
      * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback
@@ -21,16 +20,10 @@ module.exports = function FileManager() {
      * @public
      */
     this.createFolder = function(folderPath, callback){
-      //can udate to take modes for folder with POSIX (ignored on windows) or use fs. mod commands
-       fs.mkdir(folderPath, function(err){
+       fse.ensureDir(folderPath, function(err){
           if (err) {
-            if(err.code === 'EEXIST'){
-              if(callback) {callback("Path already exists");}
-            }
-            else{
-              console.log("Error creating directory: " + err);
-              if(callback) {callback("Error creating directory: " + err);}
-            }  
+            console.log("Error creating directory: " + err);
+            if(callback) {callback("Error creating directory: " + err);} 
           }
           else{
             console.log("Created " + folderPath);
@@ -45,62 +38,25 @@ module.exports = function FileManager() {
           
      /**
       * ASYNC: Allows for the creation of a file at the given path.  createFile also takes a callback
-      * to return the success or fail message. As a convenient side effect the folder structure will be 
-      * created if it does not exist. //Will not overwrite an existing file.
+      * to return the success or fail message. If the file that is requested to be created is in directories 
+      * that do not exist, these directories are created. If the file already exists, it is NOT MODIFIED.
       * @method createFile
       * @param {String} filePath - absolute path for file to be created
       * @param {Function} callback(result) - used to return the result of the file creation 
       * @public
       */
      this.createFile = function(filePath, callback){
-       //can udate to take modes for file with POSIX (ignored on windows) or use fs. mod commands
-       // check to see if (folder does not exist or on error) create folder
-       // currently overwrites the file if it exists not sure how to handle this http://nodejs.org/api/fs.html#fs_fs_exists_path_callback
-        fs.open(filePath, 'w', function(err,fd){
+       fse.createFile(filePath, function(err){
            if (err) {
-             var patharray;
-             var pathString = "";
-             if(err.code === 'ENOENT'){
-               patharray = err.path.split("\\");
-               for(var i = 0; i < patharray.length - 1;i++){
-                 pathString += patharray[i].toString() + '\\' ;
-               }
-               self.createFolder(pathString, self.createFile(filePath, callback));
-             }
-             else{
-               console.log("Error creating file: " + err);
-               if(callback) {callback("Error creating file: " + err);}
-             }
-             //errorHandler(err, function(){
-             //  console.log("Error creating file: " + err);
-             //  if(callback) {callback("Error creating file: " + err);}
-             // });     
+             console.log("Error creating file: " + err);
+             if(callback) {callback("Error creating file: " + err);}
            }
            else{
              console.log("Created " + filePath);
-             closeFile(fd, null);
              if(callback) {callback("Created " + filePath);}
            }
         });
       };
-      
-      /*function errorHandler(err, callback){
-        if(err.code === 'ENOENT'){
-          var patharray = err.path.split("\\");
-          var path;
-          for(var i; i === 0; i < patharray.length){
-            path += patharray[i];
-          }
-          self.createFoler(path, null);  // this is undefined over and over // had this problem before fixed with new... can't do inside though?
-        }
-        else{
-          if(callback) {callback();}
-        }
-      }*/
-      
-      function closeFile(fd, callback){
-        fs.close(fd, callback);
-      }
       
      //  read file
      //  read folder
