@@ -9,7 +9,7 @@ public class SaveTheIslandGame implements GameInterface {
 	private String board;
 	
 	public SaveTheIslandGame() {
-		//TODO:
+		//TODO: init with starting board
 		this.board = "";
 	}
 
