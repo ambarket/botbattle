@@ -5,7 +5,9 @@ package game.manger;
  *
  */
 public class Game implements GameInterface {
-
+	
+	private String board;
+	
 	/* (non-Javadoc)
 	 * @see game.manger.GameInterface#getBoard()
 	 */

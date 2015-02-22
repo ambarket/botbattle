@@ -6,6 +6,7 @@ package game.manger;
  *
  */
 public interface GameInterface {
+		
 	String getBoard();
 	void updateBoard(String move);
 	boolean isValidMove(String move);
