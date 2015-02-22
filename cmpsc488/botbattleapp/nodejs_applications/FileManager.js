@@ -10,7 +10,6 @@ module.exports = function FileManager() {
     // Private variables
     var fse = require('fs-extra');
     var self = this;
-    var fileManager = require('./FileManager');
     
     /**
      * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback
