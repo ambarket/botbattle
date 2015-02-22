@@ -33,6 +33,7 @@ module.exports = function BotBattleServer() {
     socketIO = require('socket.io').listen(httpsServer);
     
     connectionTracker = new (require('./ConnectionTracker'))(httpsServer);
+    SocketIOConnectionTracker = new (require('./SocketIOConnectionTracker'))(socketIO);
     
     return self;
   }

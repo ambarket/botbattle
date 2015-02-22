@@ -5,7 +5,7 @@
  * @param {Object} server The instance of https to track.
  */
 
-module.exports = function ConnectionTracker(server) {
+module.exports = function SocketIOConnectionTracker(socketIO) {
   
   // https://auth0.com/blog/2014/01/15/auth-with-socket-io/
   // http://socket.io/docs/rooms-and-namespaces/
@@ -16,22 +16,21 @@ module.exports = function ConnectionTracker(server) {
   //        of unused space resulting from former sockets closing
   
   // Private member to store the sockets
-  var sockets = {}, nextSocketId = 0;
- 
-  server.on('connection', function(socket) {
+  var sockets = {};
+  socketIO.on('connection', function(socket) {
     
     // Add a newly connected socket
-    var socketId = nextSocketId++;
+    var socketId = socket.id;
     sockets[socketId] = socket;
-    //console.log('socket', socketId, 'opened');
+    console.log('socket', socketId, 'opened');
 
     // Remove the socket when it closes
     socket.on('close', function() {
-      //console.log('socket', socketId, 'closed');
+      console.log('socket', socketId, 'closed');
       delete sockets[socketId];
     });
   });
-
+  
   /**
   * @method getConnections
   * @return {Array} An array containing all of the socket objects currently connected to the server
