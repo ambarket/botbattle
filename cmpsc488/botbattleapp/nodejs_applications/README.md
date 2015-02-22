@@ -1,4 +1,31 @@
+#SocketIO
+Since documentation seems to be so hard to come by let's put any links about socket.io here
+https://github.com/Automattic/socket.io/issues/430#issuecomment-7261120 
+http://socket.io/docs/
+
+Turning on debugging in NodeEclipse (From http://socket.io/docs/logging-and-debugging/#)
+
+Follow the instructions here to add the DEBUG=* env variable to the run configuration
+    http://stackoverflow.com/questions/21805526/how-do-you-set-environment-variables-for-enide-nodeclipse
+    
+I already added the client debugging ot the initialCOnfigurationClient.js
+
+  Seems setting DEBUG = engine.socket, socket.io gives us most information we could possibly want.
   
+ THis looked promising but didnt work, socket.socket.connect() doesn't exist. Was likely something that used to work but was removed in current release
+      http://stackoverflow.com/questions/10437584/socket-io-reconnect
+    
+This says you ahve to maintain it yourself
+    http://stackoverflow.com/questions/8974271/reconnecting-in-socket-io-and-maintaining-client-id
+    
+THis says its possible, again doesn't work
+    http://stackoverflow.com/questions/13023703/socket-io-manual-reconnect-after-client-side-disconnect
+    
+  // https://auth0.com/blog/2014/01/15/auth-with-socket-io/
+  // http://socket.io/docs/rooms-and-namespaces/
+  // https://github.com/Automattic/socket.io/wiki/Authorizing
+
+
 #YUIDoc 
 http://yui.github.io/yuidoc/
 

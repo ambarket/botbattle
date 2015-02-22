@@ -7,12 +7,9 @@
 
 module.exports = function SocketIOConnectionTracker(socketIO) {
   
-  // https://auth0.com/blog/2014/01/15/auth-with-socket-io/
-  // http://socket.io/docs/rooms-and-namespaces/
-  // https://github.com/Automattic/socket.io/wiki/Authorizing
-  
   // Private member to store the sockets
   var sockets = {};
+  socketIO
   socketIO.on('connection', function(socket) {
     
     // Add a newly connected socket
@@ -25,8 +22,16 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
       console.log('socket', socketId, 'disconnect');
       delete sockets[socketId];
     })
+    .on('myId', function(clientId) {
+      sockets[socketId].botBattleClientId = clientId;
+      console.log('socket', socketId, 'is actually ', clientId);
+
+      
+    });
+    
   });
   
+
   
   /**
   * @method getConnections

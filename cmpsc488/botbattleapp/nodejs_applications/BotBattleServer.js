@@ -50,7 +50,7 @@ module.exports = function BotBattleServer() {
     // Destroy all open connections to server, but wait a little to allow any last minute 
     //  messages to get through to the client. 
     // This is necessary in order to ensure the httpsServer.close event will actually fire.
-    setTimeout(function() {connectionTracker.closeAllConnections(); }, 2000);
+    setTimeout(function() {httpsServerconnectionTracker.closeAllConnections(); }, 2000);
     
     httpsServer.close(function(err) {
       socketIO = null;
