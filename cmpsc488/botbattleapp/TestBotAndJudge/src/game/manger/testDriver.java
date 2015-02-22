@@ -15,23 +15,28 @@ public class testDriver {
 		TicTacToeBot bot1 = new TicTacToeBot(false);
 		TicTacToeBot bot2 = new TicTacToeBot(true);
 		
-		int i = 0;
-		String move = "";
-		while(!game.isGameOver()){
-			
-			if(i % 2 == 0)
-				move = bot1.getMove(game.getBoard());
-			else
-				move = bot2.getMove(game.getBoard());
-
-			if(game.isValidMove(move))
-				game.updateBoard(move);
-			else{
-				System.out.println("Invalid move made");
-				break;
-			}
-			i++;
-		}
+		GameManager foo = new GameManager(bot1, bot2, game);
+		
+		foo.run();
+		
+		
+//		int i = 0;
+//		String move = "";
+//		while(!game.isGameOver()){
+//			
+//			if(i % 2 == 0)
+//				move = bot1.getMove(game.getBoard());
+//			else
+//				move = bot2.getMove(game.getBoard());
+//
+//			if(game.isValidMove(move))
+//				game.updateBoard(move);
+//			else{
+//				System.out.println("Invalid move made");
+//				break;
+//			}
+//			i++;
+//		}
 		
 		System.out.println(game.getBoard());
 	}
