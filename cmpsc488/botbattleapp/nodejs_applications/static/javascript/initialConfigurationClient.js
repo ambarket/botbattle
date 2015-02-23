@@ -26,12 +26,13 @@ var myId = null;
     console.log('socket reconnect!');
     console.log(socket);
     // Tell server on reconnect too
-    if (myId) {
+    /* connect seems to always be fired after reconnect anyway so no need for this and was causing issues with dup messages
+     * if (myId) {
       socket.emit('myId', myId);
     }
     else {
       console.log("how did reconnect event happen before connect???")
-    }
+    }*/
   })
   .on('reconnecting', function(number) {
     console.log('socket reconnecting! attempt# ' + number);
@@ -71,7 +72,12 @@ var myId = null;
   .on('fileCreatedResult', function(result) {
     document.getElementById('fileCreated').innerHTML = result;
     $('#submitFile').show();
-  });
+  })
+  .on('unitTestToClient', function() {
+    console.log("received unit test from server");
+    // keep it going
+    socket.emit('unitTestToServer', null);
+  })
 
 // Submit the form via an ajax request.
 var form = document.getElementById("initConfigForm");

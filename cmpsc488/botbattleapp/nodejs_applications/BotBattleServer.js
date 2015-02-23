@@ -124,6 +124,28 @@ module.exports = function BotBattleServer() {
   };
   
   /**
+   * Emits the message over this servers socket.io to a specified client
+   * @param {String} id Socket.io id of the original socket given to the client
+   * @param {String} event Event to fire.
+   * @param {Object} data Object to be passed.
+   * @method emitOverSocketIO
+   */
+  this.emitOverSocketIOToId = function(id, event, data) {
+    socketIOConnectionTracker.emitToId(id, event, data);
+  };
+  
+  /**
+   * Register a callback to process the data on the event from a specified client
+   * @param {String} id Socket.io id of the original socket given to the client
+   * @param {String} event Event to be processed.
+   * @param {Function} callback Callback with the prototype "function(data)" 
+   * @method onReceiveSocketIO
+   */
+  this.onReceiveSocketIOFromId = function(id, event, callback) {
+    socketIOConnectionTracker.onFromId(id, event, callback);
+  };
+  
+  /**
    * Create and register instances of the following middleware to this object's expressApp property
    *    express-session - enable cookies and sessions
    *    body-parser - provides json and urlencoded http bodies
