@@ -1,11 +1,9 @@
-/testDriver.class
 /GameInterface.class
+/GameManager.class
 /Player.class
 /SaveTheIslandBot.class
 /SaveTheIslandGame.class
+/TicTacToeBot.class
 /TicTacToeGame.class
 /TicTacToeGameTest.class
-/TicTacToeBot.class
-/GameManager.class
-/GameResults.class
-/HumanPlayer.class
+/testDriver.class
