@@ -6,7 +6,9 @@ public class HumanPlayer implements Player {
 
 	@Override
 	public String getMove(String board) {
-		// TODO Auto-generated method stub
+		
+		// TODO Properly display board
+		System.out.println(board);
 		
 		Scanner scner = new Scanner(System.in);
 		String move = scner.nextLine();
