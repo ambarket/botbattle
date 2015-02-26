@@ -1,6 +1,6 @@
 package game.manger;
 
-public class TicTacToeBot implements Player {
+public class TicTacToeBot{
 
 	boolean temp;
 	
@@ -8,7 +8,7 @@ public class TicTacToeBot implements Player {
 		this.temp = temp;
 	}
 	
-	@Override
+
 	public String getMove(String board) {
 		int row = 1, col = 1;
 		int i = 0;
