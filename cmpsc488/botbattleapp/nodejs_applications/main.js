@@ -30,7 +30,7 @@ var initConfigApp = new (require('./InitialConfigurationApp'))(initConfigAppServ
       });
     });
 
-
+// Connect to localhost to test  https://localhost:6058/
 
 
 
