@@ -106,7 +106,7 @@ Install Eclipse Luna according to http://ubuntuhandbook.org/index.php/2014/06/in
 
 Install Nodeclipse plugin according to http://www.nodeclipse.org/updates/
 
-How to <a href="http://www.lennu.net/import-git-project-into-eclipse/>Import git project into eclipse</a>
+How to <a href="http://www.lennu.net/import-git-project-into-eclipse/">Import git project into eclipse</a>
 
 May have tell eclipse the path to my nodejs executable (/usr/bin/nodejs) in preferences -> nodeclipse
 
