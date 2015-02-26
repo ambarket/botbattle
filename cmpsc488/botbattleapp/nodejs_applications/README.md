@@ -98,6 +98,12 @@ http://docs.mongodb.org/manual/tutorial/install-mongodb-on-windows/
 
 #Install Eclipse Luna by following instrustions on website
 
+Install OpenJDK from Ubuntu Software Center or 
+        Oracle Java from http://ubuntuhandbook.org/index.php/2013/07/install-oracle-java-6-7-8-on-ubuntu-13-10/ or
+        Follow one of the many other ways <a href="https://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=how%20to%20install%20java%20jdk%20on%20ubuntu%2014.04">Search</a>
+
+Install Eclipse Luna according to http://ubuntuhandbook.org/index.php/2014/06/install-latest-eclipse-ubuntu-14-04/
+
 Install Nodeclipse plugin according to http://www.nodeclipse.org/updates/
 
 May have tell eclipse the path to my nodejs executable (/usr/bin/nodejs) in preferences -> nodeclipse
