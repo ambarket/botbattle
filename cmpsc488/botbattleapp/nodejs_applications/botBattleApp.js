@@ -108,8 +108,8 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
 				}
 				else if (db[id].language === 'java')
 				{
-					db[id].compile = spawn('javac', [__dirname + '\\' + db[id].filePath]); // compiler ware here too
-					console.log(__dirname + '\\' + db[id].filePath);
+					db[id].compile = spawn('javac', [__dirname + '/' + db[id].filePath]); // compiler ware here too
+					console.log(__dirname + '/' + db[id].filePath);
 				}
 			}
 			else{

@@ -5,6 +5,9 @@
  * @param {Object} server The instance of https to track.
  */
 
+//TODO Make this code less ugly. Not so sure about the underscores, only used them because of lowercase 'l's and uppercase 'I's
+// Also its way too crazy looking when you nest these really long names, makes things even harder to read.
+
 module.exports = function SocketIOConnectionTracker(socketIO) {
   var self = this;
   // Private member to store the sockets
@@ -29,6 +32,7 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
     })
     .on('myId', function(client_id) {
       
+      // client_id already mapped to another socket
       if(socketInfo.client_id_To_Real_id_Map[client_id]) {
         console.log(socketInfo.sockets[socketInfo.client_id_To_Real_id_Map[client_id]]);
         //console.log(socketInfo.client_id_To_Real_id_Map[client_id]);
@@ -36,12 +40,12 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
             socketInfo.client_id_To_Real_id_Map[client_id], 'aka (', client_id, ')');
         socketInfo.sockets[real_id].disconnect();
       }
-      
-      if (!socketInfo.client_id_To_Real_id_Map[client_id]) {
+      else {
         socketInfo.client_id_To_Real_id_Map[client_id] = real_id;
         socketInfo.Real_id_To_Client_id_Map[real_id] = client_id;
         console.log('socket', real_id, 'is actually ', client_id); 
-        unitTest(client_id);
+        //TODO Find a more consitent way to run unit tests
+        //unitTest(client_id);
       }
     });
     
