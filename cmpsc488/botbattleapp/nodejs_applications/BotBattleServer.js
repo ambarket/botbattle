@@ -28,7 +28,7 @@ module.exports = function BotBattleServer() {
     
     var https = require('https');
     var fs = require('fs');
-    var options = { key : fs.readFileSync('server.key'), cert : fs.readFileSync('server.crt') };
+    var options = { key : fs.readFileSync('https_certificate/server.key'), cert : fs.readFileSync('https_certificate/server.crt') };
     httpsServer = https.createServer(options, expressApp).listen(port);
     
     socketIO = require('socket.io').listen(httpsServer);
