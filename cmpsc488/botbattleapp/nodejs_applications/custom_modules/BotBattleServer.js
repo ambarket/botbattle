@@ -9,8 +9,9 @@ module.exports = function BotBattleServer() {
   var expressApp = null;
   var httpsServer = null;
   var socketIO = null;  
-  var httpsServerconnectionTracker = null;
+  var httpsConnectionTracker = null;
   var socketIOConnectionTracker = null;
+  
   
   /**
    * Initialize the expressApp, httpsServer, socketIO, and connectionTracker properties 
@@ -33,7 +34,7 @@ module.exports = function BotBattleServer() {
     
     socketIO = require('socket.io').listen(httpsServer);
     
-    httpsServerconnectionTracker = new (require('./HttpsServerConnectionTracker'))(httpsServer);
+    httpsConnectionTracker = new (require('./HTTPSConnectionTracker'))(httpsServer);
     socketIOConnectionTracker = new (require('./SocketIOConnectionTracker'))(socketIO);
     
     return self;
@@ -50,7 +51,7 @@ module.exports = function BotBattleServer() {
     // Destroy all open connections to server, but wait a little to allow any last minute 
     //  messages to get through to the client. 
     // This is necessary in order to ensure the httpsServer.close event will actually fire.
-    setTimeout(function() {httpsServerconnectionTracker.closeAllConnections(); }, 2000);
+    setTimeout(function() {httpsConnectionTracker.closeAllConnections(); }, 2000);
     
     httpsServer.close(function(err) {
       socketIO = null;
@@ -62,30 +63,31 @@ module.exports = function BotBattleServer() {
   
   /**
    * All requests prefixed with the urlPrefix will be routed to the static files
-   * found in __dirname + relativeFolderPath
+   * found in [main_application_directory]/relativeFolderPath
    * 
    * @param{String} urlPrefix e.g. /login  NOTE: No trailing slash
    * @param{String} relativeFolderPath e.g. '/static/css/' NOTE: Trailing slash necessary
    * @method addStaticRoute
    */
   this.addStaticFolderRoute = function(urlPrefix, relativeFolderPath) {
-	  expressApp.use(urlPrefix, require('express').static(__dirname + relativeFolderPath));
+      var rootDir = __dirname.substring(0, __dirname.indexOf('/custom_modules'));
+      //console.log(rootDir + relativeFolderPath);
+	  expressApp.use(urlPrefix, require('express').static(rootDir  + relativeFolderPath));
   };
   
   /**
    * Requests to the specified url will result in sending the client the specified file
+   * found at [main_application_directory]/relativeFilePath
    * @param{String} url e.g. /login  NOTE: No trailing slash
    * @param{String} relativeFilePath e.g. '/static/html/testArena.html'
    */
   this.addStaticFileRoute = function(url, relativeFilePath) {
+    var rootDir = __dirname.substring(0, __dirname.indexOf('/custom_modules'));
+    //console.log(rootDir + relativeFilePath);
     self.addDynamicRoute('get', url, function(req, res) {
-        res.sendFile(__dirname + relativeFilePath);
+        res.sendFile(rootDir + relativeFilePath);
       });
   }
-  
-//botBattleAppServer.addDynamicRoute('get', '/',function(req,res){
-//res.sendFile(__dirname + '/static/html/basicInOutErr.html');
-//});
   
   /**
    * Requests to the specified url and method will be processed by 

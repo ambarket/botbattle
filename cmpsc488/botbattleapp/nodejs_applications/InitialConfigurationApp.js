@@ -12,7 +12,7 @@
 */
 function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
-  var fileManager = new (require('./FileManager'));
+  var fileManager = new (require('./custom_modules/FileManager'));
   
   /**
   *  An object containing all fields submitted in the initial configuration form after sanitization.
@@ -70,7 +70,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initDatabaseTask(callback) {
-    var BotBattleDatabase = require('./BotBattleDatabase'); 
+    var BotBattleDatabase = require('./custom_modules/BotBattleDatabase'); 
     
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);

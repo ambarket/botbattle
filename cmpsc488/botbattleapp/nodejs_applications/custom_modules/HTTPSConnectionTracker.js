@@ -5,7 +5,7 @@
  * @param {Object} server The instance of https to track.
  */
 
-module.exports = function HttpsServerConnectionTracker(server) {
+module.exports = function HTTPSConnectionTracker(server) {
   
   // https://auth0.com/blog/2014/01/15/auth-with-socket-io/
   // http://socket.io/docs/rooms-and-namespaces/
