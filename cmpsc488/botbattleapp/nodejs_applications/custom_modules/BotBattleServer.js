@@ -12,6 +12,8 @@ module.exports = function BotBattleServer() {
   var httpsConnectionTracker = null;
   var socketIOConnectionTracker = null;
   
+  var applicationDirectory = __dirname.substring(0, __dirname.indexOf('/custom_modules'));
+  
   
   /**
    * Initialize the expressApp, httpsServer, socketIO, and connectionTracker properties 
@@ -29,7 +31,7 @@ module.exports = function BotBattleServer() {
     
     var https = require('https');
     var fs = require('fs');
-    var options = { key : fs.readFileSync('https_certificate/server.key'), cert : fs.readFileSync('https_certificate/server.crt') };
+    var options = { key : fs.readFileSync(applicationDirectory + '/https_certificate/server.key'), cert : fs.readFileSync(applicationDirectory + '/https_certificate/server.crt') };
     httpsServer = https.createServer(options, expressApp).listen(port);
     
     socketIO = require('socket.io').listen(httpsServer);
@@ -70,9 +72,7 @@ module.exports = function BotBattleServer() {
    * @method addStaticRoute
    */
   this.addStaticFolderRoute = function(urlPrefix, relativeFolderPath) {
-      var rootDir = __dirname.substring(0, __dirname.indexOf('/custom_modules'));
-      //console.log(rootDir + relativeFolderPath);
-	  expressApp.use(urlPrefix, require('express').static(rootDir  + relativeFolderPath));
+	  expressApp.use(urlPrefix, require('express').static(applicationDirectory  + relativeFolderPath));
   };
   
   /**
@@ -82,10 +82,8 @@ module.exports = function BotBattleServer() {
    * @param{String} relativeFilePath e.g. '/static/html/testArena.html'
    */
   this.addStaticFileRoute = function(url, relativeFilePath) {
-    var rootDir = __dirname.substring(0, __dirname.indexOf('/custom_modules'));
-    //console.log(rootDir + relativeFilePath);
     self.addDynamicRoute('get', url, function(req, res) {
-        res.sendFile(rootDir + relativeFilePath);
+        res.sendFile(applicationDirectory + relativeFilePath);
       });
   }
   
