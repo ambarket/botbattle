@@ -1,42 +1,52 @@
+
 // Listen for notifications of the status of the initial configuration.
-var socketIO = io.connect();
-console.log(socketIO);
-//Separated io.connect() from socket.on('connect', ...) and others as suggested by
-//https://github.com/Automattic/socket.io/issues/430#issuecomment-7261120 
-//I have a feeling this isn't the whole problem but worth a shot.
-// Added just about all client side callbacks defined here
-//http://socket.io/docs/client-api/
-// After examining the id's in each of the socketIO's they are all the same all the way through
-//  connect, reconnecting, reconnect, and connect are you sure its not fixed?
-socketIO.on('connect', function() {
-  console.log('socketIO connected!');
-  console.log(socketIO);
-})
+localStorage.debug = 'engine.socket, socket.io';
+//var socket = io.connect('https://localhost:6058');
+socket = null;
+var myId = null;
 
-socketIO.on('error', function(err) {
-  console.log('socketIO error! ' + err.message);
-  console.log(socketIO);
-})
-socketIO.on('reconnect', function() {
-  console.log('socketIO reconnect!');
-  console.log(socketIO);
-})
-socketIO.on('reconnecting', function(number) {
-  console.log('socketIO reconnecting! attempt# ' + number);
-  console.log(socketIO);
-})
-socketIO.on('reconnect_error', function(err) {
-  console.log('socketIO reconnect error! ' + err.message);
-  console.log(socketIO);
-})
+  //socket = io.connect('http://xxx.xxx.xxx.xxx:8081', {secure:false});     
+  socket = io.connect();
 
-
-socketIO.on('disconnect', function() {
-  console.log('socketIO disconnect!');
-  console.log(socketIO);
-})
-
-socketIO.on('progress_update', function(progress) {
+  socket.on('connect', function() {
+    console.log('socket connected!');
+    console.log(socket);
+    
+    // JUst store the id this script first received then tell the server about it
+    if (!myId) {
+      myId = socket.id;
+    }
+    socket.emit('myId', myId);
+  })
+  .on('error', function(err) {
+    console.log('socket error! ' + err.message);
+    console.log(socket);
+  })
+  .on('reconnect', function() {
+    console.log('socket reconnect!');
+    console.log(socket);
+    // Tell server on reconnect too
+    /* connect seems to always be fired after reconnect anyway so no need for this and was causing issues with dup messages
+     * if (myId) {
+      socket.emit('myId', myId);
+    }
+    else {
+      console.log("how did reconnect event happen before connect???")
+    }*/
+  })
+  .on('reconnecting', function(number) {
+    console.log('socket reconnecting! attempt# ' + number);
+    console.log(socket);
+  })
+  .on('reconnect_error', function(err) {
+    console.log('socket reconnect error! ' + err.message);
+    console.log(socket);
+  })
+  .on('disconnect', function() {
+    console.log('socket disconnect!');
+    console.log(socket);
+  })
+  .on('progress_update', function(progress) {
     $('#progress').val(progress);
   })
   .on('config_success', function(data) {
@@ -62,7 +72,12 @@ socketIO.on('progress_update', function(progress) {
   .on('fileCreatedResult', function(result) {
     document.getElementById('fileCreated').innerHTML = result;
     $('#submitFile').show();
-  });
+  })
+  .on('unitTestToClient', function() {
+    console.log("received unit test from server");
+    // keep it going
+    socket.emit('unitTestToServer', null);
+  })
 
 // Submit the form via an ajax request.
 var form = document.getElementById("initConfigForm");
