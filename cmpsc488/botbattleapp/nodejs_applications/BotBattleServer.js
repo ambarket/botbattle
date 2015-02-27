@@ -61,16 +61,31 @@ module.exports = function BotBattleServer() {
   }
   
   /**
-   * Requests to the specified url will be routed to the static file 
-   * or directory specified in relativePath
+   * All requests prefixed with the urlPrefix will be routed to the static files
+   * found in __dirname + relativeFolderPath
    * 
-   * @param {String} url 
-   * @param {String} relativePath 
+   * @param{String} urlPrefix e.g. /login  NOTE: No trailing slash
+   * @param{String} relativeFolderPath e.g. '/static/css/' NOTE: Trailing slash necessary
    * @method addStaticRoute
    */
-  this.addStaticRoute = function(url, relativePath) {
-	  expressApp.use(url, require('express').static(__dirname + relativePath));
+  this.addStaticFolderRoute = function(urlPrefix, relativeFolderPath) {
+	  expressApp.use(urlPrefix, require('express').static(__dirname + relativeFolderPath));
   };
+  
+  /**
+   * Requests to the specified url will result in sending the client the specified file
+   * @param{String} url e.g. /login  NOTE: No trailing slash
+   * @param{String} relativeFilePath e.g. '/static/html/testArena.html'
+   */
+  this.addStaticFileRoute = function(url, relativeFilePath) {
+    self.addDynamicRoute('get', url, function(req, res) {
+        res.sendFile(__dirname + relativeFilePath);
+      });
+  }
+  
+//botBattleAppServer.addDynamicRoute('get', '/',function(req,res){
+//res.sendFile(__dirname + '/static/html/basicInOutErr.html');
+//});
   
   /**
    * Requests to the specified url and method will be processed by 
@@ -90,6 +105,8 @@ module.exports = function BotBattleServer() {
       console.log("Failed to add dynamic route to " + method + ":" + url);
     }
   };
+  
+
   
   /**
    * Adds the specified middleware to the express stack.
@@ -199,10 +216,10 @@ module.exports = function BotBattleServer() {
 
     var express = require('express');
     // Serve static css files
-    self.addStaticRoute('/static/css', '/static/css/');
+    self.addStaticFolderRoute('/static/css', '/static/css/');
     
     // Serve static javascript files
-    self.addStaticRoute('/static/javascript', '/static/javascript/');
+    self.addStaticFolderRoute('/static/javascript', '/static/javascript/');
   }
 }
 

@@ -168,9 +168,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    */
   (function registerInitialConfigurationRoutes() {
    
-	  initConfigAppServer.addDynamicRoute('get', '/',function(req,res){
-        res.sendFile(__dirname + '/static/html/initialConfiguration.html');
-      });
+	  initConfigAppServer.addStaticFileRoute('/','/static/html/initialConfiguration.html');
 	  
 	  initConfigAppServer.addDynamicRoute('get', '/folderTest',function(req,res){
         fileManager.createFolder(req.query.path, function(result){
