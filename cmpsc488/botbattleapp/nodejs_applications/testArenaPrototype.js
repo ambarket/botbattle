@@ -5,7 +5,7 @@ module.exports=function(botBattleAppServer) {
 	//botBattleAppServer.addStaticRoute('/','/static/testArena.html');
 	
 	botBattleAppServer.addDynamicRoute('get', '/',function(req,res){
-	      res.sendFile(__dirname + '/static/testArena.html');
+	      res.sendFile(__dirname + '/static/html/testArena.html');
 	});
 	
     

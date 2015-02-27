@@ -10,7 +10,7 @@ var spawn = require('child_process').spawn;
 
 //app.use('/basicInOutErr(.html)?', express.static(__dirname + '/static/basicInOutErr.html'));
 botBattleAppServer.addDynamicRoute('get', '/',function(req,res){
-      res.sendFile(__dirname + '/static/basicInOutErr.html');
+      res.sendFile(__dirname + '/static/html/basicInOutErr.html');
 });
 
 //var sockets = [];
