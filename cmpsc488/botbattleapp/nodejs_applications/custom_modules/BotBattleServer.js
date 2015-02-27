@@ -194,7 +194,7 @@ module.exports = function BotBattleServer() {
     // Add multer
     var multer = require('multer');
     self.addMiddleware(multer({
-      dest : './uploads/',
+      dest : applicationDirectory + '/uploads/',
       rename : function(fieldname, filename) {
         return filename;
       },
