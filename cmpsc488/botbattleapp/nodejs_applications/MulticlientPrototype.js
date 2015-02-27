@@ -14,7 +14,7 @@ botBattleAppServer.addStaticFileRoute('/', '/static/html/basicInOutErr.html');
 
 var db = [];
 var counter = 0;
-botBattleAppServer.onReceiveSocketIO('connection', function(socket){  // if a bot is running and a user has intermittent connection then this is reloaded.  The program does not get shut down but the counter increases.  Not good!!!!
+botBattleAppServer.socketIOReceiveFromAll('connection', function(socket){  // if a bot is running and a user has intermittent connection then this is reloaded.  The program does not get shut down but the counter increases.  Not good!!!!
        //console.log("new client" + socket);   //  This is why we need them to log in or use cookies to make sure it's the same person or client.
        //sockets[sockets.length] = socket;
        db[counter] = { 

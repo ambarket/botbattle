@@ -12,6 +12,7 @@ module.exports = function BotBattleServer() {
   var httpsConnectionTracker = null;
   var socketIOConnectionTracker = null;
   
+  //TODO This still seems somewhat clumbsy. But not sure how to make it any better at the moment
   var applicationDirectory = __dirname.substring(0, __dirname.indexOf('/custom_modules'));
   
   
@@ -123,9 +124,9 @@ module.exports = function BotBattleServer() {
    * 
    * @param {String} event Event to fire.
    * @param {Object} data Object to be passed.
-   * @method emitOverSocketIO
+   * @method socketIOEmitToAll
    */
-  this.emitOverSocketIO = function(event, data) {
+  this.socketIOEmitToAll = function(event, data) {
     socketIO.emit(event, data);
   };
   
@@ -134,9 +135,9 @@ module.exports = function BotBattleServer() {
    * 
    * @param {String} event Event to be processed.
    * @param {Function} callback Callback with the prototype "function(data)" 
-   * @method onReceiveSocketIO
+   * @method socketIOReceiveFromAll
    */
-  this.onReceiveSocketIO = function(event, callback) {
+  this.socketIOReceiveFromAll = function(event, callback) {
     socketIO.on(event, callback);
   };
   
@@ -145,9 +146,9 @@ module.exports = function BotBattleServer() {
    * @param {String} id Socket.io id of the original socket given to the client
    * @param {String} event Event to fire.
    * @param {Object} data Object to be passed.
-   * @method emitOverSocketIO
+   * @method socketIOEmitToId
    */
-  this.emitOverSocketIOToId = function(id, event, data) {
+  this.socketIOEmitToId = function(id, event, data) {
     socketIOConnectionTracker.emitToId(id, event, data);
   };
   
@@ -156,9 +157,9 @@ module.exports = function BotBattleServer() {
    * @param {String} id Socket.io id of the original socket given to the client
    * @param {String} event Event to be processed.
    * @param {Function} callback Callback with the prototype "function(data)" 
-   * @method onReceiveSocketIO
+   * @method socketIOReceiveFromId
    */
-  this.onReceiveSocketIOFromId = function(id, event, callback) {
+  this.socketIOReceiveFromId = function(id, event, callback) {
     socketIOConnectionTracker.onFromId(id, event, callback);
   };
   

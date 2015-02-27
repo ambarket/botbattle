@@ -172,13 +172,13 @@ function InitialConfigurationApp(initConfigAppServer) {
 	  
 	  initConfigAppServer.addDynamicRoute('get', '/folderTest',function(req,res){
         fileManager.createFolder(req.query.path, function(result){
-          initConfigAppServer.emitOverSocketIO('folderCreatedResult', result);
+          initConfigAppServer.socketIOEmitToAll('folderCreatedResult', result);
         });
       });
 	  
 	  initConfigAppServer.addDynamicRoute('get', '/fileTest',function(req,res){
         fileManager.createFile(req.query.path, function(result){
-          initConfigAppServer.emitOverSocketIO('fileCreatedResult', result);
+          initConfigAppServer.socketIOEmitToAll('fileCreatedResult', result);
         });
       });
 	  
