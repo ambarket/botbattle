@@ -2,9 +2,9 @@ package game.manger;
 
 import java.util.Scanner;
 
-public class HumanPlayer implements Player {
+public class HumanPlayer {
 
-	@Override
+
 	public String getMove(String board) {
 		
 		// TODO Properly display board
