@@ -49,6 +49,8 @@ public class Player {
 		
 		try {
 			writer.write(board);
+			writer.flush();
+			//TODO: put in its own thread and use a time out
 			return reader.readLine();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
