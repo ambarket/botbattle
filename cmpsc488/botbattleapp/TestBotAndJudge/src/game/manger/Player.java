@@ -24,10 +24,10 @@ public class Player {
 	//TODO: change thrown exception to try catch block or
 	//		maybe add try catch block in gameManager
 	/**
+	 * 
 	 * @param botFilePath
-	 * @param botProcess
 	 * @param usersName
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public Player(String botFilePath, String usersName) throws IOException {
 		this.botFilePath = botFilePath;
