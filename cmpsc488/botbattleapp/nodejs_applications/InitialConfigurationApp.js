@@ -70,7 +70,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initDatabaseTask(callback) {
-    var BotBattleDatabase = require('./botBattleDatabase'); 
+    var BotBattleDatabase = require('./BotBattleDatabase'); 
     
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);

@@ -26,7 +26,7 @@ var initConfigApp = new (require('./InitialConfigurationApp'))(initConfigAppServ
       initConfigAppServer.shutdown(function(err) {
         console.log('InitialConfigurationServer has been shutdown!');
         var botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
-        require('./botBattleApp')(botBattleAppServer, botBattleDatabase);
+        require('./MulticlientPrototype')(botBattleAppServer, botBattleDatabase);
       });
     });
 
