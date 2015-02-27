@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  	<link rel="stylesheet" type="text/css" href="static/css/testArena.css">
+	<title>BOTBATTLE!!!</title> 
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+  <p> <b>StdIn:</b> <textarea id="stdin"></textarea> <button id = "send_stdin">Send</button> </p>
+        <div><p> <b>StdOut:</b> <div style="height:120px;width:autopx;border:1px solid;overflow:auto;" id="stdout"></div> </p>
+        <div><p> <b>StdErr:</b><div style="height:120px;width:autopx;border:1px solid;overflow:auto;" id="stderr"></div> </p>
+    <canvas id="myCanvas" width="640" height="400"></canvas>
+    
+    <script>
+      var canvas = document.getElementById('myCanvas');
+      var context = canvas.getContext('2d');
+      var imageObj = new Image();
+
+      imageObj.onload = function() {
+        context.drawImage(imageObj, 0, 0);
+      };
+      imageObj.src = 'static/images/SaveTheIslandBackGround.png';
+    </script>
+  </body>
+</html>      
