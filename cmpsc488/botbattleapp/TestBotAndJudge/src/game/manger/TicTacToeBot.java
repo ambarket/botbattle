@@ -2,10 +2,15 @@ package game.manger;
 
 public class TicTacToeBot{
 
-	boolean temp;
+	static boolean temp;
 	
-	public TicTacToeBot(boolean temp) {
-		this.temp = temp;
+	public static void main(String[] args){
+		temp = Boolean.parseBoolean(args[0]);
+		
+		//TODO add loop reading from stdin
+		//check if equal to game over
+		//if not get move
+		//write move to output
 	}
 	
 

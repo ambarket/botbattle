@@ -19,6 +19,7 @@ public class GameManager implements Runnable {
 		this.player2 = player2;
 		this.game = game;
 		results = new GameResults();
+		
 	}
 
 
