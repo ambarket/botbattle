@@ -1,9 +1,9 @@
 function Animator() {
-	
+	var self = this;
 	var gameboard = new GameBoard();
 	
 	this.animateGameState = function(gamestate, callback) {
-		async.eachSeries(gamestate.animationsList, animateIndividual, callback);
+		async.eachSeries(gamestate.animationsList, self.animateIndividual, callback);
 	}
 
 	this.animateIndividual = function(animation, callback) {
@@ -44,15 +44,26 @@ var GameBoard = function() {
 		move: function(animation, callback) {
 			var done = false;
 			
-			self.drawer.updateRectPosition(1000);
+			  self.drawer.updateRectPosition(1);
 			
+			  var done = self.drawer.isAtEnd();
 	          // clear
 	          self.context.clearRect(0, 0, self.canvas.width, self.canvas.height);
 
 	          // draw
 	          self.context.drawImage(backgroundImg, 0, 0);
 	          self.drawer.drawRect();
-			
+	          
+	          if (!done) {
+		          requestAnimFrame(function() {
+		              self.animations.move(animation, callback);
+		            });
+		          }
+	          else {
+	        	  callback();
+	          }
+	          
+	          
 			// Change robotSprite.x 
 			//var player = sprites[animation.player];
 			//player.currentX = animation.nextPos;
@@ -117,6 +128,10 @@ function Drawer(canvas, context) {
         }
         console.log('running');
     }
+    
+    this.isAtEnd = function() {
+    	return myRectangle.x > 300;
+    }
 }
 		
 (function() {
@@ -135,7 +150,23 @@ function Drawer(canvas, context) {
       // add click listener to canvas
      document.getElementById('myCanvas').addEventListener('click', function() {
     	 
-    	 var testGameState
+    	 var testGameState = {
+    			 animationsList: [
+	    			        		  {
+	    			        			  player:'player1',
+	    			        			  event:'move',
+	    			        			  currpos:5,
+	    			        			  nextpos:10
+	    			        		  },
+	    			        		  {
+	    			        			  player:'player1',
+	    			        			  event:'move',
+	    			        			  currpos:5,
+	    			        			  nextpos:10
+	    			        		  }
+    			                  ]
+    	 }
+    	 /*
     	 animator.animateIndividual(
         		  {
         			  player:'player1',
@@ -144,14 +175,12 @@ function Drawer(canvas, context) {
         			  nextpos:10
         		  }
         	  , function() {console.log('animation done')}
-        	) 
+        	);
+        */
+    	 
+    	animator.animateGameState(testGameState, function() {console.log('animation done')});
       });
 })();
-
-
-
-
-
 
       //function animateBotMove()
       // p1 attack 5 2 - using a 4 if he's at 1
