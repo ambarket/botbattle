@@ -1,8 +1,9 @@
+//--------------------------Drawable Objects------------------------------------
 var drawableObject = function(x, y) {
   this.x = x;
   this.y = y;
 };
-drawableObject
+
 drawableObject.prototype.draw = function(context) {
   context.fillRect(this.x,this.y,1,1);
 };
@@ -27,13 +28,23 @@ drawableRectangle.prototype.draw = function(context) {
   context.stroke();
 };
 
-var drawableSprite = function(x, y, width, height, imgsrc) {
+var drawableImage = function(imgsrc, x, y, width, height, loadedCallback) {
   drawableObject.call(this, x, y);
   this.width = width;
   this.height = height;
   this.imgsrc = imgsrc;
+  this.img = new Image();
+  this.img.onload = loadedCallback;
+  this.img.src = imgsrc;
 }
 
+drawableImage.prototype = Object.create(drawableObject.prototype);
+drawableImage.prototype.constructor = drawableRectangle;
+drawableImage.prototype.draw = function(context) {
+  context.drawImage(this.img, this.x, this.y, this.height, this.width);
+};
+
+//--------------------------Animatable Events------------------------------------
 var AnimatableEvent = function(event, objectName) {
   this.objectName = objectName;
   this.event = event;
@@ -52,30 +63,55 @@ MoveEvent.prototype.animationComplete = function(drawableObject) {
   return drawableObject.x == this.endingX && drawableObject.y == this.endingY;
 }
 
-var GameBoard = function() {
+//--------------------------The GameBoard (Model)------------------------------------
+var GameBoard = function(readyCallback) {
   // Implements the singleton pattern so animator and drawer share the same GameBoard
+  if ( arguments.callee._singletonInstance )
+    readyCallback(null, arguments.callee._singletonInstance);
+  arguments.callee._singletonInstance = this;
+
+  var self = this;
+  this.drawableObjects = {
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround.png', 0,0,400,640, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImage.jpg', 120,200,50,50, imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImage.jpg', 400,200,50,50, imageLoadedCallback),
+    /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
+  }
+  this.backgroundElements = {
+      trees : {
+        tree1 : new drawableImage('static/images/tree.png', 10,110,20,20, imageLoadedCallback),
+        tree2 : new drawableImage('static/images/tree.png', 75,100,20,20, imageLoadedCallback),
+        tree3 : new drawableImage('static/images/tree.png', 150,114,20,20, imageLoadedCallback),
+        tree4 : new drawableImage('static/images/tree.png', 250,120,20,20, imageLoadedCallback),
+        tree5 : new drawableImage('static/images/tree.png', 350,125,20,20, imageLoadedCallback),
+      }
+  }
+  
+  var imagesLoaded= 0, expectedImagesLoaded=8;
+  function imageLoadedCallback() {
+    imagesLoaded++;
+    if (imagesLoaded == expectedImagesLoaded) {
+      readyCallback(null, self);
+    }
+  }
+}
+
+//--------------------------The Animator (Controller)------------------------------------
+function Animator(gameboard) {
   if ( arguments.callee._singletonInstance )
     return arguments.callee._singletonInstance;
   arguments.callee._singletonInstance = this;
-
-  this.drawableObjects = {
-    player1 : new drawableObject(50, 50),
-    player2 : new drawableObject(150, 50),
-    myRectangle: new drawableRectangle(120, 200, 100, 50, 5)
-  }
-
-}
-
-function Animator() {
+  
   var self = this;
   var gameStateQueue = [];
   var imRunning = false;
-  var gameboard = new GameBoard();
-  var drawer = new Drawer();
+  var drawer = new Drawer(gameboard);
   var animations = {
     move : function(moveEvent, lastUpdateTime, callback) {
+      backgroundAnimations();
       //console.log(gameboard.drawableObjects[moveEvent.objectName]);
       var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
+      
       
       var time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
       var done = moveEvent.animationComplete(drawableObject);
@@ -137,9 +173,26 @@ function Animator() {
     async.eachSeries(gamestate.animationsList, animateIndividual, callback);
   };
 
-  var animateIndividual = function(drawableObject, callback) {
+  var animateIndividual = function(animatableEvent, callback) {
     var startTime = (new Date()).getTime();
-    animations[drawableObject.event](drawableObject, startTime, callback);
+    animations[animatableEvent.event](animatableEvent, startTime, callback);
+  }
+  
+  // Stupid but shows we can add logic to update other elements every frame pretty easily here
+  var backgroundAnimations = function(startTime) {
+    // Move the trees around
+    for (treeIndex in gameboard.backgroundElements.trees){
+      var tree = gameboard.backgroundElements.trees[treeIndex];
+      
+      var coin = Math.random();
+      if (coin <= .50) {
+        tree.x+=1;
+      }
+      else {
+        tree.x-=1;
+      }
+    }
+   
   }
   
   /**
@@ -174,26 +227,24 @@ function Animator() {
     }
 }
 
-function Drawer() {
+//--------------------------The Drawer (View)------------------------------------
+function Drawer(gameboard) {
+  if ( arguments.callee._singletonInstance )
+    return arguments.callee._singletonInstance;
+  arguments.callee._singletonInstance = this;
+  
   var self = this;
   var canvas = document.getElementById('myCanvas');
   var context = canvas.getContext('2d');
-  var gameboard = new GameBoard();
-
-  var backgroundImg = new Image();
-  backgroundImg.onload = function() {
-    self.drawBoard();
-  };
-  backgroundImg.src = 'static/images/SaveTheIslandBackGround.png';
-
-
 
   this.drawBoard = function() {
-    context.drawImage(backgroundImg, 0, 0);
 
     for (object in gameboard.drawableObjects) {
       gameboard.drawableObjects[object].draw(context);
-      //console.log(gameboard.drawableObjects[object].draw);
+    }
+    
+    for (object in gameboard.backgroundElements.trees){
+      gameboard.backgroundElements.trees[object].draw(context);
     }
   }
   
@@ -211,92 +262,34 @@ function Drawer() {
         };
   })();
 
-  var animator = new Animator();
-  // var runAnimation = {
-  //   value: false
-  // };
 
-  // add click listener to canvas
-  document.getElementById('myCanvas').addEventListener('click', function() {
+  // Simulate the arrival of a new game state by clicking the mouse
+  var gameboard = new GameBoard(function(err, gameboard) {
+    var animator = new Animator(gameboard);
+    var drawer = new Drawer(gameboard);
+    drawer.drawBoard();
+    // add click listener to canvas
+    document.getElementById('myCanvas').addEventListener('click', function() {
 
-    var testGameState = {
-      animationsList : 
-        [ 
-         new MoveEvent('myRectangle', 250, 200),
-         new MoveEvent('myRectangle', 400, 200),
-         new MoveEvent('myRectangle', 250, 200),
-         new MoveEvent('myRectangle', 120, 200),
-        ]
-    }
-
-    animator.addNewGameState(testGameState);
-    /*
-    animator.animateIndividual(
-     		  {
-     			  player:'player1',
-     			  event:'move',
-     			  currpos:5,
-     			  nextpos:10
-     		  }
-     	  , function() {console.log('animation done')}
-     	);
-     */
-
-    //animator.animateGameState(testGameState, function() {console.log('animation done')});
-  });
-})();
-
-//function animateBotMove()
-// p1 attack 5 2 - using a 4 if he's at 1
-// p1 move 5 1 - using a 4
-/*
-function animate(lastTime, drawer, runAnimation, canvas, context, backgroundImg) {
-
-  if(runAnimation.value) {
-    // update
-    var time = (new Date()).getTime();
-    var timeDiff = time - lastTime;
-
-
-    drawer.updateRectPosition(timeDiff);
-    // clear
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // draw
-    context.drawImage(backgroundImg, 0, 0);
-    drawer.drawRect();
-    
-    // request new frame
-    requestAnimFrame(function() {
-      animate(time, drawer, runAnimation, canvas, context, backgroundImg);
+      var testGameState = {
+        animationsList : 
+          [ 
+           new MoveEvent('player1', 250, 200),
+           new MoveEvent('player1', 400, 200),
+           new MoveEvent('player1', 250, 200),
+           new MoveEvent('player1', 120, 200),
+           new MoveEvent('player2', 250, 200),
+           new MoveEvent('player2', 400, 200),
+           new MoveEvent('player2', 250, 200),
+           new MoveEvent('player2', 120, 200),
+          ]
+      }
+      
+      animator.addNewGameState(testGameState);
+      
     });
-  }
-}
- */
+    
+  });
 
-/*
-var canvas = document.getElementById('myCanvas');
-var context = canvas.getContext('2d');
 
-var backgroundImg = new Image();
-
-backgroundImg.onload = function() {
-
-context.drawImage(backgroundImg, 0, 0);
-drawer.drawRect();
-};
-backgroundImg.src = 'static/images/SaveTheIslandBackGround.png';
-
-var drawer = new Drawer(canvas, context);
-
-drawer.drawRect();
-context.drawImage(backgroundImg, 0, 0);
- */
-
-/*
- * define the runAnimation boolean as an obect
- * so that it can be modified by reference
- */
-
-//function 
-
+})();
