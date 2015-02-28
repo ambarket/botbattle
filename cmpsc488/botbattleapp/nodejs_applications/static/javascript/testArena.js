@@ -1,13 +1,44 @@
 function Animator() {
 	var self = this;
+	var queue = [];
+	var imRunning = false;
+	
+	this.addNewGameState = function(gamestate) {
+		queue.push(gamestate);
+		
+		if (!imRunning) {
+			start();
+		}
+	}
+	
+	var start = function() {
+		imRunning = true;
+		processNextGameState();
+	}
+	
+	var processNextGameState = function() {
+		var next = queue.splice(0,1)[0];
+		
+		if (!next) {
+			imRunning = !imRunning;
+		}
+		else {
+			animateGameState(next, function() {
+				processNextGameState()
+			})
+		}
+	}
+	
+	
 	var gameboard = new GameBoard();
 	
-	this.animateGameState = function(gamestate, callback) {
-		async.eachSeries(gamestate.animationsList, self.animateIndividual, callback);
+	var animateGameState = function(gamestate, callback) {
+		async.eachSeries(gamestate.animationsList, animateIndividual, callback);
 	}
 
-	this.animateIndividual = function(animation, callback) {
-		gameboard.animations[animation.event](animation, callback);
+	var animateIndividual = function(animation, callback) {
+		var startTime = (new Date()).getTime();
+		gameboard.animations[animation.event](animation, startTime, callback);
 	}
 	
 	
@@ -41,12 +72,12 @@ var GameBoard = function() {
 	}
     
     this.animations = {
-		move: function(animation, callback) {
+		move: function(animationObject, lastTime, callback) {
 			var done = false;
+
+			  var time = self.drawer.updateRectPosition(lastTime, animationObject.endpos);
 			
-			  self.drawer.updateRectPosition(1);
-			
-			  var done = self.drawer.isAtEnd();
+			  var done = self.drawer.isAtEnd(animationObject.endpos);
 	          // clear
 	          self.context.clearRect(0, 0, self.canvas.width, self.canvas.height);
 
@@ -56,17 +87,12 @@ var GameBoard = function() {
 	          
 	          if (!done) {
 		          requestAnimFrame(function() {
-		              self.animations.move(animation, callback);
+		              self.animations.move(animationObject, time, callback);
 		            });
 		          }
 	          else {
 	        	  callback();
 	          }
-	          
-	          
-			// Change robotSprite.x 
-			//var player = sprites[animation.player];
-			//player.currentX = animation.nextPos;
 		},
 		attack: function(animation, callback) {
 			
@@ -111,26 +137,32 @@ function Drawer(canvas, context) {
         context.stroke();
       }
     
-    this.updateRectPosition = function(timeDiff) {
+    this.updateRectPosition = function(lastTime, endpos) {
+        var time = (new Date()).getTime();
+        var timeDiff = time - lastTime;
+        
+        var backwards = endpos - myRectangle.x < 0
+
         // pixels / second
-        var linearSpeedX = 100;
-        var linearSpeedY = 0;
+        var linearSpeedX = (backwards) ? -100 : 100;
         var linearDistEachFrameX = linearSpeedX * timeDiff / 1000;
-        var linearDistEachFrameY = linearSpeedY * timeDiff / 1000;
-        var currentX = myRectangle.x;
-        var currentY = myRectangle.y;
-        if(currentX < canvas.width - myRectangle.width - myRectangle.borderWidth / 2) {
-          var newX = currentX + linearDistEachFrameX;
-          myRectangle.x = newX;
-          
-          var newY = currentY + linearDistEachFrameY;
-          myRectangle.y = newY;
+        myRectangle.x += linearDistEachFrameX;
+        
+        if (backwards && myRectangle.x < endpos) {
+        	myRectangle.x = endpos;
         }
-        console.log('running');
+        else if (!backwards && myRectangle.x > endpos) {
+        	myRectangle.x = endpos;
+        }
+
+        console.log('moved rectangle', myRectangle.x);
+        
+        return time;
     }
     
-    this.isAtEnd = function() {
-    	return myRectangle.x > 300;
+    this.isAtEnd = function(endpos) {
+    	console.log('check if done', myRectangle.x, endpos, myRectangle.x == endpos);
+    	return myRectangle.x == endpos;
     }
 }
 		
@@ -155,17 +187,25 @@ function Drawer(canvas, context) {
 	    			        		  {
 	    			        			  player:'player1',
 	    			        			  event:'move',
-	    			        			  currpos:5,
-	    			        			  nextpos:10
+	    			        			  prevpos:120,
+	    			        			  endpos:300
 	    			        		  },
 	    			        		  {
 	    			        			  player:'player1',
 	    			        			  event:'move',
-	    			        			  currpos:5,
-	    			        			  nextpos:10
+	    			        			  prevpos:210,
+	    			        			  endpos:400
+	    			        		  },
+	    			        		  {
+	    			        			  player:'player1',
+	    			        			  event:'move',
+	    			        			  prevpos:400,
+	    			        			  endpos:210
 	    			        		  }
     			                  ]
     	 }
+    	 
+    	 animator.addNewGameState(testGameState);
     	 /*
     	 animator.animateIndividual(
         		  {
@@ -178,7 +218,7 @@ function Drawer(canvas, context) {
         	);
         */
     	 
-    	animator.animateGameState(testGameState, function() {console.log('animation done')});
+    	//animator.animateGameState(testGameState, function() {console.log('animation done')});
       });
 })();
 
