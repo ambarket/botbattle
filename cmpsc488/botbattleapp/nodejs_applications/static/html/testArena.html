@@ -1,30 +1,62 @@
-<!DOCTYPE HTML>
-<html>
-  <head>
-  	<link rel="stylesheet" type="text/css" href="static/css/testArena.css">
-	<title>BOTBATTLE!!!</title> 
-    <style>
-      body {
-        margin: 0px;
-        padding: 0px;
-      }
-    </style>
-  </head>
-  <body>
-  <p> <b>StdIn:</b> <textarea id="stdin"></textarea> <button id = "send_stdin">Send</button> </p>
-        <div><p> <b>StdOut:</b> <div style="height:120px;width:autopx;border:1px solid;overflow:auto;" id="stdout"></div> </p>
-        <div><p> <b>StdErr:</b><div style="height:120px;width:autopx;border:1px solid;overflow:auto;" id="stderr"></div> </p>
-    <canvas id="myCanvas" width="640" height="400"></canvas>
-    
-    <script>
-      var canvas = document.getElementById('myCanvas');
-      var context = canvas.getContext('2d');
-      var imageObj = new Image();
+<!DOCTYPE html>
+<html><head>
+<title>HTML KickStart Elements</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="" />
+<meta name="copyright" content="" />
+<link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />                  <!-- KICKSTART -->                      <!-- CUSTOM STYLES -->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
+                           <!-- KICKSTART -->
+</head><body>
 
-      imageObj.onload = function() {
-        context.drawImage(imageObj, 0, 0);
-      };
-      imageObj.src = 'static/images/SaveTheIslandBackGround.png';
-    </script>
-  </body>
-</html>      
+	 
+<div class="col_12">
+	<div class="col_3">
+		<h5>Icon List</h5>
+		<ul class="icons">
+		<li><i class="fa fa-li fa-check"></i> Apple</li>
+		<li><i class="fa fa-li fa-check"></i> Banana</li>
+		<li><i class="fa fa-li fa-check"></i> Orange</li>
+		<li><i class="fa fa-li fa-check"></i> Pear</li>
+		</ul>
+		
+		<h5>Sample Icons</h5>
+		<i class="fa fa-twitter-square fa-3x"></i> 
+		<i class="fa fa-facebook-square fa-3x"></i>
+		<i class="fa fa-linkedin-square fa-3x"></i>
+		<i class="fa fa-github-square fa-3x"></i>
+		
+		<h5>Button w/Icon</h5>
+		<a class="button orange small" href="#"><i class="fa fa-rss"></i> RSS</a>
+	</div>
+	<div class="col_9">
+		<canvas id="myCanvas" width="640" height="400"></canvas>
+   
+		
+	</div>
+	
+	<hr />
+	
+	<div class="col_4 ioPanels">
+		<h4>Human Input</h4>
+		<textarea id="stdin"></textarea> 
+		<button id = "send_stdin">Send</button> 
+	</div>
+	
+	<div class="col_4 ioPanels">
+	<h4>Move List</h4>
+        <div id="stdout"></div>
+	</div>
+	
+
+	
+	<div class="col_4 ioPanels">
+		<h4>Debugging Info</h4>
+		<div id="stderr"></div>
+	</div>
+</div>
+<!-- END GRID -->
+
+</body></html>
