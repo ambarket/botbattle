@@ -73,8 +73,8 @@ var GameBoard = function(readyCallback) {
   var self = this;
   this.drawableObjects = {
     backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround.png', 0,0,400,640, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImage.jpg', 120,200,50,50, imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImage.jpg', 400,200,50,50, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImageRight.png', 120,200,50,50, imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImageLeft.png', 400,200,50,50, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   this.backgroundElements = {
