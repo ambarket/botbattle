@@ -7,11 +7,19 @@ Look into Multer more for initConfig and testArena to see if necessary
 Move Test Arena socket.io connection handshake proposal.txt from investigate io branch to master branch 
       then start a new branch to work on Test Arena
       
-In test arena branch make a new testArena.html and use basicInOutErr.html as a template and
+<strike> In test arena branch make a new testArena.html and use basicInOutErr.html as a template </strike> and
      modify botBattleApp.js to work with test arena 
      
 Add other html pages and set up wiring by modifying botBattleApp.js (maybe new branches for each of these
       until they work)  
+      
+Test Arena
+		Add idle animations
+			standing, floating (thrust, shadow), running, water waves
+		Fix pixel ratio
+		add 25 cells for location on island of equal robot width (currently need 1250 px just for island with robots 
+		    that are 50px wide + space to make it look like an island on both sides... (maybe add logic to scale by 
+		    calling a transform after loading images and checking client screen size.)
       
 ******Keep Master as clean and functional as possible!!!
 
