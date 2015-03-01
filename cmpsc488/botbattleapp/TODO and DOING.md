@@ -1,5 +1,4 @@
-Move file tests out of InitialConfigurationApp.js to a seperate FileTestApp.js and out of 
-        inititalConfiguration.html to fileTest.html
+<strike> Move file tests out of InitialConfigurationApp.js to a separate FileTestApp.js and out of  inititalConfiguration.html to fileTest.html </strike>
         
 Finish FileManager after setting up initConfig html and wiring to know what is needed (add to after test arena also)
 
