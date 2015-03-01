@@ -6,6 +6,26 @@ body {
 		line-height: 150%;
 }
 
+.centered{
+	margin-left: 33%;
+	margin-right: 40%;
+}
+
+#title{
+	font-size: 18px;
+	color: #7777AA;
+}
+
+#progress{
+	font-size: 20px;
+}
+
+#submit{
+	font-size: 20px;
+	background: #7777AA;
+	border-radius: 10px;
+}
+
 .form-required {
     color: #F00;
 }
