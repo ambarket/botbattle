@@ -73,8 +73,8 @@ var GameBoard = function(readyCallback) {
   var self = this;
   this.drawableObjects = {
     backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround.png', 0,0,400,640, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImageRight.png', 120,200,50,50, imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImageLeft.png', 400,200,50,50, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImageRight.png', 120,220,50,50, imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImageLeft.png', 400,220,50,50, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   this.backgroundElements = {
@@ -114,6 +114,8 @@ function Animator(gameboard) {
       
       
       var time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
+      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
+      
       var done = moveEvent.animationComplete(drawableObject);
       
       drawer.drawBoard();
@@ -180,23 +182,22 @@ function Animator(gameboard) {
   
   // Stupid but shows we can add logic to update other elements every frame pretty easily here
   var backgroundAnimations = function(startTime) {
+	var coin
     // Move the trees around
-    for (treeIndex in gameboard.backgroundElements.trees){
-      var tree = gameboard.backgroundElements.trees[treeIndex];
-      
-      var coin = Math.random();
+    for (treeIndex in gameboard.backgroundElements.trees){      
+      coin = Math.random();
       if (coin <= .50) {
-        tree.x+=1;
+    	  gameboard.backgroundElements.trees[treeIndex].x+=1;
       }
       else {
-        tree.x-=1;
+    	  gameboard.backgroundElements.trees[treeIndex].x-=1;
       }
     }
    
   }
   
   /**
-   * Move the animated object at speed pixels/second from its current position towards
+   * Move the animated object along x at speed pixels/second from its current position towards
    * drawableObject.endpos
    * 
    * @param {Object} drawableObject Must extend drawableObject class 
@@ -208,8 +209,8 @@ function Animator(gameboard) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
       //console.log('inUpdateXPosition', drawableObject, moveEvent);
-      var backwards = moveEvent.endingX - drawableObject.x < 0
-
+      var backwards = moveEvent.endingX - drawableObject.x < 0;
+      
       // pixels / second
       var linearSpeedX = (backwards) ? -1 * speed : speed;
       var linearDistEachFrameX = linearSpeedX * timeDiff / 1000;
@@ -221,7 +222,38 @@ function Animator(gameboard) {
         drawableObject.x = moveEvent.endingX;
       }
 
-      //console.log('moved rectangle', drawableObject.x);
+      console.log('moved rectangle', drawableObject.x);
+
+      return time;
+    }
+  
+  /**
+   * Move the animated object along y at speed pixels/second from its current position towards
+   * drawableObject.endpos
+   * 
+   * @param {Object} drawableObject Must extend drawableObject class 
+   * @param {Number} lastUpdateTime The time of the last frame update of this object
+   * @param {Number} speed The speed in pixels/second to move the object
+   */
+  //TODO Create drawableObject class
+  var updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
+      var time = (new Date()).getTime();
+      var timeDiff = time - lastUpdateTime;
+      //console.log('inUpdateXPosition', drawableObject, moveEvent);
+      var up = moveEvent.endingY - drawableObject.y < 0;
+      
+      // pixels / second
+      var linearSpeedY = (up) ? -1 * speed : speed;
+      var linearDistEachFrameY = linearSpeedY * timeDiff / 1000;
+      drawableObject.y += linearDistEachFrameY;
+
+      if (up && drawableObject.y < moveEvent.endingY) {
+        drawableObject.Y = moveEvent.endingY;
+      } else if (!up && drawableObject.y > moveEvent.endingY) {
+        drawableObject.y = moveEvent.endingY;
+      }
+
+      console.log('moved rectangle', drawableObject.y);
 
       return time;
     }
@@ -274,14 +306,14 @@ function Drawer(gameboard) {
       var testGameState = {
         animationsList : 
           [ 
-           new MoveEvent('player1', 250, 200),
-           new MoveEvent('player1', 400, 200),
-           new MoveEvent('player1', 250, 200),
-           new MoveEvent('player1', 120, 200),
-           new MoveEvent('player2', 250, 200),
-           new MoveEvent('player2', 400, 200),
-           new MoveEvent('player2', 250, 200),
-           new MoveEvent('player2', 120, 200),
+           new MoveEvent('player1', 250, 220),
+           new MoveEvent('player1', 400, 220),
+           new MoveEvent('player1', 250, 220),
+           new MoveEvent('player1', 120, 220),
+           new MoveEvent('player2', 250, 220),
+           new MoveEvent('player2', 400, 220),
+           new MoveEvent('player2', 250, 220),
+           new MoveEvent('player2', 400, 220),
           ]
       }
       
