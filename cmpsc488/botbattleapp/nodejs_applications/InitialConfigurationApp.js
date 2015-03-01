@@ -89,10 +89,12 @@ function InitialConfigurationApp(initConfigAppServer) {
     self.emit('progress_update', 20);
     //TODO Implement
     // Call FileManager to handle
-    // Create Game Modules Directory
-    // Create Private Tournament Directory
-    // Create Public Tournaments Directory
-    // Create Test Arenas Tmp Directory
+    // Create Game Module Directory /home/BotBattle/Game
+    fileManager.createFolder('/home/BotBattle/Game', function(){
+        server.socketIOEmitToAll('folderCreatedResult', result);
+      });
+    // Create Private Tournament Directory /home/BotBattle/Tournament
+    // Create Test Arena Temp Directory /home/BotBattle/TestArenaTemp
     callback(null);
   }
   
@@ -178,7 +180,13 @@ function InitialConfigurationApp(initConfigAppServer) {
         databasePort: sanitizer.sanitize(req.body.databasePort),
         databaseName: sanitizer.sanitize(req.body.databaseName),
         databaseUserName: sanitizer.sanitize(req.body.databaseUserName),
-        databasePassword: sanitizer.sanitize(req.body.databasePassword),    
+        databasePassword: sanitizer.sanitize(req.body.databasePassword),
+        gameName: sanitizer.sanitize(req.body.gameName),
+        gameModule: sanitizer.sanitize(req.body.gameModule),
+        gameRules: sanitizer.sanitize(req.body.gameRules),
+        tournamentName: sanitizer.sanitize(req.body.tournamentName),
+        studentList: sanitizer.sanitize(req.body.studentList),
+        tournamentDeadline: sanitizer.sanitize(req.body.tournamentDeadline), 
       };
       console.log(JSON.stringify(sanitizedFormData));
 
