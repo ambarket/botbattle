@@ -50,7 +50,10 @@ var myId = null;
 	  document.getElementById("progress").value = progress;
   })
   .on('status_update', function(status) {
-	  document.getElementById('message').innerHTML = status;
+	  var html = [];
+	  html.push('<div>' + document.getElementById('message').innerHTML + '</div>');
+	  html.push('<div>' + status + '</div>');
+	  document.getElementById('message').innerHTML = html.join('');
   })
   .on('config_success', function(data) {
     var count = 5;

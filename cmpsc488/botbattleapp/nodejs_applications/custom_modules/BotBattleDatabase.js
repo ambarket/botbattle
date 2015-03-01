@@ -30,16 +30,17 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @method connect
      * @param {Function} callback with the form function(error, botBattleDatabase)
      */
-    this.connect = function(callback){
-      var async = require('async');
+    this.connect = function(callback1){
+      //do the task with waterfall
+    	var async = require('async');
       async.waterfall(
         [
           connectToDatabaseTask,
           authenticateConnectionTask
         ], 
-        function (err) {
-          // If there was an error, don't return any data, otherwise return a reference to this object
-          callback(err, (err) ? null : self);
+        //final fucntion (this is where we pass shit to callback
+        function(err, result){
+        	callback1(err, result);
         }
       );              
     };
@@ -72,8 +73,11 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           // Store a reference to the authenticated db instance
           databaseClient = connectedDBClient;
         }
-        callback(err);
+        else{
+        	callback(err);
+        }
       });
+      callback(null, "Database setup complete");
     }
     
     this.close = function () {
