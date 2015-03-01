@@ -1,4 +1,5 @@
-
+#What is listening in Linux
+	netstat -a | egrep 'Proto|LISTEN'
 
 
 #SocketIO

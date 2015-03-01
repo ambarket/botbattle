@@ -39,7 +39,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         ], 
         function (err) {
           // If there was an error, don't return any data, otherwise return a reference to this object
-          callback(err, (err) ? null : self );
+          callback(err, (err) ? null : self);
         }
       );              
     };

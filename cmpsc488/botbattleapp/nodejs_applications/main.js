@@ -11,9 +11,12 @@ var initConfigApp = new (require('./InitialConfigurationApp'))(initConfigAppServ
       initConfigAppServer.socketIOEmitToAll('progress_update', progress);
     })
   .on('config_error', function(err) {
-      console.log("There was an error during initial configuration\n" + err.message);
-      initConfigAppServer.socketIOEmitToAll('config_error', err.message);
+      console.log("There was an error during initial configuration\n" + err);
+      initConfigAppServer.socketIOEmitToAll('config_error', err);
     })
+  .on('status_update', function(status) {
+	  initConfigAppServer.socketIOEmitToAll('status_update', status);
+  })
   .on('config_success', function(botBattleDatabase) {
       console.log("Initial configuration completed successfully!" );
       //console.log("Heres the BotBattleDatabase\n" + botBattleDatabase);

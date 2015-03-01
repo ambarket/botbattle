@@ -53,11 +53,14 @@ function InitialConfigurationApp(initConfigAppServer) {
         ], 
         function(err, results) {
           if (err) {
+        	console.log("Error was caught in setup ... " + err);
             self.emit('config_error', err);
-          } else {
-            self.emit('progress_update', 100);
-            self.emit('config_success', database);
           } 
+          else{
+        	  self.emit('status_update', "Completed Setup!");
+        	  self.emit('progress_update', 100);
+        	  self.emit('config_success', database);
+          }
         }
     );  
   }
@@ -70,12 +73,18 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initDatabaseTask(callback) {
+	console.log('Trying to emit a status');
+	var status = '....Setting up the Database';
+	self.emit('status_update', status);
     var BotBattleDatabase = require('./custom_modules/BotBattleDatabase'); 
     
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);
     
     database.connect(callback);
+    self.emit('progress_update', 45);
+    status = '....Database initialized and listening';
+    self.emit('status_update', status);
   }
   
   /**
@@ -86,13 +95,19 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initFileSystemTask(callback) {
-    self.emit('progress_update', 20);
     //TODO Implement
     // Call FileManager to handle
     // Create Game Module Directory /home/BotBattle/Game
-    fileManager.createFolder('/home/BotBattle/Game', function(){
-        server.socketIOEmitToAll('folderCreatedResult', result);
-      });
+	self.emit('status_update', ' Creating Game Module Directory');
+    fileManager.createFolder('/home/BotBattle/Game', function(err, result){
+    	if(err){
+    		callback(err);
+    	}
+    	else{
+    		 self.emit('progress_update', 55);
+    		 self.emit('status_update', result);	    
+    	}
+    });    
     // Create Private Tournament Directory /home/BotBattle/Tournament
     // Create Test Arena Temp Directory /home/BotBattle/TestArenaTemp
     callback(null);
@@ -107,7 +122,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initSystemParametersTask(callback) {
-    self.emit('progress_update', 40);
+    //self.emit('progress_update', 40);
     //TODO Implement
     // Store system parameters in the db
     // Store the paths to the Game Modules, Private/Public tournaments,
@@ -129,7 +144,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initGameModuleTask(callback) {
-    self.emit('progress_update', 60);
+    //self.emit('progress_update', 60);
   //TODO Implement
     //Setup the Game Module
     // Call FileManager to handle
@@ -154,7 +169,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initTournamentTask(callback) {
-    self.emit('progress_update', 80);
+   // self.emit('progress_update', 80);
     //TODO Implement
     
     //Set up the Tournament

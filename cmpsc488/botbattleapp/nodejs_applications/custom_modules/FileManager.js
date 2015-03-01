@@ -20,14 +20,14 @@ module.exports = function FileManager() {
      * @public
      */
     this.createFolder = function(folderPath, callback){
-       fse.ensureDir(folderPath, function(err){
+       fse.ensureDir(folderPath, function(err,result){
           if (err) {
             console.log("Error creating directory: " + err);
-            if(callback) {callback("Error creating directory: " + err);} 
+            if(callback) {callback(err, "Error creating directory: " + err);} 
           }
           else{
             console.log("Created " + folderPath);
-            if(callback) {callback("Created " + folderPath);}
+            if(callback) {callback(null, "Created " + folderPath);}
           }
        });
      };
@@ -46,14 +46,14 @@ module.exports = function FileManager() {
       * @public
       */
      this.createFile = function(filePath, callback){
-       fse.createFile(filePath, function(err){
+       fse.createFile(filePath, function(err, result){
            if (err) {
              console.log("Error creating file: " + err);
-             if(callback) {callback("Error creating file: " + err);}
+             if(callback) {callback(err, "Error creating file: " + err);}
            }
            else{
              console.log("Created " + filePath);
-             if(callback) {callback("Created " + filePath);}
+             if(callback) {callback(null, "Created " + filePath);}
            }
         });
       };

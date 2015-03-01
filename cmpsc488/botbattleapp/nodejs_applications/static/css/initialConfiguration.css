@@ -16,11 +16,11 @@ body {
 	color: #7777AA;
 }
 
-#progress{
+#progressTitle{
 	font-size: 20px;
 }
 
-#submit{
+#submitButton{
 	font-size: 20px;
 	background: #7777AA;
 	border-radius: 10px;
