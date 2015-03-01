@@ -72,9 +72,9 @@ var GameBoard = function(readyCallback) {
 
   var self = this;
   this.drawableObjects = {
-    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround.png', 0,0,400,640, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImageRight.png', 120,220,50,50, imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImageLeft.png', 400,220,50,50, imageLoadedCallback),
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround.png', 0,0,563,900, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImageRight.png', 150,320,50,50, imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImageLeft.png', 700,320,50,50, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   this.backgroundElements = {
@@ -111,12 +111,13 @@ function Animator(gameboard) {
       backgroundAnimations();
       //console.log(gameboard.drawableObjects[moveEvent.objectName]);
       var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
+      var time;
+      var done;
       
-      
-      var time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
+      time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
       time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
       
-      var done = moveEvent.animationComplete(drawableObject);
+      done = moveEvent.animationComplete(drawableObject);
       
       drawer.drawBoard();
 
@@ -128,6 +129,29 @@ function Animator(gameboard) {
         console.log('animation of', moveEvent, 'complete!')
         callback();
       }
+    },
+    fly : function(moveEvent, lastUpdateTime, callback) {
+        backgroundAnimations();
+        var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
+        var time;
+        
+        var endX = moveEvent.endingX;
+        console.log("endx " + endX);
+        moveEvent.endingX = drawableObject.x;
+        console.log("endingx " + moveEvent.endingX);
+        
+        moveEvent.event = 'move';
+        
+        animations.move(moveEvent, (new Date()).getTime(), function(){
+        	moveEvent.endingX = endX;
+        	console.log("Moved up");
+        	animations.move(moveEvent, (new Date()).getTime(),function(){
+        		moveEvent.endingY = drawableObject.y + 100;
+        		console.log("moved Over");
+        		console.log("New endingy is " + moveEvent.endingY);
+        		animations.move(moveEvent, (new Date()).getTime() , callback)
+        	})
+        });
     },
     attack : function(animation, callback) {
 
@@ -165,7 +189,7 @@ function Animator(gameboard) {
     if (!nextGameState) {
       imRunning = false;
     } else {
-      animateGameState(nextGameState, function() {
+        animateGameState(nextGameState, function() {
         processNextGameState()
       })
     }
@@ -177,7 +201,19 @@ function Animator(gameboard) {
 
   var animateIndividual = function(animatableEvent, callback) {
     var startTime = (new Date()).getTime();
-    animations[animatableEvent.event](animatableEvent, startTime, callback);
+    // make the robot fly half the time
+    coin = Math.random();
+    if (coin <= .50){
+    	if(animatableEvent.event === 'move'){
+    		console.log("Making him fly!");
+    		animatableEvent.event = 'fly';
+    		animatableEvent.endingY = gameboard.drawableObjects[animatableEvent.objectName].y - 100;
+    		animations[animatableEvent.event](animatableEvent, startTime, callback);
+    	}
+    }
+    else{
+    	animations[animatableEvent.event](animatableEvent, startTime, callback);
+    }
   }
   
   // Stupid but shows we can add logic to update other elements every frame pretty easily here
@@ -216,9 +252,9 @@ function Animator(gameboard) {
       var linearDistEachFrameX = linearSpeedX * timeDiff / 1000;
       drawableObject.x += linearDistEachFrameX;
 
-      if (backwards && drawableObject.x < moveEvent.endingX) {
+      if (backwards && drawableObject.x <= moveEvent.endingX) {
         drawableObject.x = moveEvent.endingX;
-      } else if (!backwards && drawableObject.x > moveEvent.endingX) {
+      } else if (!backwards && drawableObject.x >= moveEvent.endingX) {
         drawableObject.x = moveEvent.endingX;
       }
 
@@ -247,9 +283,9 @@ function Animator(gameboard) {
       var linearDistEachFrameY = linearSpeedY * timeDiff / 1000;
       drawableObject.y += linearDistEachFrameY;
 
-      if (up && drawableObject.y < moveEvent.endingY) {
+      if (up && drawableObject.y <= moveEvent.endingY) {
         drawableObject.Y = moveEvent.endingY;
-      } else if (!up && drawableObject.y > moveEvent.endingY) {
+      } else if (!up && drawableObject.y >= moveEvent.endingY) {
         drawableObject.y = moveEvent.endingY;
       }
 
@@ -306,17 +342,17 @@ function Drawer(gameboard) {
       var testGameState = {
         animationsList : 
           [ 
-           new MoveEvent('player1', 250, 220),
-           new MoveEvent('player1', 400, 220),
-           new MoveEvent('player1', 250, 220),
-           new MoveEvent('player1', 120, 220),
-           new MoveEvent('player2', 250, 220),
-           new MoveEvent('player2', 400, 220),
-           new MoveEvent('player2', 250, 220),
-           new MoveEvent('player2', 400, 220),
+           new MoveEvent('player1', 250, 320),
+           new MoveEvent('player1', 400, 320),
+           new MoveEvent('player1', 250, 320),
+           new MoveEvent('player1', 150, 320),
+           new MoveEvent('player2', 250, 320),
+           new MoveEvent('player2', 400, 320),
+           new MoveEvent('player2', 250, 320),
+           new MoveEvent('player2', 700, 320),
           ]
       }
-      
+      console.log("Someone Clicked");
       animator.addNewGameState(testGameState);
       
     });
