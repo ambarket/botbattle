@@ -10,10 +10,8 @@ public class TicTacToeBot{
 	
 	public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException{
 		temp = Boolean.parseBoolean(args[0]);
-		PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");
-		PrintWriter writer2 = new PrintWriter("the-file-name2.txt", "UTF-8");
-		writer2.println("test ");
-		writer2.close(); 
+		PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");//TODO: remove testing file
+		
 		Scanner scner = new Scanner(System.in);
 		
 		String board;
