@@ -1,20 +1,34 @@
 package game.manger;
 
+import java.util.Scanner;
+
 public class TicTacToeBot{
 
 	static boolean temp;
 	
 	public static void main(String[] args){
 		temp = Boolean.parseBoolean(args[0]);
+				
+		Scanner scner = new Scanner(System.in);
 		
-		//TODO add loop reading from stdin
-		//check if equal to game over
-		//if not get move
-		//write move to output
+		String board;
+		
+		while(scner.hasNext()){
+			board = scner.nextLine();
+			
+			if(board.equals("exit")){
+				break;
+			}
+			
+			String move = getMove(board);
+			System.out.println(move);
+		}
+		
+		
 	}
 	
 
-	public String getMove(String board) {
+	public static String getMove(String board) {
 		int row = 1, col = 1;
 		int i = 0;
 		for (char c : board.toCharArray()) {
