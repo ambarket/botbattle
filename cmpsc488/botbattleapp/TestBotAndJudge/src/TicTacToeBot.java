@@ -20,7 +20,7 @@ public class TicTacToeBot{
 		
 		while(scner.hasNext()){
 			board = scner.nextLine();
-			board = scner.nextLine();
+			
 			writer.println("Board read: " + board);
 			writer.flush();
 			if(board.equals("exit")){
