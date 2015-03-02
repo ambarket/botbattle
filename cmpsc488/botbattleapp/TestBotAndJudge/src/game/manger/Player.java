@@ -1,6 +1,7 @@
 package game.manger;
 
 import java.io.BufferedReader;
+import java.util.TimerTask;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +14,14 @@ import java.io.OutputStreamWriter;
  * @author Randall
  *
  */
-public class Player {
-	private String botFilePath;
-	private Process botProcess;
-	private String usersName;
-	private BufferedReader reader;
-	private BufferedWriter writer;
+public class Player implements Runnable {
+	protected String botFilePath;
+	protected Process botProcess;
+	protected String usersName;
+	protected BufferedReader reader;
+	protected BufferedWriter writer;
+	protected volatile boolean read;
+	protected volatile String move;
 	
 	
 	//TODO: change thrown exception to try catch block or
@@ -33,7 +36,7 @@ public class Player {
 		this.botFilePath = botFilePath;
 		this.usersName = usersName;
 		
-		ProcessBuilder builder = new ProcessBuilder("java", usersName);
+		ProcessBuilder builder = new ProcessBuilder("java", usersName, "false");//TODO: remove false; its just for testing
 		builder.directory(new File(botFilePath));
 		
 		botProcess = builder.start();
@@ -43,15 +46,32 @@ public class Player {
 
         reader = new BufferedReader(new InputStreamReader(stdout));
         writer = new BufferedWriter(new OutputStreamWriter(stdin));
+        read = false;              
 	}
 	
-	public String getMove(String board){
+	public String getMove(String board) throws InterruptedException{
 		
+
 		try {
-			writer.write(board);
+			writer.write(board + "\n");
 			writer.flush();
-			//TODO: put in its own thread and use a time out
-			return reader.readLine();
+			read = false;
+			Thread t = new Thread(this);
+			t.start();
+			t.join(3000);
+
+			if(read == true){
+				return move;
+			}
+			else{
+				System.out.println("Sending eof");
+				writer.write("\n\n\n\u001a\n\u001a");
+				writer.flush();
+				System.out.println("trying to close");
+				reader.close();
+				System.out.println("Closed");
+			}
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,6 +79,9 @@ public class Player {
 		
 		return null;
 	}
+	
+	
+	
 
 	//TODO: determine if these Streams are needed outside of this class
 	//		if they are not then remove these getters
@@ -83,6 +106,21 @@ public class Player {
 
 	public String getUsersName() {
 		return usersName;
+	}
+
+	@Override
+	public void run() {
+		
+			System.out.println("Trying to read move");
+			try {
+				move = reader.readLine();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Move read: " + move);
+			read = true;
+			
 	}
 	
 	
