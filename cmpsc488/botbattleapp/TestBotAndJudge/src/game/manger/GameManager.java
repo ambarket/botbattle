@@ -14,7 +14,7 @@ public class GameManager implements Runnable {
 	 * @param player2
 	 * @param game
 	 */
-	public GameManager(Player player1, Player player2, GameInterface game) {
+	public GameManager(Player player1, Player player2, GameInterface game) {//TODO: Remove GameInterface and just make it Game
 		this.player1 = player1;
 		this.player2 = player2;
 		this.game = game;
