@@ -108,4 +108,9 @@ public class TicTacToeGame implements GameInterface {
 		return null;
 	}
 
+	@Override
+	public int getBotTimeoutInMilliseconds() {
+		return 3000;
+	}
+
 }
