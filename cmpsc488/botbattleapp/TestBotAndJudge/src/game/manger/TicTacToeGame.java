@@ -42,6 +42,7 @@ public class TicTacToeGame implements GameInterface {
 			col = Integer.parseInt(move.substring(3, 4));
 			character = move.substring(6);
 		} catch (NumberFormatException e) {
+			System.out.println("Invalid move: " + move);
 			return false;
 		}
 		
