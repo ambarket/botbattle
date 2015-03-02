@@ -111,7 +111,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     	else{
     		self.emit('status_update', result);
     		self.emit('progress_update', 40);
-    		callback(null);
+    		callback(null); // one callback for series, so need to nest the next or make new functions
     	}
     });
     // Create Private Tournament Directory /home/BotBattle/Tournament
@@ -200,6 +200,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    
 	  initConfigAppServer.addStaticFileRoute('/','/static/html/initialConfiguration.html');
 	  
+	// multer needs to be added here for security reasons
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration', function(req, res) {
       console.log(JSON.stringify(req.body));
       var sanitizer=require('sanitizer');
@@ -217,6 +218,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         tournamentDeadline: sanitizer.sanitize(req.body.tournamentDeadline), 
       };
       console.log(JSON.stringify(sanitizedFormData));
+      console.log(req.files);
 
       executeAllInitialConfigurationTasksInSequence();
     });
