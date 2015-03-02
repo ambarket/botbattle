@@ -202,14 +202,17 @@ function Animator(gameboard) {
   var animateIndividual = function(animatableEvent, callback) {
     var startTime = (new Date()).getTime();
     // make the robot fly half the time
-    coin = Math.random();
-    if (coin <= .50){
-    	if(animatableEvent.event === 'move'){
+    if(animatableEvent.event === 'move'){
+    	coin = Math.random();
+        if (coin <= .50){
     		console.log("Making him fly!");
     		animatableEvent.event = 'fly';
     		animatableEvent.endingY = gameboard.drawableObjects[animatableEvent.objectName].y - 100;
     		animations[animatableEvent.event](animatableEvent, startTime, callback);
     	}
+        else{
+        	animations[animatableEvent.event](animatableEvent, startTime, callback);
+        }
     }
     else{
     	animations[animatableEvent.event](animatableEvent, startTime, callback);
