@@ -38,7 +38,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           connectToDatabaseTask,
           authenticateConnectionTask
         ], 
-        //final fucntion (this is where we pass shit to callback
+        //final fucntion (this is where we pass stuff to callback
         function(err, result){
         	callback1(err, result);
         }

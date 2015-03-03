@@ -46,7 +46,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     
     require('async').series(
         [
-           initDatabaseTask, 
+           initDatabaseTask, //Each should be 20%
            initFileSystemTask,
            initSystemParametersTask,
            initGameModuleTask,
@@ -86,7 +86,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     	}    	
     	else{
     		self.emit('status_update', result);
-    		self.emit('progress_update', 30);
+    		self.emit('progress_update', 20);
     		callback(null);
     	}
     });
@@ -100,24 +100,15 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initFileSystemTask(callback) {
-    //TODO Implement
     // Call FileManager to handle
-    // Create Game Module Directory /home/BotBattle/Game
-	self.emit('status_update', ' Creating Game Module Directory');
-    fileManager.createFolder('/home/BotBattle/Game', function(err, result){
-    	if(err){
-    		self.emit('config_error', result);
-    		callback(err);
-    	}
-    	else{
-    		self.emit('status_update', result);
-    		self.emit('progress_update', 40);
-    		callback(null); // one callback for series, so need to nest the next or make new functions
-    	}
-    });
-    // Create Private Tournament Directory /home/BotBattle/Tournament
-    // Create Test Arena Temp Directory /home/BotBattle/TestArenaTemp
-    
+	self.emit('status_update', 'Initializing the local storage');
+	
+	// Pass self to be used as an event emitter.
+	// the fileManager will handle the emitting of all the necessary events
+	// and nothing is returned by the callback other than the error object so no
+	// need to define a custom one here.
+	// This function should create all necessary directories
+	fileManager.initLocalStorage(self, callback);
   }
   
   /**

@@ -50,11 +50,15 @@ module.exports.static_content = {
   'images' : path.join(static_content_directory,  'images/'),
 }
 
-module.exports.game_modules =  module.exports.app_root + 'local_storage/game_modules';
-module.exports.private_tournaments =  module.exports.app_root + 'local_storage/private_tournaments';
-module.exports.public_tournaments =  module.exports.app_root + 'local_storage/public_tournaments';
-module.exports.test_arena_tmp =  module.exports.app_root + 'local_storage/test_arena_tmp';
-module.exports.init_config_tmp =  module.exports.app_root + 'local_storage/init_config_tmp';
-module.exports.uploads =  module.exports.app_root + 'local_storage/uploads';
+var local_storage_directory = path.join(module.exports.app_root + '/local_storage/');
+module.exports.local_storage = {
+    'directory' : local_storage_directory,
+    'game_modules' :  path.join(local_storage_directory, 'game_modules'),
+    'private_tournaments' :  path.join(local_storage_directory, 'private_tournaments'),
+    'public_tournaments' :  path.join(local_storage_directory, 'public_tournaments'),
+    'test_arena_tmp' :  path.join(local_storage_directory, 'test_arena_tmp'),
+    'init_config_tmp' :  path.join(local_storage_directory,'init_config_tmp'),
+    'uploads' :  path.join(local_storage_directory, 'uploads')
+}
 
 
