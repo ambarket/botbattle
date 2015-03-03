@@ -12,7 +12,8 @@
 */
 function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
-  var fileManager = new (require('./custom_modules/FileManager'));
+  var paths = require('./BotBattlePaths');
+  var fileManager = new (require(paths.custom_modules.FileManager));
   
   /**
   *  An object containing all fields submitted in the initial configuration form after sanitization.
@@ -74,7 +75,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    */
   function initDatabaseTask(callback) {
 	self.emit('status_update', 'Setting up the Database');
-    var BotBattleDatabase = require('./custom_modules/BotBattleDatabase'); 
+    var BotBattleDatabase = require(paths.custom_modules.BotBattleDatabase); 
     
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);
@@ -105,7 +106,7 @@ function InitialConfigurationApp(initConfigAppServer) {
 	self.emit('status_update', ' Creating Game Module Directory');
     fileManager.createFolder('/home/BotBattle/Game', function(err, result){
     	if(err){
-    		self.emit('status_update', result);
+    		self.emit('config_error', result);
     		callback(err);
     	}
     	else{
@@ -197,8 +198,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   (function registerInitialConfigurationRoutes() {
-   
-	  initConfigAppServer.addStaticFileRoute('/','/static/html/initialConfiguration.html');
+	  initConfigAppServer.addStaticFileRoute('/', paths.static_content.html + 'initialConfiguration.html');
 	  
 	// multer needs to be added here for security reasons
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration', function(req, res) {
