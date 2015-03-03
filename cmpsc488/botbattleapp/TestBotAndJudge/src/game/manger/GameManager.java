@@ -18,8 +18,7 @@ public class GameManager implements Runnable {
 		this.player1 = player1;
 		this.player2 = player2;
 		this.game = game;
-		results = new GameResults();
-		
+		results = new GameResults();		
 	}
 
 
@@ -58,6 +57,7 @@ public class GameManager implements Runnable {
 				System.out.println("Invalid move made");
 				break;
 			}
+			
 			i++;
 		}
 	}

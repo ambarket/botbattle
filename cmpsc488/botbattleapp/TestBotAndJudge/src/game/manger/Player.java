@@ -1,7 +1,6 @@
 package game.manger;
 
 import java.io.BufferedReader;
-import java.util.TimerTask;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class Player implements Runnable {
 		this.botFilePath = botFilePath;
 		this.usersName = usersName;
 		
-		ProcessBuilder builder = new ProcessBuilder("java", usersName);//TODO: remove false; its just for testing
+		ProcessBuilder builder = new ProcessBuilder("java", usersName);
 		builder.directory(new File(botFilePath));
 		
 		botProcess = builder.start();
@@ -111,17 +110,13 @@ public class Player implements Runnable {
 
 	@Override
 	public void run() {
-		
-			System.out.println("Trying to read move");
 			try {
 				move = reader.readLine();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("Move read: " + move);
-			read = true;
-			
+			read = true;			
 	}
 
 	@Override

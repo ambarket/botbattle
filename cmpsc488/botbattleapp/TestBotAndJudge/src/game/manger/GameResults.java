@@ -16,6 +16,29 @@ public class GameResults {
 		winner = -1; //TODO use enumeration for players
 	}
 	
+	@Override
+	public String toString() {
+		String results = "";
+		
+		int i = 0;
+		
+		for (String board : boards) {
+			results += "Board: " + board + "\n";
+			
+			if(i % 2 == 0){
+				if(i/2 < player1Moves.size())
+					results += "\tPlayer 1: " + player1Moves.get(i/2) + "\n";
+			}
+			else{
+				if(i/2 < player2Moves.size())
+					results += "\tPlayer 2: " + player2Moves.get(i/2) + "\n";
+			}
+			i++;
+		}
+		
+		return results;
+	}
+
 	public void addMove(String move, int player){
 		if(player == 1)
 			player1Moves.add(move);
