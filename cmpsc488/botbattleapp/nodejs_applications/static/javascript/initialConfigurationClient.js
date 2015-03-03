@@ -47,7 +47,13 @@ var myId = null;
     console.log(socket);
   })
   .on('progress_update', function(progress) {
-    $('#progress').val(progress);
+	  document.getElementById("progress").value = progress;
+  })
+  .on('status_update', function(status) {
+	  var html = [];
+	  html.push('<div>' + document.getElementById('message').innerHTML + '</div>');
+	  html.push('<div>' + status + '</div>');
+	  document.getElementById('message').innerHTML = html.join('');
   })
   .on('config_success', function(data) {
     var count = 5;
@@ -71,7 +77,7 @@ var myId = null;
     socket.emit('unitTestToServer', null);
   })
 
-// Submit the form via an ajax request.
+// Submit the form via an ajax request.   ////////////// password is being sent plaintext !!!!!!!!!!!
 var form = document.getElementById("initConfigForm");
 form.addEventListener('submit', function(ev) {
   var req = new XMLHttpRequest();
@@ -88,4 +94,11 @@ form.addEventListener('submit', function(ev) {
   };
   ev.preventDefault();
 }, false);
+
+var submitButton = document.getElementById("submitButton");
+
+submitButton.addEventListener('click', function(){
+	document.getElementById("progress").value = 0;
+	document.getElementById("message").innerHTML = '&nbsp';
+});
 

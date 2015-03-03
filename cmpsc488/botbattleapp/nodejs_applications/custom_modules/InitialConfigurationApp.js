@@ -12,7 +12,8 @@
 */
 function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
-  var fileManager = new (require('./custom_modules/FileManager'));
+  var paths = require('./BotBattlePaths');
+  var fileManager = new (require(paths.custom_modules.FileManager));
   
   /**
   *  An object containing all fields submitted in the initial configuration form after sanitization.
@@ -51,13 +52,16 @@ function InitialConfigurationApp(initConfigAppServer) {
            initGameModuleTask,
            initTournamentTask
         ], 
-        function(err, results) {
+        function(err) {
           if (err) {
+        	console.log("Error was caught in setup ... " + err);
             self.emit('config_error', err);
-          } else {
-            self.emit('progress_update', 100);
-            self.emit('config_success', database);
           } 
+          else{
+        	  self.emit('status_update', 'Completed setup.');
+        	  self.emit('progress_update', 100);
+        	  //self.emit('config_success', database);        	  
+          }
         }
     );  
   }
@@ -70,12 +74,22 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initDatabaseTask(callback) {
-    var BotBattleDatabase = require('./custom_modules/BotBattleDatabase'); 
+	self.emit('status_update', 'Setting up the Database');
+    var BotBattleDatabase = require(paths.custom_modules.BotBattleDatabase); 
     
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);
     
-    database.connect(callback);
+    database.connect(function(err, result){
+    	if(err){
+    		self.emit('config_error', err);
+    	}    	
+    	else{
+    		self.emit('status_update', result);
+    		self.emit('progress_update', 30);
+    		callback(null);
+    	}
+    });
   }
   
   /**
@@ -86,14 +100,24 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initFileSystemTask(callback) {
-    self.emit('progress_update', 20);
     //TODO Implement
     // Call FileManager to handle
-    // Create Game Modules Directory
-    // Create Private Tournament Directory
-    // Create Public Tournaments Directory
-    // Create Test Arenas Tmp Directory
-    callback(null);
+    // Create Game Module Directory /home/BotBattle/Game
+	self.emit('status_update', ' Creating Game Module Directory');
+    fileManager.createFolder('/home/BotBattle/Game', function(err, result){
+    	if(err){
+    		self.emit('config_error', result);
+    		callback(err);
+    	}
+    	else{
+    		self.emit('status_update', result);
+    		self.emit('progress_update', 40);
+    		callback(null); // one callback for series, so need to nest the next or make new functions
+    	}
+    });
+    // Create Private Tournament Directory /home/BotBattle/Tournament
+    // Create Test Arena Temp Directory /home/BotBattle/TestArenaTemp
+    
   }
   
   /**
@@ -105,7 +129,8 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initSystemParametersTask(callback) {
-    self.emit('progress_update', 40);
+	  console.log("made it here");
+    //self.emit('progress_update', 40);
     //TODO Implement
     // Store system parameters in the db
     // Store the paths to the Game Modules, Private/Public tournaments,
@@ -114,6 +139,8 @@ function InitialConfigurationApp(initConfigAppServer) {
     // Store admin user in the db
     // Create user object for the admin
     // Store this object in the AdminUsers collection
+
+		self.emit('progress_update', 50);
     callback(null);
   }
   
@@ -127,7 +154,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initGameModuleTask(callback) {
-    self.emit('progress_update', 60);
+    //self.emit('progress_update', 60);
   //TODO Implement
     //Setup the Game Module
     // Call FileManager to handle
@@ -139,6 +166,8 @@ function InitialConfigurationApp(initConfigAppServer) {
     // sub directory)
     
     // Store an entry in the DB for the Game Module
+
+		self.emit('progress_update', 60);
     callback(null);
   }
   
@@ -152,11 +181,13 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initTournamentTask(callback) {
-    self.emit('progress_update', 80);
+   // self.emit('progress_update', 80);
     //TODO Implement
     
     //Set up the Tournament
       // Build a userlist object from the uploaded txt file.
+
+		self.emit('progress_update',80);
     callback(null);
   }
   
@@ -167,9 +198,9 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   (function registerInitialConfigurationRoutes() {
-   
-	  initConfigAppServer.addStaticFileRoute('/','/static/html/initialConfiguration.html');
+	  initConfigAppServer.addStaticFileRoute('/', paths.static_content.html + 'initialConfiguration.html');
 	  
+	// multer needs to be added here for security reasons
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration', function(req, res) {
       console.log(JSON.stringify(req.body));
       var sanitizer=require('sanitizer');
@@ -178,9 +209,16 @@ function InitialConfigurationApp(initConfigAppServer) {
         databasePort: sanitizer.sanitize(req.body.databasePort),
         databaseName: sanitizer.sanitize(req.body.databaseName),
         databaseUserName: sanitizer.sanitize(req.body.databaseUserName),
-        databasePassword: sanitizer.sanitize(req.body.databasePassword),    
+        databasePassword: sanitizer.sanitize(req.body.databasePassword),
+        gameName: sanitizer.sanitize(req.body.gameName),
+        gameModule: sanitizer.sanitize(req.body.gameModule),
+        gameRules: sanitizer.sanitize(req.body.gameRules),
+        tournamentName: sanitizer.sanitize(req.body.tournamentName),
+        studentList: sanitizer.sanitize(req.body.studentList),
+        tournamentDeadline: sanitizer.sanitize(req.body.tournamentDeadline), 
       };
       console.log(JSON.stringify(sanitizedFormData));
+      console.log(req.files);
 
       executeAllInitialConfigurationTasksInSequence();
     });
