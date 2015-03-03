@@ -4,14 +4,13 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 
-public class TicTacToeBot1{
+public class TicTacToeBot2{
 
 	static boolean temp;
 	
 	public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException{
-		temp = false;
-		PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");//TODO: remove testing file
-		
+		temp = true;
+		PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");//TODO: remove testing file		
 		Scanner scner = new Scanner(System.in);
 		
 		String board;
