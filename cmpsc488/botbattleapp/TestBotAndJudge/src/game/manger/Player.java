@@ -46,7 +46,8 @@ public class Player implements Runnable {
 
         reader = new BufferedReader(new InputStreamReader(stdout));
         writer = new BufferedWriter(new OutputStreamWriter(stdin));
-        read = false;              
+        read = false;  
+        move = null;
 	}
 	
 	public String getMove(String board) throws InterruptedException{
