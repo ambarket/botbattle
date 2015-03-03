@@ -113,4 +113,9 @@ public class TicTacToeGame implements GameInterface {
 		return 3000;
 	}
 
+	@Override
+	public String toString() {
+		return "TicTacToe";
+	}
+
 }

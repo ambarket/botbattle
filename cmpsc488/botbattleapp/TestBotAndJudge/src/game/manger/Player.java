@@ -36,7 +36,7 @@ public class Player implements Runnable {
 		this.botFilePath = botFilePath;
 		this.usersName = usersName;
 		
-		ProcessBuilder builder = new ProcessBuilder("java", usersName, "false");//TODO: remove false; its just for testing
+		ProcessBuilder builder = new ProcessBuilder("java", usersName);//TODO: remove false; its just for testing
 		builder.directory(new File(botFilePath));
 		
 		botProcess = builder.start();
@@ -122,6 +122,12 @@ public class Player implements Runnable {
 			System.out.println("Move read: " + move);
 			read = true;
 			
+	}
+
+	@Override
+	public String toString() {
+		return "Player [\n\t\tbotFilePath=" + botFilePath + ",\n\t\t usersName="
+				+ usersName + "]";
 	}
 	
 	

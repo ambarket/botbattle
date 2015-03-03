@@ -65,4 +65,14 @@ public class GameManager implements Runnable {
 	public String getHTMLForEntireGame(){ //TODO implement getHTML function in gameManager
 		return null;
 	}
+
+
+
+	@Override
+	public String toString() {
+		return "GameManager [\n\tplayer1=" + player1 + ",\n\tplayer2=" + player2
+				+ ",\n game=" + game + ",\n results=" + results + "]";
+	}
+	
+	
 }
