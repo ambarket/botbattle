@@ -8,16 +8,13 @@ var express=require('express');
 var sanitizer=require('sanitizer');
 var spawn = require('child_process').spawn;
 
-//app.use('/basicInOutErr(.html)?', express.static(__dirname + '/static/basicInOutErr.html'));
-botBattleAppServer.addDynamicRoute('get', '/',function(req,res){
-      res.sendFile(__dirname + '/static/basicInOutErr.html');
-});
+botBattleAppServer.addStaticFileRoute('/', '/static/html/basicInOutErr.html');
 
 //var sockets = [];
 
 var db = [];
 var counter = 0;
-botBattleAppServer.onReceiveSocketIO('connection', function(socket){  // if a bot is running and a user has intermittent connection then this is reloaded.  The program does not get shut down but the counter increases.  Not good!!!!
+botBattleAppServer.socketIOReceiveFromAll('connection', function(socket){  // if a bot is running and a user has intermittent connection then this is reloaded.  The program does not get shut down but the counter increases.  Not good!!!!
        //console.log("new client" + socket);   //  This is why we need them to log in or use cookies to make sure it's the same person or client.
        //sockets[sockets.length] = socket;
        db[counter] = { 
@@ -108,8 +105,8 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
 				}
 				else if (db[id].language === 'java')
 				{
-					db[id].compile = spawn('javac', [__dirname + '\\' + db[id].filePath]); // compiler ware here too
-					console.log(__dirname + '\\' + db[id].filePath);
+					db[id].compile = spawn('javac', [__dirname + '/' + db[id].filePath]); // compiler ware here too
+					console.log(__dirname + '/' + db[id].filePath);
 				}
 			}
 			else{

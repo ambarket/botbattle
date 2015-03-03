@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css"
+	href="static/css/initialConfiguration.css">
+<title>BOTBATTLE!!!</title>
+</head>
+<body class="centered">
+	<form id="initConfigForm" enctype="multipart/form-data"">
+		<!-- <b>Upload:</b> <input type="file" required name="fileInput"> -->
+
+		<div class="form-group">
+			<h1>Database Configuration</h1>
+			<div class="form-item">
+				<label id="title" for="databaseHost"> Database Host <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input type="text" maxlength="60" size="30" value="127.0.0.1"
+					placeholder="e.g. 127.0.0.1 or localhost" required
+					name="databaseHost"></input>
+			</div>
+			<div class="form-item">
+				<label id="title" for="databasePort"> Database Port <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="databasePort" type="text" maxlength="5" size="15"
+					value="27017" required></input>
+			</div>
+			<div class="form-item">
+				<label id="title" for="databaseName"> Database Name <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="databaseName" type="text" maxlength="60" size="15"
+					value="testDB" placeholder="botbattle" required></input>
+			</div>
+			<div class="form-item">
+				<label id="title" for="databaseUserName"> Admin Name <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="databaseUserName" type="text" maxlength="60" size="15"
+					value="testUser" placeholder="testUser" required></input>
+			</div>
+			<div class="form-item">
+				<label id="title" for="databasePassword"> Admin Password <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="databasePassword" type="password" maxlength="60"
+					size="15" value="testPass" required></input>
+			</div>
+			<hr>
+			<!-- 
+			This was going to where you put in directory locations, but I think it's better to just have the admin
+			upload file locations and then not allow them to change the location of the directories for security and 
+			simplicity
+			
+			<h2>Directory Setup</h2>
+			<div class="form-item">
+				<label for="tournamentLocation"> Tournament Directory<span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="tournamentLocation" type="text" maxlength="300"
+					size="30" value="/home/BotBattle/Tournament" required></input>
+			</div>
+			<div class="form-item">
+				<label for="gameModule"> Game Module Location<span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="gameModule" type="text" maxlength="300"
+					size="30" value="/home/BotBattle/Game" required></input>
+			</div>
+			<div class="form-item">
+				<label for="testArenaTmp"> Test Arena Working Directory<span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="testArenaTmp" type="text" maxlength="300"
+					size="30" value="/home/BotBattle/TestArenaTemp" required></input>
+			</div> -->
+			<h1>Game Setup</h1>
+			<div class="form-item">
+				<label id="title" for="gameName"> Game Name<span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="gameName" type="text" maxlength="100"
+					size="30" value="SuperAwesomeFunGame" required></input>
+			</div>
+			
+			<!-- https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications -->
+			<div class="form-item">
+				<label id="title" for="gameModule"> Game Module <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="gameModule" type="file" required></input>
+					<p></p>
+			</div>
+			
+			<div class="form-item">
+				<label id="title" for="gameRules"> Game Rules <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="gameRules" type="file" required></input>
+					<p></p>
+			</div>
+			<hr>
+			<h1>Tournament Setup</h1>
+			<div class="form-item">
+				<label id="title" for="tournamentName"> Tournament Name<span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="tournamentName" type="text" maxlength="100"
+					size="30" value="Clash of The Bots!!" required></input>
+			</div>
+			
+			<!-- https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications -->
+			<div class="form-item">
+				<label id="title" for="studentList"> Student List <span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="studentList" type="file" required></input>
+					<p></p>
+			</div>
+			
+			<div class="form-item">
+				<label id="title" for="tournamentDeadline"> Upload Deadline<span
+					class="form-required" title="This field is required."> * </span>
+				</label> <input name="tournamentDeadline" type="date" required></input>
+					<p></p>
+			</div>
+		</div>
+		
+		<hr>
+		
+		<p>
+		<input id="submitButton" type="submit" value="Submit">
+		</p>
+		
+	</form>
+	<p id="progressTitle">
+		Progress:
+		<progress id="progress" value="0" max="100" size="20"> </progress>
+	</p>
+	<p id="message">&nbsp</p>
+</body>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script	src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+
+<!--  Seemed like trying to defer this script actually caused the io referercen error in the browser
+      and also may have resulting is some weird behavior of socket.io. -->
+      
+<script src="/static/javascript/initialConfigurationClient.js"></script>
+
+
+</html>
