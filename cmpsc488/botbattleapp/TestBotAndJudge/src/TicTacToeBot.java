@@ -16,7 +16,7 @@ public class TicTacToeBot{
 		
 		String board;
 		
-		while(scner.hasNext()){
+		while(scner.hasNextLine()){
 			board = scner.nextLine();
 			
 			writer.println("Board read: " + board);
