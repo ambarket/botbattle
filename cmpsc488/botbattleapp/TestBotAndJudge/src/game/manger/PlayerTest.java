@@ -56,8 +56,6 @@ public class PlayerTest {
 		p1.run();
 		
 		assertNotNull(p1.move);
-		
-		//assertEquals("Test\n", p1.move);
 	}
 
 }
