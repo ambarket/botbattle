@@ -15,6 +15,8 @@
   *        paths.custom_modules.[module_name]    //Path to a specific module
   *        @constructor 
   */
+//TODO update the above description
+
 var path = require('path');
 
 // Must be changed if the BotBattlePaths.js file is ever moved
