@@ -29,7 +29,7 @@ public class TicTacToeBot1{
 			writer.println("move sent: " + move);
 			writer.flush();
 			System.out.print(move + "\r\n");
-			System.out.println(move);
+
 			System.out.flush();
 			writer.println("Done sending move");
 		}
