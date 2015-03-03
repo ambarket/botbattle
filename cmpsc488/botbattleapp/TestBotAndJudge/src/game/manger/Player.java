@@ -51,8 +51,6 @@ public class Player implements Runnable {
 	}
 	
 	public String getMove(String board) throws InterruptedException{
-		
-
 		try {
 			writer.write(board + "\n");
 			writer.flush();
