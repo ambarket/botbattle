@@ -1,9 +1,8 @@
 /**
  * The entry point of the application.
  * Run the InitialConfigurationApp, then upon completion run the BotBattleApp
+ *
  */
-// Set a global variable with the path to the root of the application
-//  simplify things
 var custom_modules = require('./custom_modules/BotBattlePaths').custom_modules;
 
 var BotBattleServer = require(custom_modules.BotBattleServer);
