@@ -86,7 +86,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
     
     /*
-    this.setLocalStorageCreatedFlag(callback) {
+    this.setLocalStorageCreatedFlag(value, callback) {
       if (databaseClient === null) {
         console.log("You haven't called connect yet!");
       }

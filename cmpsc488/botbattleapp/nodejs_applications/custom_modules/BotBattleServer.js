@@ -234,9 +234,13 @@ module.exports = function BotBattleServer() {
       },
       onParseEnd: function (req, next) {
     	  console.log('Form parsing completed at: ', new Date());
-
+    	  
+    	  // Dont need to do any custom parsing, also don't need half these options
+    	  //   but leave them for now
     	  // usage example: custom body parse
-    	  req.body = require('qs').parse(req.body);
+    	  //req.body = require('qs').parse(req.body);
+    	  //console.log("HERE!");
+    	  //console.log(require.resolve('qs'));
 
     	  // call the next middleware
     	  next();
