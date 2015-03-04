@@ -146,6 +146,73 @@ function InitialConfigurationApp(initConfigAppServer) {
   //TODO Implement
     //Setup the Game Module
     // Call FileManager to handle
+    var async = require('async');
+    async.waterfall(
+        [
+         // Seed the gameName into the waterfall
+         function(callback) {
+           callback(null, sanitizedFormData.gameName);
+         },
+         // Will be passed gameName from above as first arg, will call callback with newDirectoryPath when done
+         fileManager.createDirectoryForGameModule,
+         // Takes newDirectoryPath passed in from above, and moves the submitted rules and source files into it
+         // Then passes the new path to the source file to the compile function
+         moveGameRulesAndSourceIntoNewDirectory,
+         // Takes the path to the source file, compiles it in the same directory, then passes the path to the
+         // compiled file to the next function
+         compileSourceFile
+         ], 
+         function(err) {
+          console.log(err + "here");
+         }
+        );
+    
+    function moveGameRulesAndSourceIntoNewDirectory(newDirectoryPath, callback) {
+      console.log('here');
+      var path = require('path');
+      var newRulesPath = path.resolve(newDirectoryPath, sanitizedFormData.gameRules.name);
+      var newSourcePath = path.resolve(newDirectoryPath, sanitizedFormData.gameSource.name);
+      fileManager.moveFile(sanitizedFormData.gameRules.path, newRulesPath, function(err) {
+        if (err) {
+          err.message += "Failed to move '" + sanitizedFormData.gameRules.name + "' to " + newRulesPath;
+          callback(err)
+        }
+        else {
+          fileManager.moveFile(sanitizedFormData.gameSource.path, newSourcePath, function(err) {
+            if (err) {
+              err.message += "Failed to move '" + sanitizedFormData.gameSource.name + "' to " + newSourcePath;
+              callback(err)
+            }
+            else {
+              // Moved source file path along to the compilation function
+              callback(null, newSourcePath);
+            }
+          });
+        }
+      });
+    }
+    
+    function compileSourceFile (sourceFilePath, callback) {
+      var compiler = require(paths.custom_modules.BotBattleCompiler).createBotBattleCompiler()
+        .on('warning', function(message) {
+          console.log('warning', message);
+        })
+        .on('stdout', function(message) {
+          console.log('stdout', message);
+        })
+        .on('stderr', function(message) {
+          console.log('stderr', message);
+        })
+        .on('failed', function(message) {
+          console.log('failed', message);
+        })
+        .on('complete', function(message) {
+          console.log('complete', message);
+        });
+      
+      compiler.compile(sourceFilePath, callback);
+    }
+    
     // Create sub directory in Game Modules
         // Save the Game.java file
         // Save the rules.pdf file
@@ -222,7 +289,21 @@ function InitialConfigurationApp(initConfigAppServer) {
       // },
       onFileUploadStart : function(file, req, res) {
         console.log(file.fieldname + ' is starting ...');
-        // if (file.originalname == 'virus.exe') return false;
+        var javaRE = /.*\.java/;
+        if (file.fieldname == 'gameSource') {
+          if (file.name.match(javaRE))
+          {
+            console.log(file.fieldname + ':' + file.name + ' is a .java file, uploading will continue');
+            self.emit('status_update', 'Verified game module is a java file');
+          }
+          else{
+            console.log(file.fieldname + ':' + file.name + ' is a NOT .java file, this file will not be uploaded');
+            self.emit('config_error', 'Error during form submission: Game module source is not a .java file');
+            // Returning false cancels the upload.
+            return false;
+          }
+        }
+        
       },
       onFileUploadComplete : function(file, req, res) {
         console.log(file.fieldname + ' uploaded to  ' + file.path);
@@ -285,17 +366,29 @@ function InitialConfigurationApp(initConfigAppServer) {
         adminPassword: sanitizer.sanitize(req.body.adminPassword),
         //game module parameters
         gameName: sanitizer.sanitize(req.body.gameName),
-        gameModule: req.files.gameModule,
+        gameSource: req.files.gameSource,
         gameRules: req.files.gameRules,
         //tournament parameters
         tournamentName: sanitizer.sanitize(req.body.tournamentName),
         studentList: req.files.studentList,
         tournamentDeadline: sanitizer.sanitize(req.body.tournamentDeadline), 
       };
-      console.log(JSON.stringify(sanitizedFormData));
-      //console.log(req.files);
-
-      executeAllInitialConfigurationTasksInSequence();
+      //console.log(JSON.stringify(sanitizedFormData));
+      var error = false;
+      for (fieldName in sanitizedFormData) {
+        if (!sanitizedFormData[fieldName]) {
+          error = true;
+          self.emit('config_error', 'No data was received for the ' + fieldName + ' field');
+        }
+      }
+      if (error) {
+        self.emit('config_error', 'Configuration has halted');
+      }
+      else {
+        self.emit('status_update', 'Form submission succesfull');
+        self.emit('progress_update', 10);
+        executeAllInitialConfigurationTasksInSequence();
+      }
     });
   })();
 }

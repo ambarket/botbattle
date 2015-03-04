@@ -50,6 +50,20 @@ module.exports = function FileManager(botBattleDatabase) {
       ); 
     };
  
+    this.createDirectoryForGameModule = function(gameName, callback) {
+      var path = require('path');
+      var newDirectoryPath = path.resolve(paths.local_storage.game_modules, gameName);
+      createFolder(newDirectoryPath, function(err, data) {
+        console.log('here');
+        callback(err, newDirectoryPath);
+      });
+    }
+    
+    this.moveFile = function(srcPath, destPath, callback) {
+      console.log(srcPath, destPath);
+      fse.move(srcPath, destPath, {'clobber':true}, callback);
+    }
+    
     
     /* With database stuff to see if its been run yet. THis seems like overkill and doesn't wuite work yet because,
      * fileManager doesnt have a reference to the database. WHich means we can't create the filemanager until the db is
