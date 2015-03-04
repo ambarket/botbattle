@@ -70,13 +70,14 @@ function BotBattleCompiler() {
       .on('exit', function (code, signal) 
       {
           if (code !== 0) {
-            self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-            callback(null, 'Compilation of ' + sourceFilePath + ' failed with error code ' + code)
+            //self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
+            //callback(null, 'Compilation of ' + sourceFilePath + ' failed with error code ' + code)
           }
           else
           {
-            self.emit('complete', 'Compilation of ' + sourceFilePath + ' successful!');
-            callback(null, compiledFilePath)
+            // close is fired right after this
+            //self.emit('complete', 'Exit Compilation of ' + sourceFilePath + ' successful!');
+            //callback(null, compiledFilePath)
           }
       })
       .on('error', function (err) 
@@ -90,11 +91,11 @@ function BotBattleCompiler() {
       })
      .stderr.on('data', function (data) 
      {
-       self.emit('stderr', data);
+       self.emit('stderr', data.toString());
      });
      compilationProcess.stdout.on('data', function (data) 
      {
-        self.emit('stdout', data);
+        self.emit('stdout', data.toString());
      });
   }
 }

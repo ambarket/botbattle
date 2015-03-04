@@ -58,7 +58,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             self.emit('config_error', err.message);
           } 
           else{
-        	  self.emit('status_update', 'Completed setup.');
+        	 self.emit('status_update', 'Completed setup.');
         	  self.emit('progress_update', 100);
         	  //self.emit('config_success', database);        	  
           }
@@ -150,8 +150,8 @@ function InitialConfigurationApp(initConfigAppServer) {
     async.waterfall(
         [
          // Seed the gameName into the waterfall
-         function(callback) {
-           callback(null, sanitizedFormData.gameName);
+         function(callback2) {
+           callback2(null, sanitizedFormData.gameName);
          },
          // Will be passed gameName from above as first arg, will call callback with newDirectoryPath when done
          fileManager.createDirectoryForGameModule,
@@ -163,67 +163,68 @@ function InitialConfigurationApp(initConfigAppServer) {
          compileSourceFile
          ], 
          function(err) {
-          console.log(err + "here");
+          if (err) {
+            self.emit('config_error', err.message + ' Error in initGameModuleTask')
+          }
+          else {
+            self.emit('progress_update', 80);
+            self.emit('status_update', 'Game Module successfully configured!');
+          }
+     
+          callback(err);
          }
         );
+  }
     
-    function moveGameRulesAndSourceIntoNewDirectory(newDirectoryPath, callback) {
-      console.log('here');
-      var path = require('path');
-      var newRulesPath = path.resolve(newDirectoryPath, sanitizedFormData.gameRules.name);
-      var newSourcePath = path.resolve(newDirectoryPath, sanitizedFormData.gameSource.name);
-      fileManager.moveFile(sanitizedFormData.gameRules.path, newRulesPath, function(err) {
-        if (err) {
-          err.message += "Failed to move '" + sanitizedFormData.gameRules.name + "' to " + newRulesPath;
-          callback(err)
-        }
-        else {
-          fileManager.moveFile(sanitizedFormData.gameSource.path, newSourcePath, function(err) {
-            if (err) {
-              err.message += "Failed to move '" + sanitizedFormData.gameSource.name + "' to " + newSourcePath;
-              callback(err)
-            }
-            else {
-              // Moved source file path along to the compilation function
-              callback(null, newSourcePath);
-            }
-          });
-        }
-      });
-    }
-    
-    function compileSourceFile (sourceFilePath, callback) {
-      var compiler = require(paths.custom_modules.BotBattleCompiler).createBotBattleCompiler()
-        .on('warning', function(message) {
-          console.log('warning', message);
-        })
-        .on('stdout', function(message) {
-          console.log('stdout', message);
-        })
-        .on('stderr', function(message) {
-          console.log('stderr', message);
-        })
-        .on('failed', function(message) {
-          console.log('failed', message);
-        })
-        .on('complete', function(message) {
-          console.log('complete', message);
+  function moveGameRulesAndSourceIntoNewDirectory(newDirectoryPath, callback) {
+    console.log('here');
+    var path = require('path');
+    var newRulesPath = path.resolve(newDirectoryPath, sanitizedFormData.gameRules.name);
+    var newSourcePath = path.resolve(newDirectoryPath, sanitizedFormData.gameSource.name);
+    fileManager.moveFile(sanitizedFormData.gameRules.path, newRulesPath, function(err) {
+      if (err) {
+        err.message += "Failed to move '" + sanitizedFormData.gameRules.name + "' to " + newRulesPath;
+        callback(err)
+      }
+      else {
+        fileManager.moveFile(sanitizedFormData.gameSource.path, newSourcePath, function(err) {
+          if (err) {
+            err.message += "Failed to move '" + sanitizedFormData.gameSource.name + "' to " + newSourcePath;
+            callback(err)
+          }
+          else {
+            // Moved source file path along to the compilation function
+            callback(null, newSourcePath);
+          }
         });
-      
-      compiler.compile(sourceFilePath, callback);
-    }
+      }
+    });
+  }
+  
+  function compileSourceFile (sourceFilePath, callback) {
+    var compiler = require(paths.custom_modules.BotBattleCompiler).createBotBattleCompiler()
+      .on('warning', function(message) {
+        console.log('warning', message);
+        self.emit('status_update', message);
+      })
+      .on('stdout', function(message) {
+        console.log('stdout', message);
+        self.emit('status_update', message);
+      })
+      .on('stderr', function(message) {
+        console.log('stderr', message);
+        self.emit('status_update', message);
+      })
+      .on('failed', function(message) {
+        console.log('failed', message);
+        self.emit('config_error', message);
+      })
+      .on('complete', function(message) {
+        console.log('complete', message);
+        self.emit('status_update', message);
+      });
     
-    // Create sub directory in Game Modules
-        // Save the Game.java file
-        // Save the rules.pdf file
-
-    // Compile the Game Module (resulting .class should stay in the Game Module
-    // sub directory)
-    
-    // Store an entry in the DB for the Game Module
-
-		self.emit('progress_update', 60);
-    callback(null);
+    compiler.compile(sourceFilePath, callback);
   }
   
   /**
