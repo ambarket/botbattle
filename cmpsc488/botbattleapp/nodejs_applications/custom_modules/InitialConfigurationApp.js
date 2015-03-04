@@ -76,7 +76,6 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initDatabaseTask(callback) {
 	self.emit('status_update', 'Setting up the Database');
     var BotBattleDatabase = require(paths.custom_modules.BotBattleDatabase); 
-    
     database = new BotBattleDatabase(sanitizedFormData.databaseHost, sanitizedFormData.databasePort,
         sanitizedFormData.databaseName, sanitizedFormData.databaseUserName, sanitizedFormData.databasePassword);
     
@@ -108,9 +107,8 @@ function InitialConfigurationApp(initConfigAppServer) {
 	// and nothing is returned by the callback other than the error object so no
 	// need to define a custom one here.
 	// This function should create all necessary directories
+	database.setLocalStorageCreatedFlag();
 	fileManager.initLocalStorage(self, callback);
-	
-	//database.setLocalStorageCreatedFlag();
   }
   
   /**

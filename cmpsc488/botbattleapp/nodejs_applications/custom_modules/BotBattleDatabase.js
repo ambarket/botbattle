@@ -72,12 +72,12 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         {
           // Store a reference to the authenticated db instance
           databaseClient = connectedDBClient;
+          callback(null, "Database setup complete");
         }
         else{
         	callback(err);
         }
       });
-      callback(null, "Database setup complete");
     }
     
     this.close = function () {
@@ -85,15 +85,29 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     };
     
     
-    /*
-    this.setLocalStorageCreatedFlag(value, callback) {
+    
+    this.setLocalStorageCreatedFlag = function(value, callback) {
       if (databaseClient === null) {
-        console.log("You haven't called connect yet!");
+        console.log("You2 haven't called connect yet!");
       }
       else {
         databaseClient.collection('SystemParameters', function(err, collection) {
             if (!err) {
-              collection.insert({localStorageCreated, {w:1}, function(err, result) {
+              collection.find({ 'localStorageCreated':{ '$exists' : true, '$ne' : null }}).toArray(function(err, items) {
+                console.log(items);
+              })
+            }
+            else {
+              console.log(err);
+            }
+        });
+      }
+    }
+     // }
+   // }
+             /*   
+              }
+              collection.insert({ localStorageCreated : value }, function(err, result) {
                 console.log("insertion results");
                 console.log("\terr: " + err);
                 console.log("\tresult:" + result);
@@ -121,6 +135,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         }
     }
     */
+
     
     
     
