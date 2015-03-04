@@ -216,6 +216,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           else {
             if (user !== null) {
               console.log("Admin user '" + userObject.username + "' already exists, can't insert");
+              console.log(user);
               callback(new Error("Admin user '" + userObject.username + "' already exists, can't insert"));
             }
             else {

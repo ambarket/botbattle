@@ -54,7 +54,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         ], 
         function(err) {
           if (err) {
-        	console.log("THere was an error during configuration... " + err);
+        	console.log("There was an error during configuration... " + err);
             self.emit('config_error', err.message);
           } 
           else{

@@ -1,10 +1,9 @@
 module.exports = {
- // Will likely be more complicated in the future
+ // Will be more complicated in the future
     createUserObject : function(username, password) {
-      return {
-        username: username,
-        password: password
-      }
+      return new (function() {
+        this.username = username;
+        this.password = password;
+      })()
     }
-    
 }
