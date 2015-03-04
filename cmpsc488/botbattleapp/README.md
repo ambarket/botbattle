@@ -1,3 +1,6 @@
+#Mongodb noidejs driver readme
+https://github.com/mongodb/node-mongodb-native/blob/master/Readme.md
+
 #What is listening in Linux
 	netstat -a | egrep 'Proto|LISTEN'
 

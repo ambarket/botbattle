@@ -36,7 +36,9 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       async.waterfall(
         [
           connectToDatabaseTask,
-          authenticateConnectionTask
+          authenticateConnectionTask,
+          clearDatabaseTask,
+          insertInitialRecordsTask
         ], 
         //final fucntion (this is where we pass stuff to callback
         function(err, result){
@@ -59,9 +61,9 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     }
     
     /**
-     * Upon successful completion, the private databaseClient property will be set to a
-     * connected and authenticated MongoClient object.
-     * @method connectToDatabaseTask
+     * Upon successful completion, the database connection will be authenticated
+     * And the private databaseClient property will be set to a connected and authenticated MongoClient object.
+     * @method authenticateConnectionTask
      * @param {Function} callback used by async.waterfall(...). 
      * @private
      */
@@ -72,37 +74,144 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         {
           // Store a reference to the authenticated db instance
           databaseClient = connectedDBClient;
-          callback(null, "Database setup complete");
+         // callback(null);
         }
-        else{
-        	callback(err);
-        }
+        //else{
+        //	callback(err);
+        //}
+        callback(err);
       });
+    }
+    
+    /**
+     * Upon successful completion, database will be completely cleared of previous data.
+     * @method connectToDatabaseTask
+     * @param {Function} callback used by async.waterfall(...). 
+     * @private
+     */
+    function clearDatabaseTask(callback)
+    {
+      var collections = ['SystemParameters', 'GameModules', 'Tournaments', 'TestArena'];
+      var async = require('async');
+      async.each(collections, dropCollection, callback);
+    }
+    
+    /**
+     * Upon successful completion, database will contain any initial records needed for the
+     * completion of the initialConfiguration and operation of the system
+     * @method connectToDatabaseTask
+     * @param {Function} callback used by async.waterfall(...). 
+     * @private
+     */
+    function insertInitialRecordsTask(callback) {
+      // Not sure if we even need/want this and not use yet because it required file manager to 
+      //   have a reference to the DB, which I'm not convinced is necessary yet.
+      //self.setLocalStorageCreatedFlag(false, callback);
+      callback(null);
     }
     
     this.close = function () {
       databaseClient.close();
     };
     
+    function dropCollection(collectionName, callback) {
+      databaseClient.collection(collectionName, function(err, collection) {
+        //console.log(collection);
+        collection.drop(function (err, result) {
+          //TODO This is not very clean but we actually want to allow this to fail in the case that
+          //    the collection to drop didnt exist. In this case the result === false, which is checked below
+          //    maybe revisit this if we have time, but works for now.
+          if (err && !err.toString().indexOf("ns not found")) {
+            console.log(err.toString());
+            callback(err);
+          }
+          else {
+            //console.log(result);
+            console.log((result===false) ? "Tryed to drop " + collectionName + " but it didn't exist" : collectionName + " collection dropped successfully");
+            callback(null);
+          }
+        });
+
+      });
+    }
     
-    
-    this.setLocalStorageCreatedFlag = function(value, callback) {
+    /* Not sure we need this
+    // will pass the document to the second arg of callback
+    this.getLocalStorageCreatedFlag = function(callback) {
       if (databaseClient === null) {
-        console.log("You2 haven't called connect yet!");
-      }
+        console.log("You haven't called connect yet!");
+      } 
       else {
         databaseClient.collection('SystemParameters', function(err, collection) {
-            if (!err) {
-              collection.find({ 'localStorageCreated':{ '$exists' : true, '$ne' : null }}).toArray(function(err, items) {
-                console.log(items);
-              })
-            }
+            if (err) {
+              callback(err);
+            } 
             else {
-              console.log(err);
+              var query = {'localStorageCreated':{ '$exists' : true, '$ne' : null }};
+              collection.find(query).toArray(function(err, items) {
+                if (err) {
+                  callback(err);
+                } 
+                else {
+                  if (items.length === 0 || items.length > 1) {
+                    console.log("Somehow there is more than one localStorageCreated record in the DB");
+                    callback('error');
+                  }
+                  else {
+                    console.log(items[0]);
+                    callback(null, items[0]);
+                  }
+                }
+              });
             }
         });
       }
     }
+    
+    this.setLocalStorageCreatedFlag = function(value, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        databaseClient.collection('SystemParameters', function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {'localStorageCreated':{ '$exists' : true, '$ne' : null }};
+              var update = {$set: {'localStorageCreated': value}};
+              collection.update(query, update, {w:1, upsert:true}, function(err) {
+                if (err) {
+                  console.log(err + "Error updating LocalstorageFlag");
+                }
+                else {
+                  console.log("success setting localStorageCreatedFlag to " + value);
+                }
+                callback(err);
+              });
+            }
+        });
+      }
+    }
+    */
+              /*
+              collection.find({'localStorageCreated':{ '$exists' : true, '$ne' : null }}).toArray(function(err, items) {
+                if (err) {
+                  callback(err);
+                } else {
+                  if (items.length === 0) {
+                    collection.insert([{'localStorageCreated': value}], {w:1}, callback);
+                  }
+                  else {
+                    collection.update([{'localStorageCreated': value}], {w:1}, callback);
+                  }
+                }
+              })
+              */
+          
+
+
+
      // }
    // }
              /*   
