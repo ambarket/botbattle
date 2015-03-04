@@ -1,3 +1,14 @@
+#Reccommended Practice for sending your own error messages to callbacks
+Done use the second argument to send a message related to an error, that should only be used for valid data.
+Instead either append to or overwrite the 'message' field of the err object. 
+    err.message += " Error finding admin user: " + username;
+
+If you need to create you're own error object, don't just pass some truthy value as I used to do, create an object and assign a message with
+    callback(new Error("More than one admin user with name '" + username + "' this should never happen!"));
+    
+When emitting an error object of socket.io emit the message property not the object
+    socket.emit(err.message);
+
 #Mongodb noidejs driver readme
 https://github.com/mongodb/node-mongodb-native/blob/master/Readme.md
 

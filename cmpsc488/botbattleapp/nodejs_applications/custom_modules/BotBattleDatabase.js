@@ -91,7 +91,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      */
     function clearDatabaseTask(callback)
     {
-      var collections = ['SystemParameters', 'GameModules', 'Tournaments', 'TestArena'];
+      var collections = ['SystemParameters', 'AdminUsers', 'GameModules', 'Tournaments', 'TestArena'];
       var async = require('async');
       async.each(collections, dropCollection, callback);
     }
@@ -107,7 +107,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       // Not sure if we even need/want this and not use yet because it required file manager to 
       //   have a reference to the DB, which I'm not convinced is necessary yet.
       //self.setLocalStorageCreatedFlag(false, callback);
-      callback(null);
+      callback(null, "Successfully Initialized the Database");
     }
     
     this.close = function () {
@@ -194,60 +194,101 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       }
     }
     */
-              /*
-              collection.find({'localStorageCreated':{ '$exists' : true, '$ne' : null }}).toArray(function(err, items) {
+
+    /**
+     * Inserts the specified object into the AdminUsers collection of the DB.
+     * TODO Currently no checking whatsoever 
+     * @param {Object} userObject An object created with ObjectFactory.createUserObject, will be inserted into the AdminUsers collection
+     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument.
+     * @method insertAdminUser
+     * @public
+     */
+    this.insertAdminUser = function(userObject, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        self.queryAdminUsers(userObject.username, function(err, user) {
+          if(err) {
+            console.log(err);
+            callback(err);
+          }
+          else {
+            if (user !== null) {
+              console.log("Admin user '" + userObject.username + "' already exists, can't insert");
+              callback(new Error("Admin user '" + userObject.username + "' already exists, can't insert"));
+            }
+            else {
+              // Safe to perform the insert
+              databaseClient.collection('AdminUsers', function(err, collection) {
                 if (err) {
                   callback(err);
-                } else {
-                  if (items.length === 0) {
-                    collection.insert([{'localStorageCreated': value}], {w:1}, callback);
-                  }
-                  else {
-                    collection.update([{'localStorageCreated': value}], {w:1}, callback);
-                  }
-                }
-              })
-              */
-          
-
-
-
-     // }
-   // }
-             /*   
-              }
-              collection.insert({ localStorageCreated : value }, function(err, result) {
-                console.log("insertion results");
-                console.log("\terr: " + err);
-                console.log("\tresult:" + result);
-                console.log("end insertion results");
-                if (result) {
-                  // Peform a simple find and return all the documents
-                  collection.find().toArray(function(err, docs) {
-                    console.log("find results");
-                    console.log("\terr: " + err);
-                    console.log("\tdocs:" + JSON.stringify(docs));
-                    console.log("end find results");
-                    collection.drop();
-                    console.log("Collection dropped, test complete");
-                  });
-                }
+                } 
                 else {
-                  console.log("Cant call find, the insertion result was false");
+                  collection.insert(userObject, {w:1}, function(err) {
+                    if (err) {
+                      console.log(err + "Error inserting admin user: " + userObject.username);
+                      err.message += "Error inserting admin user: " + userObject.username;
+                      callback(err);
+                    }
+                    else {
+                      console.log("Success inserting admin user '" + userObject.username + "'");
+                      callback(null, "Success inserting admin user '" + userObject.username + "'");
+                    }
+                  });
                 }
               });
             }
-            else {
-              console.log("Cant call insert, there was an error retriving the collection");
-            }
-          });
-        }
+          }
+        });
+      }
     }
-    */
-
-    
-    
-    
+       
+    /**
+     * Inserts the specified object into the AdminUsers collection of the DB.
+     * TODO Currently no checking whatsoever 
+     * @param {String} username A string representing the username of the user you'd like to query for
+     * @param {Function} callback Function to call after find. Will be passed any error that occurs as first argument.
+     * if the user is found, the corresponding document will be returned as the second argument. If not, null will be passed as second argument
+     * @method insertAdminUser
+     * @public
+     */
+    this.queryAdminUsers = function(username, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        databaseClient.collection('AdminUsers', function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {'username' : username};
+              collection.find(query).toArray(function(err, items) {
+                if (err) {
+                  console.log(err + "Error finding admin user: " + username);
+                  err.message += " Error finding admin user: " + username;
+                  callback(err);
+                }
+                else {
+                  if (items.length === 0) {
+                    console.log("No admin user found with name: " + username);
+                    callback(null, null);
+                  }
+                  else if (items.length === 1) {
+                    console.log("Found admin user: " + username);
+                    callback(null, items[0]);
+                  }
+                  else {
+                    console.log(items.length, "Admin users were found with name '" + username + "' this should never happen!");
+                    callback(new Error("More than one admin user with name '" + username + "' this should never happen!"));
+                  }
+                }
+              })
+            }
+        });
+      }
+    }
     
     this.queryTournament = function(tournamentName) {
       if (databaseClient)

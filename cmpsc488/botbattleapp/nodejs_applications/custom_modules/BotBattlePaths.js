@@ -37,6 +37,7 @@ module.exports.custom_modules = {
     'FileManager' : custom_modules_directory + 'FileManager',
     'HTTPSConnectionTracker' : custom_modules_directory + 'HTTPSConnectionTracker',
     'SocketIOConnectionTracker' : custom_modules_directory + 'SocketIOConnectionTracker',
+    'ObjectFactory' : custom_modules_directory + 'ObjectFactory',
     'InitialConfigurationApp' : custom_modules_directory + 'InitialConfigurationApp',
     'MulticlientPrototype' : custom_modules_directory + 'MulticlientPrototype',
 }

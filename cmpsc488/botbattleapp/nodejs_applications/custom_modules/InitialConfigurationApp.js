@@ -48,14 +48,14 @@ function InitialConfigurationApp(initConfigAppServer) {
         [
            initDatabaseTask, //Each should be 20%
            initFileSystemTask,
-           initSystemParametersTask,
+           storeAdminUserTask,
            initGameModuleTask,
            initTournamentTask
         ], 
         function(err) {
           if (err) {
-        	console.log("Error was caught in setup ... " + err);
-            self.emit('config_error', err);
+        	console.log("THere was an error during configuration... " + err);
+            self.emit('config_error', err.message);
           } 
           else{
         	  self.emit('status_update', 'Completed setup.');
@@ -118,24 +118,18 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @param {Function} callback used by async.series(...). 
    * @private
    */
-  function initSystemParametersTask(callback) {
-	  console.log("made it here");
-    //self.emit('progress_update', 40);
-    //TODO Implement
-    // Store system parameters in the db
-    // Store the paths to the Game Modules, Private/Public tournaments,
-    // and Test Arena tmp directory in the SystemParameters collection.
-    
-    // Store admin user in the db
-    // Create user object for the admin
-    // Store this object in the AdminUsers collection
+  function storeAdminUserTask(callback) {
+	// Insert the admin user into the AdminUsers collection
+	  var ObjectFactory = require(paths.custom_modules.ObjectFactory);
+	  var adminUser = ObjectFactory.createUserObject(sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
 	  
-	// Since we are no longer allowing configuration of directories, only thing here is the admin user
-	//database.addAdminUser(sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
-	
-
-		self.emit('progress_update', 50);
-    callback(null);
+	  database.insertAdminUser(adminUser, function(err, resultMessage) {
+	    if (!err) {
+	      self.emit('status_update', resultMessage);
+	      self.emit('progress_update', 60);
+	    }
+	    callback(err);
+	  });
   }
   
   /**
