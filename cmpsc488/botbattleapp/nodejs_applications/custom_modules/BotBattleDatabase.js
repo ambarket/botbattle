@@ -124,6 +124,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
     
     
+    
     this.queryTournament = function(tournamentName) {
       if (databaseClient)
       {
