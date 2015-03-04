@@ -109,6 +109,8 @@ function InitialConfigurationApp(initConfigAppServer) {
 	// need to define a custom one here.
 	// This function should create all necessary directories
 	fileManager.initLocalStorage(self, callback);
+	
+	//database.setLocalStorageCreatedFlag();
   }
   
   /**
@@ -130,6 +132,10 @@ function InitialConfigurationApp(initConfigAppServer) {
     // Store admin user in the db
     // Create user object for the admin
     // Store this object in the AdminUsers collection
+	  
+	// Since we are no longer allowing configuration of directories, only thing here is the admin user
+	//database.addAdminUser(sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
+	
 
 		self.emit('progress_update', 50);
     callback(null);
@@ -196,14 +202,20 @@ function InitialConfigurationApp(initConfigAppServer) {
       console.log(JSON.stringify(req.body));
       var sanitizer=require('sanitizer');
       sanitizedFormData = {
+        //database parameters
         databaseHost: sanitizer.sanitize(req.body.databaseHost),
         databasePort: sanitizer.sanitize(req.body.databasePort),
         databaseName: sanitizer.sanitize(req.body.databaseName),
         databaseUserName: sanitizer.sanitize(req.body.databaseUserName),
         databasePassword: sanitizer.sanitize(req.body.databasePassword),
+        //admin user parameters
+        adminUserName: sanitizer.sanitize(req.body.adminUserName),
+        adminPassword: sanitizer.sanitize(req.body.adminPassword),
+        //game module parameters
         gameName: sanitizer.sanitize(req.body.gameName),
         gameModule: sanitizer.sanitize(req.body.gameModule),
         gameRules: sanitizer.sanitize(req.body.gameRules),
+        //tournament parameters
         tournamentName: sanitizer.sanitize(req.body.tournamentName),
         studentList: sanitizer.sanitize(req.body.studentList),
         tournamentDeadline: sanitizer.sanitize(req.body.tournamentDeadline), 

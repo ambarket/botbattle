@@ -198,7 +198,7 @@ module.exports = function BotBattleServer() {
     // https://github.com/jpfluger/multer/blob/examples/multer-upload-files-to-different-directories.md
     var multer = require('multer');
     self.addMiddleware(multer({
-      dest : paths.uploads,
+      dest : paths.local_storage.uploads,
       limits: {
     	  fieldNameSize: 100,
     	  //files: 2,

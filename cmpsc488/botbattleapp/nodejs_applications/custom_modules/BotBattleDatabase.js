@@ -84,6 +84,46 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       databaseClient.close();
     };
     
+    
+    /*
+    this.setLocalStorageCreatedFlag(callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      }
+      else {
+        databaseClient.collection('SystemParameters', function(err, collection) {
+            if (!err) {
+              collection.insert({localStorageCreated, {w:1}, function(err, result) {
+                console.log("insertion results");
+                console.log("\terr: " + err);
+                console.log("\tresult:" + result);
+                console.log("end insertion results");
+                if (result) {
+                  // Peform a simple find and return all the documents
+                  collection.find().toArray(function(err, docs) {
+                    console.log("find results");
+                    console.log("\terr: " + err);
+                    console.log("\tdocs:" + JSON.stringify(docs));
+                    console.log("end find results");
+                    collection.drop();
+                    console.log("Collection dropped, test complete");
+                  });
+                }
+                else {
+                  console.log("Cant call find, the insertion result was false");
+                }
+              });
+            }
+            else {
+              console.log("Cant call insert, there was an error retriving the collection");
+            }
+          });
+        }
+    }
+    */
+    
+    
+    
     this.queryTournament = function(tournamentName) {
       if (databaseClient)
       {
