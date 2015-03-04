@@ -291,6 +291,108 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       }
     }
     
+
+    /**
+     * Inserts the specified object into the GameModules collection of the DB.
+     * TODO Currently no checking whatsoever of if its actually a gameModuleObject
+     * @param {Object} gameModuleObject An object created with ObjectFactory.createGameModuleObject, will be inserted into the GameModules collection
+     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument.
+     * @method insertGameModule
+     * @public
+     */
+    this.insertGameModule = function(gameModuleObject, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        self.queryGameModules(gameModuleObject.gameName, function(err, gameModule) {
+          if(err) {
+            console.log(err);
+            callback(err);
+          }
+          else {
+            if (gameModule !== null) {
+              console.log("Game Module '" + gameModuleObject.gameName + "' already exists, can't insert");
+              console.log(user);
+              callback(new Error("Game Module '" + gameModuleObject.gameName + "' already exists, can't insert"));
+            }
+            else {
+              // Safe to perform the insert
+              databaseClient.collection('GameModules', function(err, collection) {
+                if (err) {
+                  callback(err);
+                } 
+                else {
+                  collection.insert(gameModuleObject, {w:1}, function(err) {
+                    if (err) {
+                      console.log(err + "Error inserting game module '" + gameModuleObject.gameName + "'");
+                      err.message += "Error inserting game module '" + gameModuleObject.gameName + "'";
+                      callback(err);
+                    }
+                    else {
+                      console.log("Success inserting game module '" + gameModuleObject.gameName + "'");
+                      callback(null, "Success inserting game module '" + gameModuleObject.gameName + "'");
+                    }
+                  });
+                }
+              });
+            }
+          }
+        });
+      }
+    }
+    
+    /**
+     * TODO Fill this in
+     * @method queryGameModules
+     * @public
+     */
+    this.queryGameModules = function(gameName, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        databaseClient.collection('GameModules', function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {'gameName' : gameName};
+              collection.find(query).toArray(function(err, items) {
+                if (err) {
+                  console.log(err + "Error finding game module '" + gameName + "'");
+                  err.message += " Error finding game module " + gameName + "'";
+                  callback(err);
+                }
+                else {
+                  if (items.length === 0) {
+                    console.log("No game module found with name '" + gameName + "'");
+                    callback(null, null);
+                  }
+                  else if (items.length === 1) {
+                    console.log("Found game module '" + gameName + "'");
+                    callback(null, items[0]);
+                  }
+                  else {
+                    console.log(items.length, "game modules were found with name '" + gameName + "' this should never happen!");
+                    callback(new Error(items.length + " game modules were found with name '" + gameName + "' this should never happen!"));
+                  }
+                }
+              })
+            }
+        });
+      }
+    }
+    
+    /*TODO Create a generic insert and query function
+    e.g.
+    function genericInsert(object, keyFieldName, collectionName){
+      do everything done in both user and game modules
+    
+    */
+    
+    
+    
     this.queryTournament = function(tournamentName) {
       if (databaseClient)
       {

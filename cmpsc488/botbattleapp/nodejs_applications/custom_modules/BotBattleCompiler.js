@@ -59,7 +59,7 @@ function BotBattleCompiler() {
       {
         if (code !== 0) {
           self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-          callback(null, 'Compilation of ' + sourceFilePath + ' failed with error code ' + code)
+          callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
         }
         else
         {
@@ -71,7 +71,7 @@ function BotBattleCompiler() {
       {
           if (code !== 0) {
             //self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-            //callback(null, 'Compilation of ' + sourceFilePath + ' failed with error code ' + code)
+            //callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
           }
           else
           {

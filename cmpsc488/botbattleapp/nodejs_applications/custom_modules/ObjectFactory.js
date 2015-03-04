@@ -7,10 +7,12 @@ module.exports = {
       })();
     },
 
-    createGameModuleObject : function(gameName, rulesLocation, classFileLocation, moveTimeout) {
+    createGameModuleObject : function(gameName, gameModuleDirectory, rulesLocation, sourceFileLocation, classFileLocation, moveTimeout) {
       return new (function() {
         this.gameName = gameName;
+        this.gameModuleDirectory = gameModuleDirectory;
         this.rulesLocation = rulesLocation;
+        this.sourceFileLocation = sourceFileLocation;
         this.classFileLocation = classFileLocation;
         this.moveTimeout = moveTimeout;
       })();

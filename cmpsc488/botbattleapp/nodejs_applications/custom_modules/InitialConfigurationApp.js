@@ -160,7 +160,10 @@ function InitialConfigurationApp(initConfigAppServer) {
          moveGameRulesAndSourceIntoNewDirectory,
          // Takes the path to the source file, compiles it in the same directory, then passes the path to the
          // compiled file to the next function
-         compileSourceFile
+         compileSourceFile,
+         // Takes path to the compiled file and uses the file object of the sanitizedFormData to create a DB object
+         // and insert it. Then were done!
+         createGameModuleDatabaseEntry
          ], 
          function(err) {
           if (err) {
@@ -193,15 +196,19 @@ function InitialConfigurationApp(initConfigAppServer) {
             callback(err)
           }
           else {
-            // Moved source file path along to the compilation function
-            callback(null, newSourcePath);
+            // Pass data created so far source file path along to the compilation function
+            callback(null, {'gameName' : sanitizedFormData.gameName, 
+                            'gameModuleDirectory' : newDirectoryPath, 
+                            'rulesFilePath' : newRulesPath, 
+                            'sourceFilePath' : newSourcePath
+                            });
           }
         });
       }
     });
   }
   
-  function compileSourceFile (sourceFilePath, callback) {
+  function compileSourceFile (pathData, callback) {
     var compiler = require(paths.custom_modules.BotBattleCompiler).createBotBattleCompiler()
       .on('warning', function(message) {
         console.log('warning', message);
@@ -224,7 +231,26 @@ function InitialConfigurationApp(initConfigAppServer) {
         self.emit('status_update', message);
       });
     
-    compiler.compile(sourceFilePath, callback);
+    compiler.compile(pathData.sourceFilePath, function(err, compiledFilePath) {
+      if (err) {
+        callback(err);
+      }
+      else {
+        pathData.compiledFilePath = compiledFilePath;
+        callback(err, pathData);
+      }
+    });
+  }
+  
+  function createGameModuleDatabaseEntry(pathData, callback) {
+    var ObjectFactory =  require(paths.custom_modules.ObjectFactory);
+    var gameModuleObject = ObjectFactory.createGameModuleObject(
+        pathData.gameName, pathData.gameModuleDirectory, 
+        pathData.rulesFilePath, pathData.sourceFilePath, 
+        pathData.compiledFilePath, 30);
+    console.log(gameModuleObject);
+    
+    database.insertGameModule(gameModuleObject, callback);
   }
   
   /**
