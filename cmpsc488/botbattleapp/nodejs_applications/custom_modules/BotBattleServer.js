@@ -236,7 +236,7 @@ module.exports = function BotBattleServer() {
     	  console.log('Form parsing completed at: ', new Date());
 
     	  // usage example: custom body parse
-    	  //req.body = require('qs').parse(req.body);
+    	  req.body = require('qs').parse(req.body);
 
     	  // call the next middleware
     	  next();
