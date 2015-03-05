@@ -380,6 +380,9 @@ function InitialConfigurationApp(initConfigAppServer) {
     // This needs pulled out of here
     // security issues
     // https://github.com/jpfluger/multer/blob/examples/multer-upload-files-to-different-directories.md
+    // should ensure init_config_tmp exists ( i accidently deleted it) and should stop ALL uploads on ANY failure
+    // currently it just stops trying the one that is incorrect but uploads the rest of the form.  It should halt
+    // completely when one fails for more security reasons.
     var multer = require('multer');
     initConfigAppServer
         .addDynamicRoute(
