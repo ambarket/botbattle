@@ -56,28 +56,23 @@ public class Player implements Runnable {
 			writer.write(board + "\n");
 			writer.flush();
 			read = false;
-			Thread t = new Thread(this);
-			t.start();
-			t.join(3000);
+			
+			Thread readFromBotThread = new Thread(this);
+			readFromBotThread.start();
+			readFromBotThread.join(3000);
 
 			if(read == true){
 				return move;
 			}
-			else{
-				System.out.println("Sending eof");
-				writer.write("\n\n\n\u001a\n\u001a");
-				writer.flush();
-				System.out.println("trying to close");
-				reader.close();
-				System.out.println("Closed");
+			else{				
+				botProcess.destroyForcibly();
+				System.out.println("Process ended");
+				return "Bot Timed Out";
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return "Bot Threw Exception";
 		}
-		
-		return null;
 	}
 	
 	
@@ -113,8 +108,7 @@ public class Player implements Runnable {
 			try {
 				move = reader.readLine();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				move = "Bot Threw Exception";
 			}
 			read = true;			
 	}
