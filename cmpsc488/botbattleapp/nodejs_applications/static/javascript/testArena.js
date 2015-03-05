@@ -85,6 +85,9 @@ var GameBoard = function(readyCallback) {
     player2 : new drawableImage('static/images/botImageLeft.png', 884,365,70,100, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
+  // add the boxes here for testing then make just two with a number in them from canvas text instead
+  // add animations based on the tut http://www.williammalone.com/articles/create-html5-canvas-javascript-sprite-animation/
+  // look into tweening and base which splice based on distance traveled so it looks fluid
   this.backgroundElements = {
       trees : {
         tree1 : new drawableImage('static/images/tree.png', 10,110,20,20, imageLoadedCallback),
@@ -123,8 +126,10 @@ function Animator(gameboard) {
       var done;
       
       // maybe add logic to change speed based on forward or backward or after hit or something
+      // would be nice to have easing and acceleration but not possible like this
+      // would like curves too, but this is all unnecessary right now
       time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 160);
-      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 120);
+      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 220);
       
       done = moveEvent.animationComplete(drawableObject);
       
