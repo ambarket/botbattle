@@ -32,6 +32,7 @@ module.exports.https_cert  = {
 var custom_modules_directory = path.join(module.exports.app_root, '/custom_modules/');
 module.exports.custom_modules = {
     'directory' : custom_modules_directory,
+    'BotBattleApp' : custom_modules_directory + 'BotBattleApp',
     'BotBattleDatabase' : custom_modules_directory + 'BotBattleDatabase',
     'BotBattleServer' : custom_modules_directory + 'BotBattleServer',
     'FileManager' : custom_modules_directory + 'FileManager',

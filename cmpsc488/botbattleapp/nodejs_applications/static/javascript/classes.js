@@ -142,7 +142,7 @@ function Animator(gameboard) {
           animations.move(moveEvent, time, callback);
         });
       } else {
-        console.log('animation of', moveEvent, 'complete!')
+        //console.log('animation of', moveEvent, 'complete!')
         callback();
       }
     },
@@ -237,7 +237,7 @@ function Animator(gameboard) {
     var startTime = (new Date()).getTime();
     
     if(animatableEvent.event === 'move'){
-        if (coinFlip()){
+        if (coinFlip(.30)){
         	// make the robot fly half the time
         	setFlyHeight(animatableEvent, 100)
     		animations[animatableEvent.event](animatableEvent, startTime, callback);
