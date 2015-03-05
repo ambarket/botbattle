@@ -70,7 +70,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             // Uncomment to cause shutdown of initialConfigurationApp and loading of
             // BotBattleApp
             // commented to ease development of initialConfigurationApp only.
-            // self.emit('config_success', database);
+            self.emit('config_success', database);
           }
         }
       );
