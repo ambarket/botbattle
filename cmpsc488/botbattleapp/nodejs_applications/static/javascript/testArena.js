@@ -41,7 +41,7 @@ var drawableImage = function(imgsrc, x, y, width, height, loadedCallback) {
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableRectangle;
 drawableImage.prototype.draw = function(context) {
-  context.drawImage(this.img, this.x, this.y, this.height, this.width);
+  context.drawImage(this.img, this.x, this.y, this.width, this.height);
 };
 
 //--------------------------Animatable Events------------------------------------
@@ -72,17 +72,17 @@ var GameBoard = function(readyCallback) {
 
   var self = this;
   this.drawableObjects = {
-    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround.png', 0,0,563,900, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImageRight.png', 150,320,50,50, imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImageLeft.png', 700,320,50,50, imageLoadedCallback),
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0,0,1050,650, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImageRight.png', 150,370,70,100, imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImageLeft.png', 700,370,70,100, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   this.backgroundElements = {
       trees : {
         tree1 : new drawableImage('static/images/tree.png', 10,110,20,20, imageLoadedCallback),
         tree2 : new drawableImage('static/images/tree.png', 75,100,20,20, imageLoadedCallback),
-        tree3 : new drawableImage('static/images/tree.png', 150,114,20,20, imageLoadedCallback),
-        tree4 : new drawableImage('static/images/tree.png', 250,120,20,20, imageLoadedCallback),
+        tree3 : new drawableImage('static/images/tree.png', 150,154,20,20, imageLoadedCallback),
+        tree4 : new drawableImage('static/images/tree.png', 250,160,20,20, imageLoadedCallback),
         tree5 : new drawableImage('static/images/tree.png', 350,125,20,20, imageLoadedCallback),
       }
   }
@@ -136,19 +136,19 @@ function Animator(gameboard) {
         var time;
         
         var endX = moveEvent.endingX;
-        console.log("endx " + endX);
+        //console.log("endx " + endX);
         moveEvent.endingX = drawableObject.x;
-        console.log("endingx " + moveEvent.endingX);
+        //console.log("endingx " + moveEvent.endingX);
         
         moveEvent.event = 'move';
         
         animations.move(moveEvent, (new Date()).getTime(), function(){
         	moveEvent.endingX = endX;
-        	console.log("Moved up");
+        	//console.log("Moved up");
         	animations.move(moveEvent, (new Date()).getTime(),function(){
         		moveEvent.endingY = drawableObject.y + 100;
-        		console.log("moved Over");
-        		console.log("New endingy is " + moveEvent.endingY);
+        		//console.log("moved Over");
+        		//console.log("New endingy is " + moveEvent.endingY);
         		animations.move(moveEvent, (new Date()).getTime() , callback)
         	})
         });
@@ -261,7 +261,7 @@ function Animator(gameboard) {
         drawableObject.x = moveEvent.endingX;
       }
 
-      console.log('moved rectangle', drawableObject.x);
+      //console.log('moved rectangle', drawableObject.x);
 
       return time;
     }
@@ -292,7 +292,7 @@ function Animator(gameboard) {
         drawableObject.y = moveEvent.endingY;
       }
 
-      console.log('moved rectangle', drawableObject.y);
+      //console.log('moved rectangle', drawableObject.y);
 
       return time;
     }
@@ -339,24 +339,43 @@ function Drawer(gameboard) {
     var animator = new Animator(gameboard);
     var drawer = new Drawer(gameboard);
     drawer.drawBoard();
+    var x1,x2,y1,y2;
+    var clickCount = 0;
     // add click listener to canvas
-    document.getElementById('myCanvas').addEventListener('click', function() {
+    document.getElementById('myCanvas').addEventListener('click', function(event) {
 
       var testGameState = {
         animationsList : 
           [ 
-           new MoveEvent('player1', 250, 320),
-           new MoveEvent('player1', 400, 320),
-           new MoveEvent('player1', 250, 320),
-           new MoveEvent('player1', 150, 320),
-           new MoveEvent('player2', 250, 320),
-           new MoveEvent('player2', 400, 320),
-           new MoveEvent('player2', 250, 320),
-           new MoveEvent('player2', 700, 320),
+           new MoveEvent('player1', 250, 370),
+           new MoveEvent('player1', 400, 370),
+           new MoveEvent('player1', 250, 370),
+           new MoveEvent('player1', 150, 370),
+           new MoveEvent('player2', 250, 370),
+           new MoveEvent('player2', 400, 370),
+           new MoveEvent('player2', 250, 370),
+           new MoveEvent('player2', 700, 370),
           ]
       }
       console.log("Someone Clicked");
-      animator.addNewGameState(testGameState);
+      if (event.ctrlKey) {
+   
+		  clickCount++;
+		  if(clickCount % 2 === 1){
+			  x1 = event.clientX;
+			  y1 = event.clientY;
+		  }
+		  else{
+			  x2 = event.clientX;
+			  y2 = event.clientY;
+		  }
+		  if(x1 && x2){
+			  document.getElementById("distance").innerHTML = "X dist = " + Math.abs(x1-x2) + "  Y dist = " + Math.abs(y1-y2);
+		  }
+      }
+      else{
+    	  animator.addNewGameState(testGameState);
+      }
       
     });
     
