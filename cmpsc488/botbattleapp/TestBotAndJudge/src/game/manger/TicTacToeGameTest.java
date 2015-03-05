@@ -148,9 +148,16 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testIsGameOverWithAlmostWin() {
-		TicTacToeGame t = new TicTacToeGame("XXOOOXXOX");
+		TicTacToeGame t = new TicTacToeGame("XXO0OXXOX");
 		
 		assertFalse(t.isGameOver());
+	}
+	
+	@Test
+	public void testIsGameWonWithAlmostWin() {
+		TicTacToeGame t = new TicTacToeGame("XXOOOXXOX");
+		
+		assertFalse(t.isGameWon());
 	}
 	
 	/**
