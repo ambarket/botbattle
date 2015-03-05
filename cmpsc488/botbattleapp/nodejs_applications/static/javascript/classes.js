@@ -63,7 +63,7 @@ AnimatableEvent.prototype.animationComplete = function() {
 
 var MoveEvent = function(objectName, endingX, endingY) {
   AnimatableEvent.call(this, 'move', objectName);
-  this.endingX = endingX;
+  this.endingX = endingX * 35 + 65;
   this.endingY = endingY;
 }
 MoveEvent.prototype = Object.create(AnimatableEvent.prototype);
@@ -81,8 +81,8 @@ var GameBoard = function(readyCallback) {
   var self = this;
   this.drawableObjects = {
     backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0,0,1050,650, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImageRight.png', 85,365,70,100, imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImageLeft.png', 884,365,70,100, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImageRight.png', 65,365,70,100, imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImageLeft.png', 905,365,70,100, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   // add the boxes here for testing then make just two with a number in them from canvas text instead
@@ -361,11 +361,9 @@ function Drawer(gameboard) {
   var context = canvas.getContext('2d');
 
   this.drawBoard = function() {
-
     for (object in gameboard.drawableObjects) {
       gameboard.drawableObjects[object].draw(context);
     }
-    
     for (list in gameboard.backgroundElements){
     	for(object in gameboard.backgroundElements[list]){
     		gameboard.backgroundElements[list][object].draw(context);
