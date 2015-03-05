@@ -255,16 +255,6 @@ function Animator(gameboard) {
 	  animatableEvent.event = 'fly';
 	  animatableEvent.endingY = gameboard.drawableObjects[animatableEvent.objectName].y - height;
   }
- 
-  var coinFlip = function(weight){
-	  var coin = Math.random();
-	  if(weight){
-		  return (coin <= .50 + weight);
-	  }
-	  else{
-		  return (coin <= .50);
-	  }
-  }
   
   // Stupid but shows we can add logic to update other elements every frame pretty easily here
   var backgroundAnimations = function(startTime) {
@@ -349,7 +339,16 @@ function Animator(gameboard) {
       return time;
     }
 }
-
+//------------------------------------------------------
+var coinFlip = function(weight){
+	  var coin = Math.random();
+	  if(weight){
+		  return (coin + weight <= .50);
+	  }
+	  else{
+		  return (coin <= .50);
+	  }
+}
 //--------------------------The Drawer (View)------------------------------------
 function Drawer(gameboard) {
   if ( arguments.callee._singletonInstance )
@@ -369,6 +368,25 @@ function Drawer(gameboard) {
     		gameboard.backgroundElements[list][object].draw(context);
     	}
     }
+    drawGridNumbers();
+  }
+  
+  var drawGridNumbers = function(){
+	  var player1PositionX = gameboard.drawableObjects["player1"].x;
+	  var player1PositionY = gameboard.drawableObjects["player1"].y;
+	  var player2PositionX = gameboard.drawableObjects["player2"].x;
+	  var player2PositionY = gameboard.drawableObjects["player2"].y;
+	  var p1Grid = (player1PositionX - 65)/35;
+	  var p2Grid = (player2PositionX - 65)/35;
+	  
+	  context.font='30px Arial';
+	  context.fillStyle="black";
+	  if(p1Grid >= 0 && p1Grid <= 24){
+		  context.fillText(Math.floor(p1Grid),player1PositionX + 20,530);
+	  }
+	  if(p2Grid >= 0 && p2Grid <= 24){
+		  context.fillText(Math.floor(p2Grid),player2PositionX + 20,530);
+	  }
   }
   
   var clearCanvas = function() {

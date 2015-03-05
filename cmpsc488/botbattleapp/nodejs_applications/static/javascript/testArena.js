@@ -51,7 +51,8 @@
            new MoveEvent('player1', 21, 365),
            new MoveEvent('player1', 15, 365),
            new MoveEvent('player1', 7, 365),
-           new MoveEvent('player1', 0, 365),
+           new MoveEvent('player1', -2, gameboard.drawableObjects['player1'].y),
+           new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y),
            
            new MoveEvent('player2', 23, 365),
            new MoveEvent('player2', 20, 365),
