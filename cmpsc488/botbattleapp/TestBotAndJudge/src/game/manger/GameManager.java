@@ -31,21 +31,11 @@ public class GameManager implements Runnable {
 		while(!game.isGameOver()){
 			
 			if(i % 2 == 0){
-				try {
-					move = player1.getMove(game.getBoard());
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				move = player1.getMove(game.getBoard());
 				results.addMove(move, 1);
 			}				
 			else{
-				try {
-					move = player2.getMove(game.getBoard());
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				move = player2.getMove(game.getBoard());
 				results.addMove(move, 2);
 			}				
 
