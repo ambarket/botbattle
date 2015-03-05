@@ -4,11 +4,11 @@ module.exports = {
       return new (function() {
         this.username = username;
         this.password = password;
+        this.keyFieldName = 'username';
       })();
     },
 
-    createGameModuleObject : function(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
-      // Might be nice to 
+    createGameModuleObject: function(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
       return new (function() {
         var self = this;
         this.gameName = gameName;
@@ -17,7 +17,7 @@ module.exports = {
         this.sourceFilePath = sourceFilePath;
         this.classFilePath = classFilePath;
         this.moveTimeout = moveTimeout;
+        this.keyFieldName = 'gameName';
       })();
     }
-
 }

@@ -41,6 +41,7 @@ module.exports = function FileManager(botBattleDatabase) {
               }
               else {
                 console.log("Local storage folders successfully created");
+                localStorageInitialized = true;
                 callback(null);
               }
             });

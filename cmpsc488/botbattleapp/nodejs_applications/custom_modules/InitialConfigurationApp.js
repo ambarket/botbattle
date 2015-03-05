@@ -280,7 +280,7 @@ function InitialConfigurationApp(initConfigAppServer) {
           } else {
             self.emit('progress_update', 76);
             self.emit('status_update', 'Successfully inserted game module into database');
-            console.log("Success inserting ", gameModuleObject," into the db");
+            console.log('Successfully inserted game module into database');
             callback(err);
           }
         });
