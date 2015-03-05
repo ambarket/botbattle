@@ -37,6 +37,8 @@ module.exports.custom_modules = {
     'FileManager' : custom_modules_directory + 'FileManager',
     'HTTPSConnectionTracker' : custom_modules_directory + 'HTTPSConnectionTracker',
     'SocketIOConnectionTracker' : custom_modules_directory + 'SocketIOConnectionTracker',
+    'ObjectFactory' : custom_modules_directory + 'ObjectFactory',
+    'BotBattleCompiler' : custom_modules_directory + 'BotBattleCompiler',
     'InitialConfigurationApp' : custom_modules_directory + 'InitialConfigurationApp',
     'MulticlientPrototype' : custom_modules_directory + 'MulticlientPrototype',
 }
@@ -50,6 +52,15 @@ module.exports.static_content = {
   'images' : path.join(static_content_directory,  'images/'),
 }
 
-module.exports.uploads = path.join(module.exports.app_root, '/uploads/');
+var local_storage_directory = path.join(module.exports.app_root + '/local_storage/');
+module.exports.local_storage = {
+    'directory' : local_storage_directory,
+    'game_modules' :  path.join(local_storage_directory, 'game_modules'),
+    'private_tournaments' :  path.join(local_storage_directory, 'private_tournaments'),
+    'public_tournaments' :  path.join(local_storage_directory, 'public_tournaments'),
+    'test_arena_tmp' :  path.join(local_storage_directory, 'test_arena_tmp'),
+    'init_config_tmp' :  path.join(local_storage_directory,'init_config_tmp'),
+    'uploads' :  path.join(local_storage_directory, 'uploads')
+}
 
 
