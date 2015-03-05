@@ -11,33 +11,57 @@ module.exports = function FileManager(botBattleDatabase) {
     var fse = require('fs-extra');
     var self = this;
     
+    // Only allow initFreshLocalStorage to be run once.
+    //  Still need to make FileManager a singleton for this to really work
+    var localStorageInitialized = false;
     var database = botBattleDatabase;
-    
     var paths = require('./BotBattlePaths');
     
     /**
-     * Upon successful completion, all files in paths.local_storage will exist
+     * Upon successful completion, all files in paths.local_storage will have been deleted and new blank folders will exist
      * @method initLocalStorage
      * @param {Function} callback used by async.waterfall(...). 
      * @private
      */
-    this.initLocalStorage = function(callback) {
-      var async = require('async');
-      var localStorageArray = Object.keys(paths.local_storage).map(function (key) {return paths.local_storage[key]});
-      async.each(localStorageArray, createFolder, callback);
+    this.initFreshLocalStorage = function(callback) {
+      if (!localStorageInitialized) {
+        var async = require('async');
+        var localStorageArray = Object.keys(paths.local_storage).map(function (key) {return paths.local_storage[key]});
+        async.each(localStorageArray, removeFolder, function(err) {
+          if (err) {
+            err.message += " Failed to clear local storage folders";
+            callback(err);
+          }
+          else {
+            console.log("Local storage successfully cleared");
+            async.each(localStorageArray, createFolder, function(err) {
+              if (err) {
+                err.message += " Failed to create local storage folders";
+                callback(err);
+              }
+              else {
+                console.log("Local storage folders successfully created");
+                callback(null);
+              }
+            });
+          }
+        });
+      }
+      else {
+        callback(new Error("Local storage has already been initialized!"));
+      }
     }
  
     this.createDirectoryForGameModule = function(gameName, callback) {
       var path = require('path');
       var newDirectoryPath = path.resolve(paths.local_storage.game_modules, gameName);
       createFolder(newDirectoryPath, function(err, data) {
-        console.log('here');
         callback(err, newDirectoryPath);
       });
     }
     
     this.moveFile = function(srcPath, destPath, callback) {
-      console.log(srcPath, destPath);
+      //console.log(srcPath, destPath);
       fse.move(srcPath, destPath, {'clobber':true}, callback);
     }
     
@@ -113,6 +137,27 @@ module.exports = function FileManager(botBattleDatabase) {
           }
        });
      };
+     
+     /**
+      * ASYNC: Allows for the deletion of a folder at the given path. Will pass any error objects as first argument to callback
+      * @method createFolder
+      * @param {String} folderPath - absolute path for folder to be created
+      * @param {Function} callback(err)
+      * @private
+      */
+     var removeFolder = function(folderPath, callback){
+        fse.remove(folderPath, function(err){
+           if (err) {
+             err.message += "Error deleting directory: " + folderPath + err.message;
+             console.log(err);
+             if(callback) {callback(err);} 
+           }
+           else{
+             console.log("Deleted " + folderPath);
+             if(callback) {callback(null);}
+           }
+        });
+      };
        
      // when testing this the page kept trying to submit the folder periodically and new sockets kept getting created     
      // this method is async so multiple button pushes are bad.  Can look for file before is it created.  sync is io blocking

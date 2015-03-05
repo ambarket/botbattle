@@ -111,11 +111,8 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initFileSystemTask(initFileSystemTaskCallback) {
     // Call FileManager to handle
     self.emit('status_update', 'Initializing the local storage');
-
-    // Pass self to be used as an event emitter.
-    // the fileManager will emit status update and progress_update events as needed.
-    // This function should create all necessary directories
-    fileManager.initLocalStorage(function(err) {
+    
+    fileManager.initFreshLocalStorage(function(err) {
       if (!err) {
         self.emit('status_update', "Local storage initialization Complete!");
         self.emit('progress_update', 40);
@@ -221,12 +218,12 @@ function InitialConfigurationApp(initConfigAppServer) {
     var newSourceFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameSourceFile.name);
     fileManager.moveFile(tmpData.gameRulesFile.path, newRulesFilePath, function(err) {
       if (err) {
-        err.message += "Failed to move '" + tmpData.gameRulesFile.name + "' to " + newRulesFilePath;
+        err.message = "Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
         initGameModuleTask2Callback(err)
       } else {
         fileManager.moveFile(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
           if (err) {
-            err.message += "Failed to move '" + tmpData.gameSourceFile.name + "' to " + newSourceFilePath;
+            err.message = "Failed to move '" + tmpData.gameSourceFile.path + "' to " + newSourceFilePath  + '\n' + err.message;;
             initGameModuleTask2Callback(err)
           } else {
             self.emit('progress_update', 68);
@@ -334,7 +331,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             'post',
             '/processInitialConfiguration',
             multer({
-              dest : paths.local_storage.init_config_tmp,
+              dest : paths.init_config_tmp,
               limits : {
                 fieldNameSize : 100,
               // files: 2,
