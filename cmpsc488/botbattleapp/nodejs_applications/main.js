@@ -4,7 +4,6 @@
  *
  */
 var custom_modules = require('./custom_modules/BotBattlePaths').custom_modules;
-
 var BotBattleServer = require(custom_modules.BotBattleServer);
 
 var initConfigAppServer = (new BotBattleServer()).initAndStartListening(6058);
@@ -20,7 +19,7 @@ var initConfigApp = new (require(custom_modules.InitialConfigurationApp))(initCo
   .on('status_update', function(status) {
 	  initConfigAppServer.socketIOEmitToAll('status_update', status);
   })
-  .on('config_success', function(botBattleDatabase) {
+  .on('config_success', function(botBattleDatabase) {  // why are we passing the database here?? oh unit test...
       console.log("Initial configuration completed successfully!" );
       //console.log("Heres the BotBattleDatabase\n" + botBattleDatabase);
       
@@ -31,11 +30,25 @@ var initConfigApp = new (require(custom_modules.InitialConfigurationApp))(initCo
       // Close the server, then load a new one to serve the botBattleApp
       initConfigAppServer.shutdown(function(err) {
         console.log('InitialConfigurationServer has been shutdown!');
-        var botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
-        //require(custom_modules.MulticlientPrototype)(botBattleAppServer, botBattleDatabase);
-        require('./test_arena_prototype/testArenaPrototype')(botBattleAppServer);
+        startBotBattleAppServer();
       });
     });
+
+var botBattleAppServer;
+var botBattleApp;
+
+function startBotBattleAppServer(){
+	botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
+    //require(custom_modules.MulticlientPrototype)(botBattleAppServer, botBattleDatabase);
+    botBattleApp = require('./test_arena_prototype/testArenaPrototype')(botBattleAppServer);
+    // TODO: register new listeners.  set prototype to inherit emmiter like initconfig
+    cleanMemory();
+} 
+
+function cleanMemory(){
+	initConfigAppServer = null;
+	initConfigApp = null;
+}
 
 // Connect to localhost to test  https://localhost:6058/
 
