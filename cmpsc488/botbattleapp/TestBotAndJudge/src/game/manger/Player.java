@@ -35,7 +35,9 @@ public class Player implements Runnable {
 		this.botFilePath = botFilePath;
 		this.usersName = usersName;
 		
+
 		ProcessBuilder builder = new ProcessBuilder("java", usersName);
+
 		builder.directory(new File(botFilePath));
 		
 		botProcess = builder.start();
@@ -49,8 +51,8 @@ public class Player implements Runnable {
         move = null;
 	}
 	
+
 	public String getMove(String board){
-		
 
 		try {
 			writer.write(board + "\n");

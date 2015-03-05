@@ -13,6 +13,7 @@ public class HumanPlayer {
 		Scanner scner = new Scanner(System.in);
 		String move = scner.nextLine();
 		
+		scner.close();
 		return move;
 	}
 
