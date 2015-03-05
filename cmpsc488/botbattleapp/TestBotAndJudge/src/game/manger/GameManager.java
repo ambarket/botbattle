@@ -42,6 +42,12 @@ public class GameManager implements Runnable {
 			if(game.isValidMove(move)){
 				game.updateBoard(move);
 				results.addBoard(game.getBoard());
+				
+				if(game.isGameWon()){
+					System.out.println("Game Won by player" + ((i%2) + 1));
+					results.setWinner(i % 2);
+					break;
+				}
 			}				
 			else{
 				System.out.println("Invalid move made");
@@ -50,6 +56,8 @@ public class GameManager implements Runnable {
 			
 			i++;
 		}
+		
+		System.out.println("Game over");
 	}
 	
 	public String getHTMLForEntireGame(){ //TODO implement getHTML function in gameManager
