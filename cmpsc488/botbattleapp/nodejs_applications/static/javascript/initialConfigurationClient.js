@@ -1,4 +1,7 @@
 
+//TODO setting this here so that you can't submit until socketIO is working
+//var submitButton = document.getElementById("submitButton").disabled = false;
+    
 // Listen for notifications of the status of the initial configuration.
 localStorage.debug = 'engine.socket, socket.io';
 //var socket = io.connect('https://localhost:6058');
@@ -17,6 +20,9 @@ var myId = null;
       myId = socket.id;
     }
     socket.emit('myId', myId);
+    
+    //TODO setting this here so that you can't submit until socketIO is working
+    //var submitButton = document.getElementById("submitButton").disabled = false;
   })
   .on('error', function(err) {
     console.log('socket error! ' + err.message);
@@ -45,6 +51,8 @@ var myId = null;
   .on('disconnect', function() {
     console.log('socket disconnect!');
     console.log(socket);
+    //TODO setting this here so that you can't submit until socketIO is working
+    //var submitButton = document.getElementById("submitButton").disabled = true;
   })
   .on('progress_update', function(progress) {
 	  document.getElementById("progress").value = progress;
@@ -74,7 +82,9 @@ var myId = null;
     html.push('<div>' + err + '</div>');
     document.getElementById('message').innerHTML = html.join('');
     //document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
-    var submitButton = document.getElementById("submitButton").disabled = false;
+    
+    //TODO setting this here so that you can't submit while server is still working on things.
+    //var submitButton = document.getElementById("submitButton").disabled = false;
   })
   .on('unitTestToClient', function() {
     console.log("received unit test from server");
@@ -84,21 +94,26 @@ var myId = null;
 
 // Submit the form via an ajax request.   ////////////// password is being sent plaintext !!!!!!!!!!!
 var form = document.getElementById("initConfigForm");
+  var stillProcessing = false;
 form.addEventListener('submit', function(ev) {
-  
-  var req = new XMLHttpRequest();
-  var theForm = new FormData(form);
-  req.open("POST", "processInitialConfiguration", true);
-  req.send(theForm);
-  submitButton.disabled = true;
-  req.onload = function(event) {
-    if (req.status === 200) {
-      console.log("onload");
-    } else {
-      console.log("error onload");
-    }
-  };
-  ev.preventDefault();
+  if (!stillProcessing) {
+    stillProcessing = true;
+    var req = new XMLHttpRequest();
+    var theForm = new FormData(form);
+    req.open("POST", "processInitialConfiguration", true);
+    req.send(theForm);
+    
+    req.onload = function(event) {
+      stillProcessing = false;
+      if (req.status === 200) {
+        console.log("onload");
+      } else {
+        console.log("error onload");
+      }
+    };
+    ev.preventDefault();
+  }
+
 }, false);
 
 var submitButton = document.getElementById("submitButton");

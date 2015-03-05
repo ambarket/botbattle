@@ -66,12 +66,12 @@ function InitialConfigurationApp(initConfigAppServer) {
             console.log("There was an error during configuration... " + err);
             self.emit('config_error', err.message);
           } else {
+            // NOTE: arbitrary error is being passed from cleanupTask to halt things while still
+            //  working on this page.
             self.emit('status_update', 'Completed setup.');
             self.emit('progress_update', 100);
-            // Uncomment to cause shutdown of initialConfigurationApp and loading of
-            // BotBattleApp
-            // commented to ease development of initialConfigurationApp only.
-            // self.emit('config_success', database);
+
+            self.emit('config_success', database);
           }
         }
       );
@@ -313,15 +313,40 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initTournamentTask(callback) {
-    // self.emit('progress_update', 80);
-    // TODO Implement
+    self.emit('status_update', 'Initializizing the Game Module');
+    var async = require('async');
 
-    // Set up the Tournament
-    // Build a userlist object from the uploaded txt file.
-
-    self.emit('progress_update', 80);
-    console.log(callback);
-    callback(null);
+    // Read the txt file line by line
+    fileManager.readTextFileIntoLinesArray(sanitizedFormData.studentList.path ,function(err, lines) {
+      var output = "";
+      for (line in lines) {
+        var usernameRegEx = /^[a-z0-9_-]{3,16}$/;
+        var passwordRegEx = /^[a-z0-9_-]{6,18}$/;
+        var userArray = lines[line].trim().split(/[\t ]/);
+        // Remove any extra whitespace between elements
+        for (element in userArray) {
+          if (userArray[element].trim() === "") {
+            userArray.splice(element,1);
+          }
+        }
+        if (userArray.length != 2) {
+          output +="\nLine #" + line + " Line must contain only username and password separated by a tab or space character";
+        }
+        else if (!userArray[0].match(usernameRegEx)){
+          output +="\nLine #" + line + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters";
+        }
+        else if (!userArray[1].match(usernameRegEx)){
+          output += "\nLine #" + line + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters";
+        }
+        else {
+          output += "\nLine #" + line + " Valid username and password";
+        }
+        console.log(userArray, "Length", userArray.length);
+      }
+      console.log(output);
+      self.emit('progress_update', 80);
+      callback(null);
+    });
   }
   
   function cleanupTask(callback) {
@@ -333,7 +358,8 @@ function InitialConfigurationApp(initConfigAppServer) {
         self.emit('progress_update', 90);
         self.emit('status_update', 'Initial configuration cleanup successful');
         console.log('Initial configuration cleanup successful');
-        callback(null);
+        //callback(null);
+        callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
       }
     });
   }
@@ -414,6 +440,48 @@ function InitialConfigurationApp(initConfigAppServer) {
                     return false;
                   }
                 }
+                var pdfRE = /.*\.pdf/;
+                if (file.fieldname == 'gameRules') {
+                  if (file.name.match(pdfRE)) {
+                    console.log(file.fieldname + ':' + file.name
+                        + ' is a .pdf file, uploading will continue');
+                    self.emit('status_update',
+                        'Verified game rules is a pdf file');
+                  } else {
+                    console
+                        .log(file.fieldname
+                            + ':'
+                            + file.name
+                            + ' is a NOT .pdf file, this file will not be uploaded');
+                    self
+                        .emit('config_error',
+                            'Error during form submission: Game rules is not a .pdf file');
+                    // Returning false cancels the upload.
+                    return false;
+                  }
+                }
+                /*
+                var txtRE = /.*\.txt/;
+                if (file.fieldname == 'studentList') {
+                  if (file.name.match(txtRE)) {
+                    console.log(file.fieldname + ':' + file.name
+                        + ' is a .txt file, uploading will continue');
+                    self.emit('status_update',
+                        'Verified game module is a txt file');
+                  } else {
+                    console
+                        .log(file.fieldname
+                            + ':'
+                            + file.name
+                            + ' is a NOT .txt file, this file will not be uploaded');
+                    self
+                        .emit('config_error',
+                            'Error during form submission: Student list is not a .txt file');
+                    // Returning false cancels the upload.
+                    return false;
+                  }
+                }
+                */
 
               },
               onFileUploadComplete : function(file, req, res) {
@@ -505,6 +573,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             self.emit('progress_update', 10);
             executeAllInitialConfigurationTasksInSequence();
           }
+          res.end();
         });
   })();
 }

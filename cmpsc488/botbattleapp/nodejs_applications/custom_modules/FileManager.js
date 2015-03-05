@@ -78,6 +78,16 @@ module.exports = function FileManager(botBattleDatabase) {
       fse.move(srcPath, destPath, {'clobber':true}, callback);
     }
     
+    this.readTextFileIntoLinesArray = function(pathToFile, callback) {
+      fse.readFile(pathToFile, 'utf8', function(err, data) {
+        var lines = data.split(/\r?\n/);
+        console.log("Error " + err);
+        //console.log("Data " + data);
+        callback(err, lines);
+
+      })
+    }
+    
     
     /* With database stuff to see if its been run yet. THis seems like overkill and doesn't wuite work yet because,
      * fileManager doesnt have a reference to the database. WHich means we can't create the filemanager until the db is
