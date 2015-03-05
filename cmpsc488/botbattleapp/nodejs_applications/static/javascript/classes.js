@@ -89,12 +89,14 @@ var GameBoard = function(readyCallback) {
   // add animations based on the tut http://www.williammalone.com/articles/create-html5-canvas-javascript-sprite-animation/
   // look into tweening and base which splice based on distance traveled so it looks fluid
   this.backgroundElements = {
-      trees : {
+      trees1 : {
         tree1 : new drawableImage('static/images/tree.png', 10,110,20,20, imageLoadedCallback),
         tree2 : new drawableImage('static/images/tree.png', 75,100,20,20, imageLoadedCallback),
-        tree3 : new drawableImage('static/images/tree.png', 150,154,20,20, imageLoadedCallback),
-        tree4 : new drawableImage('static/images/tree.png', 250,160,20,20, imageLoadedCallback),
-        tree5 : new drawableImage('static/images/tree.png', 350,125,20,20, imageLoadedCallback),
+      },
+      trees2 : {
+    	  tree3 : new drawableImage('static/images/tree.png', 150,154,20,20, imageLoadedCallback),
+          tree4 : new drawableImage('static/images/tree.png', 250,160,20,20, imageLoadedCallback),
+          tree5 : new drawableImage('static/images/tree.png', 350,125,20,20, imageLoadedCallback),
       }
   }
   
@@ -267,14 +269,22 @@ function Animator(gameboard) {
   // Stupid but shows we can add logic to update other elements every frame pretty easily here
   var backgroundAnimations = function(startTime) {
     // Move the trees around
-    for (treeIndex in gameboard.backgroundElements.trees){
+    for (treeIndex in gameboard.backgroundElements.trees1){
       if (coinFlip()) {
-    	  gameboard.backgroundElements.trees[treeIndex].x+=1;
+    	  gameboard.backgroundElements.trees1[treeIndex].x+=1;
       }
       else {
-    	  gameboard.backgroundElements.trees[treeIndex].x-=1;
+    	  gameboard.backgroundElements.trees1[treeIndex].x-=1;
       }
     }
+    for (treeIndex in gameboard.backgroundElements.trees2){
+        if (coinFlip()) {
+      	  gameboard.backgroundElements.trees2[treeIndex].y+=1;
+        }
+        else {
+      	  gameboard.backgroundElements.trees2[treeIndex].y-=1;
+        }
+      }
   }
   
   /**
@@ -356,8 +366,10 @@ function Drawer(gameboard) {
       gameboard.drawableObjects[object].draw(context);
     }
     
-    for (object in gameboard.backgroundElements.trees){
-      gameboard.backgroundElements.trees[object].draw(context);
+    for (list in gameboard.backgroundElements){
+    	for(object in gameboard.backgroundElements[list]){
+    		gameboard.backgroundElements[list][object].draw(context);
+    	}
     }
   }
   
