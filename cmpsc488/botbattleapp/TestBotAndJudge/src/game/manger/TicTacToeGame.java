@@ -64,6 +64,38 @@ public class TicTacToeGame implements GameInterface {
 	@Override
 	public boolean isGameOver() {
 		
+		if(isGameWon()){
+			return true;
+		}
+		
+		//check board is not completely full
+		for(int i = 0; i < board.length(); i++){
+			if(board.charAt(i) == '0')
+				return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public String getHTMLForBoard() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getBotTimeoutInMilliseconds() {
+		return 3000;
+	}
+
+	@Override
+	public String toString() {
+		return "TicTacToe";
+	}
+
+	@Override
+	public boolean isGameWon() {
+		
 		for(int i = 0; i < 3; i++)
 		{
 			int index = 3 * i;
@@ -100,22 +132,6 @@ public class TicTacToeGame implements GameInterface {
 		}
 		
 		return false;
-	}
-
-	@Override
-	public String getHTMLForBoard() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getBotTimeoutInMilliseconds() {
-		return 3000;
-	}
-
-	@Override
-	public String toString() {
-		return "TicTacToe";
 	}
 
 }
