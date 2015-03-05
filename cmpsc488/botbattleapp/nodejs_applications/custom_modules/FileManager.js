@@ -129,11 +129,11 @@ module.exports = function FileManager(botBattleDatabase) {
        fse.ensureDir(folderPath, function(err){
           if (err) {
             console.log("Error creating directory: " + err);
-            if(callback) {callback(err, "Failed to create" + folderPath);} 
+            if(callback && typeof(callback) == "function") {callback(err, "Failed to create" + folderPath);} 
           }
           else{
             console.log("Created " + folderPath);
-            if(callback) {callback(null, "Created " + folderPath);}
+            if(callback && typeof(callback) == "function") {callback(null, "Created " + folderPath);}
           }
        });
      };
@@ -150,11 +150,11 @@ module.exports = function FileManager(botBattleDatabase) {
            if (err) {
              err.message += "Error deleting directory: " + folderPath + err.message;
              console.log(err);
-             if(callback) {callback(err);} 
+             if(callback && typeof(callback) == "function") {callback(err);} 
            }
            else{
              console.log("Deleted " + folderPath);
-             if(callback) {callback(null);}
+             if(callback && typeof(callback) == "function") {callback(null);}
            }
         });
       };
@@ -176,11 +176,11 @@ module.exports = function FileManager(botBattleDatabase) {
        fse.createFile(filePath, function(err, result){
            if (err) {
              console.log("Error creating file: " + err);
-             if(callback) {callback(err, "Error creating file: " + err);}
+             if(callback && typeof(callback) == "function") {callback(err, "Error creating file: " + err);}
            }
            else{
              console.log("Created " + filePath);
-             if(callback) {callback(null, "Created " + filePath);}
+             if(callback && typeof(callback) == "function") {callback(null, "Created " + filePath);}
            }
         });
       };

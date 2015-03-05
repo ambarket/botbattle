@@ -208,6 +208,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @public
      */
     this.insertAdminUser = function(userObject, callback) {
+    	// maybe break all of these up into smaller functions and others like Dr. Blum suggested in class
       if (databaseClient === null) {
         console.log("You haven't called connect yet!");
       } 

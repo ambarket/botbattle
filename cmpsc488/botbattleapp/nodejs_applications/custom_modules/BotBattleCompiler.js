@@ -38,7 +38,8 @@ function BotBattleCompiler() {
     }
     
     //TODO: This is how we did it before but isn't it possible that it compiles before we registered the listener?
-    //          is there built in protection for this?
+    //          is there built in protection for this?   // seems this could be a problem.. just register listener
+    //    first by swapping the switch and listeners reg.
     // Start the process.
     var compiledFilePath = undefined;
     var compilationProcess = undefined;
