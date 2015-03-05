@@ -49,6 +49,37 @@ module.exports = function FileManager(botBattleDatabase) {
         }
       ); 
     };
+    
+    var createGameModulesFolderTask = function (eventEmitter, callback) {
+      genericCreateFolderTask(paths.local_storage.game_modules, 25, eventEmitter, callback);
+    }
+    
+    var createPrivateTournamentsFolderTask = function (eventEmitter, callback) {
+      genericCreateFolderTask(paths.local_storage.private_tournaments, 30, eventEmitter, callback);
+    }
+    
+    var createPublicTournamentsFolderTask = function (eventEmitter, callback) {
+      genericCreateFolderTask(paths.local_storage.public_tournaments, 35, eventEmitter, callback);
+    }
+    
+    var createTestArenaTmpFolderTask = function (eventEmitter, callback) {
+      genericCreateFolderTask(paths.local_storage.test_arena_tmp, 40, eventEmitter, callback);
+    }
+    
+    var genericCreateFolderTask = function(pathToCreate, progressIfSuccessful, eventEmitter, callback) {
+      createFolder(pathToCreate, function(err, resultMessage){
+        if (err) {
+          //eventEmitter.emit('config_error', resultMessage);
+          err.message += resultMessage;
+          callback(err);
+        }
+        else {
+          eventEmitter.emit('status_update', resultMessage);
+          eventEmitter.emit('progress_update', progressIfSuccessful);
+          callback(null, eventEmitter);
+        }
+      });  
+    }
  
     this.createDirectoryForGameModule = function(gameName, callback) {
       var path = require('path');
@@ -113,35 +144,7 @@ module.exports = function FileManager(botBattleDatabase) {
     };
     */
 
-    var createGameModulesFolderTask = function (eventEmitter, callback) {
-      genericCreateFolderTask(paths.local_storage.game_modules, 25, eventEmitter, callback);
-    }
-    
-    var createPrivateTournamentsFolderTask = function (eventEmitter, callback) {
-      genericCreateFolderTask(paths.local_storage.private_tournaments, 30, eventEmitter, callback);
-    }
-    
-    var createPublicTournamentsFolderTask = function (eventEmitter, callback) {
-      genericCreateFolderTask(paths.local_storage.public_tournaments, 35, eventEmitter, callback);
-    }
-    
-    var createTestArenaTmpFolderTask = function (eventEmitter, callback) {
-      genericCreateFolderTask(paths.local_storage.test_arena_tmp, 40, eventEmitter, callback);
-    }
-    
-    var genericCreateFolderTask = function(pathToCreate, progressIfSuccessful, eventEmitter, callback) {
-      createFolder(pathToCreate, function(err, resultMessage){
-        if (err) {
-          eventEmitter.emit('config_error', resultMessage);
-          callback(err);
-        }
-        else {
-          eventEmitter.emit('status_update', resultMessage);
-          eventEmitter.emit('progress_update', progressIfSuccessful);
-          callback(null, eventEmitter);
-        }
-      });  
-    }
+
     
     
     /**

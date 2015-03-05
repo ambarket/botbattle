@@ -25,14 +25,15 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     this.getDatabaseClient = function() { return databaseClient;};
     
     /**
-     * Upon successful completion, a reference to this BotBattleDatabase object, containing a
-     * connected and authenticated MongoClient object, will be returned as the second argument to the callback. 
-     * @method connect
-     * @param {Function} callback with the form function(error, botBattleDatabase)
+     * Upon successful completion, this object will contain a connected and 
+     * authenticated MongoClient object, the database will have been cleared of
+     * all collections used by BotBattleApp, and initialized with any initial
+     * records required.
+     * @method initializeFreshDatabase
+     * @param {Function} callback with the form function(err)
      */
-    this.connect = function(callback1){
-      //do the task with waterfall
-    	var async = require('async');
+    this.initializeFreshDatabase = function(connectCallback){
+      var async = require('async');
       async.waterfall(
         [
           connectToDatabaseTask,
@@ -40,9 +41,9 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           clearDatabaseTask,
           insertInitialRecordsTask
         ], 
-        //final fucntion (this is where we pass stuff to callback
-        function(err, result){
-        	callback1(err, result);
+        
+        function(err){
+          connectCallback(err);
         }
       );              
     };
@@ -107,7 +108,10 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       // Not sure if we even need/want this and not use yet because it required file manager to 
       //   have a reference to the DB, which I'm not convinced is necessary yet.
       //self.setLocalStorageCreatedFlag(false, callback);
-      callback(null, "Successfully Initialized the Database");
+      
+      //TODO: Either delete this or find a purpose for it. Seems like we may need to seed the DB
+      //    with some initial records at some point
+      callback(null);
     }
     
     this.close = function () {
@@ -199,7 +203,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * Inserts the specified object into the AdminUsers collection of the DB.
      * TODO Currently no checking whatsoever 
      * @param {Object} userObject An object created with ObjectFactory.createUserObject, will be inserted into the AdminUsers collection
-     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument.
+     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument. No second argument.
      * @method insertAdminUser
      * @public
      */
@@ -216,7 +220,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           else {
             if (user !== null) {
               console.log("Admin user '" + userObject.username + "' already exists, can't insert");
-              console.log(user);
+              console.log("Heres the user object it found: ", user);
               callback(new Error("Admin user '" + userObject.username + "' already exists, can't insert"));
             }
             else {
@@ -228,13 +232,13 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
                 else {
                   collection.insert(userObject, {w:1}, function(err) {
                     if (err) {
-                      console.log(err + "Error inserting admin user: " + userObject.username);
                       err.message += "Error inserting admin user: " + userObject.username;
+                      console.log(err);
                       callback(err);
                     }
                     else {
                       console.log("Success inserting admin user '" + userObject.username + "'");
-                      callback(null, "Success inserting admin user '" + userObject.username + "'");
+                      callback(null);
                     }
                   });
                 }
