@@ -115,7 +115,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     // Pass self to be used as an event emitter.
     // the fileManager will emit status update and progress_update events as needed.
     // This function should create all necessary directories
-    fileManager.initLocalStorage(self, function(err) {
+    fileManager.initLocalStorage(function(err) {
       if (!err) {
         self.emit('status_update', "Local storage initialization Complete!");
         self.emit('progress_update', 40);
