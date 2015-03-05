@@ -12,7 +12,7 @@ function BotBattleCompiler() {
 
     var language = undefined;
     // Validate arguments before going further
-    if (!callback /*|| callback.getClass() != '[object Function]' TODO Doesn't work find another way*/) {
+    if (!callback || typeof(callback) != "function" /*|| callback.getClass() != '[object Function]' TODO Doesn't work find another way*/) {
       console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
       self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
     }
