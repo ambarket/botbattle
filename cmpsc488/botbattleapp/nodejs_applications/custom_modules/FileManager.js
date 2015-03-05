@@ -18,39 +18,51 @@ module.exports = function FileManager(botBattleDatabase) {
     var paths = require('./BotBattlePaths');
     
     /**
-     * Upon successful completion, all files in paths.local_storage will have been deleted and new blank folders will exist
+     * Upon successful completion, all paths in paths.local_storage will exist. Note this will not
+     * delete any files in those folders if they already exist, for that, use clearLocalStorage
      * @method initLocalStorage
      * @param {Function} callback used by async.waterfall(...). 
      * @private
      */
-    this.initFreshLocalStorage = function(callback) {
+    this.ensureLocalStorage = function(callback) {
       if (!localStorageInitialized) {
         var async = require('async');
         var localStorageArray = Object.keys(paths.local_storage).map(function (key) {return paths.local_storage[key]});
-        async.each(localStorageArray, removeFolder, function(err) {
+        async.each(localStorageArray, createFolder, function(err) {
           if (err) {
-            err.message += " Failed to clear local storage folders";
+            err.message += " Failed to create local storage folders";
             callback(err);
           }
           else {
-            console.log("Local storage successfully cleared");
-            async.each(localStorageArray, createFolder, function(err) {
-              if (err) {
-                err.message += " Failed to create local storage folders";
-                callback(err);
-              }
-              else {
-                console.log("Local storage folders successfully created");
-                localStorageInitialized = true;
-                callback(null);
-              }
-            });
+            console.log("Local storage folders successfully created");
+            localStorageInitialized = true;
+            callback(null);
           }
         });
       }
       else {
         callback(new Error("Local storage has already been initialized!"));
       }
+    }
+    
+    this.clearLocalStorage = function(callback) {
+      var async = require('async');
+      var localStorageArray = Object.keys(paths.local_storage).map(function (key) {return paths.local_storage[key]});
+      async.each(localStorageArray, removeFolder, function(err) {
+        if (err) {
+          err.message += " Failed to clear local storage folders";
+          callback(err);
+        }
+        else {
+          console.log("Local storage successfully cleared");
+          localStorageInitialized = false;
+          callback(null);
+        }
+      });
+    }
+    
+    this.clearInitConfigTmp = function(callback) {
+      removeFolder(paths.init_config_tmp, callback);
     }
  
     this.createDirectoryForGameModule = function(gameName, callback) {

@@ -58,7 +58,8 @@ function InitialConfigurationApp(initConfigAppServer) {
           initFileSystemTask, 
           createAdminUserTask, // Probably should be moved to last
           initGameModuleTask, 
-          initTournamentTask 
+          initTournamentTask,
+          cleanupTask
          ], 
          function(err) {
           if (err) {
@@ -112,12 +113,25 @@ function InitialConfigurationApp(initConfigAppServer) {
     // Call FileManager to handle
     self.emit('status_update', 'Initializing the local storage');
     
-    fileManager.initFreshLocalStorage(function(err) {
-      if (!err) {
-        self.emit('status_update', "Local storage initialization Complete!");
-        self.emit('progress_update', 40);
+    fileManager.clearLocalStorage(function(err) {
+      if (err) {
+        initFileSystemTaskCallback(err);
       }
-      initFileSystemTaskCallback(err);
+      else {
+        self.emit('status_update', "Local storage successfully cleared!");
+        self.emit('progress_update', 30);
+        
+        fileManager.ensureLocalStorage(function(err) {
+          if (err) {
+            initFileSystemTaskCallback(err);
+          }
+          else {
+            self.emit('status_update', "Local storage successfully created!");
+            self.emit('progress_update', 40); 
+            initFileSystemTaskCallback(null);
+          }
+        });
+      }
     });
   }
 
@@ -306,7 +320,22 @@ function InitialConfigurationApp(initConfigAppServer) {
     // Build a userlist object from the uploaded txt file.
 
     self.emit('progress_update', 80);
+    console.log(callback);
     callback(null);
+  }
+  
+  function cleanupTask(callback) {
+    fileManager.clearInitConfigTmp(function(err) {
+      if (err) {
+        err.message += " Failed to perform cleanup after initial configuration";
+        callback(err);
+      } else {
+        self.emit('progress_update', 90);
+        self.emit('status_update', 'Initial configuration cleanup successful');
+        console.log('Initial configuration cleanup successful');
+        callback(null);
+      }
+    });
   }
 
   /**

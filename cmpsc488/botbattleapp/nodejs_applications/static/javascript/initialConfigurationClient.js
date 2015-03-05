@@ -74,6 +74,7 @@ var myId = null;
     html.push('<div>' + err + '</div>');
     document.getElementById('message').innerHTML = html.join('');
     //document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
+    var submitButton = document.getElementById("submitButton").disabled = false;
   })
   .on('unitTestToClient', function() {
     console.log("received unit test from server");
@@ -84,11 +85,12 @@ var myId = null;
 // Submit the form via an ajax request.   ////////////// password is being sent plaintext !!!!!!!!!!!
 var form = document.getElementById("initConfigForm");
 form.addEventListener('submit', function(ev) {
+  
   var req = new XMLHttpRequest();
   var theForm = new FormData(form);
   req.open("POST", "processInitialConfiguration", true);
   req.send(theForm);
-
+  submitButton.disabled = true;
   req.onload = function(event) {
     if (req.status === 200) {
       console.log("onload");
