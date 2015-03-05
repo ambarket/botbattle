@@ -28,7 +28,7 @@ public class BadTicTacToeBot1{
 			String move = getMove(board);
 			writer.println("move sent: " + move);
 			writer.flush();
-			System.out.print(move + "\r\n");
+			System.out.print(move);
 
 			System.out.flush();
 			writer.println("Done sending move");
