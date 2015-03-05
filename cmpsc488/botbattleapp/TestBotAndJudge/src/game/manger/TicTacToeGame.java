@@ -71,10 +71,10 @@ public class TicTacToeGame implements GameInterface {
 		//check board is not completely full
 		for(int i = 0; i < board.length(); i++){
 			if(board.charAt(i) == '0')
-				return true;
+				return false;
 		}
 		
-		return false;
+		return true;
 	}
 
 	@Override
