@@ -32,7 +32,8 @@ var initConfigApp = new (require(custom_modules.InitialConfigurationApp))(initCo
       initConfigAppServer.shutdown(function(err) {
         console.log('InitialConfigurationServer has been shutdown!');
         var botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
-        require(custom_modules.MulticlientPrototype)(botBattleAppServer, botBattleDatabase);
+        //require(custom_modules.MulticlientPrototype)(botBattleAppServer, botBattleDatabase);
+        require('./test_arena_prototype/testArenaPrototype')(botBattleAppServer);
       });
     });
 

@@ -1,9 +1,9 @@
 
 module.exports=function(server) {
 	
-    server.addStaticFileRoute('/','/static/html/testArena.html');
+    server.addStaticFileRoute('/','static/html/testArena.html');
 	
     
     // Serve static images files
-    server.addStaticFolderRoute('/static', '/static/');
+    server.addStaticFolderRoute('/static', 'static/');
 }
