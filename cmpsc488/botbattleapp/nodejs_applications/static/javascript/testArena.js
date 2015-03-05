@@ -122,8 +122,9 @@ function Animator(gameboard) {
       var time;
       var done;
       
-      time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
-      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 100);
+      // maybe add logic to change speed based on forward or backward or after hit or something
+      time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 160);
+      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 120);
       
       done = moveEvent.animationComplete(drawableObject);
       
@@ -138,7 +139,7 @@ function Animator(gameboard) {
         callback();
       }
     },
-    fly : function(moveEvent, lastUpdateTime, callback) {
+    fly : function(moveEvent, lastUpdateTime, callback) { // break this up to ascendHover and descendHover
         backgroundAnimations();
         var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
         var time;
