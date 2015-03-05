@@ -5,5 +5,5 @@ module.exports=function(server) {
 	
     
     // Serve static images files
-    server.addStaticFolderRoute('/static/images', '/static/images/');
+    server.addStaticFolderRoute('/static', '/static/');
 }
