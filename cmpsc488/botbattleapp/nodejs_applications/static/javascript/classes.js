@@ -171,7 +171,25 @@ function Animator(gameboard) {
 
     },
     wasAttacked : function(animation, callback) {
-
+    	backgroundAnimations();
+        var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
+        var time;
+        
+        var endX = moveEvent.endingX;
+        //console.log("endx " + endX);
+        moveEvent.endingX = drawableObject.x;
+        //console.log("endingx " + moveEvent.endingX);
+        
+        moveEvent.event = 'move';
+        
+        animations.move(moveEvent, (new Date()).getTime(), function(){
+        	moveEvent.endingX = endX;
+        	//console.log("Moved up");
+        	animations.move(moveEvent, (new Date()).getTime(),function(){
+        		moveEvent.endingY = drawableObject.y + 100;
+        		animations.move(moveEvent, (new Date()).getTime() , callback)
+        	})
+        });
     },
     defend : function(animation, callback) {
 
@@ -215,13 +233,11 @@ function Animator(gameboard) {
 
   var animateIndividual = function(animatableEvent, callback) {
     var startTime = (new Date()).getTime();
-    // make the robot fly half the time
+    
     if(animatableEvent.event === 'move'){
-    	coin = Math.random();
-        if (coin <= .50){
-    		console.log("Making him fly!");
-    		animatableEvent.event = 'fly';
-    		animatableEvent.endingY = gameboard.drawableObjects[animatableEvent.objectName].y - 100;
+        if (coinFlip()){
+        	// make the robot fly half the time
+        	setFlyHeight(animatableEvent, 100)
     		animations[animatableEvent.event](animatableEvent, startTime, callback);
     	}
         else{
@@ -233,20 +249,32 @@ function Animator(gameboard) {
     }
   }
   
+  var setFlyHeight = function(animatableEvent, height){
+	  animatableEvent.event = 'fly';
+	  animatableEvent.endingY = gameboard.drawableObjects[animatableEvent.objectName].y - height;
+  }
+ 
+  var coinFlip = function(weight){
+	  var coin = Math.random();
+	  if(weight){
+		  return (coin <= .50 + weight);
+	  }
+	  else{
+		  return (coin <= .50);
+	  }
+  }
+  
   // Stupid but shows we can add logic to update other elements every frame pretty easily here
   var backgroundAnimations = function(startTime) {
-	var coin
     // Move the trees around
-    for (treeIndex in gameboard.backgroundElements.trees){      
-      coin = Math.random();
-      if (coin <= .50) {
+    for (treeIndex in gameboard.backgroundElements.trees){
+      if (coinFlip()) {
     	  gameboard.backgroundElements.trees[treeIndex].x+=1;
       }
       else {
     	  gameboard.backgroundElements.trees[treeIndex].x-=1;
       }
     }
-   
   }
   
   /**

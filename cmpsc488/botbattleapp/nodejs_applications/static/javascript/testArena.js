@@ -9,7 +9,7 @@
 
 
   // Simulate the arrival of a new game state by clicking the mouse
-  var gameboard = new GameBoard(function(err, gameboard) {
+    var gameboard = new GameBoard(function(err, gameboard) {
     var animator = new Animator(gameboard);
     var drawer = new Drawer(gameboard);
     drawer.drawBoard();
