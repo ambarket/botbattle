@@ -41,6 +41,14 @@ var drawableImage = function(imgsrc, x, y, width, height, loadedCallback) {
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableRectangle;
 drawableImage.prototype.draw = function(context) {
+  // temporary add to outline the boxes of objects for measureing purposes
+	context.beginPath();
+	  context.rect(this.x, this.y, this.width, this.height);
+	  context.fillStyle = '#8ED6FF';
+	  context.fill();
+	  context.lineWidth = this.borderWidth;
+	  context.strokeStyle = 'black';
+	  context.stroke();
   context.drawImage(this.img, this.x, this.y, this.width, this.height);
 };
 
@@ -73,8 +81,8 @@ var GameBoard = function(readyCallback) {
   var self = this;
   this.drawableObjects = {
     backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0,0,1050,650, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImageRight.png', 150,370,70,100, imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImageLeft.png', 700,370,70,100, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImageRight.png', 85,365,70,100, imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImageLeft.png', 884,365,70,100, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   this.backgroundElements = {
@@ -341,36 +349,39 @@ function Drawer(gameboard) {
     drawer.drawBoard();
     var x1,x2,y1,y2;
     var clickCount = 0;
+    var rect;
     // add click listener to canvas
-    document.getElementById('myCanvas').addEventListener('click', function(event) {
+    var canvas = document.getElementById('myCanvas');
+    canvas.addEventListener('click', function(event) {
 
       var testGameState = {
         animationsList : 
           [ 
-           new MoveEvent('player1', 250, 370),
-           new MoveEvent('player1', 400, 370),
-           new MoveEvent('player1', 250, 370),
-           new MoveEvent('player1', 150, 370),
-           new MoveEvent('player2', 250, 370),
-           new MoveEvent('player2', 400, 370),
-           new MoveEvent('player2', 250, 370),
-           new MoveEvent('player2', 700, 370),
+           new MoveEvent('player1', 250, 365),
+           new MoveEvent('player1', 400, 365),
+           new MoveEvent('player1', 250, 365),
+           new MoveEvent('player1', 85, 365),
+           new MoveEvent('player2', 250, 365),
+           new MoveEvent('player2', 400, 365),
+           new MoveEvent('player2', 250, 365),
+           new MoveEvent('player2', 885, 365),
           ]
       }
       console.log("Someone Clicked");
       if (event.ctrlKey) {
-   
+    	  rect = canvas.getBoundingClientRect();
 		  clickCount++;
 		  if(clickCount % 2 === 1){
-			  x1 = event.clientX;
-			  y1 = event.clientY;
+			  x1 = event.clientX - rect.left;
+			  y1 = event.clientY - rect.top;
 		  }
 		  else{
-			  x2 = event.clientX;
-			  y2 = event.clientY;
+			  x2 = event.clientX - rect.left;
+			  y2 = event.clientY - rect.top;
 		  }
 		  if(x1 && x2){
-			  document.getElementById("distance").innerHTML = "X dist = " + Math.abs(x1-x2) + "  Y dist = " + Math.abs(y1-y2);
+			  document.getElementById("distance").innerHTML = "X dist = " + Math.abs(x1-x2) + "  Y dist = " + Math.abs(y1-y2) + "<hr> point1 = X: " + x1 + " Y: " + y1 + "<hr> point2 = X: " + x2 + " Y: " + y2;
+			  x1 = x2 = y1 = y2 = null;
 		  }
       }
       else{
