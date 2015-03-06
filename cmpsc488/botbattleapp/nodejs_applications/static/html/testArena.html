@@ -31,6 +31,7 @@
 <!-- script type="text/javascript" src="/static/javascript/drawer.js"></script   couldn't seperate things like I wanted..-->
 <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
 <script type="text/javascript" src="/static/javascript/async.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head><body>
 	 
 <div class="col_12">
@@ -63,17 +64,17 @@
      <p>
     <input id="submit" type="submit" value="Play Game">
     <hr>
-    <div class="form-item">
+  </form>
+		
+	<div class="form-item">
       <h4>Human Input</h4>
       <textarea id="stdin"></textarea> 
       <button id = "send_move">Send Move</button> 
     </div>
-  </form>
-		
+    
 	</div>
 	<div class="col_9">
 		<canvas style="border:1px solid" id="myCanvas" width="1050" height="650"></canvas>
-   	
 	</div>
 	
 	<hr />
@@ -91,4 +92,5 @@
 </div>
 <!-- END GRID -->
 
-</body></html>
+</body>
+</html>

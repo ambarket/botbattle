@@ -47,8 +47,7 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
         //TODO Find a more consitent way to run unit tests
         //unitTest(client_id);
       }
-    });
-    
+    });    
   });
   
   /**
