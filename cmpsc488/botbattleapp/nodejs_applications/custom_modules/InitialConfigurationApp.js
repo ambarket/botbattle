@@ -350,6 +350,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   }
   
   function cleanupTask(callback) {
+    /*
     fileManager.clearInitConfigTmp(function(err) {
       if (err) {
         err.message += " Failed to perform cleanup after initial configuration";
@@ -362,6 +363,11 @@ function InitialConfigurationApp(initConfigAppServer) {
         callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
       }
     });
+    */
+    //Cant delete init_config_tmp directory here (atleast not until we really are going to go to the 
+    //  bot battle app. Deleting it causes the multer to crash the page on the next call to submit.
+    // THe error is this Error: Can't set headers after they are sent.
+    callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
   }
 
   /**
