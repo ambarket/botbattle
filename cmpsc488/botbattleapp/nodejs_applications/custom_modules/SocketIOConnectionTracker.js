@@ -12,7 +12,7 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
   var self = this;
   // Private member to store the sockets
   var socketInfo = {sockets: {}, client_id_To_Real_id_Map: {}, Real_id_To_Client_id_Map: {}, numberOfOpenSockets: 0};
-  socketIO
+
   socketIO.on('connection', function(socket) {
     
     // Add a newly connected socket
