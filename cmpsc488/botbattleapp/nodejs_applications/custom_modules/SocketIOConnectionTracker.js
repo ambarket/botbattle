@@ -50,6 +50,22 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
     });    
   });
   
+  // TODO add comments
+  this.emitToAll = function(event, data) {
+    for(socketId in socketInfo.sockets) {
+      socketInfo.sockets[socketId].emit(event, data);
+    }
+  };
+  
+  //TODO add comments
+  this.onReceiveFromAll = function(event, callback) {
+    console.log('here');
+    for(socketId in socketInfo.sockets) {
+      console.log('here');
+      socketInfo.sockets[socketId].on(event, callback);
+    }
+  };
+  
   /**
    * Emits the message over this servers socket.io to a specified client
    * @param {String} id Socket.io id of the original socket given to the client

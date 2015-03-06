@@ -5,6 +5,7 @@ function BotBattleApp(server) {
 	var fileManager = new (require(paths.custom_modules.FileManager));
 	var db = {};
 	
+	/*
 	server.socketIOReceiveFromAll('connection', function(socket){  
 	       db[socket.id] = { 
 	           sock: socket,
@@ -14,9 +15,11 @@ function BotBattleApp(server) {
 		   console.log("Assigned id: " + socket.id);
 		   server.socketIOEmitToAll("test");
 	});
+	*/
 	
 	server.socketIOReceiveFromAll('message', function(data){
  	   // validate 
+	  console.log("revieved stdin");
 			if (db[data.id].playerTurn == 1){
 				console.log(data.input);
 				//db[data.id].run.stdin.write(data.input + '\n');

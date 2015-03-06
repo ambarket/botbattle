@@ -38,9 +38,9 @@ var botBattleAppServer;
 var botBattleApp;
 
 function startBotBattleAppServer(){
-	botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
+	botBattleAppServer = (new BotBattleServer()).initAndStartListening(6058);
     //require(custom_modules.MulticlientPrototype)(botBattleAppServer, botBattleDatabase);
-	botBattleApp = require(custom_modules.BotBattleApp)(botBattleAppServer)
+	botBattleApp = (new require(custom_modules.BotBattleApp))(botBattleAppServer)
     // TODO: register new listeners.  set prototype to inherit emmiter like initconfig
     cleanMemory();
 } 
