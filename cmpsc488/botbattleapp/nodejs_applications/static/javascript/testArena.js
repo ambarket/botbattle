@@ -13,7 +13,6 @@ var drawableRectangle = function(x, y, width, height, borderWidth) {
   this.width = width;
   this.height = height;
   this.borderWidth = borderWidth;
-
 };
 
 drawableRectangle.prototype = Object.create(drawableObject.prototype);

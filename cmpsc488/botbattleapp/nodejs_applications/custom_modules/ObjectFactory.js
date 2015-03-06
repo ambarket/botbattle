@@ -8,12 +8,16 @@ module.exports = {
 
 function User(username, password) {
       this.username = username;
-      this.password = password;
-      
+      this.password = password; 
 }
+    
+function StudentUser(username, password, botFile) {
+	
+}
+User.prototype.
 User.keyFieldName = 'username';
 User.newInstance = function(username, password) {
-  return new User()
+  return new User();
 }
 
 drawableRectangle.prototype = Object.create(drawableObject.prototype);
