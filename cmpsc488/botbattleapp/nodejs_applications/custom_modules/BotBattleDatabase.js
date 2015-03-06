@@ -17,6 +17,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     var databaseClient = null;
     var url = "mongodb://" + host + ":" + port + "/" + dbName;
     
+    var ObjectFactory = require(paths.custom_modules.ObjectFactory);
     /**
      * Getter for the MongoDB client.
      * @method getDatabaseClient
@@ -153,7 +154,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      */
     this.insertAdminUser = function(userObject, callback) {
       //TODO Check if its a valid userObject
-      insertSingleDocumentByKeyFieldInCollection(userObject, userObject['keyFieldName'], 'AdminUsers', callback );
+      insertSingleDocumentByKeyFieldInCollection(userObject, objectFactory.User.keyFieldName, 'AdminUsers', callback );
     }
     
     /**
@@ -168,7 +169,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     this.queryAdminUser = function(username, callback) {
       //TODO Check if its a valid userObject and make keyFIeld a static property in the ObjectFactory
       //    so that you don't need an instance to find out what it is.
-      queryForSingleDocumentByKeyFieldInCollection('username', username, 'AdminUsers', callback);
+      queryForSingleDocumentByKeyFieldInCollection(username, objectFactory.User.keyFieldName, 'AdminUsers', callback);
     }
        
     /**
@@ -180,7 +181,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      */
     this.insertGameModule = function(gameModuleObject, callback) {
     //TODO Check if its a valid gameModuleObject
-      insertSingleDocumentByKeyFieldInCollection(gameModuleObject, gameModuleObject['keyFieldName'], 'GameModules', callback );
+      insertSingleDocumentByKeyFieldInCollection(gameModuleObject, objectFactory.GameModule.keyFieldName, 'GameModules', callback );
     }
     
     /**
@@ -195,22 +196,16 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     this.queryGameModule = function(gameName, callback) {
       //TODO Check if its a valid userObject and make keyFIeld a static property in the ObjectFactory
       //    so that you don't need an instance to find out what it is.
-      queryForSingleDocumentByKeyFieldInCollection('gameName', gameName, 'GameModules', callback);
+      queryForSingleDocumentByKeyFieldInCollection(gameName, objectFactory.GameModule.keyFieldName, 'GameModules', callback);
     }
     
     
-    this.queryTournament = function(tournamentName) {
-      if (databaseClient)
-      {
-        // Perform the query
-      }
+    this.queryTournament = function(tournamentName, callback) {
+    	queryForSingleDocumentByKeyFieldInCollection(tournamentName, objectFactory.Tournament.keyFieldName, 'Tournaments', callback);
     };
     
-     this.insertTournament = function(tournamentMetadata) {
-        if (databaseClient)
-        {
-          // Perform the insert
-        }
+     this.insertTournament = function(tournamentObject) {
+    	 insertSingleDocumentByKeyFieldInCollection(tournamentObject, objectFactory.Tournament.keyFieldName, 'Tournaments', callback );
       };
     // ... and so on
 
@@ -219,7 +214,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         callback(new Error("Database hasn't been initialized, cannot insert!"))
       } 
       else {
-        queryForSingleDocumentByKeyFieldInCollection(keyFieldName, document[keyFieldName], collectionName, function(err, foundDocument) {
+        queryForSingleDocumentByKeyFieldInCollection(document[keyFieldName], keyFieldName, collectionName, function(err, foundDocument) {
           if(err) {
             console.log(err);
             callback(err);
@@ -257,7 +252,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       }
     }
     
-    function queryForSingleDocumentByKeyFieldInCollection(keyFieldName, keyValue, collectionName, callback) {
+    function queryForSingleDocumentByKeyFieldInCollection(keyValue, keyFieldName, collectionName, callback) {
       if (databaseClient === null) {
         callback(new Error("Database hasn't been initialized, cannot query!"))
       } 

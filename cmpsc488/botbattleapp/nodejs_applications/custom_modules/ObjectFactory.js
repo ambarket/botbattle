@@ -15,7 +15,6 @@ function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath
     this.sourceFilePath = sourceFilePath;
     this.classFilePath = classFilePath;
     this.moveTimeout = moveTimeout;
-    this.keyFieldName = 'gameName';
 }
 GameModule.keyFieldName = 'gameName';
 GameModule.newInstance = function(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
@@ -37,5 +36,3 @@ Tournament.newInstance = function(tournamentName, gameName, uploadDeadline, user
 module.exports.User = User;
 module.exports.GameModule = GameModule;
 module.exports.Tournament= Tournament;
-
-
