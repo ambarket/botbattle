@@ -1,36 +1,12 @@
-module.exports = {
- // Will be more complicated in the future
-    createUserObject : function(username, password) {
-      return new (function() {
-
-      })();
-    },
-
 function User(username, password) {
       this.username = username;
       this.password = password; 
 }
-    
-function StudentUser(username, password, botFile) {
-	
-}
-User.prototype.
 User.keyFieldName = 'username';
 User.newInstance = function(username, password) {
-  return new User();
-}
-
-drawableRectangle.prototype = Object.create(drawableObject.prototype);
-drawableRectangle.prototype.constructor = drawableRectangle;
-drawableRectangle.prototype.draw = function(context) {
-  context.beginPath();
-  context.rect(this.x, this.y, this.width, this.height);
-  context.fillStyle = '#8ED6FF';
-  context.fill();
-  context.lineWidth = this.borderWidth;
-  context.strokeStyle = 'black';
-  context.stroke();
+  return new User(username, password);
 };
+
 
 function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
     this.gameName = gameName;
@@ -44,7 +20,7 @@ function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath
 GameModule.keyFieldName = 'gameName';
 GameModule.newInstance = function(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
   return new GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout);
-}
+};
 
 function Tournament(tournamentName, gameName, uploadDeadline, userList, state) {
   this.tournamentName = tournamentName;
@@ -56,8 +32,9 @@ function Tournament(tournamentName, gameName, uploadDeadline, userList, state) {
 Tournament.keyFieldName = 'tournamentName';
 Tournament.newInstance = function(tournamentName, gameName, uploadDeadline, userList, state) {
   return new Tournament(tournamentName, gameName, uploadDeadline, userList, state);
-}
+};
 
+module.exports.User = User;
 module.exports.GameModule = GameModule;
 module.exports.Tournament= Tournament;
 

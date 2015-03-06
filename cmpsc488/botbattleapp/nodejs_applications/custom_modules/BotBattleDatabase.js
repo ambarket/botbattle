@@ -146,7 +146,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
     /**
      * Inserts the specified object into the AdminUsers collection of the DB.
-     * @param {Object} userObject An object created with ObjectFactory.createUserObject, will be inserted into the AdminUsers collection
+     * @param {Object} userObject An object created with ObjectFactory.User, will be inserted into the AdminUsers collection
      * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument. No second argument.
      * @method insertAdminUser
      * @public
@@ -173,7 +173,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
        
     /**
      * Inserts the specified object into the GameModules collection of the DB.
-     * @param {Object} gameModuleObject An object created with ObjectFactory.createGameModuleObject, will be inserted into the GameModules collection
+     * @param {Object} gameModuleObject An object created with ObjectFactory.GameModule, will be inserted into the GameModules collection
      * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument.
      * @method insertGameModule
      * @public

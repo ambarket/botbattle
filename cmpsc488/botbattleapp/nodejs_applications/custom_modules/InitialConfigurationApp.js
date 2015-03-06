@@ -145,7 +145,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   function createAdminUserTask(callback) {
     self.emit('status_update', 'Creating the administrator user');
     var ObjectFactory = require(paths.custom_modules.ObjectFactory);
-    var adminUser = ObjectFactory.createUserObject(
+    var adminUser = ObjectFactory.User.newInstance(
         sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
 
     database.insertAdminUser(adminUser, function(err) {
@@ -281,7 +281,7 @@ function InitialConfigurationApp(initConfigAppServer) {
 
   function initGameModuleTask4_InsertGameModuleDatabaseEntry(tmpData, callback) {
     var ObjectFactory = require(paths.custom_modules.ObjectFactory);
-    var gameModuleObject = ObjectFactory.createGameModuleObject(
+    var gameModuleObject = ObjectFactory.GameModule.newInstance(
         tmpData.gameName, tmpData.newDirectoryPath, tmpData.newRulesFilePath,
         tmpData.newSourceFilePath, tmpData.compiledFilePath,
         tmpData.gameTimeout);
