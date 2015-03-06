@@ -5,6 +5,7 @@ function BotBattleApp(server) {
 	var fileManager = new (require(paths.custom_modules.FileManager));
 	var db = {};
 	
+	// do all of this in ajax now
 	/*
 	server.socketIOReceiveFromAll('connection', function(socket){  
 	       db[socket.id] = { 

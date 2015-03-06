@@ -237,7 +237,7 @@ function Animator(gameboard) {
     var startTime = (new Date()).getTime();
     
     if(animatableEvent.event === 'move'){
-        if (coinFlip(.30)){
+        if (coinFlip(1)){  // stop the flying for now to test other things
         	// make the robot fly half the time
         	setFlyHeight(animatableEvent, 100)
     		animations[animatableEvent.event](animatableEvent, startTime, callback);
@@ -378,14 +378,20 @@ function Drawer(gameboard) {
 	  var player2PositionY = gameboard.drawableObjects["player2"].y;
 	  var p1Grid = (player1PositionX - 65)/35;
 	  var p2Grid = (player2PositionX - 65)/35;
+	  var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
 	  
 	  context.font='30px Arial';
 	  context.fillStyle="black";
-	  if(p1Grid >= 0 && p1Grid <= 24){
-		  context.fillText(Math.floor(p1Grid),player1PositionX + 20,530);
+	  if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
+		  context.fillText(Math.floor(distanceBetweenPlayers),495,550);
 	  }
-	  if(p2Grid >= 0 && p2Grid <= 24){
-		  context.fillText(Math.floor(p2Grid),player2PositionX + 20,530);
+	  else{
+		  if(p1Grid < 0){
+			  context.fillText("Player 2 Wins",405,550);
+		  }
+		  if(p2Grid > 24){
+			  context.fillText("Player 1 Wins",405,550);
+		  }
 	  }
   }
   
