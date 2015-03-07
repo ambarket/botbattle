@@ -59,6 +59,18 @@ drawableImage.prototype.draw = function(context) {
 	  //console.log(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, this.x, this.y, this.destWidth, this.destHeight);
 };
 
+function sprite (options) {
+	
+    var that = {};
+					
+    that.context = options.context;
+    that.width = options.width;
+    that.height = options.height;
+    that.image = options.image;
+
+    return that;
+}
+
 //--------------------------Animatable Events------------------------------------
 var AnimatableEvent = function(event, objectName) {
   this.objectName = objectName;
@@ -105,7 +117,7 @@ var GameBoard = function(readyCallback) {
   this.islandStart = 83 * self.scale;
   this.islandCenterHeight = 468 * self.scale;
   this.robotWidth = 43 * self.scale;
-  this.robotHeight = 76 * self.scale;
+  this.robotHeight = 79 * self.scale;
   this.numberOfGrids = 25;
   this.gridWidth = self.islandWidth/25;
   this.gridCenter = self.gridWidth/2;
@@ -126,8 +138,18 @@ var GameBoard = function(readyCallback) {
     backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, null, imageLoadedCallback),
     player1 : new drawableImage(self.player1SpriteSheet, self.player1StandingSpriteSheetX, self.player1StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player1StartX, self.player1StartY, self.robotWidth, self.robotHeight,  imageLoadedCallback),
     player2 : new drawableImage(self.player2SpriteSheet, self.player2StandingSpriteSheetX, self.player2StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player2StartX, self.player2StartY, self.robotWidth, self.robotHeight,  imageLoadedCallback),
+    player3 : new drawableImage(self.player1SpriteSheet, 404, self.player1StandingSpriteSheetY, 52, self.robotHeight, self.player1StartX, self.player1StartY - 100, 52, self.robotHeight,  imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
+  
+  var canvas = document.getElementById("myCanvas");
+  
+  var player1Running = sprite({
+	    context: canvas.getContext("2d"),
+	    width: 100,
+	    height: 100,
+	    image: this.drawableObjects.player3
+	});
   // add the boxes here for testing then make just two with a number in them from canvas text instead
   // add animations based on the tut http://www.williammalone.com/articles/create-html5-canvas-javascript-sprite-animation/
   // look into tweening and base which splice based on distance traveled so it looks fluid
