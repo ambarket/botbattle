@@ -88,8 +88,8 @@ var GameBoard = function(readyCallback) {
   var self = this;
   this.drawableObjects = {
     backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, 1050, 650, null, null, null, null, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImageRight.png', 0, 0, 314, 368, 65, 365, 70, 100,  imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImageLeft.png', 0, 0, 314, 368, 905, 365, 70, 100,  imageLoadedCallback),
+    player1 : new drawableImage('static/images/FullSpriteSheetRight.png', 2107, 22, 43, 76, 65, 365, 48, 100,  imageLoadedCallback),
+    player2 : new drawableImage('static/images/FullSpriteSheetLeft.png', 687, 22, 43, 76, 905, 365, 48, 100,  imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   // add the boxes here for testing then make just two with a number in them from canvas text instead
