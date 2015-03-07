@@ -355,7 +355,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       }
       console.log(errMessage);
       self.emit('progress_update', 80);
-      if (errMessage) {
+      if (errMessage) {         
     	  callback(new Error(errMessage));
       }
       else {
