@@ -81,64 +81,13 @@ module.exports = function FileManager(botBattleDatabase) {
     this.readTextFileIntoLinesArray = function(pathToFile, callback) {
       fse.readFile(pathToFile, 'utf8', function(err, data) {
         var lines = data.split(/\r?\n/);
-        console.log("Error " + err);
-        //console.log("Data " + data);
+        //console.log(lines);
+        if (lines[lines.length-1] === '') {
+        	lines.splice(lines.length-1, 1);
+        }
         callback(err, lines);
-
       })
-    }
-    
-    
-    /* With database stuff to see if its been run yet. THis seems like overkill and doesn't wuite work yet because,
-     * fileManager doesnt have a reference to the database. WHich means we can't create the filemanager until the db is
-     * created which is fine but takes some rearranging of logic. Will revisit this in time if it becomes more apparent
-     * that the FIleManager should be accessing the database at all
-     *
-    this.initLocalStorage = function(eventEmitter, callback) {
-      database.getLocalStorageCreatedFlag(function(err, document) {
-        if (err) {
-          callback(err);
-        }
-        else {
-          if (document.localStorageCreated === true) {
-            console.log("You already initialized local storage");
-          }
-          else {
-            // Initialize local storage
-            var async = require('async');
-            async.waterfall(
-              [
-                function(callback) {
-                  callback(null, eventEmitter); // Seed the waterfall with the Event Emitter
-                },
-                createGameModulesFolderTask,
-                createPrivateTournamentsFolderTask,
-                createPublicTournamentsFolderTask,
-                createTestArenaTmpFolderTask,
-              ], 
-              //final function (this is where we pass stuff to callback)
-              // In this case any errors have already been emitted to the client.
-              // And all progress updates have already been emitted to the client,
-              //    All that's left is to give a friendly completion message and call
-              //    the callback.
-              function(err){
-                if (!err) {
-                  eventEmitter.emit('status_update', "Initialization of local storage successfull!");
-                  database.setLocalStorageCreatedFlag(true, callback);
-                }
-                else {
-                  callback(err);
-                }
-              }
-            ); 
-          }
-        }
-      });
-    };
-    */
-
-
-    
+    } 
     
     /**
      * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback

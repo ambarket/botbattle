@@ -16,8 +16,9 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     var self = this;
     var databaseClient = null;
     var url = "mongodb://" + host + ":" + port + "/" + dbName;
+    var paths = require("./BotBattlePaths");
+    var objectFactory = require(paths.custom_modules.ObjectFactory);
     
-    var ObjectFactory = require(paths.custom_modules.ObjectFactory);
     /**
      * Getter for the MongoDB client.
      * @method getDatabaseClient

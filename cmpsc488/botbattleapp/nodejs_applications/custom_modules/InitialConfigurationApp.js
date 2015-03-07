@@ -318,34 +318,51 @@ function InitialConfigurationApp(initConfigAppServer) {
 
     // Read the txt file line by line
     fileManager.readTextFileIntoLinesArray(sanitizedFormData.studentList.path ,function(err, lines) {
-      var output = "";
-      for (line in lines) {
+      var usersArray = [];
+      var errMessage = "";
+      for (var line in lines) {
         var usernameRegEx = /^[a-z0-9_-]{3,16}$/;
         var passwordRegEx = /^[a-z0-9_-]{6,18}$/;
-        var userArray = lines[line].trim().split(/[\t ]/);
+        var tmp = lines[line].trim().split(/[\t ]/);
         // Remove any extra whitespace between elements
-        for (element in userArray) {
-          if (userArray[element].trim() === "") {
-            userArray.splice(element,1);
+        var lineElements = [];
+        var lineElementsIndex = 0;
+        for (var i = 0; i < tmp.length; i++) {
+          if (tmp[i].trim() !== '') {
+        	  lineElements[lineElementsIndex] = tmp[i];
+        	  lineElementsIndex++;
           }
         }
-        if (userArray.length != 2) {
-          output +="\nLine #" + line + " Line must contain only username and password separated by a tab or space character";
+        
+        if (lineElements.length !== 2) {
+        	errMessage += "<br> Line #" + line + " Line must contain only username and password separated by a tab or space character";
         }
-        else if (!userArray[0].match(usernameRegEx)){
-          output +="\nLine #" + line + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters";
+        else if (!lineElements[0].match(usernameRegEx)){
+        	errMessage += "<br> Line #" + line + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters";
         }
-        else if (!userArray[1].match(usernameRegEx)){
-          output += "\nLine #" + line + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters";
+        else if (!lineElements[1].match(usernameRegEx)){
+        	errMessage += "<br> Line #" + line + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters";
         }
         else {
-          output += "\nLine #" + line + " Valid username and password";
+        	console.log("Line #" + line + " Valid username and password");
         }
-        console.log(userArray, "Length", userArray.length);
+        console.log(lineElements, "Length", lineElements.length);
+        
+        if (!errMessage) {
+            objectFactory = require(paths.custom_modules.ObjectFactory);
+            usersArray[line] = new objectFactory.User(lineElements[0], lineElements[1]);
+        }
       }
-      console.log(output);
+      console.log(errMessage);
       self.emit('progress_update', 80);
-      callback(null);
+      if (errMessage) {
+    	  callback(new Error(errMessage));
+      }
+      else {
+    	  callback(null);
+      }
+      
+    
     });
   }
   
