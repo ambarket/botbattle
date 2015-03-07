@@ -147,7 +147,9 @@ var GameBoard = function(readyCallback) {
   function imageLoadedCallback() {
     imagesLoaded++;
     if (imagesLoaded == expectedImagesLoaded) {
-      readyCallback(null, self);
+    	if(readyCallback && typeof readyCallback === "function"){
+    		readyCallback(null, self);
+    	}	
     }
   }
 }
