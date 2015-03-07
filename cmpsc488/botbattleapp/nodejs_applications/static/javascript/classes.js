@@ -69,10 +69,12 @@ AnimatableEvent.prototype.animationComplete = function() {
 }
 
 var MoveEvent = function(objectName, endingX, endingY) {
+	var gameboard = new GameBoard();
   AnimatableEvent.call(this, 'move', objectName);
-  this.endingX = endingX * 35 + 65;
+  this.endingX = (endingX * gameboard.gridWidth) + gameboard.islandStart;
   this.endingY = endingY;
 }
+
 MoveEvent.prototype = Object.create(AnimatableEvent.prototype);
 MoveEvent.prototype.animationComplete = function(drawableObject) {
   return drawableObject.x == this.endingX && drawableObject.y == this.endingY;
@@ -81,15 +83,49 @@ MoveEvent.prototype.animationComplete = function(drawableObject) {
 //--------------------------The GameBoard (Model)------------------------------------
 var GameBoard = function(readyCallback) {
   // Implements the singleton pattern so animator and drawer share the same GameBoard
-  if ( arguments.callee._singletonInstance )
-    readyCallback(null, arguments.callee._singletonInstance);
+  if ( arguments.callee._singletonInstance ){
+    if(!readyCallback || typeof(readyCallback) != "function" ){
+    	console.log("No callback passed to GameBoard");
+    }
+    else{
+    	readyCallback(null, arguments.callee._singletonInstance);
+    }
+  }
   arguments.callee._singletonInstance = this;
-
+  
   var self = this;
+  
+  this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
+  this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png'
+  this.scale = 1;
+  
+  this.backGroundWidth = 1050 * self.scale;
+  this.backGroundHeight = 650 * self.scale;
+  this.islandWidth = 870 * self.scale;
+  this.islandStart = 83 * self.scale;
+  this.islandCenterHeight = 468 * self.scale;
+  this.robotWidth = 43 * self.scale;
+  this.robotHeight = 76 * self.scale;
+  this.numberOfGrids = 25;
+  this.gridWidth = self.islandWidth/25;
+  this.gridCenter = self.gridWidth/2;
+  console.log(self.gridCenter);
+  this.player1StartX = (0 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+  this.player2StartX = (24 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+  this.player1StartY = self.islandCenterHeight - self.robotHeight;
+  this.player2StartY = self.islandCenterHeight - self.robotHeight;  
+  this.player1StandingSpriteSheetX = 2107;
+  this.player1StandingSpriteSheetY = 22;
+  this.player2StandingSpriteSheetY = 22;
+  this.player2StandingSpriteSheetX = 687;  
+  
+  console.log(self.player1SpriteSheet, self.player1StandingSpriteSheetX, self.player1StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player1StartX, self.player1StartY, self.robotWidth, self.robotHeight);
+  //console.log(self.player2SpriteSheet, self.player2StandingSpriteSheetX, self.player2StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player2StartX, self.player2StartY, self.robotWidth, self.robotHeight);
+
   this.drawableObjects = {
-    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, 1050, 650, null, null, null, null, imageLoadedCallback),
-    player1 : new drawableImage('static/images/FullSpriteSheetRight.png', 2107, 22, 43, 76, 65, 365, 48, 100,  imageLoadedCallback),
-    player2 : new drawableImage('static/images/FullSpriteSheetLeft.png', 687, 22, 43, 76, 905, 365, 48, 100,  imageLoadedCallback),
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, null, imageLoadedCallback),
+    player1 : new drawableImage(self.player1SpriteSheet, self.player1StandingSpriteSheetX, self.player1StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player1StartX, self.player1StartY, self.robotWidth, self.robotHeight,  imageLoadedCallback),
+    player2 : new drawableImage(self.player2SpriteSheet, self.player2StandingSpriteSheetX, self.player2StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player2StartX, self.player2StartY, self.robotWidth, self.robotHeight,  imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   // add the boxes here for testing then make just two with a number in them from canvas text instead
@@ -383,8 +419,9 @@ function Drawer(gameboard) {
 	  var player1PositionY = gameboard.drawableObjects["player1"].y;
 	  var player2PositionX = gameboard.drawableObjects["player2"].x;
 	  var player2PositionY = gameboard.drawableObjects["player2"].y;
-	  var p1Grid = (player1PositionX - 65)/35;
-	  var p2Grid = (player2PositionX - 65)/35;
+	  var p1Grid = Math.floor((player1PositionX - gameboard.islandStart)/ gameboard.gridWidth);
+	  var p2Grid = Math.floor((player2PositionX - gameboard.islandStart)/ gameboard.gridWidth);
+	  console.log(p1Grid, p2Grid);
 	  var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
 	  
 	  context.font='30px Arial';
