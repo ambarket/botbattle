@@ -205,7 +205,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     	queryForSingleDocumentByKeyFieldInCollection(tournamentName, objectFactory.Tournament.keyFieldName, 'Tournaments', callback);
     };
     
-     this.insertTournament = function(tournamentObject) {
+     this.insertTournament = function(tournamentObject, callback) {
     	 insertSingleDocumentByKeyFieldInCollection(tournamentObject, objectFactory.Tournament.keyFieldName, 'Tournaments', callback );
       };
     // ... and so on

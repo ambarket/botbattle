@@ -15,7 +15,7 @@ module.exports = function BotBattleServer() {
  
   /**
    * Initialize the expressApp, httpsServer, socketIO, and connectionTracker properties 
-   * and begin listening for connections on localhost:port, where port is the TCP port 
+   * and begin listening for connections on https://localhost:port, where port is the TCP port 
    * number passed to the constructor.
    * 
    * @method initAndStartListening

@@ -16,6 +16,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
   var paths = require('./BotBattlePaths');
   var fileManager = new (require(paths.custom_modules.FileManager));
+  var objectFactory = require(paths.custom_modules.ObjectFactory);
 
   /**
    * An object containing all fields submitted in the initial configuration form
@@ -144,8 +145,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    */
   function createAdminUserTask(callback) {
     self.emit('status_update', 'Creating the administrator user');
-    var ObjectFactory = require(paths.custom_modules.ObjectFactory);
-    var adminUser = ObjectFactory.User.newInstance(
+    var adminUser = objectFactory.User.newInstance(
         sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
 
     database.insertAdminUser(adminUser, function(err) {
@@ -280,8 +280,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   }
 
   function initGameModuleTask4_InsertGameModuleDatabaseEntry(tmpData, callback) {
-    var ObjectFactory = require(paths.custom_modules.ObjectFactory);
-    var gameModuleObject = ObjectFactory.GameModule.newInstance(
+    var gameModuleObject = objectFactory.GameModule.newInstance(
         tmpData.gameName, tmpData.newDirectoryPath, tmpData.newRulesFilePath,
         tmpData.newSourceFilePath, tmpData.compiledFilePath,
         tmpData.gameTimeout);
@@ -349,17 +348,32 @@ function InitialConfigurationApp(initConfigAppServer) {
         console.log(lineElements, "Length", lineElements.length);
         
         if (!errMessage) {
-            objectFactory = require(paths.custom_modules.ObjectFactory);
-            usersArray[line] = new objectFactory.User(lineElements[0], lineElements[1]);
+            usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1]);
         }
       }
       console.log(errMessage);
-      self.emit('progress_update', 80);
+      
       if (errMessage) {         
     	  callback(new Error(errMessage));
       }
       else {
-    	  callback(null);
+        var tournament = objectFactory.Tournament.newInstance(
+            sanitizedFormData.tournamentName, 
+            sanitizedFormData.gameName, 
+            sanitizedFormData.tournamentDeadline,
+            usersArray,
+            'upload');
+        database.insertTournament(tournament, function(err) {
+          if (err) {
+            callback(err);
+          }
+          else {
+            self.emit('progress_update', 80);
+            callback(null);
+          }
+        })
+        
+
       }
       
     
@@ -383,7 +397,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     */
     //Cant delete init_config_tmp directory here (atleast not until we really are going to go to the 
     //  bot battle app. Deleting it causes the multer to crash the page on the next call to submit.
-    // THe error is this Error: Can't set headers after they are sent.
+    // THe error is this "Error: Can't set headers after they are sent".
     callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
   }
 
