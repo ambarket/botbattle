@@ -1,7 +1,7 @@
 //--------------------------Drawable Objects------------------------------------
 var drawableObject = function(x, y) {
-  this.x = x;
-  this.y = y;
+	this.x = x || 0;
+	this.y = y || 0;
 };
 
 drawableObject.prototype.draw = function(context) {
@@ -10,8 +10,8 @@ drawableObject.prototype.draw = function(context) {
 
 var drawableRectangle = function(x, y, width, height, borderWidth) {
   drawableObject.call(this, x, y);
-  this.width = width;
-  this.height = height;
+  this.sourceWidth = width;
+  this.sourceHeight = height;
   this.borderWidth = borderWidth;
 
 };
@@ -20,36 +20,43 @@ drawableRectangle.prototype = Object.create(drawableObject.prototype);
 drawableRectangle.prototype.constructor = drawableRectangle;
 drawableRectangle.prototype.draw = function(context) {
   context.beginPath();
-  context.rect(this.x, this.y, this.width, this.height);
+  context.rect(this.x, this.y, this.destWidth, this.destHeight);
   context.fillStyle = '#8ED6FF';
   context.fill();
   context.lineWidth = this.borderWidth;
   context.strokeStyle = 'black';
   context.stroke();
 };
-
-var drawableImage = function(imgsrc, x, y, width, height, loadedCallback) {
-  drawableObject.call(this, x, y);
-  this.width = width;
-  this.height = height;
-  this.imgsrc = imgsrc;
+// need to make this have optional parameters and multiple constructors so don't have to pass null
+var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, loadedCallback) {
+  drawableObject.call(this, destX, destY);
+  this.sourceX = sourceX || 0;
+  this.sourceY = sourceY || 0;
+  this.sourceWidth = sourceWidth;
+  this.sourceHeight = sourceHeight;
+  //this.imagesrc = imageSrc;
   this.img = new Image();
   this.img.onload = loadedCallback;
-  this.img.src = imgsrc;
-}
+  this.img.src = imageSrc;
+  //this.y = (typeof destY === "undefined" || destY === "null") ? sourceY : destY; <--------------this won't work for some reason
+  this.destWidth = destWidth || sourceWidth;
+  this.destHeight = destHeight || sourceHeight;
+  //console.log(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, this.x, this.y, this.destWidth, this.destHeight);
+};
 
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableRectangle;
 drawableImage.prototype.draw = function(context) {
   // temporary add to outline the boxes of objects for measureing purposes
 	context.beginPath();
-	  context.rect(this.x, this.y, this.width, this.height);
+	  context.rect(this.x, this.y, this.destWidth, this.destHeight);
 	  context.fillStyle = '#8ED6FF';
 	  context.fill();
 	  context.lineWidth = this.borderWidth;
 	  context.strokeStyle = 'black';
 	  context.stroke();
-  context.drawImage(this.img, this.x, this.y, this.width, this.height);
+	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, this.x, this.y, this.destWidth, this.destHeight);
+	  //console.log(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, this.x, this.y, this.destWidth, this.destHeight);
 };
 
 //--------------------------Animatable Events------------------------------------
@@ -80,9 +87,9 @@ var GameBoard = function(readyCallback) {
 
   var self = this;
   this.drawableObjects = {
-    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0,0,1050,650, imageLoadedCallback),
-    player1 : new drawableImage('static/images/botImageRight.png', 65,365,70,100, imageLoadedCallback),
-    player2 : new drawableImage('static/images/botImageLeft.png', 905,365,70,100, imageLoadedCallback),
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, 1050, 650, null, null, null, null, imageLoadedCallback),
+    player1 : new drawableImage('static/images/botImageRight.png', 0, 0, 314, 368, 65, 365, 70, 100,  imageLoadedCallback),
+    player2 : new drawableImage('static/images/botImageLeft.png', 0, 0, 314, 368, 905, 365, 70, 100,  imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   // add the boxes here for testing then make just two with a number in them from canvas text instead
@@ -90,13 +97,13 @@ var GameBoard = function(readyCallback) {
   // look into tweening and base which splice based on distance traveled so it looks fluid
   this.backgroundElements = {
       trees1 : {
-        tree1 : new drawableImage('static/images/tree.png', 10,110,20,20, imageLoadedCallback),
-        tree2 : new drawableImage('static/images/tree.png', 75,100,20,20, imageLoadedCallback),
+        tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, imageLoadedCallback),
+        tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75, 100, 20, 20, imageLoadedCallback),
       },
       trees2 : {
-    	  tree3 : new drawableImage('static/images/tree.png', 150,154,20,20, imageLoadedCallback),
-          tree4 : new drawableImage('static/images/tree.png', 250,160,20,20, imageLoadedCallback),
-          tree5 : new drawableImage('static/images/tree.png', 350,125,20,20, imageLoadedCallback),
+    	  tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150, 154, 20, 20, imageLoadedCallback),
+          tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250, 160, 20, 20, imageLoadedCallback),
+          tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350, 125, 20, 20, imageLoadedCallback),
       }
   }
   

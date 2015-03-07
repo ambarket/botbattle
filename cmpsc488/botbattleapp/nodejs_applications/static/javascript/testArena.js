@@ -70,12 +70,12 @@
     	  rect = canvas.getBoundingClientRect();
 		  clickCount++;
 		  if(clickCount % 2 === 1){
-			  x1 = event.clientX - rect.left;
-			  y1 = event.clientY - rect.top;
+			  x1 = event.clientX - Math.floor(rect.left);
+			  y1 = event.clientY - Math.floor(rect.top);
 		  }
 		  else{
-			  x2 = event.clientX - rect.left;
-			  y2 = event.clientY - rect.top;
+			  x2 = event.clientX - Math.floor(rect.left);
+			  y2 = event.clientY - Math.floor(rect.top);
 		  }
 		  if(x1 && x2){
 			  document.getElementById("distance").innerHTML = "X dist = " + Math.abs(x1-x2) + "  Y dist = " + Math.abs(y1-y2) + "<hr> point1 = X: " + x1 + " Y: " + y1 + "<hr> point2 = X: " + x2 + " Y: " + y2;
