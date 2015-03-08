@@ -201,15 +201,15 @@ var GameBoard = function(readyCallback) {
     							self.player2StartY, 
     							self.robotWidth, 
     							self.robotHeight, null, null, null, false, imageLoadedCallback),
-    player3 : new drawableImage('static/images/RunningRight.png', 
+    player1Running : new drawableImage('static/images/RunningRight.png', 
     							0, 
     							self.player1StandingSpriteSheetY, 
-    							563, 
+    							592, 
     							self.robotHeight, 
     							self.player1StartX, 
     							self.player1StartY - 100, 
     							74, 
-    							self.robotHeight, null, 15, 8, true, imageLoadedCallback),
+    							self.robotHeight, null, 8, 8, true, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   
@@ -260,7 +260,6 @@ function Animator(gameboard) {
   var animations = {
     move : function(moveEvent, lastUpdateTime, callback) {
       backgroundAnimations();
-      //console.log(gameboard.drawableObjects[moveEvent.objectName]);
       var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
       var time;
       var done;
@@ -280,7 +279,6 @@ function Animator(gameboard) {
           animations.move(moveEvent, time, callback);
         });
       } else {
-        //console.log('animation of', moveEvent, 'complete!')
         callback();
       }
     },
@@ -290,19 +288,14 @@ function Animator(gameboard) {
         var time;
         
         var endX = moveEvent.endingX;
-        //console.log("endx " + endX);
         moveEvent.endingX = drawableObject.x;
-        //console.log("endingx " + moveEvent.endingX);
         
         moveEvent.event = 'move';
         
         animations.move(moveEvent, (new Date()).getTime(), function(){
         	moveEvent.endingX = endX;
-        	//console.log("Moved up");
         	animations.move(moveEvent, (new Date()).getTime(),function(){
         		moveEvent.endingY = drawableObject.y + 100;
-        		//console.log("moved Over");
-        		//console.log("New endingy is " + moveEvent.endingY);
         		animations.move(moveEvent, (new Date()).getTime() , callback)
         	})
         });
@@ -316,15 +309,12 @@ function Animator(gameboard) {
         var time;
         
         var endX = moveEvent.endingX;
-        //console.log("endx " + endX);
         moveEvent.endingX = drawableObject.x;
-        //console.log("endingx " + moveEvent.endingX);
         
         moveEvent.event = 'move';
         
         animations.move(moveEvent, (new Date()).getTime(), function(){
         	moveEvent.endingX = endX;
-        	//console.log("Moved up");
         	animations.move(moveEvent, (new Date()).getTime(),function(){
         		moveEvent.endingY = drawableObject.y + 100;
         		animations.move(moveEvent, (new Date()).getTime() , callback)
@@ -427,7 +417,6 @@ function Animator(gameboard) {
   var updateXPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
-      //console.log('inUpdateXPosition', drawableObject, moveEvent);
       var backwards = moveEvent.endingX - drawableObject.x < 0;
       
       // pixels / second
@@ -440,8 +429,6 @@ function Animator(gameboard) {
       } else if (!backwards && drawableObject.x >= moveEvent.endingX) {
         drawableObject.x = moveEvent.endingX;
       }
-
-      //console.log('moved rectangle', drawableObject.x);
 
       return time;
     }
@@ -458,7 +445,6 @@ function Animator(gameboard) {
   var updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
-      //console.log('inUpdateXPosition', drawableObject, moveEvent);
       var up = moveEvent.endingY - drawableObject.y < 0;
       
       // pixels / second
@@ -471,8 +457,6 @@ function Animator(gameboard) {
       } else if (!up && drawableObject.y >= moveEvent.endingY) {
         drawableObject.y = moveEvent.endingY;
       }
-
-      //console.log('moved rectangle', drawableObject.y);
 
       return time;
     }
