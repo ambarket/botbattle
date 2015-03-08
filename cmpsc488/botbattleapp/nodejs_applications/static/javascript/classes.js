@@ -28,7 +28,7 @@ drawableRectangle.prototype.draw = function(context) {
   context.stroke();
 };
 // need to make this have optional parameters and multiple constructors so don't have to pass null and pass objects
-var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, indexStart, ticksPer, numberOfFrames, loop, loadedCallback) {
+var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, indexStart, ticksPer, numberOfFrames, loop, visible, loadedCallback) {
   drawableObject.call(this, destX, destY);
   var self = this;
   this.sourceX = sourceX || 0;
@@ -45,17 +45,13 @@ var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeig
   this.tickCount = 0;
   this.ticksPerFrame = ticksPer || 1;
   this.numberOfFrames = numberOfFrames || 1;
-  this.loop = loop || false;
+  this.loop = loop;
+  this.visible = visible;
   this.update = function () {
-  
-      self.tickCount += 1;
-			
+      self.tickCount += 1;	
       if (self.tickCount > self.ticksPerFrame) {
-      
       	self.tickCount = 0;
-      	
       	if(self.frameIndex < self.numberOfFrames - 1){
-          
           self.frameIndex += 1; 
       	}
       	else{
@@ -71,17 +67,18 @@ drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableRectangle;
 drawableImage.prototype.draw = function(context) {
   // temporary add to outline the boxes of objects for measureing purposes
-	  context.beginPath();
+	 /* context.beginPath();
 	  context.rect(this.x, this.y, this.destWidth, this.destHeight);
 	  context.fillStyle = '#8ED6FF';
 	  context.fill();
 	  context.lineWidth = this.borderWidth;
 	  context.strokeStyle = 'black';
-	  context.stroke();
+	  context.stroke(); */
 	  
+	if(this.visible){
 	  this.update();
 	  
-	  if(this.ticksPerFrame !== 1){
+	  if(this.numberOfFrames !== 1){
 		  context.drawImage(this.img, 
 				  			this.frameIndex * this.sourceWidth / this.numberOfFrames, // must use total image width not sprite width
 				  			this.sourceY, 
@@ -103,6 +100,7 @@ drawableImage.prototype.draw = function(context) {
 				  			this.destWidth, 
 				  			this.destHeight);
 	  }
+	}
 };
 
 /*function sprite (options) {
@@ -175,44 +173,65 @@ var GameBoard = function(readyCallback) {
   this.player1StandingSpriteSheetX = 2107;
   this.player1StandingSpriteSheetY = 22;
   this.player2StandingSpriteSheetY = 22;
-  this.player2StandingSpriteSheetX = 687;  
+  this.player2StandingSpriteSheetX = 687;
+  this.player1PositionX = self.player1StartX;
+  this.player1PositionY = self.player1StartY;
+  this.player2PositionX = self.player2StartX;
+  this.player2PositionY = self.player2StartY;
   
-  //console.log(self.player1SpriteSheet, self.player1StandingSpriteSheetX, self.player1StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player1StartX, self.player1StartY, self.robotWidth, self.robotHeight);
-  //console.log(self.player2SpriteSheet, self.player2StandingSpriteSheetX, self.player2StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player2StartX, self.player2StartY, self.robotWidth, self.robotHeight);
-
+  
   // can get the image width property automatically
   this.drawableObjects = {
-    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, null, null, null, null, false, imageLoadedCallback),
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, null, null, null, null, false, true, imageLoadedCallback),
     player1 : new drawableImage(self.player1SpriteSheet, 
     							self.player1StandingSpriteSheetX, 
     							self.player1StandingSpriteSheetY, 
     							self.robotWidth, 
     							self.robotHeight, 
-    							self.player1StartX, 
-    							self.player1StartY, 
+    							self.player1PositionX, 
+    							self.player1PositionY, 
     							self.robotWidth, 
-    							self.robotHeight, null, null, null, false,  imageLoadedCallback),
+    							self.robotHeight, null, null, null, false, true, imageLoadedCallback),
     player2 : new drawableImage(self.player2SpriteSheet, 
     							self.player2StandingSpriteSheetX, 
     							self.player2StandingSpriteSheetY, 
     							self.robotWidth, 
     							self.robotHeight, 
-    							self.player2StartX, 
-    							self.player2StartY, 
+    							self.player2PositionX, 
+    							self.player2PositionY, 
     							self.robotWidth, 
-    							self.robotHeight, null, null, null, false, imageLoadedCallback),
+    							self.robotHeight, null, null, null, false, true, imageLoadedCallback),
     player1Running : new drawableImage('static/images/RunningRight.png', 
     							0, 
     							self.player1StandingSpriteSheetY, 
     							592, 
     							self.robotHeight, 
-    							self.player1StartX, 
-    							self.player1StartY - 100, 
+    							self.player1PositionX, 
+    							self.player1PositionY, 
     							74, 
-    							self.robotHeight, null, 8, 8, true, imageLoadedCallback),
-    /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
+    							self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
   }
   
+  this.playerAnimations = {
+		  player1 : {
+			  current : self.drawableObjects.player1,
+			  standing : self.drawableObjects.player1,
+			  move : self.drawableObjects.player1Running,
+			  //attack : "player1Attack",
+			  //defend : "player1Defend",
+			  //hit : "player1Falling",
+			  //lose : "player1Lost"
+		  },
+		  player2 : {
+			  current : self.drawableObjects.player2,
+			  standing : self.drawableObjects.player2,
+			  move : self.drawableObjects.player2,
+			  //attack : "player2Attack",
+			  //defend : "player2Defend",
+			  //hit : "player2Falling",
+			  //lose : "player2Lost"
+		  }
+  }
   /*var canvas = document.getElementById("myCanvas");
   
   var player1Running = sprite({
@@ -226,13 +245,13 @@ var GameBoard = function(readyCallback) {
   // look into tweening and base which splice based on distance traveled so it looks fluid
   this.backgroundElements = {
       trees1 : {
-        tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, null, null, null, false, imageLoadedCallback),
-        tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75, 100, 20, 20, null, null, null, false, imageLoadedCallback),
+        tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, null, null, null, false, true, imageLoadedCallback),
+        tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75, 100, 20, 20, null, null, null, false, true, imageLoadedCallback),
       },
       trees2 : {
-    	  tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150, 154, 20, 20, null, null, null, false, imageLoadedCallback),
-          tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250, 160, 20, 20, null, null, null, false, imageLoadedCallback),
-          tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350, 125, 20, 20, null, null, null, false, imageLoadedCallback),
+    	  tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150, 154, 20, 20, null, null, null, false, true, imageLoadedCallback),
+          tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250, 160, 20, 20, null, null, null, false, true, imageLoadedCallback),
+          tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350, 125, 20, 20, null, null, null, false, true, imageLoadedCallback),
       }
   }
   
@@ -260,7 +279,12 @@ function Animator(gameboard) {
   var animations = {
     move : function(moveEvent, lastUpdateTime, callback) {
       backgroundAnimations();
-      var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
+      //var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
+      gameboard.playerAnimations[moveEvent.objectName].standing.visible = false;
+      gameboard.playerAnimations[moveEvent.objectName].move.visible = true;
+      
+      var drawableObject = gameboard.playerAnimations[moveEvent.objectName].move;
+      gameboard.playerAnimations[moveEvent.objectName].current = drawableObject;
       var time;
       var done;
       
@@ -279,7 +303,12 @@ function Animator(gameboard) {
           animations.move(moveEvent, time, callback);
         });
       } else {
-        callback();
+    	  gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
+          gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
+          gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
+          gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
+          gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
+          callback();
       }
     },
     fly : function(moveEvent, lastUpdateTime, callback) { // break this up to ascendHover and descendHover
@@ -494,10 +523,10 @@ function Drawer(gameboard) {
   }
   
   var drawGridNumbers = function(){
-	  var player1PositionX = gameboard.drawableObjects["player1"].x;
-	  var player1PositionY = gameboard.drawableObjects["player1"].y;
-	  var player2PositionX = gameboard.drawableObjects["player2"].x;
-	  var player2PositionY = gameboard.drawableObjects["player2"].y;
+	  var player1PositionX = gameboard.playerAnimations["player1"].current.x;
+	  var player1PositionY = gameboard.playerAnimations["player1"].current.y;
+	  var player2PositionX = gameboard.playerAnimations["player2"].current.x;
+	  var player2PositionY = gameboard.playerAnimations["player2"].current.y;
 	  var p1Grid = Math.floor((player1PositionX - gameboard.islandStart)/ gameboard.gridWidth);
 	  var p2Grid = Math.floor((player2PositionX - gameboard.islandStart)/ gameboard.gridWidth);
 	  console.log(p1Grid, p2Grid);
