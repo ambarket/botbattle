@@ -12,7 +12,8 @@ var logger = require(paths.custom_modules.Logger).newInstance('console');
 
 fileManager.parseConfigurationFile(function(err, config) {
   if (err) {
-    logger.log("No configuration file found, running initial configuration at https://localhost:6058");
+    logger.log(err.message);
+    logger.log("No valid configuration file found, running initial configuration at https://localhost:6058");
     runInitialConfiguration();
   }
   else {

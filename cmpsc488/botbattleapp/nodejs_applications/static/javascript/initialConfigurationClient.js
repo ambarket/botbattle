@@ -67,11 +67,11 @@ var myId = null;
   })
   .on('config_success', function(data) {
     var count = 5;
-    document.getElementById('message').innerHTML = "Configuration Successful!<br>The page will reload in "
+    document.getElementById('reloading_message').innerHTML = "Configuration Successful!<br>The page will reload in "
       + count + " seconds and take you to the Public Portal";
     setInterval(function() {
         count--;
-        document.getElementById('message').innerHTML = "Configuration Successful!<br>The page will reload in "
+        document.getElementById('reloading_message').innerHTML = "Configuration Successful!<br>The page will reload in "
             + count + " seconds and take you to the Public Portal";
         if (count === 0) {
           location.reload();

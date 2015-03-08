@@ -165,7 +165,12 @@ function FileManager(botBattleDatabase) {
               }
             }
           }
-          callback(error, config);
+          if (!error && expectedProperties.length != 0) {
+            callback(new Error("configuration file was missing the following properties: " + expectedProperties));
+          }
+          else {
+            callback(error, config);
+          }
         }
       })
     }
@@ -181,6 +186,7 @@ function FileManager(botBattleDatabase) {
           var usersArray = [];
           var errMessage = "";
           var numberOfErrors = 0;
+          var inputValidator = require(paths.custom_modules.InputValidator).newInstance();
           for (var line = 0; line < lines.length; line++) {
             var usernameRegEx = /^[a-z0-9_-]{3,16}$/;
             var passwordRegEx = /^[a-z0-9_-]{6,18}$/;
@@ -198,13 +204,13 @@ function FileManager(botBattleDatabase) {
               numberOfErrors++;
               eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Line must contain only username and password separated by a tab or space character");
             }
-            else if (!lineElements[0].match(usernameRegEx)){
+            else if (!inputValidator.isAlphanumeric4to35Char(lineElements[0])){
               numberOfErrors++;
-              eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters");
+              eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Username be an alphanumeric string between 4 and 35 characters");
             }
-            else if (!lineElements[1].match(usernameRegEx)){
+            else if (!inputValidator.isPassword(lineElements[1])){
               numberOfErrors++;
-              eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters");
+              eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Password consist of 4 to 16 characters and contain at least one number");
             }
             
             if (!numberOfErrors) {
