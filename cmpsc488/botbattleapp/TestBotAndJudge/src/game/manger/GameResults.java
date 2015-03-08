@@ -60,7 +60,7 @@ public class GameResults {
 	}
 	
 	//TODO: remove new lines and tabs once this gets approved
-	public String toJSONobject(){
+	public String toJSONString(){
 		String jsonString = "{\n";
 		
 		int i = 0;

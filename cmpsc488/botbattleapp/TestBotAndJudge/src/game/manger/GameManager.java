@@ -65,7 +65,7 @@ public class GameManager implements Runnable {
 	}
 
 	public String getJSONStringOfResults() {
-		return results.toJSONobject();
+		return results.toJSONString();
 	}
 
 	@Override
