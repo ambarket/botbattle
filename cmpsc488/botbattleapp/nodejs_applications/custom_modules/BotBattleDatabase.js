@@ -19,12 +19,52 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     var paths = require("./BotBattlePaths");
     var objectFactory = require(paths.custom_modules.ObjectFactory);
     
+    
     /**
-     * Getter for the MongoDB client.
-     * @method getDatabaseClient
-     * @return A reference to the MongoDB client of this BotBattleDatabase.
+     * Upon successful completion, this object will contain a connected and 
+     * authenticated MongoClient object, the database will have been cleared of
+     * all collections used by BotBattleApp, and initialized with any initial
+     * records required.
+     * @method initializeFreshDatabase
+     * @param {Function} callback with the form function(err)
      */
-    this.getDatabaseClient = function() { return databaseClient;};
+    this.initializeFreshDatabase = function(initializeFreshDatabaseCallback){
+      var async = require('async');
+      async.waterfall(
+        [
+          connectToDatabaseTask,
+          authenticateConnectionTask,
+          clearDatabaseTask,
+          insertInitialRecordsTask
+        ], 
+        
+        function(err){
+          initializeFreshDatabaseCallback(err);
+        }
+      );              
+    };
+    
+    this.connectToExistingDatabase = function(connectCallback) {
+      var async = require('async');
+      async.waterfall(
+        [
+          connectToDatabaseTask,
+          authenticateConnectionTask
+        ], 
+        
+        function(err){
+          connectCallback(err);
+        }
+      );    
+    }
+    
+    /**
+     * Note close is apparently synchronous, or at least doesn't accept a callback
+     */
+    this.disconnectFromDatabase = function () {
+      databaseClient.close();
+      databaseClient = null;
+    };
     
     /**
      * The reverse of initializeFreshDatabase
@@ -41,29 +81,6 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         })
       }
     }
-    /**
-     * Upon successful completion, this object will contain a connected and 
-     * authenticated MongoClient object, the database will have been cleared of
-     * all collections used by BotBattleApp, and initialized with any initial
-     * records required.
-     * @method initializeFreshDatabase
-     * @param {Function} callback with the form function(err)
-     */
-    this.initializeFreshDatabase = function(connectCallback){
-      var async = require('async');
-      async.waterfall(
-        [
-          connectToDatabaseTask,
-          authenticateConnectionTask,
-          self.clearDatabaseTask,
-          insertInitialRecordsTask
-        ], 
-        
-        function(err){
-          connectCallback(err);
-        }
-      );              
-    };
     
     /**
      * Upon successful completion, a connected MongoClient object will be passed as an argument
@@ -92,11 +109,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         {
           // Store a reference to the authenticated db instance
           databaseClient = connectedDBClient;
-         // callback(null);
         }
-        //else{
-        //	callback(err);
-        //}
         callback(err);
       });
     }
@@ -107,7 +120,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @param {Function} callback used by async.waterfall(...). 
      * @public
      */
-    this.clearDatabaseTask = function(callback)
+    function clearDatabaseTask(callback)
     {
       var collections = ['SystemParameters', 'AdminUsers', 'GameModules', 'Tournaments', 'TestArena'];
       var async = require('async');
@@ -129,16 +142,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       //TODO: Either delete this or find a purpose for it. Seems like we may need to seed the DB
       //    with some initial records at some point
       callback(null);
-    }
-    
-    
-    
-    this.close = function () {
-      databaseClient.close();
-    };
-    
-    
-    
+    }    
     
     function dropCollection(collectionName, callback) {
       databaseClient.collection(collectionName, function(err, collection) {

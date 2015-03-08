@@ -61,7 +61,7 @@ function InitialConfigurationApp(initConfigAppServer) {
           createAdminUserTask, // Probably should be moved to last
           initGameModuleTask, 
           initTournamentTask,
-          cleanupTask
+          saveConfigAndCleanupTask
          ], 
          function(err) {
           if (err) {
@@ -79,11 +79,8 @@ function InitialConfigurationApp(initConfigAppServer) {
               }
             });
           } else {
-            // NOTE: arbitrary error is being passed from cleanupTask to halt things while still
-            //  working on this page.
             self.emit('status_update', 'Completed setup.');
             self.emit('progress_update', 100);
-
             self.emit('config_success', database);
           }
         }
@@ -358,57 +355,13 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initTournamentTask(callback) {
     self.emit('status_update', 'Initializing the Tournament');
     var async = require('async');
-
-    // Read the txt file line by line
-    fileManager.readTextFileIntoLinesArray(sanitizedFormData.studentList.path ,function(err, lines) {
-      var usersArray = [];
-      var errMessage = "";
-      var numberOfErrors = 0;
-      self.emit('status_update', "&nbsp&nbsp Parsing the student list...");
-      for (var line = 0; line < lines.length; line++) {
-        var usernameRegEx = /^[a-z0-9_-]{3,16}$/;
-        var passwordRegEx = /^[a-z0-9_-]{6,18}$/;
-        var tmp = lines[line].trim().split(/[\t ]/);
-        // Remove any extra whitespace between elements
-        var lineElements = [];
-        var lineElementsIndex = 0;
-        for (var i = 0; i < tmp.length; i++) {
-          if (tmp[i].trim() !== '') {
-        	  lineElements[lineElementsIndex] = tmp[i];
-        	  lineElementsIndex++;
-          }
-        }
-        if (lineElements.length !== 2) {
-          numberOfErrors++;
-          self.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Line must contain only username and password separated by a tab or space character");
-        }
-        else if (!lineElements[0].match(usernameRegEx)){
-          numberOfErrors++;
-          self.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters");
-        }
-        else if (!lineElements[1].match(usernameRegEx)){
-          numberOfErrors++;
-          self.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters");
-        }
-        else {
-        	//logger.log("Line #" + line + " Valid username and password");
-        }
-        //logger.log(lineElements, "Length", lineElements.length);
-        
-        if (!errMessage) {
-            usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1]);
-        }
-        if (numberOfErrors >= 5) {
-          break;
-        }
-      }
-      
-      if (numberOfErrors > 0) {      
-          
-    	  callback(new Error("Failed to parse student list file due to the errors above"));
+    self.emit('status_update', "&nbsp&nbsp Parsing the student list...");
+    // Pass self to be used as event emitter to pass detailed line by line errors to the client
+    fileManager.parseStudentListForTournament(sanitizedFormData.studentList.path, self, function(err, usersArray) {
+      if (err) {
+        callback(err);
       }
       else {
-        
         fileManager.createDirectoryForPrivateTournament(sanitizedFormData.tournamentName, function(err, tournamentDirectory) {
           if (err) {
             callback(err);
@@ -435,12 +388,22 @@ function InitialConfigurationApp(initConfigAppServer) {
               }
             })
           }
-        })
+        });
       }
-    });
+    })
   }
   
-  function cleanupTask(callback) {
+  function saveConfigAndCleanupTask(callback) {
+    fileManager.saveConfigurationToFile(sanitizedFormData, function(err) {
+      if (err) {
+        callback(err);
+      }
+      else {
+        self.emit('status_update', "Successfully saved configuration to " + paths.configurationFile);
+        logger.log("Successfully saved configuration to " + paths.configurationFile);
+        callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
+      }
+    });
     //Cant delete init_config_tmp directory here (atleast not until we really are going to go to the 
     //  bot battle app. Deleting it causes the multer to crash the page on the next call to submit.
     // THe error is this "Error: Can't set headers after they are sent".
@@ -459,7 +422,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     });
     */
 
-    callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
+    
   }
 
   /**
@@ -628,6 +591,7 @@ function InitialConfigurationApp(initConfigAppServer) {
                 self.emit('config_error', "&nbsp&nbsp Failed to clear initial configuration tmp directory " + err.message);
               }
               self.emit('status_update', 'Finished rolling back initial configuration');
+              self.emit('reset_form');
             });
           } else {
             self.emit('status_update', 'Form submission succesful');

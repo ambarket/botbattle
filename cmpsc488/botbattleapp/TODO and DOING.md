@@ -1,3 +1,14 @@
+Initial config tasks
+
+implement regular expression matching for all fields
+
+save database info to a file and skip initial config if this file exists
+
+covert all console.log statements to logger.log
+
+remove and cleanup unecessary logging
+
+_______________________________________________________________________________________________________________
 <strike> Move file tests out of InitialConfigurationApp.js to a separate FileTestApp.js and out of  inititalConfiguration.html to fileTest.html </strike>
         
 Finish FileManager after setting up initConfig html and wiring to know what is needed (add to after test arena also)

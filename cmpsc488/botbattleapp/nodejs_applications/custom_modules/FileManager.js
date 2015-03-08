@@ -5,8 +5,7 @@
 * @class FileMangaer
 * @constructor 
 */
-// BotBattleApp with multer to limit file upload size
-module.exports = function FileManager(botBattleDatabase) {
+function FileManager(botBattleDatabase) {
     // Private variables
     var fse = require('fs-extra');
     var self = this;
@@ -101,19 +100,143 @@ module.exports = function FileManager(botBattleDatabase) {
       });
     }
     
+    this.saveConfigurationToFile = function(formData, callback) {
+      var fileData = "";
+      fileData += 'databaseHost' + '\t' + formData['databaseHost'] + '\n';
+      fileData += 'databasePort' + '\t' + formData['databasePort'] + '\n';
+      fileData += 'databaseName' + '\t' + formData['databaseName'] + '\n';
+      fileData += 'databaseUserName' + '\t' + formData['databaseUserName'] + '\n';
+      fileData += 'databasePassword' + '\t' + formData['databasePassword'];
+      fse.outputFile(paths.configuration_file, fileData, callback);
+    }
+    
+    /**
+     * Callback has the signature function(err, config)
+     * Where config is an object of the form 
+     *      {
+     *          'databaseHost' : 
+     *          'databasePort' :
+     *          'databaseName' :
+     *          'databaseUserName' :
+     *          'databasePassword' :
+     *      }
+     * If the file doesn't exist config will be null and an error will be passed back
+     */
+    this.parseConfigurationFile = function(callback) {
+      var expectedProperties = ['databaseHost','databasePort','databaseName','databaseUserName','databasePassword'];
+      readTextFileIntoLinesArray(paths.configuration_file, function(err, lines) {
+        if (err) {
+          callback(err);
+        }
+        else {
+          var config = {};
+          var error = null;
+          for (var lineNum = 0; lineNum < lines.length; lineNum++) {
+            var tmp = lines[lineNum].trim().split(/[\t ]/);
+            var lineElements = [];
+            var lineElementsIndex = 0;
+            for (var i = 0; i < tmp.length; i++) {
+              if (tmp[i].trim() !== '') {
+                  lineElements[lineElementsIndex] = tmp[i];
+                  lineElementsIndex++;
+              }
+            }
+            if (lineElements.length != 2) {
+              console.log(lineElements);
+              error = new Error("Line #" + (lineNum+1) + " of configuration file doesn't contain two tab separated elements");
+              break;
+            }
+            else {
+              var index = expectedProperties.indexOf(lineElements[0]);
+              if ( index !== -1){
+                config[lineElements[0]] = lineElements[1];
+                expectedProperties.splice(index, 1);
+              }
+              else {
+                error = new Error("Found invalid property name on line " + (lineNum+1) + "of configuration file");
+                break;
+              }
+            }
+          }
+          callback(error, config);
+        }
+      })
+    }
+    
+    this.parseStudentListForTournament = function(pathToFile, eventEmitter, callback) {
+   // Read the txt file line by line
+      var objectFactory = require(paths.custom_modules.ObjectFactory);
+      readTextFileIntoLinesArray(pathToFile ,function(err, lines) {
+        if (err) {
+          callback(err);
+        }
+        else {
+          var usersArray = [];
+          var errMessage = "";
+          var numberOfErrors = 0;
+          for (var line = 0; line < lines.length; line++) {
+            var usernameRegEx = /^[a-z0-9_-]{3,16}$/;
+            var passwordRegEx = /^[a-z0-9_-]{6,18}$/;
+            var tmp = lines[line].trim().split(/[\t ]/);
+            // Remove any extra whitespace between elements
+            var lineElements = [];
+            var lineElementsIndex = 0;
+            for (var i = 0; i < tmp.length; i++) {
+              if (tmp[i].trim() !== '') {
+                  lineElements[lineElementsIndex] = tmp[i];
+                  lineElementsIndex++;
+              }
+            }
+            if (lineElements.length !== 2) {
+              numberOfErrors++;
+              eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Line must contain only username and password separated by a tab or space character");
+            }
+            else if (!lineElements[0].match(usernameRegEx)){
+              numberOfErrors++;
+              eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters");
+            }
+            else if (!lineElements[1].match(usernameRegEx)){
+              numberOfErrors++;
+              eventEmitter.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters");
+            }
+            
+            if (!numberOfErrors) {
+                usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1]);
+            }
+            if (numberOfErrors >= 5) {
+              break;
+            }
+          }
+          
+          if (numberOfErrors > 0) {      
+              callback(new Error("Failed to parse student list file due to the errors above"));
+          }
+          else {
+            callback(null, usersArray);
+          }
+        }
+      });
+    }
+    
     this.moveFile = function(srcPath, destPath, callback) {
       //console.log(srcPath, destPath);
       fse.move(srcPath, destPath, {'clobber':true}, callback);
     }
     
-    this.readTextFileIntoLinesArray = function(pathToFile, callback) {
+    function readTextFileIntoLinesArray(pathToFile, callback) {
       fse.readFile(pathToFile, 'utf8', function(err, data) {
-        var lines = data.split(/\r?\n/);
-        //console.log(lines);
-        if (lines[lines.length-1] === '') {
-        	lines.splice(lines.length-1, 1);
+        if (err) {
+          callback(err);
         }
-        callback(err, lines);
+        else {
+          var lines = data.split(/\r?\n/);
+          //console.log(lines);
+          if (lines[lines.length-1] === '') {
+              lines.splice(lines.length-1, 1);
+          }
+          callback(null, lines);
+        }
+
       })
     } 
     
@@ -184,6 +307,11 @@ module.exports = function FileManager(botBattleDatabase) {
            }
         });
       };
+}
+
+module.exports = FileManager;
+module.exports.newInstance = function() {
+  return new FileManager();
 }
       
      //  read file
