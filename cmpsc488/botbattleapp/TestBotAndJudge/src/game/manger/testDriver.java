@@ -24,7 +24,9 @@ public class testDriver {
 		GameManager manager = new GameManager(p1, p2, game);
 		manager.run();
 		
-		System.out.println("\n" + manager);
+		//System.out.println("\n" + manager);
+		
+		System.out.println("JSON: " + manager.getJSONStringOfResults());
 	}
 	
 }
