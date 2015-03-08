@@ -83,6 +83,9 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           callback(err);
         })
       }
+      else {
+        process.nextTick(function() {callback(null)});
+      }
     }
     
     /**

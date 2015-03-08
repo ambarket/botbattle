@@ -565,22 +565,12 @@ function InitialConfigurationApp(initConfigAppServer) {
                 .sanitize(req.body.tournamentDeadline),
           };
           
-          var error = false;
-          for (fieldName in sanitizedFormData) {
-            // Apparently the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
-            if (!sanitizedFormData[fieldName] || sanitizedFormData[fieldName] === 'undefined') {
-              error = true;
-              self.emit('config_error', 'No data was received for the ' + fieldName + ' field');
-            }
+          var valid = verifyAllFieldsWereSubmitted();
+          if (valid) {
+            valid = verifyAllFieldsMatchRegex();
           }
           
-          if (!error && (sanitizedFormData.gameSource.name === sanitizedFormData.gameRules.name || 
-              sanitizedFormData.gameSource.name === sanitizedFormData.studentList.name || 
-              sanitizedFormData.gameRules.name === sanitizedFormData.studentList.name)) {
-            error = true;
-            self.emit('config_error', 'Game Module Source, Game Rules, and Student List must have unique file names');
-          }
-          if (error) {
+          if (!valid) {
             self.emit('status_update', 'Rolling back changes...');
             // Only cleanup to do is clear the tmp directory of the uploaded files
             fileManager.clearInitConfigTmp(function(err) {
@@ -601,6 +591,81 @@ function InitialConfigurationApp(initConfigAppServer) {
           res.end();
         });
   })();
+  
+  function verifyAllFieldsWereSubmitted() {
+    var valid = true;
+    for (fieldName in sanitizedFormData) {
+      // Apparently the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
+      if (!sanitizedFormData[fieldName] || sanitizedFormData[fieldName] === 'undefined') {
+        valid = false;
+        self.emit('config_error', 'No data was received for the ' + fieldName + ' field');
+      }
+    }
+    
+    if (valid && (sanitizedFormData.gameSource.name === sanitizedFormData.gameRules.name || 
+        sanitizedFormData.gameSource.name === sanitizedFormData.studentList.name || 
+        sanitizedFormData.gameRules.name === sanitizedFormData.studentList.name)) {
+      valid = false;
+      self.emit('config_error', 'Game Module Source, Game Rules, and Student List must have unique file names');
+    }
+    return valid;
+  }
+  
+  function verifyAllFieldsMatchRegex() {
+    var inputValidator = require(paths.custom_modules.InputValidator).newInstance();
+    var valid = true;
+    if (!inputValidator.isIPAddressOrHostName(sanitizedFormData.databaseHost)) {
+      self.emit('config_error', 'Invalid database host');
+      var valid = false;
+    }
+    if (!inputValidator.isPortNumber(sanitizedFormData.databasePort)) {
+      self.emit('config_error', 'Invalid database port');
+      var valid = false;
+    }
+    if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.databaseName)) {
+      self.emit('config_error', 'Invalid database name, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.databaseUserName)) {
+      self.emit('config_error', 'Invalid database username, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isPassword(sanitizedFormData.databasePassword)) {
+      self.emit('config_error', 'Invalid database password, must be atleast 4 characters and contain atleast one number');
+      var valid = false;
+    }
+    if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.adminUserName)) {
+      self.emit('config_error', 'Invalid admin username, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isPassword(sanitizedFormData.adminPassword)) {
+      self.emit('config_error', 'Invalid admin password, must be atleast 4 characters and contain atleast one number');
+      var valid = false;
+    }
+    if (!inputValidator.is4to35Char(sanitizedFormData.gameName)) {
+      self.emit('config_error', 'Invalid game module name, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isMoveTimeout(sanitizedFormData.gameMoveTimeout)) {
+      self.emit('config_error', 'Invalid game move timeout, must be a number of seconds between 0 and 300');
+      var valid = false;
+    }
+    if (!inputValidator.is4to35Char(sanitizedFormData.tournamentName)) {
+      self.emit('config_error', 'Invalid tournament name, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    
+    //TODO We need to support a time too not just the date
+    var tournamentDeadlineDate = inputValidator.parseDate(sanitizedFormData.tournamentDeadline);
+    if (!tournamentDeadlineDate) {
+      self.emit('config_error', 'Invalid tournament deadline, must have the form dd-mm-yyyy');
+      var valid = false;
+    }
+    else {
+      sanitizedFormData.tournamentDeadline = tournamentDeadlineDate;
+    }
+    return valid;
+  }
 }
 
 var EventEmitter = require('events').EventEmitter;

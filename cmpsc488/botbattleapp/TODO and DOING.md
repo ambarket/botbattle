@@ -2,9 +2,6 @@ Initial config tasks
 
 implement regular expression matching for all fields
 
-
-covert all console.log statements to logger.log
-
 remove and cleanup unecessary logging
 
 _______________________________________________________________________________________________________________
