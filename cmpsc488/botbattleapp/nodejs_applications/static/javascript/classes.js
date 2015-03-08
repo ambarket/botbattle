@@ -1,3 +1,4 @@
+var scale = 1;
 //--------------------------Drawable Objects------------------------------------
 var drawableObject = function(x, y) {
 	this.x = x || 0;
@@ -84,10 +85,10 @@ drawableImage.prototype.draw = function(context) {
 				  			this.sourceY, 
 				  			this.sourceWidth / this.numberOfFrames, // image width / frames
 				  			this.sourceHeight, 
-				  			this.x,   // destination positionx
-				  			this.y,   // destination positiony
-				  			this.destWidth,    // width you want it to be in the end
-				  			this.destHeight);  // height you want it to be in the end
+				  			this.x * scale,   // destination positionx
+				  			this.y * scale,   // destination positiony
+				  			this.destWidth * scale,    // width you want it to be in the end
+				  			this.destHeight * scale);  // height you want it to be in the end
 	  }
 	  else{  
 		  context.drawImage(this.img, 
@@ -95,10 +96,10 @@ drawableImage.prototype.draw = function(context) {
 				  			this.sourceY, 
 				  			this.sourceWidth, 
 				  			this.sourceHeight, 
-				  			this.x, 
-				  			this.y, 
-				  			this.destWidth, 
-				  			this.destHeight);
+				  			this.x * scale, 
+				  			this.y * scale, 
+				  			this.destWidth * scale, 
+				  			this.destHeight * scale);
 	  }
 	}
 };
@@ -153,24 +154,23 @@ var GameBoard = function(readyCallback) {
   
   this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
   this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png';
- 
-  var canvas = document.getElementById("GameCanvas");
-  var canvasContainer = document.getElementsByClassName('col_9')[0].getBoundingClientRect();
-  console.log(canvasContainer);
-  //var rect = self.canvasContainer.getBoundingClientRect();
-  //console.log(rect);
-  canvas.width = canvasContainer.width;
-  canvas.height = canvasContainer.width * 0.619047619;
-  this.scale = document.getElementById("GameCanvas").width / 1050;
-  //this.scale = 1;  // change speed, sprites, distances, positions
   
-  this.backGroundWidth = 1050 * self.scale;
-  this.backGroundHeight = 650 * self.scale;
-  this.islandWidth = 870 * self.scale;
-  this.islandStart = 83 * self.scale;
-  this.islandCenterHeight = 468 * self.scale;
-  this.robotWidth = 43 * self.scale;
-  this.robotHeight = 79 * self.scale;
+  this.resize = function(){
+	  var canvas = document.getElementById("GameCanvas");
+	  var canvasContainer = document.getElementsByClassName('col_9')[0].getBoundingClientRect();
+	  console.log(canvasContainer);
+	  canvas.width = canvasContainer.width;
+	  canvas.height = canvasContainer.width * 0.619047619;
+	  scale = document.getElementById("GameCanvas").width / 1050;
+  }
+  
+  this.backGroundWidth = 1050;
+  this.backGroundHeight = 650;
+  this.islandWidth = 870;
+  this.islandStart = 83;
+  this.islandCenterHeight = 468;
+  this.robotWidth = 43;
+  this.robotHeight = 79;
   this.numberOfGrids = 25;
   this.gridWidth = self.islandWidth/25;
   //this.gridCenter = self.gridWidth/2;
@@ -191,12 +191,12 @@ var GameBoard = function(readyCallback) {
   
   // can get the image width property automatically
   this.drawableObjects = {
-    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth / self.scale, self.backGroundHeight / self.scale, 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, false, true, imageLoadedCallback),
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, false, true, imageLoadedCallback),
     player1 : new drawableImage(self.player1SpriteSheet, 
     							self.player1StandingSpriteSheetX, 
     							self.player1StandingSpriteSheetY, 
-    							self.robotWidth / self.scale, 
-    							self.robotHeight / self.scale, 
+    							self.robotWidth, 
+    							self.robotHeight, 
     							self.player1PositionX, 
     							self.player1PositionY, 
     							self.robotWidth, 
@@ -204,8 +204,8 @@ var GameBoard = function(readyCallback) {
     player2 : new drawableImage(self.player2SpriteSheet, 
     							self.player2StandingSpriteSheetX, 
     							self.player2StandingSpriteSheetY, 
-    							self.robotWidth / self.scale, 
-    							self.robotHeight / self.scale, 
+    							self.robotWidth, 
+    							self.robotHeight, 
     							self.player2PositionX, 
     							self.player2PositionY, 
     							self.robotWidth, 
@@ -214,19 +214,19 @@ var GameBoard = function(readyCallback) {
     							0, 
     							self.player1StandingSpriteSheetY, 
     							592, 
-    							self.robotHeight / self.scale, 
+    							self.robotHeight, 
     							self.player1PositionX, 
     							self.player1PositionY, 
-    							74 * self.scale, 
+    							74, 
     							self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
 	player2Running : new drawableImage('static/images/RunningLeft.png', 
 								0, 
 								self.player2StandingSpriteSheetY, 
 								592, 
-								self.robotHeight / self.scale, 
+								self.robotHeight, 
 								self.player2PositionX, 
 								self.player2PositionY, 
-								74 * self.scale, 
+								74, 
 								self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
   }
   
@@ -263,13 +263,13 @@ var GameBoard = function(readyCallback) {
   // look into tweening and base which splice based on distance traveled so it looks fluid
   this.backgroundElements = {
       trees1 : {
-        tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10 * self.scale, 110 * self.scale, 20 * self.scale, 20 * self.scale, null, null, null, false, true, imageLoadedCallback),
-        tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75 * self.scale, 100 * self.scale, 20 * self.scale, 20 * self.scale, null, null, null, false, true, imageLoadedCallback),
+        tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, null, null, null, false, true, imageLoadedCallback),
+        tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75, 100, 20, 20, null, null, null, false, true, imageLoadedCallback),
       },
       trees2 : {
-    	  tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150 * self.scale, 154 * self.scale, 20 * self.scale, 20 * self.scale, null, null, null, false, true, imageLoadedCallback),
-          tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250 * self.scale, 160 * self.scale, 20 * self.scale, 20 * self.scale, null, null, null, false, true, imageLoadedCallback),
-          tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350 * self.scale, 125 * self.scale, 20 * self.scale, 20 * self.scale, null, null, null, false, true, imageLoadedCallback),
+    	  tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150, 154, 20, 20, null, null, null, false, true, imageLoadedCallback),
+          tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250, 160, 20, 20, null, null, null, false, true, imageLoadedCallback),
+          tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350, 125, 20, 20, null, null, null, false, true, imageLoadedCallback),
       }
   }
   
@@ -309,8 +309,8 @@ function Animator(gameboard) {
       // maybe add logic to change speed based on forward or backward or after hit or something
       // would be nice to have easing and acceleration but not possible like this
       // would like curves too, but this is all unnecessary right now
-      time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 160 * gameboard.scale);
-      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, 220 * gameboard.scale);
+      time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
+      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046);
       
       done = moveEvent.animationComplete(drawableObject);
       
@@ -363,7 +363,7 @@ function Animator(gameboard) {
         animations.move(moveEvent, (new Date()).getTime(), function(){
         	moveEvent.endingX = endX;
         	animations.move(moveEvent, (new Date()).getTime(),function(){
-        		moveEvent.endingY = drawableObject.y + 100 * gameboard.scale;
+        		moveEvent.endingY = drawableObject.y + 100 * scale;
         		animations.move(moveEvent, (new Date()).getTime() , callback)
         	})
         });
@@ -414,7 +414,7 @@ function Animator(gameboard) {
     if(animatableEvent.event === 'move'){
         /*if (coinFlip()){  // stop the flying for now to test other things
         	// make the robot fly half the time
-        	setFlyHeight(animatableEvent, 100 * gameboard.scale)
+        	setFlyHeight(animatableEvent, 100 * scale)
     		animations[animatableEvent.event](animatableEvent, startTime, callback);
     	}
         else{
@@ -436,18 +436,18 @@ function Animator(gameboard) {
     // Move the trees around
     for (treeIndex in gameboard.backgroundElements.trees1){
       if (coinFlip()) {
-    	  gameboard.backgroundElements.trees1[treeIndex].x += 1 * gameboard.scale;
+    	  gameboard.backgroundElements.trees1[treeIndex].x += 1 * scale;
       }
       else {
-    	  gameboard.backgroundElements.trees1[treeIndex].x -= 1 * gameboard.scale;
+    	  gameboard.backgroundElements.trees1[treeIndex].x -= 1 * scale;
       }
     }
     for (treeIndex in gameboard.backgroundElements.trees2){
         if (coinFlip()) {
-      	  gameboard.backgroundElements.trees2[treeIndex].y += 1 * gameboard.scale;
+      	  gameboard.backgroundElements.trees2[treeIndex].y += 1 * scale;
         }
         else {
-      	  gameboard.backgroundElements.trees2[treeIndex].y -= 1 * gameboard.scale;
+      	  gameboard.backgroundElements.trees2[treeIndex].y -= 1 * scale;
         }
       }
   }
@@ -550,18 +550,18 @@ function Drawer(gameboard) {
 	  console.log(p1Grid, p2Grid);
 	  var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
 	  
-	  var fontSize = 30 * gameboard.scale;
+	  var fontSize = 30 * scale;
 	  context.font= fontSize + 'px Arial';
 	  context.fillStyle="black";
 	  if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
-		  context.fillText(Math.floor(distanceBetweenPlayers),495 * gameboard.scale,550 * gameboard.scale);
+		  context.fillText(Math.floor(distanceBetweenPlayers), 495 * scale, 550 * scale);
 	  }
 	  else{
 		  if(p1Grid < 0){
-			  context.fillText("Player 2 Wins",405 * gameboard.scale,550 * gameboard.scale);
+			  context.fillText("Player 2 Wins", 405 * scale, 550 * scale);
 		  }
 		  if(p2Grid > 24){
-			  context.fillText("Player 1 Wins",405 * gameboard.scale,550 * gameboard.scale);
+			  context.fillText("Player 1 Wins", 405 * scale, 550 * scale);
 		  }
 	  }
   }

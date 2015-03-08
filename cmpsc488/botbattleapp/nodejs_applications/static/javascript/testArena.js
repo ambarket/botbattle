@@ -19,6 +19,16 @@
     var rect;
     // add click listener to canvas
     var canvas = document.getElementById('GameCanvas');
+    
+    gameboard.resize();
+    drawer.drawBoard();
+    
+	window.onresize = function()
+	{
+		gameboard.resize();
+		drawer.drawBoard();
+	}
+	
     canvas.addEventListener('click', function(event) {
 
       var testGameState = {
@@ -162,15 +172,14 @@ $(document).ready(function(){
 });
 
 /*$(document).ready(function(){
-	var canvas = document.getElementById("GameCanvas");
-	var canvasContainer = document.getElementsByClassName('col_9')[0];
-	console.log(canvasContainer);
-	var rect = canvasContainer.getBoundingClientRect();
-	console.log(rect);
-	canvas.width = rect.right - rect.left;
-	canvas.height = rect.bottom - rect.top;
 	var gameboard = new GameBoard();
-	gameboard.scale = document.getElementById("GameCanvas").width / 1050;
+	//var drawer = new Drawer(gameboard);
+	gameboard.resize();
+	window.onresize = function()
+	{
+		gameboard.resize();
+		//drawer.drawBoard();
+	}
 });*/
 
 var submitButton = document.getElementById("send_move");
