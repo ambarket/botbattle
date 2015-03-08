@@ -27,39 +27,85 @@ drawableRectangle.prototype.draw = function(context) {
   context.strokeStyle = 'black';
   context.stroke();
 };
-// need to make this have optional parameters and multiple constructors so don't have to pass null
-var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, loadedCallback) {
+// need to make this have optional parameters and multiple constructors so don't have to pass null and pass objects
+var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, indexStart, ticksPer, numberOfFrames, loop, loadedCallback) {
   drawableObject.call(this, destX, destY);
+  var self = this;
   this.sourceX = sourceX || 0;
   this.sourceY = sourceY || 0;
   this.sourceWidth = sourceWidth;
   this.sourceHeight = sourceHeight;
-  //this.imagesrc = imageSrc;
   this.img = new Image();
   this.img.onload = loadedCallback;
   this.img.src = imageSrc;
   //this.y = (typeof destY === "undefined" || destY === "null") ? sourceY : destY; <--------------this won't work for some reason
   this.destWidth = destWidth || sourceWidth;
   this.destHeight = destHeight || sourceHeight;
-  //console.log(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, this.x, this.y, this.destWidth, this.destHeight);
+  this.frameIndex = indexStart || 0;
+  this.tickCount = 0;
+  this.ticksPerFrame = ticksPer || 1;
+  this.numberOfFrames = numberOfFrames || 1;
+  this.loop = loop || false;
+  this.update = function () {
+  
+      self.tickCount += 1;
+			
+      if (self.tickCount > self.ticksPerFrame) {
+      
+      	self.tickCount = 0;
+      	
+      	if(self.frameIndex < self.numberOfFrames - 1){
+          
+          self.frameIndex += 1; 
+      	}
+      	else{
+      		self.frameIndex = 0;
+      	}
+      }
+  }; 
+  
+  console.log(this);
 };
 
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableRectangle;
 drawableImage.prototype.draw = function(context) {
   // temporary add to outline the boxes of objects for measureing purposes
-	context.beginPath();
+	  context.beginPath();
 	  context.rect(this.x, this.y, this.destWidth, this.destHeight);
 	  context.fillStyle = '#8ED6FF';
 	  context.fill();
 	  context.lineWidth = this.borderWidth;
 	  context.strokeStyle = 'black';
 	  context.stroke();
-	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, this.x, this.y, this.destWidth, this.destHeight);
-	  //console.log(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, this.x, this.y, this.destWidth, this.destHeight);
+	  
+	  this.update();
+	  
+	  if(this.ticksPerFrame !== 1){
+		  context.drawImage(this.img, 
+				  			this.frameIndex * this.sourceWidth / this.numberOfFrames, // must use total image width not sprite width
+				  			this.sourceY, 
+				  			this.sourceWidth / this.numberOfFrames, // image width / frames
+				  			this.sourceHeight, 
+				  			this.x,   // destination positionx
+				  			this.y,   // destination positiony
+				  			this.destWidth,    // width you want it to be in the end
+				  			this.destHeight);  // height you want it to be in the end
+	  }
+	  else{  
+		  context.drawImage(this.img, 
+				  			this.sourceX, 
+				  			this.sourceY, 
+				  			this.sourceWidth, 
+				  			this.sourceHeight, 
+				  			this.x, 
+				  			this.y, 
+				  			this.destWidth, 
+				  			this.destHeight);
+	  }
 };
 
-function sprite (options) {
+/*function sprite (options) {
 	
     var that = {};
 					
@@ -69,7 +115,7 @@ function sprite (options) {
     that.image = options.image;
 
     return that;
-}
+}*/
 
 //--------------------------Animatable Events------------------------------------
 var AnimatableEvent = function(event, objectName) {
@@ -120,8 +166,8 @@ var GameBoard = function(readyCallback) {
   this.robotHeight = 79 * self.scale;
   this.numberOfGrids = 25;
   this.gridWidth = self.islandWidth/25;
-  this.gridCenter = self.gridWidth/2;
-  console.log(self.gridCenter);
+  //this.gridCenter = self.gridWidth/2;
+  //console.log(self.gridCenter);
   this.player1StartX = (0 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
   this.player2StartX = (24 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
   this.player1StartY = self.islandCenterHeight - self.robotHeight;
@@ -131,37 +177,62 @@ var GameBoard = function(readyCallback) {
   this.player2StandingSpriteSheetY = 22;
   this.player2StandingSpriteSheetX = 687;  
   
-  console.log(self.player1SpriteSheet, self.player1StandingSpriteSheetX, self.player1StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player1StartX, self.player1StartY, self.robotWidth, self.robotHeight);
+  //console.log(self.player1SpriteSheet, self.player1StandingSpriteSheetX, self.player1StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player1StartX, self.player1StartY, self.robotWidth, self.robotHeight);
   //console.log(self.player2SpriteSheet, self.player2StandingSpriteSheetX, self.player2StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player2StartX, self.player2StartY, self.robotWidth, self.robotHeight);
 
+  // can get the image width property automatically
   this.drawableObjects = {
-    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, null, imageLoadedCallback),
-    player1 : new drawableImage(self.player1SpriteSheet, self.player1StandingSpriteSheetX, self.player1StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player1StartX, self.player1StartY, self.robotWidth, self.robotHeight,  imageLoadedCallback),
-    player2 : new drawableImage(self.player2SpriteSheet, self.player2StandingSpriteSheetX, self.player2StandingSpriteSheetY, self.robotWidth, self.robotHeight, self.player2StartX, self.player2StartY, self.robotWidth, self.robotHeight,  imageLoadedCallback),
-    player3 : new drawableImage(self.player1SpriteSheet, 404, self.player1StandingSpriteSheetY, 52, self.robotHeight, self.player1StartX, self.player1StartY - 100, 52, self.robotHeight,  imageLoadedCallback),
+    backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, null, null, null, null, false, imageLoadedCallback),
+    player1 : new drawableImage(self.player1SpriteSheet, 
+    							self.player1StandingSpriteSheetX, 
+    							self.player1StandingSpriteSheetY, 
+    							self.robotWidth, 
+    							self.robotHeight, 
+    							self.player1StartX, 
+    							self.player1StartY, 
+    							self.robotWidth, 
+    							self.robotHeight, null, null, null, false,  imageLoadedCallback),
+    player2 : new drawableImage(self.player2SpriteSheet, 
+    							self.player2StandingSpriteSheetX, 
+    							self.player2StandingSpriteSheetY, 
+    							self.robotWidth, 
+    							self.robotHeight, 
+    							self.player2StartX, 
+    							self.player2StartY, 
+    							self.robotWidth, 
+    							self.robotHeight, null, null, null, false, imageLoadedCallback),
+    player3 : new drawableImage('static/images/RunningRight.png', 
+    							0, 
+    							self.player1StandingSpriteSheetY, 
+    							563, 
+    							self.robotHeight, 
+    							self.player1StartX, 
+    							self.player1StartY - 100, 
+    							74, 
+    							self.robotHeight, null, 15, 8, true, imageLoadedCallback),
     /*myRectangle: new drawableRectangle(120, 200, 100, 50, 5)*/
   }
   
-  var canvas = document.getElementById("myCanvas");
+  /*var canvas = document.getElementById("myCanvas");
   
   var player1Running = sprite({
 	    context: canvas.getContext("2d"),
 	    width: 100,
 	    height: 100,
 	    image: this.drawableObjects.player3
-	});
+	});*/
   // add the boxes here for testing then make just two with a number in them from canvas text instead
   // add animations based on the tut http://www.williammalone.com/articles/create-html5-canvas-javascript-sprite-animation/
   // look into tweening and base which splice based on distance traveled so it looks fluid
   this.backgroundElements = {
       trees1 : {
-        tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, imageLoadedCallback),
-        tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75, 100, 20, 20, imageLoadedCallback),
+        tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, null, null, null, false, imageLoadedCallback),
+        tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75, 100, 20, 20, null, null, null, false, imageLoadedCallback),
       },
       trees2 : {
-    	  tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150, 154, 20, 20, imageLoadedCallback),
-          tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250, 160, 20, 20, imageLoadedCallback),
-          tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350, 125, 20, 20, imageLoadedCallback),
+    	  tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150, 154, 20, 20, null, null, null, false, imageLoadedCallback),
+          tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250, 160, 20, 20, null, null, null, false, imageLoadedCallback),
+          tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350, 125, 20, 20, null, null, null, false, imageLoadedCallback),
       }
   }
   
