@@ -10,21 +10,23 @@
 
 module.exports = function SocketIOConnectionTracker(socketIO) {
   var self = this;
+  var paths = require("./BotBattlePaths");
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
   // Private member to store the sockets
   var socketInfo = {sockets: {}, client_id_To_Real_id_Map: {}, Real_id_To_Client_id_Map: {}, numberOfOpenSockets: 0};
-  socketIO
+
   socketIO.on('connection', function(socket) {
     
     // Add a newly connected socket
     var real_id = socket.id;
     socketInfo.sockets[real_id] = socket;
     socketInfo.numberOfOpenSockets++;
-    console.log('socket', real_id, 'connection', ' there are now ', socketInfo.numberOfOpenSockets, ' open');
+    logger.log('socket', real_id, 'connection', ' there are now ', socketInfo.numberOfOpenSockets, ' open');
 
     // Remove the socket when it closes
     socket.on('disconnect', function() {
       socketInfo.numberOfOpenSockets--;
-      console.log('socket', real_id, 'aka (', socketInfo.Real_id_To_Client_id_Map[real_id], ') disconnect',
+      logger.log('socket', real_id, 'aka (', socketInfo.Real_id_To_Client_id_Map[real_id], ') disconnect',
           ' there are now ', socketInfo.numberOfOpenSockets, ' open');
       delete socketInfo.sockets[real_id];
       socketInfo.client_id_To_Real_id_Map[socketInfo.Real_id_To_Client_id_Map[real_id]] = undefined;
@@ -34,22 +36,37 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
       
       // client_id already mapped to another socket
       if(socketInfo.client_id_To_Real_id_Map[client_id]) {
-        console.log(socketInfo.sockets[socketInfo.client_id_To_Real_id_Map[client_id]]);
-        //console.log(socketInfo.client_id_To_Real_id_Map[client_id]);
-        console.log("New socket.io connection claiming to be the same as an existing one. Refusing connection.", 
+        logger.log(socketInfo.sockets[socketInfo.client_id_To_Real_id_Map[client_id]]);
+        //logger.log(socketInfo.client_id_To_Real_id_Map[client_id]);
+        logger.log("New socket.io connection claiming to be the same as an existing one. Refusing connection.", 
             socketInfo.client_id_To_Real_id_Map[client_id], 'aka (', client_id, ')');
         socketInfo.sockets[real_id].disconnect();
       }
       else {
         socketInfo.client_id_To_Real_id_Map[client_id] = real_id;
         socketInfo.Real_id_To_Client_id_Map[real_id] = client_id;
-        console.log('socket', real_id, 'is actually ', client_id); 
+        logger.log('socket', real_id, 'is actually ', client_id); 
         //TODO Find a more consitent way to run unit tests
         //unitTest(client_id);
       }
-    });
-    
+    });    
   });
+  
+  // TODO add comments
+  this.emitToAll = function(event, data) {
+    for(socketId in socketInfo.sockets) {
+      socketInfo.sockets[socketId].emit(event, data);
+    }
+  };
+  
+  //TODO add comments
+  this.onReceiveFromAll = function(event, callback) {
+    console.log('here');
+    for(socketId in socketInfo.sockets) {
+      console.log('here');
+      socketInfo.sockets[socketId].on(event, callback);
+    }
+  };
   
   /**
    * Emits the message over this servers socket.io to a specified client
@@ -63,7 +80,7 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
       socketInfo.sockets[socketInfo.client_id_To_Real_id_Map[id]].emit(event, data);
     }
     else {
-      console.log("Attempt to emit to id " + id + " however it is not mapped to any actual socket.io instance");
+      logger.log("Attempt to emit to id " + id + " however it is not mapped to any actual socket.io instance");
     }
   };
   
@@ -79,19 +96,19 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
       socketInfo.sockets[socketInfo.client_id_To_Real_id_Map[id]].on(event, callback);
     }
     else {
-      console.log("Attempt to register event callback for id " + id + " however it is not mapped to any actual socket.io instance");
+      logger.log("Attempt to register event callback for id " + id + " however it is not mapped to any actual socket.io instance");
     }
   };
   
   function unitTest(client_id) {
     self.onFromId(client_id, 'unitTestToServer', function() {
-      console.log("received unitTestToServer from", client_id);
+      logger.log("received unitTestToServer from", client_id);
       setTimeout(function () {
         self.emitToId(client_id, 'unitTestToClient', null);
-        console.log("sending subsequent unitTestToClient to", client_id);
+        logger.log("sending subsequent unitTestToClient to", client_id);
       },Math.floor(3000 + Math.random() * 3000));
     });
     self.emitToId(client_id, 'unitTestToClient', null);
-    console.log("sending first unitTestToClient to", client_id);
+    logger.log("sending first unitTestToClient to", client_id);
   }
 }

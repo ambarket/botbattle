@@ -1,3 +1,4 @@
+
 /**
   * Provide consistent directory paths throughout the BotBattleApp's various modules in differing directories
   *   Created to solve problem of having hardcoded relative directories all throughout the code. 
@@ -18,7 +19,6 @@
 //TODO update the above description
 
 var path = require('path');
-
 // Must be changed if the BotBattlePaths.js file is ever moved
 module.exports.app_root = path.resolve(__dirname, '../');
 
@@ -32,6 +32,7 @@ module.exports.https_cert  = {
 var custom_modules_directory = path.join(module.exports.app_root, '/custom_modules/');
 module.exports.custom_modules = {
     'directory' : custom_modules_directory,
+    'BotBattleApp' : custom_modules_directory + 'BotBattleApp',
     'BotBattleDatabase' : custom_modules_directory + 'BotBattleDatabase',
     'BotBattleServer' : custom_modules_directory + 'BotBattleServer',
     'FileManager' : custom_modules_directory + 'FileManager',
@@ -40,6 +41,8 @@ module.exports.custom_modules = {
     'ObjectFactory' : custom_modules_directory + 'ObjectFactory',
     'BotBattleCompiler' : custom_modules_directory + 'BotBattleCompiler',
     'InitialConfigurationApp' : custom_modules_directory + 'InitialConfigurationApp',
+    'Logger' : custom_modules_directory + 'Logger',
+    'InputValidator' : custom_modules_directory + 'InputValidator',
     'MulticlientPrototype' : custom_modules_directory + 'MulticlientPrototype',
 }
 
@@ -63,5 +66,6 @@ module.exports.local_storage = {
 }
 
 module.exports.init_config_tmp =  path.join(module.exports.app_root,'init_config_tmp');
+module.exports.configuration_file = path.join(module.exports.app_root,'savedConfiguration.txt');
 
 

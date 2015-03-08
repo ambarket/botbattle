@@ -7,8 +7,8 @@ body {
 }
 
 .centered{
-	margin-left: 33%;
-	margin-right: 40%;
+	margin-left: 10%;
+	margin-right: 10%;
 }
 
 #title{
@@ -16,8 +16,20 @@ body {
 	color: #7777AA;
 }
 
-#progressTitle{
+.largeText{
 	font-size: 20px;
+}
+
+.error {
+	color: red;
+}
+
+#message{
+	 font-size: 15px;
+	 height:300px;
+	 width:autopx;
+	 /*border:1px solid;*/
+	 overflow:auto
 }
 
 #submitButton{
