@@ -1,9 +1,13 @@
+
+
 /**
  *  Will emit 'stdout', 'stderr', 'warning', 'failed', 'complete',  events, each with a string data argument
  *  In addition the callback will be called with analogous err arguments when failed events are sent,
  *  and with a null err argument upon the complete event.
  */
 function BotBattleCompiler() {
+  var paths = require("./BotBattlePaths");
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
   var spawn = require('child_process').spawn;
   var self = this;
   this.compile = function(sourceFilePath, callback) {
@@ -13,11 +17,11 @@ function BotBattleCompiler() {
     var language = undefined;
     // Validate arguments before going further
     if (!callback || typeof(callback) != "function"/*|| callback.getClass() != '[object Function]' TODO Doesn't work find another way*/) {
-      console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
+      logger.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
       self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
     }
     else if (!sourceFilePath) {
-      console.log("Empty file path sent to BotBattleCompiler.compile(...)");
+      logger.log("Empty file path sent to BotBattleCompiler.compile(...)");
       self.emit('failed', "Empty file path sent to BotBattleCompiler.compile(...)");
       callback(new Error("Empty file path sent to BotBattleCompiler.compile(...)"));
     }
@@ -28,7 +32,7 @@ function BotBattleCompiler() {
       language = 'java'; 
     }
     else {
-      console.log('Error during compilation: ' + sourceFilePath + ' is a NOT .cpp, .cxx, or .java file!');
+      logger.log('Error during compilation: ' + sourceFilePath + ' is a NOT .cpp, .cxx, or .java file!');
       self.emit('failed', 'Error during compilation: ' + sourceFilePath + ' is a NOT .cpp, .cxx, or .java file!');
       callback(new Error('Error during compilation: ' + sourceFilePath + ' is a NOT .cpp, .cxx, or .java file!'));
     }
@@ -82,7 +86,7 @@ function BotBattleCompiler() {
       })
       .on('error', function (err) 
       {
-        console.log('Compiler error, killing the process.');
+        logger.log('Compiler error, killing the process.');
         self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed on error event ' + err.message);
         compilationProcess.stdin.pause();
         compilationProcess.kill();

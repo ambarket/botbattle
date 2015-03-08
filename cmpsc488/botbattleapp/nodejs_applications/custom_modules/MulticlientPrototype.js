@@ -15,7 +15,7 @@ botBattleAppServer.addStaticFileRoute('/', '/static/html/basicInOutErr.html');
 var db = [];
 var counter = 0;
 botBattleAppServer.socketIOReceiveFromAll('connection', function(socket){  // if a bot is running and a user has intermittent connection then this is reloaded.  The program does not get shut down but the counter increases.  Not good!!!!
-       //console.log("new client" + socket);   //  This is why we need them to log in or use cookies to make sure it's the same person or client.
+       //logger.log("new client" + socket);   //  This is why we need them to log in or use cookies to make sure it's the same person or client.
        //sockets[sockets.length] = socket;
        db[counter] = { 
            sock: socket,
@@ -25,14 +25,14 @@ botBattleAppServer.socketIOReceiveFromAll('connection', function(socket){  // if
            language: undefined
        }
        socket.emit('id', { 'id' : counter });
-	   console.log("\nUser connected");
-	   console.log("Assigned id: " + counter);
-	   console.log("User id: " + db[counter].sock.id +"\n");
-	   //console.log(db[counter]);
+	   logger.log("\nUser connected");
+	   logger.log("Assigned id: " + counter);
+	   logger.log("User id: " + db[counter].sock.id +"\n");
+	   //logger.log(db[counter]);
        counter++;
 
-       //io.sockets.on('error', function(err) { console.log(err); });
-       socket.on('error', function(err) { console.log(err); });
+       //io.sockets.on('error', function(err) { logger.log(err); });
+       socket.on('error', function(err) { logger.log(err); });
        socket.on('stdin', function(data){
 			if (db[data.id].run)
 			{
@@ -55,7 +55,7 @@ var filePath = null;
 botBattleAppServer.addDynamicRoute('post', '/processBotUpload',function(req,res){
     //if(done==true){
         var id = req.body.theID;
-	console.log(req.session);
+	logger.log(req.session);
         
         if (db[id])
         {
@@ -78,15 +78,15 @@ botBattleAppServer.addDynamicRoute('post', '/processBotUpload',function(req,res)
 			
 			if(db[id].filePath){
 				db[id].sock.emit('uploaded', {'output': "File uploaded to " + db[id].filePath});
-				console.log("uploadbot: " + id +"\n");
+				logger.log("uploadbot: " + id +"\n");
 			}
 			else{
-				console.log("Can't upload Filepath is null.\n");
+				logger.log("Can't upload Filepath is null.\n");
 				db[id].sock.emit('status', {'output': "Error: File is null. Upload the file again."});
 			}
         }
 		else{
-				console.log("db " + db[id] + " is null.\n");
+				logger.log("db " + db[id] + " is null.\n");
 				db[id].sock.emit('status', {'output': "Error: Please refresh the page."});
 			}		
 //    }
@@ -94,7 +94,7 @@ botBattleAppServer.addDynamicRoute('post', '/processBotUpload',function(req,res)
 });
 
 botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) { 
-        console.log("compilebot: " + req.query.id +"\n");
+        logger.log("compilebot: " + req.query.id +"\n");
         var id = req.query.id;
         if (db[id])
         {
@@ -106,11 +106,11 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
 				else if (db[id].language === 'java')
 				{
 					db[id].compile = spawn('javac', [__dirname + '/' + db[id].filePath]); // compiler ware here too
-					console.log(__dirname + '/' + db[id].filePath);
+					logger.log(__dirname + '/' + db[id].filePath);
 				}
 			}
 			else{
-				console.log("Can't compile Filepath is null.\n")
+				logger.log("Can't compile Filepath is null.\n")
 				db[id].sock.emit('status', {'output': "Error: File is null. Upload the file again."});
 			}
 			
@@ -132,20 +132,20 @@ botBattleAppServer.addDynamicRoute('get', '/compileBot', function(req,res) {
 	            });
             }
 			else{
-				console.log("Compile is null.\n");
+				logger.log("Compile is null.\n");
 				db[id].sock.emit('status', {'output': "Error: Compiled failed badly. Upload the file again."});
 			}
         }
         else
         {
-            console.log("invalid id");
+            logger.log("invalid id");
         }
     res.end();
 });
 
 botBattleAppServer.addDynamicRoute('get', '/runBot', function(req, res) 
 {
-        console.log("runbot: " + req.query.id);
+        logger.log("runbot: " + req.query.id);
         var id = req.query.id;
         if (db[id])
         {
@@ -162,7 +162,7 @@ botBattleAppServer.addDynamicRoute('get', '/runBot', function(req, res)
 						db[id].run  = spawn('java', [db[id].filePath.slice(8, -5)], {cwd:'uploads/'});
 						db[id].sock.emit('status', {'output': "Running the compiled program"});
 					}
-					console.log("PID: " + db[req.query.id].run.pid + "\n");
+					logger.log("PID: " + db[req.query.id].run.pid + "\n");
 					
 					db[id].run.stdout.on('data', function(data)
 					{
@@ -183,24 +183,24 @@ botBattleAppServer.addDynamicRoute('get', '/runBot', function(req, res)
 					db[id].run.on('exit', function(code) 
 					{
 					   db[id].sock.emit('status', {'output': 'program exited with code ' + code});
-					   console.log("Exited :" + db[id].run.pid);
+					   logger.log("Exited :" + db[id].run.pid);
 					});
 				}
 				else
 				{
-					console.log("Can't run program.  Filepath is null.\n");
+					logger.log("Can't run program.  Filepath is null.\n");
 					db[id].sock.emit('status', {'output': "Error: File is null. Upload the file again."});
 				}
             }
             else
             {
-				console.log("already running");
+				logger.log("already running");
 				db[id].sock.emit('reload', {'output': 'You already have a program running.\nWould you like to load another program?'});
 			}
 	}
 	else
 	{
-		console.log("invalid id");
+		logger.log("invalid id");
 	}
     res.end();
 });
@@ -211,7 +211,7 @@ botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res)
 	var id = req.query.id;
 	if (db[id])
 	{
-		console.log("End Child: " + db[req.query.id].run.pid +"\n");
+		logger.log("End Child: " + db[req.query.id].run.pid +"\n");
 		db[id].run.stdin.pause();
 		db[id].run.kill();
 		db[id].run = null;
@@ -232,8 +232,8 @@ botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res)
 					db[id].sock.emit('status', {'output': "Running the compiled program"});
 				}
 				
-				console.log("runbot: " + req.query.id);
-				console.log("PID: " + db[req.query.id].run.pid + "\n");
+				logger.log("runbot: " + req.query.id);
+				logger.log("PID: " + db[req.query.id].run.pid + "\n");
 				
 				db[id].run.stdout.on('data', function(data)
 				{
@@ -254,19 +254,19 @@ botBattleAppServer.addDynamicRoute('get', '/reloadBot', function(req, res)
 				db[id].run.on('exit', function(code) 
 				{
 				   db[id].sock.emit('status', {'output': 'program exited with code ' + code});
-				   console.log("Exited :" + db[id].run.pid);
+				   logger.log("Exited :" + db[id].run.pid);
 				});
 			}
 			else
 			{
-				console.log("Can't run program.  Filepath is null.\n");
+				logger.log("Can't run program.  Filepath is null.\n");
 				db[id].sock.emit('status', {'output': "Error: File is null. Upload the file again."});
 			}
 		}	
 	}
 	else
 	{
-		console.log("invalid id");
+		logger.log("invalid id");
 	}
     res.end();
 });
@@ -275,14 +275,14 @@ botBattleAppServer.addDynamicRoute('get', '/killChild', function(req, res) {
         var id = req.query.id;
         if (db[id])
         {
-			console.log("\nUser disconnected");
-			console.log("Assigned id " + id +"\n");
-			console.log("User id: " + db[id].sock.id);
+			logger.log("\nUser disconnected");
+			logger.log("Assigned id " + id +"\n");
+			logger.log("User id: " + db[id].sock.id);
 				
             if (db[id].run)
             {    		        
-				//console.log(db[id]);
-				console.log("End Child: " + db[req.query.id].run.pid +"\n");
+				//logger.log(db[id]);
+				logger.log("End Child: " + db[req.query.id].run.pid +"\n");
 				
 				db[id].run.on('close', function(code) {
 	            db[id].sock.emit('status', {'output': 'program exited with code ' + code});
@@ -297,12 +297,12 @@ botBattleAppServer.addDynamicRoute('get', '/killChild', function(req, res) {
             }
             else
             {
-                console.log("No child for id\n");
+                logger.log("No child for id\n");
             }
         }
         else
         {
-            console.log("invalid id");
+            logger.log("invalid id");
         }
     res.end();
 });

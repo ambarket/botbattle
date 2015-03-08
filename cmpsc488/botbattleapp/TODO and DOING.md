@@ -2,7 +2,6 @@ Initial config tasks
 
 implement regular expression matching for all fields
 
-save database info to a file and skip initial config if this file exists
 
 covert all console.log statements to logger.log
 

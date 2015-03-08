@@ -1,3 +1,4 @@
+
 /**
   * Provide consistent directory paths throughout the BotBattleApp's various modules in differing directories
   *   Created to solve problem of having hardcoded relative directories all throughout the code. 
@@ -18,7 +19,6 @@
 //TODO update the above description
 
 var path = require('path');
-
 // Must be changed if the BotBattlePaths.js file is ever moved
 module.exports.app_root = path.resolve(__dirname, '../');
 

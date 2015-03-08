@@ -5,16 +5,19 @@
 * @class FileMangaer
 * @constructor 
 */
+
 function FileManager(botBattleDatabase) {
     // Private variables
     var fse = require('fs-extra');
     var self = this;
+
     
     // Only allow initFreshLocalStorage to be run once.
     //  Still need to make FileManager a singleton for this to really work
     var localStorageInitialized = false;
     var database = botBattleDatabase;
     var paths = require('./BotBattlePaths');
+    var logger = require(paths.custom_modules.Logger).newInstance('console');
     
     /**
      * Upon successful completion, all paths in paths.local_storage will exist. Note this will not
@@ -33,7 +36,7 @@ function FileManager(botBattleDatabase) {
             callback(err);
           }
           else {
-            console.log("Local storage folders successfully created");
+            logger.log("Local storage folders successfully created");
             localStorageInitialized = true;
             callback(null);
           }
@@ -56,7 +59,7 @@ function FileManager(botBattleDatabase) {
           callback(err);
         }
         else {
-          console.log("Local storage successfully cleared");
+          logger.log("Local storage successfully cleared");
           localStorageInitialized = false;
           callback(null);
         }
@@ -77,6 +80,10 @@ function FileManager(botBattleDatabase) {
         var async = require('async');
         async.each(files, removeFileOrFolder, callback);
       })
+    }
+    
+    this.deleteInitConfigTmp = function(callback) {
+      removeFileOrFolder(paths.init_config_tmp, callback);
     }
  
     this.createDirectoryForGameModule = function(gameName, callback) {
@@ -142,7 +149,7 @@ function FileManager(botBattleDatabase) {
               }
             }
             if (lineElements.length != 2) {
-              console.log(lineElements);
+              logger.log(lineElements);
               error = new Error("Line #" + (lineNum+1) + " of configuration file doesn't contain two tab separated elements");
               break;
             }
@@ -219,7 +226,7 @@ function FileManager(botBattleDatabase) {
     }
     
     this.moveFile = function(srcPath, destPath, callback) {
-      //console.log(srcPath, destPath);
+      //logger.log(srcPath, destPath);
       fse.move(srcPath, destPath, {'clobber':true}, callback);
     }
     
@@ -230,7 +237,7 @@ function FileManager(botBattleDatabase) {
         }
         else {
           var lines = data.split(/\r?\n/);
-          //console.log(lines);
+          //logger.log(lines);
           if (lines[lines.length-1] === '') {
               lines.splice(lines.length-1, 1);
           }
@@ -251,11 +258,11 @@ function FileManager(botBattleDatabase) {
     var createFolder = function(folderPath, callback){
        fse.ensureDir(folderPath, function(err){
           if (err) {
-            console.log("Error creating directory: " + err);
+            logger.log("Error creating directory: " + err);
             if(callback && typeof(callback) == "function") {callback(err, "Failed to create" + folderPath);} 
           }
           else{
-            console.log("Created " + folderPath);
+            logger.log("Created " + folderPath);
             if(callback && typeof(callback) == "function") {callback(null, "Created " + folderPath);}
           }
        });
@@ -272,11 +279,11 @@ function FileManager(botBattleDatabase) {
         fse.remove(folderPath, function(err){
            if (err) {
              err.message += "Error deleting directory: " + folderPath + err.message;
-             console.log(err);
+             logger.log(err);
              if(callback && typeof(callback) == "function") {callback(err);} 
            }
            else{
-             console.log("Deleted " + folderPath);
+             logger.log("Deleted " + folderPath);
              if(callback && typeof(callback) == "function") {callback(null);}
            }
         });
@@ -298,11 +305,11 @@ function FileManager(botBattleDatabase) {
      var createFile = function(filePath, callback){
        fse.createFile(filePath, function(err, result){
            if (err) {
-             console.log("Error creating file: " + err);
+             logger.log("Error creating file: " + err);
              if(callback && typeof(callback) == "function") {callback(err, "Error creating file: " + err);}
            }
            else{
-             console.log("Created " + filePath);
+             logger.log("Created " + filePath);
              if(callback && typeof(callback) == "function") {callback(null, "Created " + filePath);}
            }
         });
@@ -335,7 +342,7 @@ fs.rename('/tmp/hello', '/tmp/world', function (err) {
   if (err) throw err;
   fs.stat('/tmp/world', function (err, stats) {
     if (err) throw err;
-    console.log('stats: ' + JSON.stringify(stats));
+    logger.log('stats: ' + JSON.stringify(stats));
   });
 });
 In busy processes, the programmer is strongly encouraged to use the asynchronous versions of these calls. The synchronous versions will block the entire process until they complete--halting all connections. */

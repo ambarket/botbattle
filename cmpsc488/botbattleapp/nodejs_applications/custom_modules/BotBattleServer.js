@@ -4,9 +4,11 @@
 * @class BotBattleServer
 * @constructor 
 */
+
 module.exports = function BotBattleServer() {
   var self = this;
   var paths = require('./BotBattlePaths');
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
   var expressApp = null;
   var httpsServer = null;
   var socketIO = null;  
@@ -104,7 +106,7 @@ module.exports = function BotBattleServer() {
       expressApp[method](url, callback);
     }
     else {
-      console.log("Failed to add dynamic route to " + method + ":" + url);
+      logger.log("Failed to add dynamic route to " + method + ":" + url);
     }
   };
   
@@ -203,7 +205,7 @@ module.exports = function BotBattleServer() {
   function registerCommonRoutes() {
     // Log every incoming request, then pass along for further processing
     self.addMiddleware(function(req, res, next) {
-      console.log('%s %s', req.method, req.url);
+      logger.log(req.method, req.url);
       next();
     });
 

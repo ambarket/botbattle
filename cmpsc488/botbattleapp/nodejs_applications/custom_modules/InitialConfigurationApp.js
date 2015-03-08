@@ -399,7 +399,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         callback(err);
       }
       else {
-        self.emit('status_update', "Successfully saved configuration to " + paths.configurationFile);
+        self.emit('status_update', "Successfully saved configuration to " + paths.configuration_file);
         logger.log("Successfully saved configuration to " + paths.configurationFile);
         callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
       }

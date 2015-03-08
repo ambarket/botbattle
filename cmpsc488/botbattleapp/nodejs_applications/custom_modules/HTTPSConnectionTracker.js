@@ -4,13 +4,13 @@
  * @constructor
  * @param {Object} server The instance of https to track.
  */
-
 module.exports = function HTTPSConnectionTracker(server) {
   
   // https://auth0.com/blog/2014/01/15/auth-with-socket-io/
   // http://socket.io/docs/rooms-and-namespaces/
   // https://github.com/Automattic/socket.io/wiki/Authorizing
-  
+  var paths = require("./BotBattlePaths");
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
   // Private member to store the sockets
   var sockets = {}, nextSocketId = 0;
  
@@ -19,11 +19,11 @@ module.exports = function HTTPSConnectionTracker(server) {
     // Add a newly connected socket
     var socketId = nextSocketId++;
     sockets[socketId] = socket;
-    //console.log('socket', socketId, 'opened');
+    //logger.log('socket', socketId, 'opened');
 
     // Remove the socket when it closes
     socket.on('close', function() {
-      //console.log('socket', socketId, 'closed');
+      //logger.log('socket', socketId, 'closed');
       delete sockets[socketId];
     });
   });
@@ -43,7 +43,7 @@ module.exports = function HTTPSConnectionTracker(server) {
    */
   this.closeAllConnections = function() {
     for ( var socketId in sockets) {
-      console.log('socket', socketId, 'destroyed');
+      logger.log('socket', socketId, 'destroyed');
       sockets[socketId].destroy();
     }
   } 

@@ -1,4 +1,6 @@
+
 /**
+
 * Provides a convienient interface to a MongoDB database. This class will implement application specific
 * insert, find, update, and delete methods to abstract away the lower level database queries from the rest
 * of the application logic
@@ -18,6 +20,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     var url = "mongodb://" + host + ":" + port + "/" + dbName;
     var paths = require("./BotBattlePaths");
     var objectFactory = require(paths.custom_modules.ObjectFactory);
+    var logger = require(paths.custom_modules.Logger).newInstance('console');
     
     
     /**
@@ -146,18 +149,18 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
     function dropCollection(collectionName, callback) {
       databaseClient.collection(collectionName, function(err, collection) {
-        //console.log(collection);
+        //logger.log(collection);
         collection.drop(function (err, result) {
           //TODO This is not very clean but we actually want to allow this to fail in the case that
           //    the collection to drop didnt exist. In this case the result === false, which is checked below
           //    maybe revisit this if we have time, but works for now.
           if (err && !err.toString().indexOf("ns not found")) {
-            console.log(err.toString());
+            logger.log(err.toString());
             callback(err);
           }
           else {
-            //console.log(result);
-            console.log((result===false) ? "Tryed to drop " + collectionName + " but it didn't exist" : collectionName + " collection dropped successfully");
+            //logger.log(result);
+            logger.log((result===false) ? "Tryed to drop " + collectionName + " but it didn't exist" : collectionName + " collection dropped successfully");
             callback(null);
           }
         });
@@ -236,7 +239,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       else {
         queryForSingleDocumentByKeyFieldInCollection(document[keyFieldName], keyFieldName, collectionName, function(err, foundDocument) {
           if(err) {
-            console.log(err);
+            logger.log(err);
             callback(err);
           }
           else {
@@ -252,15 +255,15 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
                   callback(err);
                 } 
                 else {
-                  console.log(document);
+                  logger.log(document);
                   collection.insert(document, {w:1}, function(err) {
                     if (err) {
                       err.message = "Failed to insert " + JSON.stringify(document)  +  " into the '" + collectionName + "' collection." ;
-                      console.log(err);
+                      logger.log(err);
                       callback(err);
                     }
                     else {
-                      console.log("Success inserting " + JSON.stringify(document) + " into the '" + collectionName + "' collection.");
+                      logger.log("Success inserting " + JSON.stringify(document) + " into the '" + collectionName + "' collection.");
                       callback(null);
                     }
                   });
@@ -287,19 +290,19 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
                 if (err) {
                   err.message = "Error when attempting to find '" + keyFieldName + ":" + keyValue 
                                   + "' in the '" + collectionName + "' collection.\n" + err.message;
-                  console.log(err);
+                  logger.log(err);
                   callback(err);
                 }
                 else {
                   if (items.length === 0) {
-                    console.log("No document found matching '" + keyFieldName + ":" + keyValue 
+                    logger.log("No document found matching '" + keyFieldName + ":" + keyValue 
                                 + "' in the '" + collectionName + "' collection.");
                     callback(null, null);
                   }
                   else if (items.length === 1) {
-                    console.log("Found document matching '" + keyFieldName + ":" + keyValue 
+                    logger.log("Found document matching '" + keyFieldName + ":" + keyValue 
                         + "' in the '" + collectionName + "' collection.");
-                    console.log("Here's the document: " + JSON.stringify(items[0]) );
+                    logger.log("Here's the document: " + JSON.stringify(items[0]) );
                     callback(null, items[0]);
                   }
                   else {
@@ -318,40 +321,40 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
      
      this.insertThenFindUnitTest = function(collectionName) {
-       console.log("Running simple unit test of DB connection, insertion, and retrieval...");
+       logger.log("Running simple unit test of DB connection, insertion, and retrieval...");
        if (databaseClient === null) {
-         console.log("You haven't called connect yet!");
+         logger.log("You haven't called connect yet!");
        }
        else {
          databaseClient.collection(collectionName, function(err, collection) {
-             console.log("fetch results");
-             console.log("\terr: " + err);
-             console.log("\tcollection:" + collection);
-             console.log("end fetch of testCollection");
+             logger.log("fetch results");
+             logger.log("\terr: " + err);
+             logger.log("\tcollection:" + collection);
+             logger.log("end fetch of testCollection");
              if (!err) {
                collection.insert([{a:1}, {a:2}, {a:3}], {w:1}, function(err, result) {
-                 console.log("insertion results");
-                 console.log("\terr: " + err);
-                 console.log("\tresult:" + result);
-                 console.log("end insertion results");
+                 logger.log("insertion results");
+                 logger.log("\terr: " + err);
+                 logger.log("\tresult:" + result);
+                 logger.log("end insertion results");
                  if (result) {
                    // Peform a simple find and return all the documents
                    collection.find().toArray(function(err, docs) {
-                     console.log("find results");
-                     console.log("\terr: " + err);
-                     console.log("\tdocs:" + JSON.stringify(docs));
-                     console.log("end find results");
+                     logger.log("find results");
+                     logger.log("\terr: " + err);
+                     logger.log("\tdocs:" + JSON.stringify(docs));
+                     logger.log("end find results");
                      collection.drop();
-                     console.log("Collection dropped, test complete");
+                     logger.log("Collection dropped, test complete");
                    });
                  }
                  else {
-                   console.log("Cant call find, the insertion result was false");
+                   logger.log("Cant call find, the insertion result was false");
                  }
                });
              }
              else {
-               console.log("Cant call insert, there was an error retriving the collection");
+               logger.log("Cant call insert, there was an error retriving the collection");
              }
            });
          }

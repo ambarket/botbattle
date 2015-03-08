@@ -68,6 +68,7 @@ function runInitialConfiguration() {
       });
 }
 function runBotBattleApp(database) {
+  fileManager.deleteInitConfigTmp(function(){});
   var botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
   require('./test_arena_prototype/testArenaPrototype')(botBattleAppServer, database);
 }
