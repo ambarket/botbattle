@@ -25,22 +25,25 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     this.getDatabaseClient = function() { return databaseClient;};
     
     /**
-     * Upon successful completion, a reference to this BotBattleDatabase object, containing a
-     * connected and authenticated MongoClient object, will be returned as the second argument to the callback. 
-     * @method connect
-     * @param {Function} callback with the form function(error, botBattleDatabase)
+     * Upon successful completion, this object will contain a connected and 
+     * authenticated MongoClient object, the database will have been cleared of
+     * all collections used by BotBattleApp, and initialized with any initial
+     * records required.
+     * @method initializeFreshDatabase
+     * @param {Function} callback with the form function(err)
      */
-    this.connect = function(callback1){
-      //do the task with waterfall
-    	var async = require('async');
+    this.initializeFreshDatabase = function(connectCallback){
+      var async = require('async');
       async.waterfall(
         [
           connectToDatabaseTask,
-          authenticateConnectionTask
+          authenticateConnectionTask,
+          clearDatabaseTask,
+          insertInitialRecordsTask
         ], 
-        //final fucntion (this is where we pass shit to callback
-        function(err, result){
-        	callback1(err, result);
+        
+        function(err){
+          connectCallback(err);
         }
       );              
     };
@@ -59,9 +62,9 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     }
     
     /**
-     * Upon successful completion, the private databaseClient property will be set to a
-     * connected and authenticated MongoClient object.
-     * @method connectToDatabaseTask
+     * Upon successful completion, the database connection will be authenticated
+     * And the private databaseClient property will be set to a connected and authenticated MongoClient object.
+     * @method authenticateConnectionTask
      * @param {Function} callback used by async.waterfall(...). 
      * @private
      */
@@ -72,17 +75,327 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         {
           // Store a reference to the authenticated db instance
           databaseClient = connectedDBClient;
+         // callback(null);
         }
-        else{
-        	callback(err);
-        }
+        //else{
+        //	callback(err);
+        //}
+        callback(err);
       });
-      callback(null, "Database setup complete");
+    }
+    
+    /**
+     * Upon successful completion, database will be completely cleared of previous data.
+     * @method connectToDatabaseTask
+     * @param {Function} callback used by async.waterfall(...). 
+     * @private
+     */
+    function clearDatabaseTask(callback)
+    {
+      var collections = ['SystemParameters', 'AdminUsers', 'GameModules', 'Tournaments', 'TestArena'];
+      var async = require('async');
+      async.each(collections, dropCollection, callback);
+    }
+    
+    /**
+     * Upon successful completion, database will contain any initial records needed for the
+     * completion of the initialConfiguration and operation of the system
+     * @method connectToDatabaseTask
+     * @param {Function} callback used by async.waterfall(...). 
+     * @private
+     */
+    function insertInitialRecordsTask(callback) {
+      // Not sure if we even need/want this and not use yet because it required file manager to 
+      //   have a reference to the DB, which I'm not convinced is necessary yet.
+      //self.setLocalStorageCreatedFlag(false, callback);
+      
+      //TODO: Either delete this or find a purpose for it. Seems like we may need to seed the DB
+      //    with some initial records at some point
+      callback(null);
     }
     
     this.close = function () {
       databaseClient.close();
     };
+    
+    function dropCollection(collectionName, callback) {
+      databaseClient.collection(collectionName, function(err, collection) {
+        //console.log(collection);
+        collection.drop(function (err, result) {
+          //TODO This is not very clean but we actually want to allow this to fail in the case that
+          //    the collection to drop didnt exist. In this case the result === false, which is checked below
+          //    maybe revisit this if we have time, but works for now.
+          if (err && !err.toString().indexOf("ns not found")) {
+            console.log(err.toString());
+            callback(err);
+          }
+          else {
+            //console.log(result);
+            console.log((result===false) ? "Tryed to drop " + collectionName + " but it didn't exist" : collectionName + " collection dropped successfully");
+            callback(null);
+          }
+        });
+
+      });
+    }
+    
+    /* Not sure we need this
+    // will pass the document to the second arg of callback
+    this.getLocalStorageCreatedFlag = function(callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        databaseClient.collection('SystemParameters', function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {'localStorageCreated':{ '$exists' : true, '$ne' : null }};
+              collection.find(query).toArray(function(err, items) {
+                if (err) {
+                  callback(err);
+                } 
+                else {
+                  if (items.length === 0 || items.length > 1) {
+                    console.log("Somehow there is more than one localStorageCreated record in the DB");
+                    callback('error');
+                  }
+                  else {
+                    console.log(items[0]);
+                    callback(null, items[0]);
+                  }
+                }
+              });
+            }
+        });
+      }
+    }
+    
+    this.setLocalStorageCreatedFlag = function(value, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        databaseClient.collection('SystemParameters', function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {'localStorageCreated':{ '$exists' : true, '$ne' : null }};
+              var update = {$set: {'localStorageCreated': value}};
+              collection.update(query, update, {w:1, upsert:true}, function(err) {
+                if (err) {
+                  console.log(err + "Error updating LocalstorageFlag");
+                }
+                else {
+                  console.log("success setting localStorageCreatedFlag to " + value);
+                }
+                callback(err);
+              });
+            }
+        });
+      }
+    }
+    */
+
+    /**
+     * Inserts the specified object into the AdminUsers collection of the DB.
+     * TODO Currently no checking whatsoever 
+     * @param {Object} userObject An object created with ObjectFactory.createUserObject, will be inserted into the AdminUsers collection
+     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument. No second argument.
+     * @method insertAdminUser
+     * @public
+     */
+    this.insertAdminUser = function(userObject, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        self.queryAdminUsers(userObject.username, function(err, user) {
+          if(err) {
+            console.log(err);
+            callback(err);
+          }
+          else {
+            if (user !== null) {
+              console.log("Admin user '" + userObject.username + "' already exists, can't insert");
+              console.log("Heres the user object it found: ", user);
+              callback(new Error("Admin user '" + userObject.username + "' already exists, can't insert"));
+            }
+            else {
+              // Safe to perform the insert
+              databaseClient.collection('AdminUsers', function(err, collection) {
+                if (err) {
+                  callback(err);
+                } 
+                else {
+                  collection.insert(userObject, {w:1}, function(err) {
+                    if (err) {
+                      err.message += "Error inserting admin user: " + userObject.username;
+                      console.log(err);
+                      callback(err);
+                    }
+                    else {
+                      console.log("Success inserting admin user '" + userObject.username + "'");
+                      callback(null);
+                    }
+                  });
+                }
+              });
+            }
+          }
+        });
+      }
+    }
+       
+    /**
+     * Inserts the specified object into the AdminUsers collection of the DB.
+     * TODO Currently no checking whatsoever 
+     * @param {String} username A string representing the username of the user you'd like to query for
+     * @param {Function} callback Function to call after find. Will be passed any error that occurs as first argument.
+     * if the user is found, the corresponding document will be returned as the second argument. If not, null will be passed as second argument
+     * @method insertAdminUser
+     * @public
+     */
+    this.queryAdminUsers = function(username, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        databaseClient.collection('AdminUsers', function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {'username' : username};
+              collection.find(query).toArray(function(err, items) {
+                if (err) {
+                  console.log(err + "Error finding admin user: " + username);
+                  err.message += " Error finding admin user: " + username;
+                  callback(err);
+                }
+                else {
+                  if (items.length === 0) {
+                    console.log("No admin user found with name: " + username);
+                    callback(null, null);
+                  }
+                  else if (items.length === 1) {
+                    console.log("Found admin user: " + username);
+                    callback(null, items[0]);
+                  }
+                  else {
+                    console.log(items.length, "Admin users were found with name '" + username + "' this should never happen!");
+                    callback(new Error("More than one admin user with name '" + username + "' this should never happen!"));
+                  }
+                }
+              })
+            }
+        });
+      }
+    }
+    
+
+    /**
+     * Inserts the specified object into the GameModules collection of the DB.
+     * TODO Currently no checking whatsoever of if its actually a gameModuleObject
+     * @param {Object} gameModuleObject An object created with ObjectFactory.createGameModuleObject, will be inserted into the GameModules collection
+     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument.
+     * @method insertGameModule
+     * @public
+     */
+    this.insertGameModule = function(gameModuleObject, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        self.queryGameModules(gameModuleObject.gameName, function(err, gameModule) {
+          if(err) {
+            console.log(err);
+            callback(err);
+          }
+          else {
+            if (gameModule !== null) {
+              console.log("Game Module '" + gameModuleObject.gameName + "' already exists, can't insert");
+              console.log(user);
+              callback(new Error("Game Module '" + gameModuleObject.gameName + "' already exists, can't insert"));
+            }
+            else {
+              // Safe to perform the insert
+              databaseClient.collection('GameModules', function(err, collection) {
+                if (err) {
+                  callback(err);
+                } 
+                else {
+                  collection.insert(gameModuleObject, {w:1}, function(err) {
+                    if (err) {
+                      console.log(err + "Error inserting game module '" + gameModuleObject.gameName + "'");
+                      err.message += "Error inserting game module '" + gameModuleObject.gameName + "'";
+                      callback(err);
+                    }
+                    else {
+                      console.log("Success inserting game module '" + gameModuleObject.gameName + "'");
+                      callback(null, "Success inserting game module '" + gameModuleObject.gameName + "'");
+                    }
+                  });
+                }
+              });
+            }
+          }
+        });
+      }
+    }
+    
+    /**
+     * TODO Fill this in
+     * @method queryGameModules
+     * @public
+     */
+    this.queryGameModules = function(gameName, callback) {
+      if (databaseClient === null) {
+        console.log("You haven't called connect yet!");
+      } 
+      else {
+        databaseClient.collection('GameModules', function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {'gameName' : gameName};
+              collection.find(query).toArray(function(err, items) {
+                if (err) {
+                  console.log(err + "Error finding game module '" + gameName + "'");
+                  err.message += " Error finding game module " + gameName + "'";
+                  callback(err);
+                }
+                else {
+                  if (items.length === 0) {
+                    console.log("No game module found with name '" + gameName + "'");
+                    callback(null, null);
+                  }
+                  else if (items.length === 1) {
+                    console.log("Found game module '" + gameName + "'");
+                    callback(null, items[0]);
+                  }
+                  else {
+                    console.log(items.length, "game modules were found with name '" + gameName + "' this should never happen!");
+                    callback(new Error(items.length + " game modules were found with name '" + gameName + "' this should never happen!"));
+                  }
+                }
+              })
+            }
+        });
+      }
+    }
+    
+    /*TODO Create a generic insert and query function
+    e.g.
+    function genericInsert(object, keyFieldName, collectionName){
+      do everything done in both user and game modules
+    
+    */
+    
+    
     
     this.queryTournament = function(tournamentName) {
       if (databaseClient)

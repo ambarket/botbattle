@@ -9,9 +9,7 @@
 </head>
 <body class="centered">
 	<form id="initConfigForm" enctype="multipart/form-data"">
-		<!-- <b>Upload:</b> <input type="file" required name="fileInput"> -->
 
-		<div class="form-group">
 			<h1>Database Configuration</h1>
 			<div class="form-item">
 				<label id="title" for="databaseHost"> Database Host <span
@@ -33,18 +31,35 @@
 					value="testDB" placeholder="botbattle" required></input>
 			</div>
 			<div class="form-item">
-				<label id="title" for="databaseUserName"> Admin Name <span
+				<label id="title" for="databaseUserName"> Database UserName <span
 					class="form-required" title="This field is required."> * </span>
 				</label> <input name="databaseUserName" type="text" maxlength="60" size="15"
 					value="testUser" placeholder="testUser" required></input>
 			</div>
 			<div class="form-item">
-				<label id="title" for="databasePassword"> Admin Password <span
+				<label id="title" for="databasePassword"> Database Password <span
 					class="form-required" title="This field is required."> * </span>
 				</label> <input name="databasePassword" type="password" maxlength="60"
 					size="15" value="testPass" required></input>
 			</div>
-			<hr>
+	    <hr>
+	    
+	    <h1>Administrator User Configuration</h1>
+      <div class="form-item">
+        <label id="title" for="adminUserName"> Admin UserName <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="adminUserName" type="text" maxlength="60" size="15"
+          value="testUser" placeholder="testAdmin" required></input>
+      </div>
+      <div class="form-item">
+        <label id="title" for="adminPassword"> Admin Password <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="adminPassword" type="password" maxlength="60"
+          size="15" value="testPass" required></input>
+      </div>
+      <hr>
+			
+			
 			<!-- 
 			This was going to where you put in directory locations, but I think it's better to just have the admin
 			upload file locations and then not allow them to change the location of the directories for security and 
@@ -79,16 +94,16 @@
 			
 			<!-- https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications -->
 			<div class="form-item">
-				<label id="title" for="gameModule"> Game Module <span
+				<label id="title" for="gameSource"> Game Module Source (.java)<span
 					class="form-required" title="This field is required."> * </span>
-				</label> <input name="gameModule" type="file" required></input>
+				</label> <input name="gameSource" type="file" ></input>
 					<p></p>
 			</div>
 			
 			<div class="form-item">
 				<label id="title" for="gameRules"> Game Rules <span
 					class="form-required" title="This field is required."> * </span>
-				</label> <input name="gameRules" type="file" required></input>
+				</label> <input name="gameRules" type="file" ></input>
 					<p></p>
 			</div>
 			<hr>
@@ -104,14 +119,14 @@
 			<div class="form-item">
 				<label id="title" for="studentList"> Student List <span
 					class="form-required" title="This field is required."> * </span>
-				</label> <input name="studentList" type="file" required></input>
+				</label> <input name="studentList" type="file"></input>
 					<p></p>
 			</div>
 			
 			<div class="form-item">
 				<label id="title" for="tournamentDeadline"> Upload Deadline<span
 					class="form-required" title="This field is required."> * </span>
-				</label> <input name="tournamentDeadline" type="date" required></input>
+				</label> <input name="tournamentDeadline" type="date" ></input>
 					<p></p>
 			</div>
 		</div>

@@ -1,9 +1,8 @@
 /**
  * The entry point of the application.
  * Run the InitialConfigurationApp, then upon completion run the BotBattleApp
+ *
  */
-// Set a global variable with the path to the root of the application
-//  simplify things
 var custom_modules = require('./custom_modules/BotBattlePaths').custom_modules;
 
 var BotBattleServer = require(custom_modules.BotBattleServer);
@@ -33,7 +32,8 @@ var initConfigApp = new (require(custom_modules.InitialConfigurationApp))(initCo
       initConfigAppServer.shutdown(function(err) {
         console.log('InitialConfigurationServer has been shutdown!');
         var botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
-        require(custom_modules.MulticlientPrototype)(botBattleAppServer, botBattleDatabase);
+        //require(custom_modules.MulticlientPrototype)(botBattleAppServer, botBattleDatabase);
+        require('./test_arena_prototype/testArenaPrototype')(botBattleAppServer);
       });
     });
 

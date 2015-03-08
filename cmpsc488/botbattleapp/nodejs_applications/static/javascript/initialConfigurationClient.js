@@ -69,7 +69,11 @@ var myId = null;
       }, 1000);
   })
   .on('config_error', function(err) {
-    document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
+    var html = [];
+    html.push('<div>' + document.getElementById('message').innerHTML + '</div>');
+    html.push('<div>' + err + '</div>');
+    document.getElementById('message').innerHTML = html.join('');
+    //document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
   })
   .on('unitTestToClient', function() {
     console.log("received unit test from server");
