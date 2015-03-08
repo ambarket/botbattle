@@ -14,7 +14,7 @@ var initConfigApp = new (require(custom_modules.InitialConfigurationApp))(initCo
       initConfigAppServer.socketIOEmitToAll('progress_update', progress);
     })
   .on('config_error', function(err) {
-      console.log("There was an error during initial configuration\n" + err);
+      console.log("There was an error during initial configuration...\n" + err);
       initConfigAppServer.socketIOEmitToAll('config_error', err);
     })
   .on('status_update', function(status) {

@@ -45,10 +45,13 @@ module.exports = function FileManager(botBattleDatabase) {
       }
     }
     
-    this.clearLocalStorage = function(callback) {
+    /**
+     * Completely delete all directories in the paths.local_storage object
+     */
+    this.deleteLocalStorage = function(callback) {
       var async = require('async');
       var localStorageArray = Object.keys(paths.local_storage).map(function (key) {return paths.local_storage[key]});
-      async.each(localStorageArray, removeFolder, function(err) {
+      async.each(localStorageArray, removeFileOrFolder, function(err) {
         if (err) {
           err.message += " Failed to clear local storage folders";
           callback(err);
@@ -61,8 +64,20 @@ module.exports = function FileManager(botBattleDatabase) {
       });
     }
     
-    this.clearInitConfigTmp = function(callback) {
-      removeFolder(paths.init_config_tmp, callback);
+    /**
+     * Delete everything in paths.init_config_tmp but leave the folder. 
+     * Can't simply delete the folder because multer crashes if you do.
+     */
+    this.clearInitConfigTmp= function(callback) {
+      var path = require('path');
+      fse.readdir(paths.init_config_tmp, function(err, files) {
+        for (var i = 0; i < files.length; i++) {
+          files[i] = path.resolve(paths.init_config_tmp, files[i])
+              
+        }
+        var async = require('async');
+        async.each(files, removeFileOrFolder, callback);
+      })
     }
  
     this.createDirectoryForGameModule = function(gameName, callback) {
@@ -70,6 +85,19 @@ module.exports = function FileManager(botBattleDatabase) {
       var newDirectoryPath = path.resolve(paths.local_storage.game_modules, gameName);
       createFolder(newDirectoryPath, function(err, data) {
         callback(err, newDirectoryPath);
+      });
+    }
+    
+    this.createDirectoryForPrivateTournament = function(tournamentName, callback) {
+      var path = require('path');
+      var newDirectoryPath = path.resolve(paths.local_storage.private_tournaments, tournamentName);
+      createFolder(newDirectoryPath, function(err) {
+        if (err) {
+          callback(err);
+        }
+        else {
+          callback(null, newDirectoryPath);
+        }
       });
     }
     
@@ -117,7 +145,7 @@ module.exports = function FileManager(botBattleDatabase) {
       * @param {Function} callback(err)
       * @private
       */
-     var removeFolder = function(folderPath, callback){
+     var removeFileOrFolder = function(folderPath, callback){
         fse.remove(folderPath, function(err){
            if (err) {
              err.message += "Error deleting directory: " + folderPath + err.message;

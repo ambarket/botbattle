@@ -64,8 +64,17 @@ function InitialConfigurationApp(initConfigAppServer) {
          ], 
          function(err) {
           if (err) {
-            console.log("There was an error during configuration... " + err);
+            // Only output errors once to console, in the main function that listens for this config_error
             self.emit('config_error', err.message);
+            self.emit('status_update', "Rolling back changes...");
+            rollbackInitialConfiguration(function(err) {
+              if (err) {
+                self.emit('config_error', "Failed to roll back changes " + err.message);
+              }
+              else {
+                self.emit('status_update', "Finished rolling back initial configuration.")
+              }
+            });
           } else {
             // NOTE: arbitrary error is being passed from cleanupTask to halt things while still
             //  working on this page.
@@ -76,6 +85,39 @@ function InitialConfigurationApp(initConfigAppServer) {
           }
         }
       );
+  }
+  
+  function rollbackInitialConfiguration(callback) {
+
+    var error = null;
+    database.dropDatabaseAndDisconnect(function(err1) {
+      if (!err1) {
+        self.emit('status_update', "Successfully dropped database");
+      }
+      else {
+        error = err1;
+      }
+      // Regardless keep trying to rollback as much as possible
+      fileManager.deleteLocalStorage(function(err2) {
+        if (!err2) {
+          self.emit('status_update', "Successfully deleted local storage");
+        }
+        else {
+          (error) ? error.message += '\n' + err2.message : error = err2;
+        }
+        // Regardless keep trying to rollback as much as possible
+        fileManager.clearInitConfigTmp(function(err3) {
+          if (!err3) {
+            self.emit('status_update', "Successfully cleared initial configuration tmp directory");
+          }
+          else {
+            (error) ? error.message += '\n' + err3.message : error = err3;
+          }
+          
+          callback(error);
+        });
+      });
+    });
   }
 
   /**
@@ -114,12 +156,12 @@ function InitialConfigurationApp(initConfigAppServer) {
     // Call FileManager to handle
     self.emit('status_update', 'Initializing the local storage');
     
-    fileManager.clearLocalStorage(function(err) {
+    fileManager.deleteLocalStorage(function(err) {
       if (err) {
         initFileSystemTaskCallback(err);
       }
       else {
-        self.emit('status_update', "Local storage successfully cleared!");
+        self.emit('status_update', "Previous local storage directories successfully deleted!");
         self.emit('progress_update', 30);
         
         fileManager.ensureLocalStorage(function(err) {
@@ -127,7 +169,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             initFileSystemTaskCallback(err);
           }
           else {
-            self.emit('status_update', "Local storage successfully created!");
+            self.emit('status_update', "Fresh local storage directories successfully created!");
             self.emit('progress_update', 40); 
             initFileSystemTaskCallback(null);
           }
@@ -312,14 +354,15 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initTournamentTask(callback) {
-    self.emit('status_update', 'Initializizing the Game Module');
+    self.emit('status_update', 'Initializizing the Tournament');
     var async = require('async');
 
     // Read the txt file line by line
     fileManager.readTextFileIntoLinesArray(sanitizedFormData.studentList.path ,function(err, lines) {
       var usersArray = [];
       var errMessage = "";
-      for (var line in lines) {
+      var numberOfErrors = 0;
+      for (var line = 0; line < lines.length; line++) {
         var usernameRegEx = /^[a-z0-9_-]{3,16}$/;
         var passwordRegEx = /^[a-z0-9_-]{6,18}$/;
         var tmp = lines[line].trim().split(/[\t ]/);
@@ -332,51 +375,66 @@ function InitialConfigurationApp(initConfigAppServer) {
         	  lineElementsIndex++;
           }
         }
-        
         if (lineElements.length !== 2) {
-        	errMessage += "<br> Line #" + line + " Line must contain only username and password separated by a tab or space character";
+          numberOfErrors++;
+          errMessage += "<br> Line #" + (line+1) + " Line must contain only username and password separated by a tab or space character";
         }
         else if (!lineElements[0].match(usernameRegEx)){
-        	errMessage += "<br> Line #" + line + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters";
+          numberOfErrors++;
+          errMessage += "<br> Line #" + (line+1) + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters";
         }
         else if (!lineElements[1].match(usernameRegEx)){
-        	errMessage += "<br> Line #" + line + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters";
+          numberOfErrors++;
+          errMessage += "<br> Line #" + (line+1) + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters";
         }
         else {
-        	console.log("Line #" + line + " Valid username and password");
+        	//console.log("Line #" + line + " Valid username and password");
         }
-        console.log(lineElements, "Length", lineElements.length);
+        //console.log(lineElements, "Length", lineElements.length);
         
         if (!errMessage) {
             usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1]);
         }
+        if (numberOfErrors >= 5) {
+          errMessage += "<br> Found 5 errors while parsing student list file. Halting here.";
+          break;
+        }
       }
-      console.log(errMessage);
+      //console.log(errMessage);
       
       if (errMessage) {         
     	  callback(new Error(errMessage));
       }
       else {
-        var tournament = objectFactory.Tournament.newInstance(
-            sanitizedFormData.tournamentName, 
-            sanitizedFormData.gameName, 
-            sanitizedFormData.tournamentDeadline,
-            usersArray,
-            'upload');
-        database.insertTournament(tournament, function(err) {
+        
+        fileManager.createDirectoryForPrivateTournament(sanitizedFormData.tournamentName, function(err, tournamentDirectory) {
           if (err) {
             callback(err);
           }
           else {
-            self.emit('progress_update', 80);
-            callback(null);
+            self.emit('progress_update', 85);
+            self.emit('status_update', 'Successfully created directory for tournament');
+            console.log('Successfully created directory for tournament');
+            var tournament = objectFactory.Tournament.newInstance(
+                sanitizedFormData.tournamentName, 
+                tournamentDirectory,
+                sanitizedFormData.gameName, 
+                sanitizedFormData.tournamentDeadline,
+                usersArray,
+                'upload');
+            database.insertTournament(tournament, function(err) {
+              if (err) {
+                callback(err);
+              }
+              else {
+                self.emit('progress_update', 90);
+                self.emit('status_update', 'Successfully inserted tournament into database');
+                callback(null);
+              }
+            })
           }
         })
-        
-
       }
-      
-    
     });
   }
   
@@ -606,10 +664,26 @@ function InitialConfigurationApp(initConfigAppServer) {
                   + fieldName + ' field');
             }
           }
+          if (!error && (sanitizedFormData.gameSource.name === sanitizedFormData.gameRules.name || 
+              sanitizedFormData.gameSource.name === sanitizedFormData.studentList.name || 
+              sanitizedFormData.gameRules.name === sanitizedFormData.studentList.name)) {
+            error = true;
+            self.emit('config_error', 'Game Module Source, Game Rules, and Student List must have unique file names');
+          }
           if (error) {
-            self.emit('config_error', 'Configuration has halted');
+            self.emit('status_update', 'Rolling back changes...');
+            // Only cleanup to do is clear the tmp directory of the uploaded files
+            fileManager.clearInitConfigTmp(function(err) {
+              if (!err) {
+                self.emit('status_update', "Successfully cleared initial configuration tmp directory");
+              }
+              else {
+                self.emit('config_error', "Failed to clear initial configuration tmp directory " + err.message);
+              }
+              self.emit('status_update', 'Finished rolling back initial configuration');
+            });
           } else {
-            self.emit('status_update', 'Form submission succesfull');
+            self.emit('status_update', 'Form submission succesful');
             self.emit('progress_update', 10);
             executeAllInitialConfigurationTasksInSequence();
           }

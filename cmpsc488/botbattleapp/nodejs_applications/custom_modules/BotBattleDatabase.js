@@ -27,6 +27,21 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     this.getDatabaseClient = function() { return databaseClient;};
     
     /**
+     * The reverse of initializeFreshDatabase
+     * Will drop the database, disconnect, then set databaseClient = null
+     * Database url is maintained so calling initializeFreshDatabase after 
+     * calling this method will work as expected.
+     */
+    this.dropDatabaseAndDisconnect = function(callback) {
+      if (databaseClient != null) {
+        databaseClient.dropDatabase(function(err) {
+          databaseClient.close();
+          databaseClient = null;
+          callback(err);
+        })
+      }
+    }
+    /**
      * Upon successful completion, this object will contain a connected and 
      * authenticated MongoClient object, the database will have been cleared of
      * all collections used by BotBattleApp, and initialized with any initial
@@ -40,7 +55,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         [
           connectToDatabaseTask,
           authenticateConnectionTask,
-          clearDatabaseTask,
+          self.clearDatabaseTask,
           insertInitialRecordsTask
         ], 
         
@@ -88,11 +103,11 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
     /**
      * Upon successful completion, database will be completely cleared of previous data.
-     * @method connectToDatabaseTask
+     * @method clearDatabaseTask
      * @param {Function} callback used by async.waterfall(...). 
-     * @private
+     * @public
      */
-    function clearDatabaseTask(callback)
+    this.clearDatabaseTask = function(callback)
     {
       var collections = ['SystemParameters', 'AdminUsers', 'GameModules', 'Tournaments', 'TestArena'];
       var async = require('async');
