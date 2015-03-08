@@ -59,9 +59,11 @@ var myId = null;
   })
   .on('status_update', function(status) {
 	  var html = [];
-	  html.push('<div>' + document.getElementById('message').innerHTML + '</div>');
+	  html.push(document.getElementById('message').innerHTML);
 	  html.push('<div>' + status + '</div>');
-	  document.getElementById('message').innerHTML = html.join('');
+	  var messageElem =  document.getElementById('message');
+	  messageElem.innerHTML = html.join('');
+	  messageElem.scrollTop = messageElem.scrollHeight;
   })
   .on('config_success', function(data) {
     var count = 5;
@@ -78,9 +80,11 @@ var myId = null;
   })
   .on('config_error', function(err) {
     var html = [];
-    html.push('<div>' + document.getElementById('message').innerHTML + '</div>');
-    html.push('<div>' + err + '</div>');
-    document.getElementById('message').innerHTML = html.join('');
+    html.push(document.getElementById('message').innerHTML);
+    html.push("<div class='error'>" + err + '</div>');
+    var messageElem =  document.getElementById('message');
+    messageElem.innerHTML = html.join('');
+    messageElem.scrollTop = messageElem.scrollHeight;
     //document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
     
     //TODO setting this here so that you can't submit while server is still working on things.

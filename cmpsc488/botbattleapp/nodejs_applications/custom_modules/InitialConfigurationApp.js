@@ -92,7 +92,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     var error = null;
     database.dropDatabaseAndDisconnect(function(err1) {
       if (!err1) {
-        self.emit('status_update', "Successfully dropped database");
+        self.emit('status_update', "&nbsp&nbsp Successfully dropped database");
       }
       else {
         error = err1;
@@ -100,7 +100,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       // Regardless keep trying to rollback as much as possible
       fileManager.deleteLocalStorage(function(err2) {
         if (!err2) {
-          self.emit('status_update', "Successfully deleted local storage");
+          self.emit('status_update', "&nbsp&nbsp Successfully deleted local storage");
         }
         else {
           (error) ? error.message += '\n' + err2.message : error = err2;
@@ -108,7 +108,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         // Regardless keep trying to rollback as much as possible
         fileManager.clearInitConfigTmp(function(err3) {
           if (!err3) {
-            self.emit('status_update', "Successfully cleared initial configuration tmp directory");
+            self.emit('status_update', "&nbsp&nbsp Successfully cleared initial configuration tmp directory");
           }
           else {
             (error) ? error.message += '\n' + err3.message : error = err3;
@@ -161,7 +161,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         initFileSystemTaskCallback(err);
       }
       else {
-        self.emit('status_update', "Previous local storage directories successfully deleted!");
+        self.emit('status_update', "&nbsp&nbsp Previous local storage directories successfully deleted!");
         self.emit('progress_update', 30);
         
         fileManager.ensureLocalStorage(function(err) {
@@ -169,7 +169,8 @@ function InitialConfigurationApp(initConfigAppServer) {
             initFileSystemTaskCallback(err);
           }
           else {
-            self.emit('status_update', "Fresh local storage directories successfully created!");
+            self.emit('status_update', "&nbsp&nbsp Successfully recreated local storage directories");
+            self.emit('status_update', "Local Storage Initialization Complete!");
             self.emit('progress_update', 40); 
             initFileSystemTaskCallback(null);
           }
@@ -191,7 +192,6 @@ function InitialConfigurationApp(initConfigAppServer) {
         sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
 
     database.insertAdminUser(adminUser, function(err) {
-      // TODO, get rid of this result message, make things more consistent
       if (!err) {
         self.emit('status_update', "Successfully created the administrator user");
         self.emit('progress_update', 60);
@@ -243,7 +243,7 @@ function InitialConfigurationApp(initConfigAppServer) {
          ], 
          function(err) {
           if (err) {
-            err.message = 'Error in initGameModuleTask: ' + err.message;
+            err.message = 'Error configuring the game module: ' + err.message;
           } else {
             self.emit('progress_update', 80);
             self.emit('status_update', 'Game Module successfully configured!');
@@ -256,11 +256,11 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initGameModuleTask1_CreateDirectoryFromGameName(tmpData, callback) {
     fileManager.createDirectoryForGameModule(tmpData.gameName, function(err, pathToDirectory) {
       if (err) {
-        err.message += " Error creating directory for game module";
+        err.message += "&nbsp&nbsp Error creating directory for game module";
         callback(err);
       } else {
         self.emit('progress_update', 64);
-        self.emit('status_update', 'Directory for game module created at ' + pathToDirectory);
+        self.emit('status_update', '&nbsp&nbsp Directory for game module created at ' + pathToDirectory);
         
         tmpData.newDirectoryPath = pathToDirectory;
         callback(null, tmpData);
@@ -274,7 +274,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     var newSourceFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameSourceFile.name);
     fileManager.moveFile(tmpData.gameRulesFile.path, newRulesFilePath, function(err) {
       if (err) {
-        err.message = "Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
+        err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
         initGameModuleTask2Callback(err)
       } else {
         fileManager.moveFile(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
@@ -283,7 +283,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             initGameModuleTask2Callback(err)
           } else {
             self.emit('progress_update', 68);
-            self.emit('status_update', 'Successfully moved game module rules and source files to new directory');
+            self.emit('status_update', '&nbsp&nbsp Successfully moved game module rules and source files to new directory');
             tmpData.newRulesFilePath = newRulesFilePath;
             tmpData.newSourceFilePath = newSourceFilePath;
             initGameModuleTask2Callback(null, tmpData);
@@ -301,6 +301,7 @@ function InitialConfigurationApp(initConfigAppServer) {
           console.log('compilation stdout:', message);
         }).on('stderr', function(message) {
           console.log('compilation stderr:', message);
+          self.emit('config_error', '&nbsp&nbsp ' + message);
         }).on('failed', function(message) {
           console.log('compilation failed:', message);
         }).on('complete', function(message) {
@@ -310,11 +311,11 @@ function InitialConfigurationApp(initConfigAppServer) {
     compiler.compile(tmpData.newSourceFilePath,
         function(err, compiledFilePath) {
           if (err) {
-            err.message += " Error compiling game module source file";
+            err.message += "&nbsp&nbsp Error compiling game module source file";
             callback(err);
           } else {
             self.emit('progress_update', 72);
-            self.emit('status_update', 'Successfully compiled game module source file!');
+            self.emit('status_update', '&nbsp&nbsp Successfully compiled game module source file!');
             tmpData.compiledFilePath = compiledFilePath;
             callback(err, tmpData);
           }
@@ -330,11 +331,11 @@ function InitialConfigurationApp(initConfigAppServer) {
     database.insertGameModule(gameModuleObject, 
         function(err) {
           if (err) {
-            err.message += " Error inserting game module into database";
+            err.message += "&nbsp&nbsp Error inserting game module into database";
             callback(err);
           } else {
             self.emit('progress_update', 76);
-            self.emit('status_update', 'Successfully inserted game module into database');
+            self.emit('status_update', '&nbsp&nbsp Successfully inserted game module into database');
             console.log('Successfully inserted game module into database');
             callback(err);
           }
@@ -354,7 +355,7 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initTournamentTask(callback) {
-    self.emit('status_update', 'Initializizing the Tournament');
+    self.emit('status_update', 'Initializing the Tournament');
     var async = require('async');
 
     // Read the txt file line by line
@@ -362,6 +363,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       var usersArray = [];
       var errMessage = "";
       var numberOfErrors = 0;
+      self.emit('status_update', "&nbsp&nbsp Parsing the student list...");
       for (var line = 0; line < lines.length; line++) {
         var usernameRegEx = /^[a-z0-9_-]{3,16}$/;
         var passwordRegEx = /^[a-z0-9_-]{6,18}$/;
@@ -377,15 +379,15 @@ function InitialConfigurationApp(initConfigAppServer) {
         }
         if (lineElements.length !== 2) {
           numberOfErrors++;
-          errMessage += "<br> Line #" + (line+1) + " Line must contain only username and password separated by a tab or space character";
+          self.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Line must contain only username and password separated by a tab or space character");
         }
         else if (!lineElements[0].match(usernameRegEx)){
           numberOfErrors++;
-          errMessage += "<br> Line #" + (line+1) + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters";
+          self.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Username must consist only of lowercase, numbers, underscores, and hypens and be between 3 and 16 characters");
         }
         else if (!lineElements[1].match(usernameRegEx)){
           numberOfErrors++;
-          errMessage += "<br> Line #" + (line+1) + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters";
+          self.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters");
         }
         else {
         	//console.log("Line #" + line + " Valid username and password");
@@ -396,14 +398,14 @@ function InitialConfigurationApp(initConfigAppServer) {
             usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1]);
         }
         if (numberOfErrors >= 5) {
-          errMessage += "<br> Found 5 errors while parsing student list file. Halting here.";
           break;
         }
       }
       //console.log(errMessage);
       
-      if (errMessage) {         
-    	  callback(new Error(errMessage));
+      if (numberOfErrors > 0) {      
+          
+    	  callback(new Error("Failed to parse student list file due to the errors above"));
       }
       else {
         
@@ -413,7 +415,7 @@ function InitialConfigurationApp(initConfigAppServer) {
           }
           else {
             self.emit('progress_update', 85);
-            self.emit('status_update', 'Successfully created directory for tournament');
+            self.emit('status_update', '&nbsp&nbsp Successfully created directory for tournament');
             console.log('Successfully created directory for tournament');
             var tournament = objectFactory.Tournament.newInstance(
                 sanitizedFormData.tournamentName, 
@@ -428,7 +430,7 @@ function InitialConfigurationApp(initConfigAppServer) {
               }
               else {
                 self.emit('progress_update', 90);
-                self.emit('status_update', 'Successfully inserted tournament into database');
+                self.emit('status_update', '&nbsp&nbsp Successfully inserted tournament into database');
                 callback(null);
               }
             })
@@ -658,12 +660,14 @@ function InitialConfigurationApp(initConfigAppServer) {
           // console.log(JSON.stringify(sanitizedFormData));
           var error = false;
           for (fieldName in sanitizedFormData) {
-            if (!sanitizedFormData[fieldName]) {
+            // I guess the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
+            if (!sanitizedFormData[fieldName] || sanitizedFormData[fieldName] === 'undefined') {
               error = true;
               self.emit('config_error', 'No data was received for the '
                   + fieldName + ' field');
             }
           }
+          
           if (!error && (sanitizedFormData.gameSource.name === sanitizedFormData.gameRules.name || 
               sanitizedFormData.gameSource.name === sanitizedFormData.studentList.name || 
               sanitizedFormData.gameRules.name === sanitizedFormData.studentList.name)) {
@@ -675,10 +679,10 @@ function InitialConfigurationApp(initConfigAppServer) {
             // Only cleanup to do is clear the tmp directory of the uploaded files
             fileManager.clearInitConfigTmp(function(err) {
               if (!err) {
-                self.emit('status_update', "Successfully cleared initial configuration tmp directory");
+                self.emit('status_update', "&nbsp&nbsp Successfully cleared initial configuration tmp directory");
               }
               else {
-                self.emit('config_error', "Failed to clear initial configuration tmp directory " + err.message);
+                self.emit('config_error', "&nbsp&nbsp Failed to clear initial configuration tmp directory " + err.message);
               }
               self.emit('status_update', 'Finished rolling back initial configuration');
             });
