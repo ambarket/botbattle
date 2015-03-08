@@ -14,7 +14,7 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
   var logger = require(paths.custom_modules.Logger).newInstance('console');
   // Private member to store the sockets
   var socketInfo = {sockets: {}, client_id_To_Real_id_Map: {}, Real_id_To_Client_id_Map: {}, numberOfOpenSockets: 0};
-  socketIO
+
   socketIO.on('connection', function(socket) {
     
     // Add a newly connected socket
@@ -49,9 +49,24 @@ module.exports = function SocketIOConnectionTracker(socketIO) {
         //TODO Find a more consitent way to run unit tests
         //unitTest(client_id);
       }
-    });
-    
+    });    
   });
+  
+  // TODO add comments
+  this.emitToAll = function(event, data) {
+    for(socketId in socketInfo.sockets) {
+      socketInfo.sockets[socketId].emit(event, data);
+    }
+  };
+  
+  //TODO add comments
+  this.onReceiveFromAll = function(event, callback) {
+    console.log('here');
+    for(socketId in socketInfo.sockets) {
+      console.log('here');
+      socketInfo.sockets[socketId].on(event, callback);
+    }
+  };
   
   /**
    * Emits the message over this servers socket.io to a specified client

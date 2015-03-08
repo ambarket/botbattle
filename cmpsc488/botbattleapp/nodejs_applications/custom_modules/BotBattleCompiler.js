@@ -16,8 +16,8 @@ function BotBattleCompiler() {
 
     var language = undefined;
     // Validate arguments before going further
-    if (!callback || typeof(callback) != "function"/*|| callback.getClass() != '[object Function]' TODO Doesn't work find another way*/) {
-      logger.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
+    if (!callback || typeof(callback) != "function" /*|| callback.getClass() != '[object Function]' TODO Doesn't work find another way*/) {
+      console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
       self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
     }
     else if (!sourceFilePath) {
@@ -42,7 +42,8 @@ function BotBattleCompiler() {
     }
     
     //TODO: This is how we did it before but isn't it possible that it compiles before we registered the listener?
-    //          is there built in protection for this?
+    //          is there built in protection for this?   // seems this could be a problem.. just register listener
+    //    first by swapping the switch and listeners reg.
     // Start the process.
     var compiledFilePath = undefined;
     var compilationProcess = undefined;

@@ -130,7 +130,7 @@ module.exports = function BotBattleServer() {
    * @method socketIOEmitToAll
    */
   this.socketIOEmitToAll = function(event, data) {
-    socketIO.emit(event, data);
+    socketIOConnectionTracker.emitToAll(event, data);
   };
   
   /**
@@ -141,7 +141,7 @@ module.exports = function BotBattleServer() {
    * @method socketIOReceiveFromAll
    */
   this.socketIOReceiveFromAll = function(event, callback) {
-    socketIO.on(event, callback);
+    socketIOConnectionTracker.onReceiveFromAll(event, callback);
   };
   
   /**

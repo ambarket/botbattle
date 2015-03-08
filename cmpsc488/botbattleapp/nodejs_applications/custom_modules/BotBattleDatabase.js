@@ -236,6 +236,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     // ... and so on
 
     function insertSingleDocumentByKeyFieldInCollection(document, keyFieldName, collectionName, callback) {
+    	// maybe break all of these up into smaller functions and others like Dr. Blum suggested in class
       if (databaseClient === null) {
         callback(new Error("Database hasn't been initialized, cannot insert!"))
       } 
