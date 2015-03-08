@@ -18,7 +18,7 @@
     var clickCount = 0;
     var rect;
     // add click listener to canvas
-    var canvas = document.getElementById('myCanvas');
+    var canvas = document.getElementById('GameCanvas');
     canvas.addEventListener('click', function(event) {
 
       var testGameState = {
@@ -160,6 +160,18 @@ $(document).ready(function(){
         $('#send_move').hide();
     });
 });
+
+/*$(document).ready(function(){
+	var canvas = document.getElementById("GameCanvas");
+	var canvasContainer = document.getElementsByClassName('col_9')[0];
+	console.log(canvasContainer);
+	var rect = canvasContainer.getBoundingClientRect();
+	console.log(rect);
+	canvas.width = rect.right - rect.left;
+	canvas.height = rect.bottom - rect.top;
+	var gameboard = new GameBoard();
+	gameboard.scale = document.getElementById("GameCanvas").width / 1050;
+});*/
 
 var submitButton = document.getElementById("send_move");
 
