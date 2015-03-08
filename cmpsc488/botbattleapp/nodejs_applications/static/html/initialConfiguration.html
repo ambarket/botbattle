@@ -58,32 +58,7 @@
           size="15" value="testPass" required></input>
       </div>
       <hr>
-			
-			
-			<!-- 
-			This was going to where you put in directory locations, but I think it's better to just have the admin
-			upload file locations and then not allow them to change the location of the directories for security and 
-			simplicity
-			
-			<h2>Directory Setup</h2>
-			<div class="form-item">
-				<label for="tournamentLocation"> Tournament Directory<span
-					class="form-required" title="This field is required."> * </span>
-				</label> <input name="tournamentLocation" type="text" maxlength="300"
-					size="30" value="/home/BotBattle/Tournament" required></input>
-			</div>
-			<div class="form-item">
-				<label for="gameModule"> Game Module Location<span
-					class="form-required" title="This field is required."> * </span>
-				</label> <input name="gameModule" type="text" maxlength="300"
-					size="30" value="/home/BotBattle/Game" required></input>
-			</div>
-			<div class="form-item">
-				<label for="testArenaTmp"> Test Arena Working Directory<span
-					class="form-required" title="This field is required."> * </span>
-				</label> <input name="testArenaTmp" type="text" maxlength="300"
-					size="30" value="/home/BotBattle/TestArenaTemp" required></input>
-			</div> -->
+		
 			<h1>Game Setup</h1>
 			<div class="form-item">
 				<label id="title" for="gameName"> Game Name<span
@@ -106,6 +81,13 @@
 				</label> <input name="gameRules" type="file" ></input>
 					<p></p>
 			</div>
+			
+			<div class="form-item">
+        <label id="title" for="gameMoveTimeout"> Game Move Timeout <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="gameMoveTimeout" type="number"   value=30 ></input>
+          <p></p>
+      </div>
 			<hr>
 			<h1>Tournament Setup</h1>
 			<div class="form-item">
@@ -129,7 +111,7 @@
 				</label> <input name="tournamentDeadline" type="date" ></input>
 					<p></p>
 			</div>
-		</div>
+
 		
 		<hr>
 		

@@ -40,6 +40,7 @@ module.exports.custom_modules = {
     'ObjectFactory' : custom_modules_directory + 'ObjectFactory',
     'BotBattleCompiler' : custom_modules_directory + 'BotBattleCompiler',
     'InitialConfigurationApp' : custom_modules_directory + 'InitialConfigurationApp',
+    'Logger' : custom_modules_directory + 'Logger',
     'MulticlientPrototype' : custom_modules_directory + 'MulticlientPrototype',
 }
 

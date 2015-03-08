@@ -17,6 +17,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   var paths = require('./BotBattlePaths');
   var fileManager = new (require(paths.custom_modules.FileManager));
   var objectFactory = require(paths.custom_modules.ObjectFactory);
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
 
   /**
    * An object containing all fields submitted in the initial configuration form
@@ -73,6 +74,8 @@ function InitialConfigurationApp(initConfigAppServer) {
               }
               else {
                 self.emit('status_update', "Finished rolling back initial configuration.")
+                // Use this to re-enable the submit button
+                self.emit('reset_form', null);
               }
             });
           } else {
@@ -226,9 +229,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       gameName : sanitizedFormData.gameName,
       gameRulesFile : sanitizedFormData.gameRules,
       gameSourceFile : sanitizedFormData.gameSource,
-      gameTimeout : 30
-    // Probably should add this to the html form if we're allowing the timeout
-    // (.e.g for disqualifying bots) to be configured.
+      gameTimeout : sanitizedFormData.gameMoveTimeout
     }
     async.waterfall(
         [
@@ -296,16 +297,16 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initGameModuleTask3_CompileGameModuleSourceFile(tmpData, callback) {
     var compiler = require(paths.custom_modules.BotBattleCompiler)
         .createBotBattleCompiler().on('warning', function(message) {
-          console.log('compilation warning:', message);
+          logger.log('compilation warning:', message);
         }).on('stdout', function(message) {
-          console.log('compilation stdout:', message);
+          logger.log('compilation stdout:', message);
         }).on('stderr', function(message) {
-          console.log('compilation stderr:', message);
+          logger.log('compilation stderr:', message);
           self.emit('config_error', '&nbsp&nbsp ' + message);
         }).on('failed', function(message) {
-          console.log('compilation failed:', message);
+          logger.log('compilation failed:', message);
         }).on('complete', function(message) {
-          console.log('compilation complete:', message);
+          logger.log('compilation complete:', message);
         });
 
     compiler.compile(tmpData.newSourceFilePath,
@@ -336,7 +337,7 @@ function InitialConfigurationApp(initConfigAppServer) {
           } else {
             self.emit('progress_update', 76);
             self.emit('status_update', '&nbsp&nbsp Successfully inserted game module into database');
-            console.log('Successfully inserted game module into database');
+            logger.log('Successfully inserted game module into database');
             callback(err);
           }
         });
@@ -390,9 +391,9 @@ function InitialConfigurationApp(initConfigAppServer) {
           self.emit('config_error', "&nbsp&nbsp  Line #" + (line+1) + " Password must consist only of lowercase, numbers, underscores, and hypens and be between 6 and 18 characters");
         }
         else {
-        	//console.log("Line #" + line + " Valid username and password");
+        	//logger.log("Line #" + line + " Valid username and password");
         }
-        //console.log(lineElements, "Length", lineElements.length);
+        //logger.log(lineElements, "Length", lineElements.length);
         
         if (!errMessage) {
             usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1]);
@@ -401,7 +402,6 @@ function InitialConfigurationApp(initConfigAppServer) {
           break;
         }
       }
-      //console.log(errMessage);
       
       if (numberOfErrors > 0) {      
           
@@ -416,7 +416,7 @@ function InitialConfigurationApp(initConfigAppServer) {
           else {
             self.emit('progress_update', 85);
             self.emit('status_update', '&nbsp&nbsp Successfully created directory for tournament');
-            console.log('Successfully created directory for tournament');
+            logger.log('Successfully created directory for tournament');
             var tournament = objectFactory.Tournament.newInstance(
                 sanitizedFormData.tournamentName, 
                 tournamentDirectory,
@@ -441,6 +441,9 @@ function InitialConfigurationApp(initConfigAppServer) {
   }
   
   function cleanupTask(callback) {
+    //Cant delete init_config_tmp directory here (atleast not until we really are going to go to the 
+    //  bot battle app. Deleting it causes the multer to crash the page on the next call to submit.
+    // THe error is this "Error: Can't set headers after they are sent".
     /*
     fileManager.clearInitConfigTmp(function(err) {
       if (err) {
@@ -449,15 +452,13 @@ function InitialConfigurationApp(initConfigAppServer) {
       } else {
         self.emit('progress_update', 90);
         self.emit('status_update', 'Initial configuration cleanup successful');
-        console.log('Initial configuration cleanup successful');
+        logger.log('Initial configuration cleanup successful');
         //callback(null);
         callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
       }
     });
     */
-    //Cant delete init_config_tmp directory here (atleast not until we really are going to go to the 
-    //  bot battle app. Deleting it causes the multer to crash the page on the next call to submit.
-    // THe error is this "Error: Can't set headers after they are sent".
+
     callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
   }
 
@@ -473,13 +474,6 @@ function InitialConfigurationApp(initConfigAppServer) {
     initConfigAppServer.addStaticFileRoute('/', paths.static_content.html
         + 'initialConfiguration.html');
 
-    // Add multer
-    // This needs pulled out of here
-    // security issues
-    // https://github.com/jpfluger/multer/blob/examples/multer-upload-files-to-different-directories.md
-    // should ensure init_config_tmp exists ( i accidently deleted it) and should stop ALL uploads on ANY failure
-    // currently it just stops trying the one that is incorrect but uploads the rest of the form.  It should halt
-    // completely when one fails for more security reasons.
     var multer = require('multer');
     initConfigAppServer
         .addDynamicRoute(
@@ -515,15 +509,12 @@ function InitialConfigurationApp(initConfigAppServer) {
               rename : function(fieldname, filename) {
                 return filename;
               },
-              // changeDest: function(dest, req, res) {
-              // return dest + '/user1';
-              // },
               onFileUploadStart : function(file, req, res) {
-                console.log(file.fieldname + ' is starting ...');
+                logger.log(file.fieldname + ' is starting ...');
                 var javaRE = /.*\.java/;
                 if (file.fieldname == 'gameSource') {
                   if (file.name.match(javaRE)) {
-                    console.log(file.fieldname + ':' + file.name
+                    logger.log(file.fieldname + ':' + file.name
                         + ' is a .java file, uploading will continue');
                     self.emit('status_update',
                         'Verified game module is a java file');
@@ -543,7 +534,7 @@ function InitialConfigurationApp(initConfigAppServer) {
                 var pdfRE = /.*\.pdf/;
                 if (file.fieldname == 'gameRules') {
                   if (file.name.match(pdfRE)) {
-                    console.log(file.fieldname + ':' + file.name
+                    logger.log(file.fieldname + ':' + file.name
                         + ' is a .pdf file, uploading will continue');
                     self.emit('status_update',
                         'Verified game rules is a pdf file');
@@ -560,82 +551,34 @@ function InitialConfigurationApp(initConfigAppServer) {
                     return false;
                   }
                 }
-                /*
-                var txtRE = /.*\.txt/;
-                if (file.fieldname == 'studentList') {
-                  if (file.name.match(txtRE)) {
-                    console.log(file.fieldname + ':' + file.name
-                        + ' is a .txt file, uploading will continue');
-                    self.emit('status_update',
-                        'Verified game module is a txt file');
-                  } else {
-                    console
-                        .log(file.fieldname
-                            + ':'
-                            + file.name
-                            + ' is a NOT .txt file, this file will not be uploaded');
-                    self
-                        .emit('config_error',
-                            'Error during form submission: Student list is not a .txt file');
-                    // Returning false cancels the upload.
-                    return false;
-                  }
-                }
-                */
-
               },
               onFileUploadComplete : function(file, req, res) {
-                console.log(file.fieldname + ' uploaded to  ' + file.path);
-                // add logic to check the file fieldname and change save
-                // directory and
-                // name based on this
-              },
-              onFileUploadData : function(file, data, req, res) {
-                console.log(data.length + ' of ' + file.fieldname + ' arrived')
-              },
-              onParseStart : function() {
-                console.log('Form parsing started at: ', new Date())
-              },
-              onParseEnd : function(req, next) {
-                console.log('Form parsing completed at: ', new Date());
-
-                // Dont need to do any custom parsing, also don't need half
-                // these
-                // options
-                // but leave them for now
-                // usage example: custom body parse
-                // req.body = require('qs').parse(req.body);
-                // console.log("HERE!");
-                // console.log(require.resolve('qs'));
-
-                // call the next middleware
-                next();
+                logger.log(file.fieldname + ' uploaded to  ' + file.path);
               },
               onError : function(error, next) {
-                console.log(error)
+                logger.log(error)
                 next(error)
               },
               onFileSizeLimit : function(file) {
-                console.log('Failed: ', file.originalname)
+                logger.log('Failed: ', file.originalname)
                 fs.unlink('./' + file.path) // delete the partially written file
                                             // // set
                 // in limit object
               },
               onFilesLimit : function() {
-                console.log('Crossed file limit!')
+                logger.log('Crossed file limit!')
               },
               onFieldsLimit : function() {
-                console.log('Crossed fields limit!')
+                logger.log('Crossed fields limit!')
               },
               onPartsLimit : function() {
-                console.log('Crossed parts limit!')
+                logger.log('Crossed parts limit!')
               },
             }));
 
-    // multer needs to be added here for security reasons
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration',
         function(req, res) {
-          // console.log(JSON.stringify(req.body));
+          // logger.log(JSON.stringify(req.body));
           var sanitizer = require('sanitizer');
           sanitizedFormData = {
             // database parameters
@@ -651,20 +594,20 @@ function InitialConfigurationApp(initConfigAppServer) {
             gameName : sanitizer.sanitize(req.body.gameName),
             gameSource : req.files.gameSource,
             gameRules : req.files.gameRules,
+            gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
             // tournament parameters
             tournamentName : sanitizer.sanitize(req.body.tournamentName),
             studentList : req.files.studentList,
             tournamentDeadline : sanitizer
                 .sanitize(req.body.tournamentDeadline),
           };
-          // console.log(JSON.stringify(sanitizedFormData));
+          
           var error = false;
           for (fieldName in sanitizedFormData) {
-            // I guess the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
+            // Apparently the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
             if (!sanitizedFormData[fieldName] || sanitizedFormData[fieldName] === 'undefined') {
               error = true;
-              self.emit('config_error', 'No data was received for the '
-                  + fieldName + ' field');
+              self.emit('config_error', 'No data was received for the ' + fieldName + ' field');
             }
           }
           

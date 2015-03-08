@@ -85,10 +85,10 @@ var myId = null;
     var messageElem =  document.getElementById('message');
     messageElem.innerHTML = html.join('');
     messageElem.scrollTop = messageElem.scrollHeight;
-    //document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
-    
-    //TODO setting this here so that you can't submit while server is still working on things.
-    //var submitButton = document.getElementById("submitButton").disabled = false;
+  })
+  .on('reset_form', function(err) {
+    document.getElementById('submitButton').disabled = false;
+    console.log("here");
   })
   .on('unitTestToClient', function() {
     console.log("received unit test from server");
@@ -97,33 +97,25 @@ var myId = null;
   })
 
 // Submit the form via an ajax request.   ////////////// password is being sent plaintext !!!!!!!!!!!
-var form = document.getElementById("initConfigForm");
-  var stillProcessing = false;
+  var form = document.getElementById("initConfigForm");
 form.addEventListener('submit', function(ev) {
-  if (!stillProcessing) {
-    stillProcessing = true;
-    var req = new XMLHttpRequest();
-    var theForm = new FormData(form);
-    req.open("POST", "processInitialConfiguration", true);
-    req.send(theForm);
-    
-    req.onload = function(event) {
-      stillProcessing = false;
-      if (req.status === 200) {
-        console.log("onload");
-      } else {
-        console.log("error onload");
-      }
-    };
-    ev.preventDefault();
-  }
-
+  document.getElementById('submitButton').disabled = true;
+  document.getElementById("progress").value = 0;
+  document.getElementById("message").innerHTML = '&nbsp';
+  
+  var req = new XMLHttpRequest();
+  var theForm = new FormData(form);
+  req.open("POST", "processInitialConfiguration", true);
+  req.send(theForm);
+  
+  req.onload = function(event) {
+    if (req.status === 200) {
+      console.log("onload");
+    } else {
+      console.log("error onload");
+    }
+  };
+  ev.preventDefault();
 }, false);
 
-var submitButton = document.getElementById("submitButton");
-
-submitButton.addEventListener('click', function(){
-	document.getElementById("progress").value = 0;
-	document.getElementById("message").innerHTML = '&nbsp';
-});
 

@@ -20,6 +20,9 @@ var initConfigApp = new (require(custom_modules.InitialConfigurationApp))(initCo
   .on('status_update', function(status) {
 	  initConfigAppServer.socketIOEmitToAll('status_update', status);
   })
+  .on('reset_form', function() {
+      initConfigAppServer.socketIOEmitToAll('reset_form');
+  })
   .on('config_success', function(botBattleDatabase) {
       console.log("Initial configuration completed successfully!" );
       //console.log("Heres the BotBattleDatabase\n" + botBattleDatabase);
