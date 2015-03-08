@@ -4,6 +4,8 @@
  *
  */
 
+var port = process.argv[2] || 6058;
+
 var paths = require('./custom_modules/BotBattlePaths');
 var BotBattleServer = require(paths.custom_modules.BotBattleServer);
 var fileManager = require(paths.custom_modules.FileManager).newInstance();
@@ -12,7 +14,7 @@ var logger = require(paths.custom_modules.Logger).newInstance('console');
 fileManager.parseConfigurationFile(function(err, config) {
   if (err) {
     logger.log(err.message);
-    logger.log("No valid configuration file found, running initial configuration at https://localhost:6058");
+    logger.log("No valid configuration file found, running initial configuration at https://localhost:" + port);
     runInitialConfiguration();
   }
   else {
@@ -26,7 +28,6 @@ fileManager.parseConfigurationFile(function(err, config) {
     database.connectToExistingDatabase(function(err) {
       if (!err) {
         logger.log("Successfully connected to the database found in the configuration file");
-        logger.log("Running Bot!Battle! at https://localhost:6058");
         runBotBattleApp(database);
       }
       else {
@@ -38,7 +39,7 @@ fileManager.parseConfigurationFile(function(err, config) {
 })
 
 function runInitialConfiguration() {
-  var initConfigAppServer = (new BotBattleServer()).initAndStartListening(6058);
+  var initConfigAppServer = (new BotBattleServer()).initAndStartListening(port);
 
   var initConfigApp = new (require(paths.custom_modules.InitialConfigurationApp))(initConfigAppServer)
     .on('progress_update', function(progress) {
@@ -62,7 +63,6 @@ function runInitialConfiguration() {
         // Close the server, then load a new one to serve the botBattleApp
         initConfigAppServer.shutdown(function(err) {
           console.log('The initial configuration server has been shutdown!');
-          logger.log("Running Bot!Battle! at https://localhost:6058");
           runBotBattleApp(database);
           // Probably not even be necessary now that these are defined locally in this function
           initConfigAppServer = null;
@@ -71,8 +71,9 @@ function runInitialConfiguration() {
       });
 }
 function runBotBattleApp(database) {
+  logger.log("Running Bot!Battle! at https://localhost:" + port);
   fileManager.deleteInitConfigTmp(function(){});
-  var botBattleAppServer = new BotBattleServer().initAndStartListening(6058);
+  var botBattleAppServer = new BotBattleServer().initAndStartListening(port);
   var botBattleApp = (new require(paths.custom_modules.BotBattleApp))(botBattleAppServer, database);
    // TODO: register new listeners.  set prototype to inherit emmiter like initconfig
 }
