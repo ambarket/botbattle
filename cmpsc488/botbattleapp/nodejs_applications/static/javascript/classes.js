@@ -210,6 +210,15 @@ var GameBoard = function(readyCallback) {
     							self.player1PositionY, 
     							74, 
     							self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
+	player2Running : new drawableImage('static/images/RunningLeft.png', 
+			0, 
+			self.player2StandingSpriteSheetY, 
+			592, 
+			self.robotHeight, 
+			self.player2PositionX, 
+			self.player2PositionY, 
+			74, 
+			self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
   }
   
   this.playerAnimations = {
@@ -225,7 +234,7 @@ var GameBoard = function(readyCallback) {
 		  player2 : {
 			  current : self.drawableObjects.player2,
 			  standing : self.drawableObjects.player2,
-			  move : self.drawableObjects.player2,
+			  move : self.drawableObjects.player2Running,
 			  //attack : "player2Attack",
 			  //defend : "player2Defend",
 			  //hit : "player2Falling",
