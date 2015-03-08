@@ -303,8 +303,8 @@ function Animator(gameboard) {
           animations.move(moveEvent, time, callback);
         });
       } else {
+    	  gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
     	  gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
-          gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
           gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
           gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
           gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
