@@ -35,11 +35,9 @@ public class Player implements Runnable {
 		this.botFilePath = botFilePath;
 		this.usersName = usersName;
 		
-
-		ProcessBuilder builder = new ProcessBuilder("java", usersName);
+		ProcessBuilder builder = new ProcessBuilder("java", usersName); //TODO do somthing with file path here?
 
 		builder.directory(new File(botFilePath));
-		
 		botProcess = builder.start();
 		
 		OutputStream stdin = botProcess.getOutputStream(); 
