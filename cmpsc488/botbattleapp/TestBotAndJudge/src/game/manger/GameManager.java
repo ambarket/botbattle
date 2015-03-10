@@ -39,11 +39,12 @@ public class GameManager implements Runnable {
 				
 				if(Game.isGameWon(board)){
 					System.out.println("Game Won by player" + ((i%2) + 1));
-					results.setWinner(i % 2);
+					results.setWinner((i%2) + 1);
 					break;
 				}
 			}				
 			else{
+				results.setWinner((i%2) + 1);
 				System.out.println("Invalid move made");
 				break;
 			}
@@ -52,6 +53,7 @@ public class GameManager implements Runnable {
 		}
 		
 		System.out.println("Game over");
+		System.out.println(this.getJSONStringOfResults());
 	}
 	
 	public Player getWinner() {
