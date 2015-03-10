@@ -1,16 +1,16 @@
-package bots;
+
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 
-public class rvh5222 {
+public class rvh5223 {
 
 static boolean temp;
 	
 	public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException{
-		temp = false;
+		temp = true;
 
 		PrintWriter writer = new PrintWriter("the-file-name1.txt", "UTF-8");//TODO: remove testing file
 		

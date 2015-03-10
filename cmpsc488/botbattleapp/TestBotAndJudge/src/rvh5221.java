@@ -1,11 +1,11 @@
-package bots;
+
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 
-public class rvh5223 {
+public class rvh5221 {
 
 static boolean temp;
 	
