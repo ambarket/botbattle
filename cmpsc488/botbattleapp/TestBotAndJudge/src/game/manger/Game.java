@@ -24,6 +24,11 @@ public class Game {
 
 	
 	public static boolean isValidMove(String move, String board) {
+		
+		if( move == null ) {
+			return false;
+		}
+		
 		//Move will be of the form: row, col, value
 		int row = -1;
 		int col = -1;
