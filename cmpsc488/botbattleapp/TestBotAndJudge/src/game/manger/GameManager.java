@@ -4,46 +4,40 @@ public class GameManager implements Runnable {
 
 	private Player player1;
 	private Player player2;
-	private GameInterface game;
-	private GameResults results;
-	
-	
+	private GameResults results;	
 	
 	/**
 	 * @param player1
 	 * @param player2
-	 * @param game
 	 */
-	public GameManager(Player player1, Player player2, GameInterface game) {//TODO: Remove GameInterface and just make it Game
+	public GameManager(Player player1, Player player2) {//TODO: Remove GameInterface and just make it Game
 		this.player1 = player1;
 		this.player2 = player2;
-		this.game = game;
 		results = new GameResults();		
 	}
-
-
 
 	@Override
 	public void run() {
 		int i = 0;
 		String move = "";
-		results.addBoard(game.getBoard());
-		while(!game.isGameOver()){
+		String board = Game.getStartingBoard();
+		results.addBoard(Game.getStartingBoard());
+		while(!Game.isGameOver(board)){
 			
 			if(i % 2 == 0){
-				move = player1.getMove(game.getBoard());
+				move = player1.getMove(board);
 				results.addMove(move, 1);
 			}				
 			else{
-				move = player2.getMove(game.getBoard());
+				move = player2.getMove(board);
 				results.addMove(move, 2);
 			}				
 
-			if(game.isValidMove(move)){
-				game.updateBoard(move);
-				results.addBoard(game.getBoard());
+			if(Game.isValidMove(move, board)){
+				board = Game.updateBoard(move, board);
+				results.addBoard(board);
 				
-				if(game.isGameWon()){
+				if(Game.isGameWon(board)){
 					System.out.println("Game Won by player" + ((i%2) + 1));
 					results.setWinner(i % 2);
 					break;
@@ -71,7 +65,7 @@ public class GameManager implements Runnable {
 	@Override
 	public String toString() {
 		return "GameManager [\n\tplayer1=" + player1 + ",\n\tplayer2=" + player2
-				+ ",\n game=" + game + ",\n results=" + results + "]";
+				+ ",\n game=" + Game.getName() + ",\n results=" + results + "]";
 	}
 	
 	
