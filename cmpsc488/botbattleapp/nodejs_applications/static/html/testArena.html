@@ -20,8 +20,6 @@
 <meta name="msapplication-TileImage" content="static/icons/ms-icon-144x144.png">
 <meta name="theme-color" content="#ffffff">
 
-
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content="" />
@@ -29,10 +27,11 @@
  <link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />    
 <link rel="stylesheet" type="text/css" href="static/css/initialConfiguration.css" media="all" />   
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
- <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
+<script type="text/javascript" src="/static/javascript/classes.js"></script>
+<script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
 <script type="text/javascript" src="/static/javascript/async.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head><body>
-
 	 
 <div class="col_12">
 	<div class="col_3">
@@ -64,23 +63,17 @@
      <p>
     <input id="submit" type="submit" value="Play Game">
     <hr>
-    <div class="form-item">
+  </form>
+		
+	<div class="form-item">
       <h4>Human Input</h4>
       <textarea id="stdin"></textarea> 
       <button id = "send_move">Send Move</button> 
     </div>
-
-
     
-
-  </form>
-		
-  
 	</div>
 	<div class="col_9">
-		<canvas style="border:1px solid" id="myCanvas" width="1050" height="650"></canvas>
-   
-		
+		<canvas style="border:1px solid" id="GameCanvas" width="1050" height="650"></canvas>
 	</div>
 	
 	<hr />
@@ -90,8 +83,6 @@
         <div id="stdout"></div>
 	</div>
 	
-
-	
 	<div class="col_6 ioPanels">
 		<h4>Debugging Info</h4>
 		<div id="stderr"></div>
@@ -100,4 +91,5 @@
 </div>
 <!-- END GRID -->
 
-</body></html>
+</body>
+</html>

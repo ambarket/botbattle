@@ -1,3 +1,14 @@
+#THings left on initial configuration page
+
+Make tournament deadline have both date and time
+
+Fix InputValidator.isPassword to actually use the password regex in there (or something better)
+Right now it just uses the alphanumeric regex because the password we've been using for database and admin password don't have a number in them
+
+Maybe clean things up a little more but that's low priority at this point
+
+Other than that I think it's done
+_______________________________________________________________________________________________________________
 <strike> Move file tests out of InitialConfigurationApp.js to a separate FileTestApp.js and out of  inititalConfiguration.html to fileTest.html </strike>
         
 Finish FileManager after setting up initConfig html and wiring to know what is needed (add to after test arena also)

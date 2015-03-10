@@ -16,6 +16,8 @@ function InitialConfigurationApp(initConfigAppServer) {
   var self = this;
   var paths = require('./BotBattlePaths');
   var fileManager = new (require(paths.custom_modules.FileManager));
+  var objectFactory = require(paths.custom_modules.ObjectFactory);
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
 
   /**
    * An object containing all fields submitted in the initial configuration form
@@ -58,22 +60,64 @@ function InitialConfigurationApp(initConfigAppServer) {
           initFileSystemTask, 
           createAdminUserTask, // Probably should be moved to last
           initGameModuleTask, 
-          initTournamentTask 
+          initTournamentTask,
+          saveConfigAndCleanupTask
          ], 
          function(err) {
           if (err) {
-            console.log("There was an error during configuration... " + err);
+            // Only output errors once to console, in the main function that listens for this config_error
             self.emit('config_error', err.message);
+            self.emit('status_update', "Rolling back changes...");
+            rollbackInitialConfiguration(function(err) {
+              if (err) {
+                self.emit('config_error', "Failed to roll back changes " + err.message);
+              }
+              else {
+                self.emit('status_update', "Finished rolling back initial configuration.")
+                // Use this to re-enable the submit button
+                self.emit('reset_form', null);
+              }
+            });
           } else {
             self.emit('status_update', 'Completed setup.');
             self.emit('progress_update', 100);
-            // Uncomment to cause shutdown of initialConfigurationApp and loading of
-            // BotBattleApp
-            // commented to ease development of initialConfigurationApp only.
-            // self.emit('config_success', database);
+            self.emit('config_success', database);
           }
         }
       );
+  }
+  
+  function rollbackInitialConfiguration(callback) {
+
+    var error = null;
+    database.dropDatabaseAndDisconnect(function(err1) {
+      if (!err1) {
+        self.emit('status_update', "&nbsp&nbsp Successfully dropped database");
+      }
+      else {
+        error = err1;
+      }
+      // Regardless keep trying to rollback as much as possible
+      fileManager.deleteLocalStorage(function(err2) {
+        if (!err2) {
+          self.emit('status_update', "&nbsp&nbsp Successfully deleted local storage");
+        }
+        else {
+          (error) ? error.message += '\n' + err2.message : error = err2;
+        }
+        // Regardless keep trying to rollback as much as possible
+        fileManager.clearInitConfigTmp(function(err3) {
+          if (!err3) {
+            self.emit('status_update', "&nbsp&nbsp Successfully cleared initial configuration tmp directory");
+          }
+          else {
+            (error) ? error.message += '\n' + err3.message : error = err3;
+          }
+          
+          callback(error);
+        });
+      });
+    });
   }
 
   /**
@@ -112,12 +156,26 @@ function InitialConfigurationApp(initConfigAppServer) {
     // Call FileManager to handle
     self.emit('status_update', 'Initializing the local storage');
     
-    fileManager.initFreshLocalStorage(function(err) {
-      if (!err) {
-        self.emit('status_update', "Local storage initialization Complete!");
-        self.emit('progress_update', 40);
+    fileManager.deleteLocalStorage(function(err) {
+      if (err) {
+        initFileSystemTaskCallback(err);
       }
-      initFileSystemTaskCallback(err);
+      else {
+        self.emit('status_update', "&nbsp&nbsp Previous local storage directories successfully deleted!");
+        self.emit('progress_update', 30);
+        
+        fileManager.ensureLocalStorage(function(err) {
+          if (err) {
+            initFileSystemTaskCallback(err);
+          }
+          else {
+            self.emit('status_update', "&nbsp&nbsp Successfully recreated local storage directories");
+            self.emit('status_update', "Local Storage Initialization Complete!");
+            self.emit('progress_update', 40); 
+            initFileSystemTaskCallback(null);
+          }
+        });
+      }
     });
   }
 
@@ -130,12 +188,10 @@ function InitialConfigurationApp(initConfigAppServer) {
    */
   function createAdminUserTask(callback) {
     self.emit('status_update', 'Creating the administrator user');
-    var ObjectFactory = require(paths.custom_modules.ObjectFactory);
-    var adminUser = ObjectFactory.createUserObject(
+    var adminUser = objectFactory.User.newInstance(
         sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
 
     database.insertAdminUser(adminUser, function(err) {
-      // TODO, get rid of this result message, make things more consistent
       if (!err) {
         self.emit('status_update', "Successfully created the administrator user");
         self.emit('progress_update', 60);
@@ -170,9 +226,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       gameName : sanitizedFormData.gameName,
       gameRulesFile : sanitizedFormData.gameRules,
       gameSourceFile : sanitizedFormData.gameSource,
-      gameTimeout : 30
-    // Probably should add this to the html form if we're allowing the timeout
-    // (.e.g for disqualifying bots) to be configured.
+      gameTimeout : sanitizedFormData.gameMoveTimeout
     }
     async.waterfall(
         [
@@ -187,7 +241,7 @@ function InitialConfigurationApp(initConfigAppServer) {
          ], 
          function(err) {
           if (err) {
-            err.message = 'Error in initGameModuleTask: ' + err.message;
+            err.message = 'Error configuring the game module: ' + err.message;
           } else {
             self.emit('progress_update', 80);
             self.emit('status_update', 'Game Module successfully configured!');
@@ -200,11 +254,11 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initGameModuleTask1_CreateDirectoryFromGameName(tmpData, callback) {
     fileManager.createDirectoryForGameModule(tmpData.gameName, function(err, pathToDirectory) {
       if (err) {
-        err.message += " Error creating directory for game module";
+        err.message += "&nbsp&nbsp Error creating directory for game module";
         callback(err);
       } else {
         self.emit('progress_update', 64);
-        self.emit('status_update', 'Directory for game module created at ' + pathToDirectory);
+        self.emit('status_update', '&nbsp&nbsp Directory for game module created at ' + pathToDirectory);
         
         tmpData.newDirectoryPath = pathToDirectory;
         callback(null, tmpData);
@@ -218,7 +272,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     var newSourceFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameSourceFile.name);
     fileManager.moveFile(tmpData.gameRulesFile.path, newRulesFilePath, function(err) {
       if (err) {
-        err.message = "Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
+        err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
         initGameModuleTask2Callback(err)
       } else {
         fileManager.moveFile(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
@@ -227,7 +281,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             initGameModuleTask2Callback(err)
           } else {
             self.emit('progress_update', 68);
-            self.emit('status_update', 'Successfully moved game module rules and source files to new directory');
+            self.emit('status_update', '&nbsp&nbsp Successfully moved game module rules and source files to new directory');
             tmpData.newRulesFilePath = newRulesFilePath;
             tmpData.newSourceFilePath = newSourceFilePath;
             initGameModuleTask2Callback(null, tmpData);
@@ -240,25 +294,26 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initGameModuleTask3_CompileGameModuleSourceFile(tmpData, callback) {
     var compiler = require(paths.custom_modules.BotBattleCompiler)
         .createBotBattleCompiler().on('warning', function(message) {
-          console.log('compilation warning:', message);
+          logger.log('compilation warning:', message);
         }).on('stdout', function(message) {
-          console.log('compilation stdout:', message);
+          logger.log('compilation stdout:', message);
         }).on('stderr', function(message) {
-          console.log('compilation stderr:', message);
+          logger.log('compilation stderr:', message);
+          self.emit('config_error', '&nbsp&nbsp ' + message);
         }).on('failed', function(message) {
-          console.log('compilation failed:', message);
+          logger.log('compilation failed:', message);
         }).on('complete', function(message) {
-          console.log('compilation complete:', message);
+          logger.log('compilation complete:', message);
         });
 
     compiler.compile(tmpData.newSourceFilePath,
         function(err, compiledFilePath) {
           if (err) {
-            err.message += " Error compiling game module source file";
+            err.message += "&nbsp&nbsp Error compiling game module source file";
             callback(err);
           } else {
             self.emit('progress_update', 72);
-            self.emit('status_update', 'Successfully compiled game module source file!');
+            self.emit('status_update', '&nbsp&nbsp Successfully compiled game module source file!');
             tmpData.compiledFilePath = compiledFilePath;
             callback(err, tmpData);
           }
@@ -266,8 +321,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   }
 
   function initGameModuleTask4_InsertGameModuleDatabaseEntry(tmpData, callback) {
-    var ObjectFactory = require(paths.custom_modules.ObjectFactory);
-    var gameModuleObject = ObjectFactory.createGameModuleObject(
+    var gameModuleObject = objectFactory.GameModule.newInstance(
         tmpData.gameName, tmpData.newDirectoryPath, tmpData.newRulesFilePath,
         tmpData.newSourceFilePath, tmpData.compiledFilePath,
         tmpData.gameTimeout);
@@ -275,12 +329,12 @@ function InitialConfigurationApp(initConfigAppServer) {
     database.insertGameModule(gameModuleObject, 
         function(err) {
           if (err) {
-            err.message += " Error inserting game module into database";
+            err.message += "&nbsp&nbsp Error inserting game module into database";
             callback(err);
           } else {
             self.emit('progress_update', 76);
-            self.emit('status_update', 'Successfully inserted game module into database');
-            console.log("Success inserting ", gameModuleObject," into the db");
+            self.emit('status_update', '&nbsp&nbsp Successfully inserted game module into database');
+            logger.log('Successfully inserted game module into database');
             callback(err);
           }
         });
@@ -299,14 +353,58 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   function initTournamentTask(callback) {
-    // self.emit('progress_update', 80);
-    // TODO Implement
-
-    // Set up the Tournament
-    // Build a userlist object from the uploaded txt file.
-
-    self.emit('progress_update', 80);
-    callback(null);
+    self.emit('status_update', 'Initializing the Tournament');
+    var async = require('async');
+    self.emit('status_update', "&nbsp&nbsp Parsing the student list...");
+    // Pass self to be used as event emitter to pass detailed line by line errors to the client
+    fileManager.parseStudentListForTournament(sanitizedFormData.studentList.path, self, function(err, usersArray) {
+      if (err) {
+        callback(err);
+      }
+      else {
+        fileManager.createDirectoryForPrivateTournament(sanitizedFormData.tournamentName, function(err, tournamentDirectory) {
+          if (err) {
+            callback(err);
+          }
+          else {
+            self.emit('progress_update', 85);
+            self.emit('status_update', '&nbsp&nbsp Successfully created directory for tournament');
+            logger.log('Successfully created directory for tournament');
+            var tournament = objectFactory.Tournament.newInstance(
+                sanitizedFormData.tournamentName, 
+                tournamentDirectory,
+                sanitizedFormData.gameName, 
+                sanitizedFormData.tournamentDeadline,
+                usersArray,
+                'upload');
+            database.insertTournament(tournament, function(err) {
+              if (err) {
+                callback(err);
+              }
+              else {
+                self.emit('progress_update', 90);
+                self.emit('status_update', '&nbsp&nbsp Successfully inserted tournament into database');
+                callback(null);
+              }
+            })
+          }
+        });
+      }
+    })
+  }
+  
+  function saveConfigAndCleanupTask(callback) {
+    fileManager.saveConfigurationToFile(sanitizedFormData, function(err) {
+      if (err) {
+        callback(err);
+      }
+      else {
+        self.emit('status_update', "Successfully saved configuration to " + paths.configuration_file);
+        logger.log("Successfully saved configuration to " + paths.configurationFile);
+        //callback(new Error("Everything is great, just stopping at cleanupTask while still working on the page"));
+        callback(null);
+      }
+    });
   }
 
   /**
@@ -321,10 +419,6 @@ function InitialConfigurationApp(initConfigAppServer) {
     initConfigAppServer.addStaticFileRoute('/', paths.static_content.html
         + 'initialConfiguration.html');
 
-    // Add multer
-    // This needs pulled out of here
-    // security issues
-    // https://github.com/jpfluger/multer/blob/examples/multer-upload-files-to-different-directories.md
     var multer = require('multer');
     initConfigAppServer
         .addDynamicRoute(
@@ -360,15 +454,12 @@ function InitialConfigurationApp(initConfigAppServer) {
               rename : function(fieldname, filename) {
                 return filename;
               },
-              // changeDest: function(dest, req, res) {
-              // return dest + '/user1';
-              // },
               onFileUploadStart : function(file, req, res) {
-                console.log(file.fieldname + ' is starting ...');
+                logger.log(file.fieldname + ' is starting ...');
                 var javaRE = /.*\.java/;
                 if (file.fieldname == 'gameSource') {
                   if (file.name.match(javaRE)) {
-                    console.log(file.fieldname + ':' + file.name
+                    logger.log(file.fieldname + ':' + file.name
                         + ' is a .java file, uploading will continue');
                     self.emit('status_update',
                         'Verified game module is a java file');
@@ -385,60 +476,54 @@ function InitialConfigurationApp(initConfigAppServer) {
                     return false;
                   }
                 }
-
+                var pdfRE = /.*\.pdf/;
+                if (file.fieldname == 'gameRules') {
+                  if (file.name.match(pdfRE)) {
+                    logger.log(file.fieldname + ':' + file.name
+                        + ' is a .pdf file, uploading will continue');
+                    self.emit('status_update',
+                        'Verified game rules is a pdf file');
+                  } else {
+                    console
+                        .log(file.fieldname
+                            + ':'
+                            + file.name
+                            + ' is a NOT .pdf file, this file will not be uploaded');
+                    self
+                        .emit('config_error',
+                            'Error during form submission: Game rules is not a .pdf file');
+                    // Returning false cancels the upload.
+                    return false;
+                  }
+                }
               },
               onFileUploadComplete : function(file, req, res) {
-                console.log(file.fieldname + ' uploaded to  ' + file.path);
-                // add logic to check the file fieldname and change save
-                // directory and
-                // name based on this
-              },
-              onFileUploadData : function(file, data, req, res) {
-                console.log(data.length + ' of ' + file.fieldname + ' arrived')
-              },
-              onParseStart : function() {
-                console.log('Form parsing started at: ', new Date())
-              },
-              onParseEnd : function(req, next) {
-                console.log('Form parsing completed at: ', new Date());
-
-                // Dont need to do any custom parsing, also don't need half
-                // these
-                // options
-                // but leave them for now
-                // usage example: custom body parse
-                // req.body = require('qs').parse(req.body);
-                // console.log("HERE!");
-                // console.log(require.resolve('qs'));
-
-                // call the next middleware
-                next();
+                logger.log(file.fieldname + ' uploaded to  ' + file.path);
               },
               onError : function(error, next) {
-                console.log(error)
+                logger.log(error)
                 next(error)
               },
               onFileSizeLimit : function(file) {
-                console.log('Failed: ', file.originalname)
+                logger.log('Failed: ', file.originalname)
                 fs.unlink('./' + file.path) // delete the partially written file
                                             // // set
                 // in limit object
               },
               onFilesLimit : function() {
-                console.log('Crossed file limit!')
+                logger.log('Crossed file limit!')
               },
               onFieldsLimit : function() {
-                console.log('Crossed fields limit!')
+                logger.log('Crossed fields limit!')
               },
               onPartsLimit : function() {
-                console.log('Crossed parts limit!')
+                logger.log('Crossed parts limit!')
               },
             }));
 
-    // multer needs to be added here for security reasons
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration',
         function(req, res) {
-          // console.log(JSON.stringify(req.body));
+          // logger.log(JSON.stringify(req.body));
           var sanitizer = require('sanitizer');
           sanitizedFormData = {
             // database parameters
@@ -454,30 +539,115 @@ function InitialConfigurationApp(initConfigAppServer) {
             gameName : sanitizer.sanitize(req.body.gameName),
             gameSource : req.files.gameSource,
             gameRules : req.files.gameRules,
+            gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
             // tournament parameters
             tournamentName : sanitizer.sanitize(req.body.tournamentName),
             studentList : req.files.studentList,
             tournamentDeadline : sanitizer
                 .sanitize(req.body.tournamentDeadline),
           };
-          // console.log(JSON.stringify(sanitizedFormData));
-          var error = false;
-          for (fieldName in sanitizedFormData) {
-            if (!sanitizedFormData[fieldName]) {
-              error = true;
-              self.emit('config_error', 'No data was received for the '
-                  + fieldName + ' field');
-            }
+          
+          var valid = verifyAllFieldsWereSubmitted();
+          if (valid) {
+            valid = verifyAllFieldsMatchRegex();
           }
-          if (error) {
-            self.emit('config_error', 'Configuration has halted');
+          
+          if (!valid) {
+            self.emit('status_update', 'Rolling back changes...');
+            // Only cleanup to do is clear the tmp directory of the uploaded files
+            fileManager.clearInitConfigTmp(function(err) {
+              if (!err) {
+                self.emit('status_update', "&nbsp&nbsp Successfully cleared initial configuration tmp directory");
+              }
+              else {
+                self.emit('config_error', "&nbsp&nbsp Failed to clear initial configuration tmp directory " + err.message);
+              }
+              self.emit('status_update', 'Finished rolling back initial configuration');
+              self.emit('reset_form');
+            });
           } else {
-            self.emit('status_update', 'Form submission succesfull');
+            self.emit('status_update', 'Form submission succesful');
             self.emit('progress_update', 10);
             executeAllInitialConfigurationTasksInSequence();
           }
+          res.end();
         });
   })();
+  
+  function verifyAllFieldsWereSubmitted() {
+    var valid = true;
+    for (fieldName in sanitizedFormData) {
+      // Apparently the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
+      if (!sanitizedFormData[fieldName] || sanitizedFormData[fieldName] === 'undefined') {
+        valid = false;
+        self.emit('config_error', 'No data was received for the ' + fieldName + ' field');
+      }
+    }
+    
+    if (valid && (sanitizedFormData.gameSource.name === sanitizedFormData.gameRules.name || 
+        sanitizedFormData.gameSource.name === sanitizedFormData.studentList.name || 
+        sanitizedFormData.gameRules.name === sanitizedFormData.studentList.name)) {
+      valid = false;
+      self.emit('config_error', 'Game Module Source, Game Rules, and Student List must have unique file names');
+    }
+    return valid;
+  }
+  
+  function verifyAllFieldsMatchRegex() {
+    var inputValidator = require(paths.custom_modules.InputValidator).newInstance();
+    var valid = true;
+    if (!inputValidator.isIPAddressOrHostName(sanitizedFormData.databaseHost)) {
+      self.emit('config_error', 'Invalid database host');
+      var valid = false;
+    }
+    if (!inputValidator.isPortNumber(sanitizedFormData.databasePort)) {
+      self.emit('config_error', 'Invalid database port');
+      var valid = false;
+    }
+    if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.databaseName)) {
+      self.emit('config_error', 'Invalid database name, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.databaseUserName)) {
+      self.emit('config_error', 'Invalid database username, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isPassword(sanitizedFormData.databasePassword)) {
+      self.emit('config_error', 'Invalid database password, must be atleast 4 characters and contain atleast one number');
+      var valid = false;
+    }
+    if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.adminUserName)) {
+      self.emit('config_error', 'Invalid admin username, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isPassword(sanitizedFormData.adminPassword)) {
+      self.emit('config_error', 'Invalid admin password, must be atleast 4 characters and contain atleast one number');
+      var valid = false;
+    }
+    if (!inputValidator.is4to35Char(sanitizedFormData.gameName)) {
+      self.emit('config_error', 'Invalid game module name, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    if (!inputValidator.isMoveTimeout(sanitizedFormData.gameMoveTimeout)) {
+      self.emit('config_error', 'Invalid game move timeout, must be a number of seconds between 0 and 300');
+      var valid = false;
+    }
+    if (!inputValidator.is4to35Char(sanitizedFormData.tournamentName)) {
+      self.emit('config_error', 'Invalid tournament name, must be alphanumeric with atleast 4 and no more than 35 characters');
+      var valid = false;
+    }
+    
+    //TODO We need to support a time too not just the date
+    var tournamentDeadlineDate = inputValidator.parseDate(sanitizedFormData.tournamentDeadline);
+    if (!tournamentDeadlineDate) {
+      self.emit('config_error', 'Invalid tournament deadline, must have the form dd-mm-yyyy');
+      var valid = false;
+    }
+    else {
+      sanitizedFormData.tournamentDeadline = tournamentDeadlineDate;
+    }
+    return valid;
+  }
 }
 
 var EventEmitter = require('events').EventEmitter;

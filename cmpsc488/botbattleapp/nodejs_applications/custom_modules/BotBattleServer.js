@@ -4,9 +4,11 @@
 * @class BotBattleServer
 * @constructor 
 */
+
 module.exports = function BotBattleServer() {
   var self = this;
   var paths = require('./BotBattlePaths');
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
   var expressApp = null;
   var httpsServer = null;
   var socketIO = null;  
@@ -15,7 +17,7 @@ module.exports = function BotBattleServer() {
  
   /**
    * Initialize the expressApp, httpsServer, socketIO, and connectionTracker properties 
-   * and begin listening for connections on localhost:port, where port is the TCP port 
+   * and begin listening for connections on https://localhost:port, where port is the TCP port 
    * number passed to the constructor.
    * 
    * @method initAndStartListening
@@ -104,7 +106,7 @@ module.exports = function BotBattleServer() {
       expressApp[method](url, callback);
     }
     else {
-      console.log("Failed to add dynamic route to " + method + ":" + url);
+      logger.log("Failed to add dynamic route to " + method + ":" + url);
     }
   };
   
@@ -128,7 +130,7 @@ module.exports = function BotBattleServer() {
    * @method socketIOEmitToAll
    */
   this.socketIOEmitToAll = function(event, data) {
-    socketIO.emit(event, data);
+    socketIOConnectionTracker.emitToAll(event, data);
   };
   
   /**
@@ -139,7 +141,7 @@ module.exports = function BotBattleServer() {
    * @method socketIOReceiveFromAll
    */
   this.socketIOReceiveFromAll = function(event, callback) {
-    socketIO.on(event, callback);
+    socketIOConnectionTracker.onReceiveFromAll(event, callback);
   };
   
   /**
@@ -203,7 +205,7 @@ module.exports = function BotBattleServer() {
   function registerCommonRoutes() {
     // Log every incoming request, then pass along for further processing
     self.addMiddleware(function(req, res, next) {
-      console.log('%s %s', req.method, req.url);
+      logger.log(req.method, req.url);
       next();
     });
 

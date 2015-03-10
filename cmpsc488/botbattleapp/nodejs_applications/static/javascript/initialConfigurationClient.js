@@ -1,4 +1,7 @@
 
+//TODO setting this here so that you can't submit until socketIO is working
+//var submitButton = document.getElementById("submitButton").disabled = false;
+    
 // Listen for notifications of the status of the initial configuration.
 localStorage.debug = 'engine.socket, socket.io';
 //var socket = io.connect('https://localhost:6058');
@@ -17,6 +20,9 @@ var myId = null;
       myId = socket.id;
     }
     socket.emit('myId', myId);
+    
+    //TODO setting this here so that you can't submit until socketIO is working
+    //var submitButton = document.getElementById("submitButton").disabled = false;
   })
   .on('error', function(err) {
     console.log('socket error! ' + err.message);
@@ -45,23 +51,27 @@ var myId = null;
   .on('disconnect', function() {
     console.log('socket disconnect!');
     console.log(socket);
+    //TODO setting this here so that you can't submit until socketIO is working
+    //var submitButton = document.getElementById("submitButton").disabled = true;
   })
   .on('progress_update', function(progress) {
 	  document.getElementById("progress").value = progress;
   })
   .on('status_update', function(status) {
 	  var html = [];
-	  html.push('<div>' + document.getElementById('message').innerHTML + '</div>');
+	  html.push(document.getElementById('message').innerHTML);
 	  html.push('<div>' + status + '</div>');
-	  document.getElementById('message').innerHTML = html.join('');
+	  var messageElem =  document.getElementById('message');
+	  messageElem.innerHTML = html.join('');
+	  messageElem.scrollTop = messageElem.scrollHeight;
   })
   .on('config_success', function(data) {
     var count = 5;
-    document.getElementById('message').innerHTML = "Configuration Successful!<br>The page will reload in "
+    document.getElementById('reloading_message').innerHTML = "Configuration Successful!<br>The page will reload in "
       + count + " seconds and take you to the Public Portal";
     setInterval(function() {
         count--;
-        document.getElementById('message').innerHTML = "Configuration Successful!<br>The page will reload in "
+        document.getElementById('reloading_message').innerHTML = "Configuration Successful!<br>The page will reload in "
             + count + " seconds and take you to the Public Portal";
         if (count === 0) {
           location.reload();
@@ -70,10 +80,15 @@ var myId = null;
   })
   .on('config_error', function(err) {
     var html = [];
-    html.push('<div>' + document.getElementById('message').innerHTML + '</div>');
-    html.push('<div>' + err + '</div>');
-    document.getElementById('message').innerHTML = html.join('');
-    //document.getElementById('message').innerHTML = "There was an error during configuration...<br>" + err;
+    html.push(document.getElementById('message').innerHTML);
+    html.push("<div class='error'>" + err + '</div>');
+    var messageElem =  document.getElementById('message');
+    messageElem.innerHTML = html.join('');
+    messageElem.scrollTop = messageElem.scrollHeight;
+  })
+  .on('reset_form', function(err) {
+    document.getElementById('submitButton').disabled = false;
+    console.log("here");
   })
   .on('unitTestToClient', function() {
     console.log("received unit test from server");
@@ -82,13 +97,17 @@ var myId = null;
   })
 
 // Submit the form via an ajax request.   ////////////// password is being sent plaintext !!!!!!!!!!!
-var form = document.getElementById("initConfigForm");
+  var form = document.getElementById("initConfigForm");
 form.addEventListener('submit', function(ev) {
+  document.getElementById('submitButton').disabled = true;
+  document.getElementById("progress").value = 0;
+  document.getElementById("message").innerHTML = '&nbsp';
+  
   var req = new XMLHttpRequest();
   var theForm = new FormData(form);
   req.open("POST", "processInitialConfiguration", true);
   req.send(theForm);
-
+  
   req.onload = function(event) {
     if (req.status === 200) {
       console.log("onload");
@@ -99,10 +118,4 @@ form.addEventListener('submit', function(ev) {
   ev.preventDefault();
 }, false);
 
-var submitButton = document.getElementById("submitButton");
-
-submitButton.addEventListener('click', function(){
-	document.getElementById("progress").value = 0;
-	document.getElementById("message").innerHTML = '&nbsp';
-});
 
