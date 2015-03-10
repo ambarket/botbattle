@@ -35,12 +35,13 @@ public class TicTacToeBot2{
 		}
 		writer.println("closeing");
 		writer.close();
+		scner.close();
 	}
 	
 
 	public static String getMove(String board) {
 		int row = 1, col = 1;
-		int i = 0;
+
 		for (char c : board.toCharArray()) {
 			if(c == '0'){
 				String move = row + ", " + col + ", " + (temp ? "X" : "O");
