@@ -3,7 +3,7 @@ package game.manger;
 
 public class Game {
 	
-	public String getStartingBoard() {
+	public static String getStartingBoard() {
 		return "000000000";
 	}
 
