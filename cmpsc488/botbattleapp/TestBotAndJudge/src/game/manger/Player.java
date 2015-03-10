@@ -61,7 +61,7 @@ public class Player implements Runnable {
 			
 			Thread readFromBotThread = new Thread(this);
 			readFromBotThread.start();
-			readFromBotThread.join(3000);
+			readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
 
 			if(read == true){
 				return move;
