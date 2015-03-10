@@ -31,8 +31,17 @@ public class Round {
 		}
 	}
 	
-	public CompetitorData getWinners() {
-		return null; //TODO
+	public CompetitorData getWinners() {		
+		CompetitorData winners = new CompetitorData();
+		
+		for (int i = 0; i < games.length; i++) {
+			Player plyr = games[i].getWinner();
+			if( plyr != null ) {
+				winners.addUser(plyr.usersName, plyr.botFilePath);
+			}
+		}
+		
+		return winners;
 	}
 	
 	public String toHTML() { //TODO 
