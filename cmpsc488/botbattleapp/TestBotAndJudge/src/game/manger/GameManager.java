@@ -54,6 +54,17 @@ public class GameManager implements Runnable {
 		System.out.println("Game over");
 	}
 	
+	public Player getWinner() {
+		if(results.getWinner() == 1) {
+			return player1;
+		} 
+		else if ( results.getWinner() == 2 ) {
+			return player2;
+		}
+	
+		return null;
+	}
+	
 	public String getHTMLForEntireGame(){ //TODO implement getHTML function in gameManager
 		return null;
 	}
