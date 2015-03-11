@@ -39,7 +39,7 @@ function BotBattleApp(server) {
 	server.addStaticFolderRoute('/static', 'static/');	
 	
 	server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
-	  res.send({
+	  res.send(
 	         {
                 'Round1': {
                   'animations': [
@@ -50,7 +50,7 @@ function BotBattleApp(server) {
                     },
                     {
                       'player': 'player1',
-                      'event': 'successful_attack', (Otherwise would be defended_attack)
+                      'event': 'successful_attack', //(Otherwise would be defended_attack)
                       'data': null  // Don't need any additional data here
                     },
                     {
@@ -70,8 +70,7 @@ function BotBattleApp(server) {
                   ]
                 },
                 // ... More rounds
-              }
-	  })
+              });
 	}); 
 }
 
