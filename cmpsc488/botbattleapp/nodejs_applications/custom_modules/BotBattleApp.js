@@ -38,7 +38,7 @@ function BotBattleApp(server) {
 	// Serve static images files
 	server.addStaticFolderRoute('/static', 'static/');	
 	
-	server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
+	/*server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
 	  res.send({
 	         {
                 'Round1': {
@@ -72,7 +72,7 @@ function BotBattleApp(server) {
                 // ... More rounds
               }
 	  })
-	}); 
+	}); */
 }
 
 var EventEmitter = require('events').EventEmitter;
