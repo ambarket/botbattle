@@ -48,6 +48,7 @@ var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeig
   this.numberOfFrames = numberOfFrames || 1;
   this.loop = loop;
   this.visible = visible;
+  this.done = false;
   this.update = function () {
       self.tickCount += 1;	
       if (self.tickCount > self.ticksPerFrame) {
@@ -56,7 +57,10 @@ var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeig
           self.frameIndex += 1; 
       	}
       	else{
-      		self.frameIndex = 0;
+      	  if (!loop) {
+            self.done = true;
+      	  }
+      	  self.frameIndex = 0;
       	}
       }
   }; 
@@ -135,6 +139,19 @@ var MoveEvent = function(objectName, endingX, endingY) {
 MoveEvent.prototype = Object.create(AnimatableEvent.prototype);
 MoveEvent.prototype.animationComplete = function(drawableObject) {
   return drawableObject.x == this.endingX && drawableObject.y == this.endingY;
+}
+
+var DefendEvent = function(objectName) {
+  var gameboard = new GameBoard();
+  AnimatableEvent.call(this, 'defend', objectName);
+}
+
+DefendEvent.prototype = Object.create(AnimatableEvent.prototype);
+DefendEvent.prototype.animationComplete = function(drawableObject) {
+  if (drawableObject.done) {
+    drawableObject.done = false;
+    return true;
+  }
 }
 
 //--------------------------The GameBoard (Model)------------------------------------
@@ -366,36 +383,30 @@ function Animator(gameboard) {
     wasAttacked : function(animation, callback) {
     	
     },
-    defend : function(moveEvent, lastUpdateTime, callback) {
-        //backgroundAnimations();
-        gameboard.playerAnimations[moveEvent.objectName].standing.visible = false;
-        gameboard.playerAnimations[moveEvent.objectName].move.visible = true;
-        
-        var drawableObject = gameboard.playerAnimations[moveEvent.objectName].move;
-        gameboard.playerAnimations[moveEvent.objectName].current = drawableObject;
-        var time;
-        var done;
-        
-        time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
-        time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046);
-        
-        done = moveEvent.animationComplete(drawableObject);
-        
-        //drawer.drawBoard();
+    defend : function(moveEvent, time, callback) {
+      gameboard.playerAnimations[moveEvent.objectName].defend.x = gameboard.playerAnimations[moveEvent.objectName].standing.x;
+      gameboard.playerAnimations[moveEvent.objectName].defend.y = gameboard.playerAnimations[moveEvent.objectName].standing.y;  
+      
+      gameboard.playerAnimations[moveEvent.objectName].standing.visible = false;
+      gameboard.playerAnimations[moveEvent.objectName].defend.visible = true;
+      
+      var drawableObject = gameboard.playerAnimations[moveEvent.objectName].defend;
+      gameboard.playerAnimations[moveEvent.objectName].current = drawableObject;
 
-        if (!done) {
-          requestAnimFrame(function() {
-            animations.move(moveEvent, time, callback);
-          });
-        } 
-        else {   // maybe make just current instead of changing visible...
-      	  gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
-      	  gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
-            gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
-            gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
-            gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
-            callback();
-        }
+      var done = moveEvent.animationComplete(drawableObject);
+      if (!done) {
+        requestAnimFrame(function() {
+          animations.defend(moveEvent, time, callback);
+        });
+      } 
+      else {   // maybe make just current instead of changing visible...
+    	    gameboard.playerAnimations[moveEvent.objectName].defend.visible = false;
+    	    gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
+          gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
+          gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
+          gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
+          callback();
+      }
     },
     wasDefended : function(animation, callback) {
 
@@ -541,7 +552,7 @@ function Drawer(gameboard) {
   
   this.drawBoard = function() {
 	  
-	//animator.upDateBackground();
+	animator.upDateBackground();
 	//console.log("Drawing gameboard");
     
 	for (object in gameboard.drawableObjects) {
