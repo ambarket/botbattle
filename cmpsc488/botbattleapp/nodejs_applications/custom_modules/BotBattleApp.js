@@ -81,6 +81,7 @@ function BotBattleApp(server) {
                 },
               });
 	}); 
+
 }
 
 var EventEmitter = require('events').EventEmitter;
