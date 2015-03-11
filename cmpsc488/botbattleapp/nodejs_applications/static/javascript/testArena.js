@@ -9,7 +9,8 @@
   // maybe turn this into a game loop
 
   // Simulate the arrival of a new game state by clicking the mouse
-  var gameboard = new GameBoard(function(err, gameboard) {
+  var gameboard = new GameBoard();
+  gameboard.loadImages(function(err) {
     var animator = new Animator(gameboard);
     var drawer = new Drawer(gameboard);
 
@@ -44,47 +45,16 @@
       var testGameState = {
         animationsList : [ 
                           //new DefendEvent('player1'), 
-                           new MoveEvent('player1', 1, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 2, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 3, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 4, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 5, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 6, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 7, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 8, gameboard.drawableObjects['player1'].y), 
-        new MoveEvent('player1', 9, gameboard.drawableObjects['player1'].y),
-        new DefendEvent('player1'), 
-            new MoveEvent('player1', 10, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 11, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 12, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 13, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 14, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 15, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 16, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 17, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 18, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 19, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 20, gameboard.drawableObjects['player1'].y),
+            new MoveEvent('player1', 10, gameboard.drawableObjects['player1'].y), 
+            new MoveEvent('player2', 11, gameboard.drawableObjects['player2'].y),
             new DefendEvent('player1'), 
-            new MoveEvent('player1', 21, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 22, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 23, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 24, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 21, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 15, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 7, gameboard.drawableObjects['player1'].y),
+            new DefendEvent('player2'), 
             new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', -5, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y),
-
-            new MoveEvent('player2', 23, gameboard.drawableObjects['player2'].y),
-            new MoveEvent('player2', 20, gameboard.drawableObjects['player2'].y),
-            new MoveEvent('player2', 8, gameboard.drawableObjects['player2'].y),
             new MoveEvent('player2', 24, gameboard.drawableObjects['player2'].y),
-            new MoveEvent('player2', 28, gameboard.drawableObjects['player2'].y),
-            new MoveEvent('player2', 24, gameboard.drawableObjects['player2'].y), ]
+            new DefendEvent('player1'), 
+            new DefendEvent('player2')
+       ]
+            
       }
       console.log("Someone Clicked");
       if (event.ctrlKey) {
@@ -107,15 +77,12 @@
       }
 
     });
-
-  });
-
-
-
+  })
 })();
 
 var myId = null;
 
+/*
 $(document).ready(function() {
   $('#send_move').click(function(e) {
     // do ajax request
@@ -124,3 +91,61 @@ $(document).ready(function() {
     $('#send_move').hide();
   });
 });
+*/
+
+document.getElementById("send_move").addEventListener('click', function(ev) {
+  var req = new XMLHttpRequest();
+  req.open("POST", "testArenaUpdate", true);
+  req.send(myId);
+  //console.log("onload");
+  var gameState = {
+      animationsList : []
+  }
+  req.onload = function(event) {
+    if (req.status === 200) {
+      console.log("onload");
+      console.log(req.responseText);
+      var gameboard = new GameBoard();
+      var animator = new Animator();
+      // Parse into JSON
+      var response = JSON.parse(req.responseText);
+      console.log(response);
+      
+      /*
+      for (var turn in response){
+        for (var animations in response[turn]){
+          for (var data in response[turn][animations]){
+          console.log(response[turn][animations][data].player);
+          gameState.animationsList.push(new MoveEvent(response[turn][animations][data].player, response[turn][animations][data].data, gameboard.drawableObjects[response[turn][animations][data].player].y))
+          }
+         }
+      }
+      */
+      
+      for (var turnIndex in response){
+        for (var animationsIndex in response[turnIndex]){
+          for (var animationObjectIndex in response[turnIndex][animationsIndex]){
+            var animationObject = response[turnIndex][animationsIndex][animationObjectIndex];
+            switch(animationObject.event) {
+              case 'move': 
+                gameState.animationsList.push(new MoveEvent(animationObject.player, animationObject.data, 
+                    gameboard.drawableObjects[animationObject.player].y));
+                break;
+              case 'defend':
+                gameState.animationsList.push(new DefendEvent(animationObject.player));
+                break;
+            }
+          }
+        }
+      }
+      console.log(gameState);
+      console.log(response);
+      animator.addNewGameState(gameState);
+
+    } 
+    else {
+      console.log("error onload");
+    }
+  };
+  ev.preventDefault();
+}, false);
