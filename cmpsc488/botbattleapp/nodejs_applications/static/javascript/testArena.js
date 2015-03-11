@@ -8,27 +8,29 @@
   })();
 
 
+  // maybe turn this into a game loop
+  
   // Simulate the arrival of a new game state by clicking the mouse
     var gameboard = new GameBoard(function(err, gameboard) {
     var animator = new Animator(gameboard);
     var drawer = new Drawer(gameboard);
     
-    drawer.drawBoard();
     var x1,x2,y1,y2;
     var clickCount = 0;
     var rect;
-    // add click listener to canvas
+    
     var canvas = document.getElementById('GameCanvas');
     
     gameboard.resize();
-    drawer.drawBoard();
+    //animator.backgroundAnimations();
     
 	window.onresize = function()
 	{
 		gameboard.resize();
-		drawer.drawBoard();
+		//drawer.drawBoard();
 	}
 	
+	// add click listener to canvas
     canvas.addEventListener('click', function(event) {
 
       var testGameState = {
@@ -100,91 +102,29 @@
     
   });
 
+    var time;
+	var drawer = new Drawer(gameboard);
+	
+	(function draw() {
+	    requestAnimationFrame(draw);
+	    var now = new Date().getTime(),
+	        dt = now - (time || now);
+	 
+	    time = now;
+	 
+	    drawer.drawBoard();
+	})();
 
 })();
 
 
-// Listen for notifications of the status of the initial configuration.
-localStorage.debug = 'engine.socket, socket.io';
-
-socket = null;
 var myId = null;
-
-socket = io.connect();
-
-socket
-		.on('connect', function() {
-			console.log('socket connected!');
-			console.log(socket);
-
-			// JUst store the id this script first received then tell the server
-			// about it
-			if (!myId) {
-				myId = socket.id;
-			}
-			socket.emit('myId', myId);
-			socket.emit('stdin', {'id': myId, 'input': $('#stdin').val() });
-		})
-		.on('error', function(err) {
-			console.log('socket error! ' + err.message);
-			console.log(socket);
-		})
-		.on('reconnect', function() {
-			console.log('socket reconnect!');
-			console.log(socket);
-			// Tell server on reconnect too
-			/*
-			 * connect seems to always be fired after reconnect anyway so no
-			 * need for this and was causing issues with dup messages if (myId) {
-			 * socket.emit('myId', myId); } else { console.log("how did
-			 * reconnect event happen before connect???") }
-			 */
-		})
-		.on('reconnecting', function(number) {
-			console.log('socket reconnecting! attempt# ' + number);
-			console.log(socket);
-		})
-		.on('reconnect_error', function(err) {
-			console.log('socket reconnect error! ' + err.message);
-			console.log(socket);
-		})
-		.on('disconnect', function() {
-			console.log('socket disconnect!');
-			console.log(socket);
-		})
-		.on('player1Turn', function(data) {
-			$('#send_move').show();
-		})
-		.on('newGameState', function(gameState){
-			animator.addNewGameState(testGameState);
-		})
-		.on('test', function(){
-			console.log("Well this part works");
-		})
 
 $(document).ready(function(){
     $('#send_move').click(function(e){
-        socket.emit('message', {'id': myId, 'input': $('#stdin').val() }); // verify move and player turn on other end.
+        // do ajax request
         console.log("sent out move to" + socket.id);
         $('#stdin').text("");
         $('#send_move').hide();
     });
-});
-
-/*$(document).ready(function(){
-	var gameboard = new GameBoard();
-	//var drawer = new Drawer(gameboard);
-	gameboard.resize();
-	window.onresize = function()
-	{
-		gameboard.resize();
-		//drawer.drawBoard();
-	}
-});*/
-
-var submitButton = document.getElementById("send_move");
-
-submitButton.addEventListener('click', function(){
-	socket.emit('message'); // verify move and player turn on other end.
-    console.log("This is bullshit");
 });

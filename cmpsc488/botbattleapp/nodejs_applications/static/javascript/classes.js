@@ -61,7 +61,7 @@ var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeig
       }
   }; 
   
-  console.log(this);
+  //console.log(this);
 };
 
 drawableImage.prototype = Object.create(drawableObject.prototype);
@@ -142,7 +142,7 @@ var GameBoard = function(readyCallback) {
   // Implements the singleton pattern so animator and drawer share the same GameBoard
   if ( arguments.callee._singletonInstance ){
     if(!readyCallback || typeof(readyCallback) != "function" ){
-    	console.log("No callback passed to GameBoard");
+    	//console.log("No callback passed to GameBoard");
     }
     else{
     	readyCallback(null, arguments.callee._singletonInstance);
@@ -158,9 +158,9 @@ var GameBoard = function(readyCallback) {
   this.resize = function(){
 	  var canvas = document.getElementById("GameCanvas");
 	  var canvasContainer = document.getElementsByClassName('col_9')[0].getBoundingClientRect();
-	  console.log(canvasContainer);
+	  //console.log(canvasContainer);
 	  canvas.width = canvasContainer.width;
-	  canvas.height = canvasContainer.width * 0.619047619;
+	  canvas.height = canvasContainer.width * 0.619047619;  // 650/1050 = 0.619047619
 	  scale = document.getElementById("GameCanvas").width / 1050;
   }
   
@@ -228,6 +228,24 @@ var GameBoard = function(readyCallback) {
 								self.player2PositionY, 
 								74, 
 								self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
+	player1Blocking : new drawableImage('static/images/BlockingRight.png', 
+								0, 
+								self.player1StandingSpriteSheetY, 
+								518, 
+								self.robotHeight, 
+								self.player1PositionX, 
+								self.player1PositionY, 
+								74, 
+								self.robotHeight, null, 8, 7, false, false, imageLoadedCallback),
+	player2Blocking : new drawableImage('static/images/BlockingLeft.png', 
+								0, 
+								self.player2StandingSpriteSheetY, 
+								518, 
+								self.robotHeight, 
+								self.player2PositionX, 
+								self.player2PositionY, 
+								74, 
+								self.robotHeight, null, 8, 7, false, false, imageLoadedCallback),
   }
   
   this.playerAnimations = {
@@ -236,7 +254,7 @@ var GameBoard = function(readyCallback) {
 			  standing : self.drawableObjects.player1,
 			  move : self.drawableObjects.player1Running,
 			  //attack : "player1Attack",
-			  //defend : "player1Defend",
+			  defend : self.drawableObjects.player1Blocking,
 			  //hit : "player1Falling",
 			  //lose : "player1Lost"
 		  },
@@ -245,22 +263,19 @@ var GameBoard = function(readyCallback) {
 			  standing : self.drawableObjects.player2,
 			  move : self.drawableObjects.player2Running,
 			  //attack : "player2Attack",
-			  //defend : "player2Defend",
+			  defend : self.drawableObjects.player2Blocking,
 			  //hit : "player2Falling",
 			  //lose : "player2Lost"
 		  }
   }
-  /*var canvas = document.getElementById("GameCanvas");
   
-  var player1Running = sprite({
+ /* var player1Running = sprite({
 	    context: canvas.getContext("2d"),
 	    width: 100,
 	    height: 100,
 	    image: this.drawableObjects.player3
 	});*/
-  // add the boxes here for testing then make just two with a number in them from canvas text instead
-  // add animations based on the tut http://www.williammalone.com/articles/create-html5-canvas-javascript-sprite-animation/
-  // look into tweening and base which splice based on distance traveled so it looks fluid
+  
   this.backgroundElements = {
       trees1 : {
         tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, null, null, null, false, true, imageLoadedCallback),
@@ -294,40 +309,38 @@ function Animator(gameboard) {
   var gameStateQueue = [];
   var imRunning = false;
   var drawer = new Drawer(gameboard);
+  
   var animations = {
     move : function(moveEvent, lastUpdateTime, callback) {
-      backgroundAnimations();
-      //var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
-      gameboard.playerAnimations[moveEvent.objectName].standing.visible = false;
-      gameboard.playerAnimations[moveEvent.objectName].move.visible = true;
-      
-      var drawableObject = gameboard.playerAnimations[moveEvent.objectName].move;
-      gameboard.playerAnimations[moveEvent.objectName].current = drawableObject;
-      var time;
-      var done;
-      
-      // maybe add logic to change speed based on forward or backward or after hit or something
-      // would be nice to have easing and acceleration but not possible like this
-      // would like curves too, but this is all unnecessary right now
-      time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
-      time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046);
-      
-      done = moveEvent.animationComplete(drawableObject);
-      
-      drawer.drawBoard();
+        //backgroundAnimations();
+        gameboard.playerAnimations[moveEvent.objectName].standing.visible = false;
+        gameboard.playerAnimations[moveEvent.objectName].move.visible = true;
+        
+        var drawableObject = gameboard.playerAnimations[moveEvent.objectName].move;
+        gameboard.playerAnimations[moveEvent.objectName].current = drawableObject;
+        var time;
+        var done;
+        
+        time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
+        time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046);
+        
+        done = moveEvent.animationComplete(drawableObject);
+        
+        //drawer.drawBoard();
 
-      if (!done) {
-        requestAnimFrame(function() {
-          animations.move(moveEvent, time, callback);
-        });
-      } else {
-    	  gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
-    	  gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
-          gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
-          gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
-          gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
-          callback();
-      }
+        if (!done) {
+          requestAnimFrame(function() {
+            animations.move(moveEvent, time, callback);
+          });
+        } 
+        else {   // maybe make just current instead of changing visible...
+      	  gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
+      	  gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
+            gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
+            gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
+            gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
+            callback();
+        }
     },
     /*fly : function(moveEvent, lastUpdateTime, callback) { // break this up to ascendHover and descendHover
         backgroundAnimations();
@@ -351,25 +364,38 @@ function Animator(gameboard) {
 
     },
     wasAttacked : function(animation, callback) {
-    	backgroundAnimations();
-        var drawableObject = gameboard.drawableObjects[moveEvent.objectName];
-        var time;
-        
-        var endX = moveEvent.endingX;
-        moveEvent.endingX = drawableObject.x;
-        
-        moveEvent.event = 'move';
-        
-        animations.move(moveEvent, (new Date()).getTime(), function(){
-        	moveEvent.endingX = endX;
-        	animations.move(moveEvent, (new Date()).getTime(),function(){
-        		moveEvent.endingY = drawableObject.y + 100 * scale;
-        		animations.move(moveEvent, (new Date()).getTime() , callback)
-        	})
-        });
+    	
     },
-    defend : function(animation, callback) {
+    defend : function(moveEvent, lastUpdateTime, callback) {
+        //backgroundAnimations();
+        gameboard.playerAnimations[moveEvent.objectName].standing.visible = false;
+        gameboard.playerAnimations[moveEvent.objectName].move.visible = true;
+        
+        var drawableObject = gameboard.playerAnimations[moveEvent.objectName].move;
+        gameboard.playerAnimations[moveEvent.objectName].current = drawableObject;
+        var time;
+        var done;
+        
+        time = updateXPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
+        time = updateYPositionLinearlyWithTime(drawableObject, moveEvent, lastUpdateTime, gameboard.islandWidth * 0.183908046);
+        
+        done = moveEvent.animationComplete(drawableObject);
+        
+        //drawer.drawBoard();
 
+        if (!done) {
+          requestAnimFrame(function() {
+            animations.move(moveEvent, time, callback);
+          });
+        } 
+        else {   // maybe make just current instead of changing visible...
+      	  gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
+      	  gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
+            gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
+            gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
+            gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
+            callback();
+        }
     },
     wasDefended : function(animation, callback) {
 
@@ -411,19 +437,7 @@ function Animator(gameboard) {
   var animateIndividual = function(animatableEvent, callback) {
     var startTime = (new Date()).getTime();
     
-    if(animatableEvent.event === 'move'){
-        /*if (coinFlip()){  // stop the flying for now to test other things
-        	// make the robot fly half the time
-        	setFlyHeight(animatableEvent, 100 * scale)
-    		animations[animatableEvent.event](animatableEvent, startTime, callback);
-    	}
-        else{
-        	animations[animatableEvent.event](animatableEvent, startTime, callback);
-        }
-    }
-    else{*/
-    	animations[animatableEvent.event](animatableEvent, startTime, callback);
-    }
+    animations[animatableEvent.event](animatableEvent, startTime, callback);
   }
   
   /*var setFlyHeight = function(animatableEvent, height){
@@ -431,24 +445,20 @@ function Animator(gameboard) {
 	  animatableEvent.endingY = gameboard.drawableObjects[animatableEvent.objectName].y - height;
   }*/
   
-  // Stupid but shows we can add logic to update other elements every frame pretty easily here
-  var backgroundAnimations = function(startTime) {
-    // Move the trees around
+  var treeMove = 1;
+  this.upDateBackground = function(startTime) {
+    
+	//requestAnimationFrame(self.backgroundAnimations);
+	//drawer.drawBoard();
+	
+	treeMove *= -1;
+	
+	// Move the trees around
     for (treeIndex in gameboard.backgroundElements.trees1){
-      if (coinFlip()) {
-    	  gameboard.backgroundElements.trees1[treeIndex].x += 1 * scale;
-      }
-      else {
-    	  gameboard.backgroundElements.trees1[treeIndex].x -= 1 * scale;
-      }
+    	gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * scale);
     }
     for (treeIndex in gameboard.backgroundElements.trees2){
-        if (coinFlip()) {
-      	  gameboard.backgroundElements.trees2[treeIndex].y += 1 * scale;
-        }
-        else {
-      	  gameboard.backgroundElements.trees2[treeIndex].y -= 1 * scale;
-        }
+    	gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * scale);
       }
   }
   
@@ -460,7 +470,6 @@ function Animator(gameboard) {
    * @param {Number} lastUpdateTime The time of the last frame update of this object
    * @param {Number} speed The speed in pixels/second to move the object
    */
-  //TODO Create drawableObject class
   var updateXPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
@@ -488,7 +497,6 @@ function Animator(gameboard) {
    * @param {Number} lastUpdateTime The time of the last frame update of this object
    * @param {Number} speed The speed in pixels/second to move the object
    */
-  //TODO Create drawableObject class
   var updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
@@ -508,7 +516,8 @@ function Animator(gameboard) {
       return time;
     }
 }
-//------------------------------------------------------
+
+//-----------------Coin Flip---------------------------
 var coinFlip = function(weight){
 	  var coin = Math.random();
 	  if(weight){
@@ -518,6 +527,7 @@ var coinFlip = function(weight){
 		  return (coin <= .50);
 	  }
 }
+
 //--------------------------The Drawer (View)------------------------------------
 function Drawer(gameboard) {
   if ( arguments.callee._singletonInstance )
@@ -527,9 +537,14 @@ function Drawer(gameboard) {
   var self = this;
   var canvas = document.getElementById('GameCanvas');
   var context = canvas.getContext('2d');
-
+  var animator = new Animator(gameboard);
+  
   this.drawBoard = function() {
-    for (object in gameboard.drawableObjects) {
+	  
+	animator.upDateBackground();
+	//console.log("Drawing gameboard");
+    
+	for (object in gameboard.drawableObjects) {
       gameboard.drawableObjects[object].draw(context);
     }
     for (list in gameboard.backgroundElements){
@@ -547,7 +562,7 @@ function Drawer(gameboard) {
 	  var player2PositionY = gameboard.playerAnimations["player2"].current.y;
 	  var p1Grid = Math.floor((player1PositionX - gameboard.islandStart)/ gameboard.gridWidth);
 	  var p2Grid = Math.floor((player2PositionX - gameboard.islandStart)/ gameboard.gridWidth);
-	  console.log(p1Grid, p2Grid);
+	  //console.log(p1Grid, p2Grid);
 	  var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
 	  
 	  var fontSize = 30 * scale;
@@ -567,6 +582,6 @@ function Drawer(gameboard) {
   }
   
   var clearCanvas = function() {
-    context.clearRect(0, 0, self.canvas.width, self.canvas.height);
+    context.clearRect(0, 0, self.canvas.width, self.canvas.height); // not needed because background draws over old stuff
   }
 }
