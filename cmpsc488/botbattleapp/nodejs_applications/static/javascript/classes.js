@@ -159,9 +159,9 @@ var GameBoard = function(readyCallback) {
 	  var canvas = document.getElementById("GameCanvas");
 	  var canvasContainer = document.getElementsByClassName('col_9')[0].getBoundingClientRect();
 	  //console.log(canvasContainer);
-	  canvas.width = canvasContainer.width;
-	  canvas.height = canvasContainer.width * 0.619047619;  // 650/1050 = 0.619047619
-	  scale = document.getElementById("GameCanvas").width / 1050;
+  	  canvas.width = Math.min(canvasContainer.width, 1050);
+  	  canvas.height = canvas.width * 0.619047619;  // 650/1050 = 0.619047619
+  	  scale = document.getElementById("GameCanvas").width / 1050;
   }
   
   this.backGroundWidth = 1050;
@@ -541,7 +541,7 @@ function Drawer(gameboard) {
   
   this.drawBoard = function() {
 	  
-	animator.upDateBackground();
+	//animator.upDateBackground();
 	//console.log("Drawing gameboard");
     
 	for (object in gameboard.drawableObjects) {
