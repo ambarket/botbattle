@@ -39,26 +39,36 @@ function BotBattleApp(server) {
 	server.addStaticFolderRoute('/static', 'static/');	
 	
 	server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
-	  res.send(
-	         {
+	  setTimeout(function() {
+	     res.send(
+             {
                 'Turn1': {
                   'animations': [
+                     {
+                       'player': 'player2',
+                       'event': 'move',
+                       'data': 11 // The board position to move to (will be 0 to 24)
+                     },
                     {
                       'player': 'player1',
                       'event': 'move',
                       'data': 10 // The board position to move to (will be 0 to 24)
                     },
                     {
-                      'player': 'player1',
+                      'player': 'player2',
                       'event': 'defend', //(Otherwise would be defended_attack)
-                      'data': null  // Don't need any additional data here
+                      'data': 0//[plauyer2's return location]  // Don't need any additional data here
                     },
                     {
-                      'player': 'player2', //(And if it was defended this would be player1 moving back to where it was.
+                      'player': 'player1', //(And if it was defended this would be player1 moving back to where it was.
                       'event': 'move',
-                      'data': 11
+                      'data': 6
                     }
-                  ]
+                  ],
+                  'player1Tiles' : [1, 3, 5, 2, 3],
+                  'player2Tiles' : [2, 4, 3, 5, 1],
+                  'move' : "Player 1 moved! then defended and stuff!",
+                  'debug' : "Running low on oil :(",
                 },
                 'Turn2': {
                   'animations': [
@@ -80,6 +90,8 @@ function BotBattleApp(server) {
                   ]
                 },
               });
+	  }, 2000); 
+
 	}); 
 
 }

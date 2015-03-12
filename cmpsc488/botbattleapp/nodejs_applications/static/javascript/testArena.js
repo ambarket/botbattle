@@ -94,6 +94,7 @@ $(document).ready(function() {
 */
 
 document.getElementById("send_move").addEventListener('click', function(ev) {
+  document.getElementById("send_move").disabled = true;
   var req = new XMLHttpRequest();
   req.open("POST", "testArenaUpdate", true);
   req.send(myId);
@@ -109,23 +110,10 @@ document.getElementById("send_move").addEventListener('click', function(ev) {
       var animator = new Animator();
       // Parse into JSON
       var response = JSON.parse(req.responseText);
-      console.log(response);
-      
-      /*
-      for (var turn in response){
-        for (var animations in response[turn]){
-          for (var data in response[turn][animations]){
-          console.log(response[turn][animations][data].player);
-          gameState.animationsList.push(new MoveEvent(response[turn][animations][data].player, response[turn][animations][data].data, gameboard.drawableObjects[response[turn][animations][data].player].y))
-          }
-         }
-      }
-      */
-      
+      // Parse into GameState Object
       for (var turnIndex in response){
-        for (var animationsIndex in response[turnIndex]){
-          for (var animationObjectIndex in response[turnIndex][animationsIndex]){
-            var animationObject = response[turnIndex][animationsIndex][animationObjectIndex];
+          for (var animationObjectIndex in response[turnIndex]['animations']){
+            var animationObject = response[turnIndex]['animations'][animationObjectIndex];
             switch(animationObject.event) {
               case 'move': 
                 gameState.animationsList.push(new MoveEvent(animationObject.player, animationObject.data, 
@@ -136,12 +124,13 @@ document.getElementById("send_move").addEventListener('click', function(ev) {
                 break;
             }
           }
-        }
+          var player1Tiles = response[turnIndex]['player1Tiles'];
+          var player2Tiles = response[turnIndex]['player2Tiles'];
+          var move = response[turnIndex]['move'];
+          var debug = response[turnIndex]['debug'];
       }
-      console.log(gameState);
-      console.log(response);
       animator.addNewGameState(gameState);
-
+      document.getElementById("send_move").disabled = false;
     } 
     else {
       console.log("error onload");
