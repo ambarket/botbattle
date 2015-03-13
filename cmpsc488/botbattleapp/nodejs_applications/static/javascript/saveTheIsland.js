@@ -81,15 +81,11 @@ GAME = {
 
       },
       defend : function(event, time, callback) {
-        var defendingPlayer = event.data.objectName;
-        var attackingPlayer = null;
-        if (moveEvent.objectName == 'player1') {
-          attackingPlayer = 'player2';
-        }
-        else {
-          attackingPlayer = 'player1';
-        }
+        var defendingPlayer = event.data.attacker;
+        var attackingPlayer = event.data.defender;
+        
         // Set current state and position of defending player
+        console.log(GAME.gameboard.playerAnimations);
         GAME.gameboard.playerAnimations[defendingPlayer].defend.x = GAME.gameboard.playerAnimations[defendingPlayer].standing.x;
         GAME.gameboard.playerAnimations[defendingPlayer].defend.y = GAME.gameboard.playerAnimations[defendingPlayer].standing.y;  
         GAME.gameboard.playerAnimations[defendingPlayer].standing.visible = false;
@@ -105,25 +101,26 @@ GAME = {
         var attackingSprite = GAME.gameboard.playerAnimations[attackingPlayer].defend;
         GAME.gameboard.playerAnimations[attackingPlayer].current = attackingSprite;
         
-        
-        var done = moveEvent.animationComplete(defendingSprite);
-        if (!done) {
+        // TODO: Should this be both defending and attacking?
+        if (!defendingSprite.done) {
           requestAnimFrame(function() {
-            animations.defend(moveEvent, time, callback);
+            animations.defend(event, time, callback);
           });
         } 
         else {   // maybe make just current instead of changing visible...
-            GAME.gameboard.playerAnimations[defendingPlayer].defend.visible = false;
-            GAME.gameboard.playerAnimations[defendingPlayer].standing.visible = true;
-            //GAME.gameboard.playerAnimations[defendingPlayer].current = GAME.gameboard.playerAnimations[moveEvent.objectName].standing;
-            //GAME.gameboard.playerAnimations[defendingPlayer].current.x = defendingSprite.x;
-            //GAME.gameboard.playerAnimations[defendingPlayer].current.y = defendingSprite.y;
-            
-            GAME.gameboard.playerAnimations[attackingPlayer].defend.visible = false;
-            GAME.gameboard.playerAnimations[attackingPlayer].standing.visible = true;
-            
-            // Note attacking player will fall backwards as result of next event
-            callback();
+          defendingSprite.done = false;
+          
+          GAME.gameboard.playerAnimations[defendingPlayer].defend.visible = false;
+          GAME.gameboard.playerAnimations[defendingPlayer].standing.visible = true;
+          //GAME.gameboard.playerAnimations[defendingPlayer].current = GAME.gameboard.playerAnimations[moveEvent.objectName].standing;
+          //GAME.gameboard.playerAnimations[defendingPlayer].current.x = defendingSprite.x;
+          //GAME.gameboard.playerAnimations[defendingPlayer].current.y = defendingSprite.y;
+          
+          GAME.gameboard.playerAnimations[attackingPlayer].defend.visible = false;
+          GAME.gameboard.playerAnimations[attackingPlayer].standing.visible = true;
+          
+          // Note attacking player will fall backwards as result of next event
+          callback();
         }
       },
       died : function(animation, callback) {

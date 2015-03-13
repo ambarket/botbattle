@@ -87,6 +87,14 @@ function BotBattleApp(server) {
                             'attackerFinalPosition' : 6  // After a defend the attacker should move back to their original position
                            } 
                         },
+                        {
+                          'event': 'move',
+                          'data': 
+                           { 
+                            'objectName' : 'player1',
+                            'finalPosition' : 6  // After a defend the attacker should move back to their original position
+                           } 
+                        },
                     ],
                     'gameData' : {
                       'player1Tiles' : [1, 3, 2, 2, 3],
