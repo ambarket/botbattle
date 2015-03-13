@@ -62,8 +62,9 @@ function BotBattleApp(server) {
                    'player2Tiles' : [2, 4, 3, 5, 1],
                    'turnDescription' : "Player 2 used a 3 tile to move to position 11.",  // May not be necessary but would be nice.
                  },
-                 'debugData' : {
-                      lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
+                 'debugData' : { // Only used in the test arena display
+                      'stderr' : [ "An array", "of lines output by the bot", "stderr on this turn." ],
+                      'stdout' : [ "An array", "of lines output by the bot", "stdout on this turn." ]
                  },
                }, 
                // Turn 2
@@ -84,10 +85,11 @@ function BotBattleApp(server) {
                     'gameData' : {
                       'player1Tiles' : [1, 3, 2, 2, 3],
                       'player2Tiles' : [2, 4, 3, 5, 1],
-                      'move' : "Player 1 used two 5 tile's to attack but was defended.",
+                      'turnDescription' : "Player 1 used two 5 tile's to attack but was defended.",
                     },
                     'debugData' : {
-                      lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
+                      'stderr' : [ "An array", "of lines output by the bot", "stderr on this turn." ],
+                      'stdout' : [ "An array", "of lines output by the bot", "stdout on this turn." ]
                     },
                 },
                 // Turn 3
@@ -107,7 +109,8 @@ function BotBattleApp(server) {
                     'turnDescription' : "Player 2 used a 3 tile to move to position 11.",  // May not be necessary but would be nice.
                   },
                   'debugData' : {
-                       lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
+                    'stderr' : [ "An array", "of lines output by the bot", "stderr on this turn." ],
+                    'stdout' : [ "An array", "of lines output by the bot", "stdout on this turn." ]
                   },
                 }, 
               ] // End game state array

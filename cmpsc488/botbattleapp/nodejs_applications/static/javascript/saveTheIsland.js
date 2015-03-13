@@ -1,11 +1,30 @@
+function appendArrayOfDivsToHtmlElementById(id, contentArray) {
+  for (var i = 0; i < contentArray.length; i++) {
+    appendDivToHtmlElementById(id, contentArray[i]);
+  }
+}
+
+function appendDivToHtmlElementById(id, content) {
+  //Add debugging data to the page
+  var element =  document.getElementById(id);
+  var html = [];
+  html.push(element.innerHTML);
+  html.push('<div>' + content + '</div>');
+  element.innerHTML = html.join('');
+  element.scrollTop = element.scrollHeight;
+}
+
 GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
+      appendDivToHtmlElementById('moveList', gameData.turnDescription);
       processGameDataCallback();
     },
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
+      appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
     
@@ -125,7 +144,6 @@ GAME = {
             }
           })();
         });
-        
       },
       died : function(eventData, processAnimatableEventCallback) {
 

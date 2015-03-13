@@ -72,6 +72,9 @@
       <button id = "send_move">Send Move</button> 
     </div>
     
+  <div><br><hr><br></div>
+  <div id="distance">CRTL + Mouse twice for coordinate info</div>
+    
 	</div>
 	<div class="col_9">
 		<canvas style="border:1px solid" id="GameCanvas" width="1050" height="650"></canvas>
@@ -79,15 +82,22 @@
 	
 	<hr />
 	
-	<div class="col_6 ioPanels">
+	<div class="col_4 ioPanels">
 	<h4>Move List</h4>
-        <div id="stdout"></div>
+        <div id="moveList"></div>
 	</div>
 	
-	<div class="col_6 ioPanels">
-		<h4>Debugging Info</h4>
-		<div id="stderr"></div>
-		<div id="distance">CRTL + Mouse twice for coordinate info</div>
+	<div class="col_8 ioPanels">
+	 <h4>Debugging Info</h4>
+	 <div class="col_4 ioPanels">
+	   <h5>Standard Output</h5>
+	   <div id="stdout"></div>
+	 </div>
+   <div class="col_4 ioPanels">
+     <h5>Standard Error</h5>
+     <div id="stderr"></div>
+   </div>
+
 	</div>
 </div>
 <!-- END GRID -->

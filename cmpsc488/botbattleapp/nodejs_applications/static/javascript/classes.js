@@ -39,13 +39,13 @@ TEST_ARENA.resetGameStateQueue = function() {
       if (!nextGameState) {
         imRunning = false;
       } else {
-        // TODO: Handle errors
-        GAME.processGameData(nextGameState.gameData, function(err) {
-          GAME.processDebugData(nextGameState.debugData, function(err) {
-            async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
+        // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
+        async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
+          GAME.processGameData(nextGameState.gameData, function(err) {
+            GAME.processDebugData(nextGameState.debugData, function(err) {
               processNextGameState();
-            });
-          });        
+            });        
+          });
         });
       }
     }
