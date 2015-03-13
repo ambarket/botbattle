@@ -108,12 +108,6 @@ drawableImage.prototype.draw = function(context) {
 	}
 };
 
-//--------------------------Animatable Events------------------------------------
-var AnimatableEvent = function(event, data) {
-  this.data = data;
-  this.event = event;
-}
-
 //--------------------------The GameBoard (Model)------------------------------------
 var GameBoard = function() {
   // Implements the singleton pattern so animator and drawer share the same GameBoard

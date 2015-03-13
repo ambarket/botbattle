@@ -10,6 +10,7 @@
 
   // Simulate the arrival of a new game state by clicking the mouse
   var gameboard = new GameBoard();
+  console.log(gameboard + " in testArena");
   gameboard.loadImages(function(err) {
     var animator = new Animator(gameboard);
     var drawer = new Drawer(gameboard);
@@ -40,6 +41,7 @@
     })();
 
     // add click listener to canvas
+    /*
     canvas.addEventListener('click', function(event) {
 
       var testGameState = {
@@ -77,6 +79,7 @@
       }
 
     });
+    */
   })
 })();
 

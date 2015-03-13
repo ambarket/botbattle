@@ -35,7 +35,8 @@ USER_DEFINITIONS = {
         }
     },
 }
-    
+  var gameboard = new GameBoard();
+console.log(gameboard + " in savetheisland");
   var animations = {
       move : function(event, lastUpdateTime, callback) {
           //backgroundAnimations();
