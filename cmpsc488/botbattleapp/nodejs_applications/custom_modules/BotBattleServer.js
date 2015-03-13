@@ -210,11 +210,10 @@ module.exports = function BotBattleServer() {
     });
 
     var express = require('express');
-    // Serve static css files
     self.addStaticFolderRoute('/static/css', paths.static_content.css);
-    
-    // Serve static javascript files
     self.addStaticFolderRoute('/static/javascript', paths.static_content.javascript);
+    self.addStaticFolderRoute('/static/images', paths.static_content.images);
+    self.addStaticFolderRoute('/static/icons', paths.static_content.icons);
   }
 }
 
