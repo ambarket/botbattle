@@ -50,19 +50,21 @@ var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeig
   this.visible = visible;
   this.done = false;
   this.update = function () {
-      self.tickCount += 1;	
-      if (self.tickCount > self.ticksPerFrame) {
-      	self.tickCount = 0;
-      	if(self.frameIndex < self.numberOfFrames - 1){
-          self.frameIndex += 1; 
-      	}
-      	else{
-      	  if (!loop) {
-            self.done = true;
-      	  }
-      	  self.frameIndex = 0;
-      	}
-      }
+	  	if(!self.done){
+	      self.tickCount += 1;	
+	      if (self.tickCount > self.ticksPerFrame) {
+	      	self.tickCount = 0;
+	      	if(self.frameIndex < self.numberOfFrames - 1){
+	          self.frameIndex += 1; 
+	      	}
+	      	else{
+	      	  if (!loop) {
+	            self.done = true;
+	      	  }
+	      	  self.frameIndex = 0;
+	      	}
+	      }
+	  	}
   }; 
   
   //console.log(this);
@@ -436,6 +438,7 @@ function Animator(gameboard) {
           //gameboard.playerAnimations[defendingPlayer].current.y = defendingSprite.y;
           
           gameboard.playerAnimations[attackingPlayer].attack.visible = false;
+          gameboard.playerAnimations[attackingPlayer].attack.done = false;
           gameboard.playerAnimations[attackingPlayer].standing.visible = true;
           
           // Note attacking player will fall backwards as result of next event
