@@ -74,8 +74,8 @@ function BotBattleApp(server) {
                          'event': 'move',
                          'data': 
                          { 
-                          'object_name' : 'player1',
-                          'final_position' : 10 
+                          'objectName' : 'player1',
+                          'finalPosition' : 10 
                          } 
                        },
                         {

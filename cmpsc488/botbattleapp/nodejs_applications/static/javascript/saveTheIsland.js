@@ -51,16 +51,17 @@ GAME = {
   var animations = {
       move : function(event, lastUpdateTime, callback) {
           //backgroundAnimations();
+        var finalPosition = (event.data.finalPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
         
         GAME.gameboard.playerAnimations[event.data.objectName].standing.visible = false;
         GAME.gameboard.playerAnimations[event.data.objectName].move.visible = true;
         
         var drawableObject = GAME.gameboard.playerAnimations[event.data.objectName].move;
         GAME.gameboard.playerAnimations[event.data.objectName].current = drawableObject;
+
+        var time = TEST_ARENA.animationHelpers.updateXPositionLinearlyWithTime(drawableObject, finalPosition, lastUpdateTime, GAME.gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
         
-        var time = updateXPositionLinearlyWithTime(drawableObject, event, lastUpdateTime, GAME.gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
-        
-        var done = drawableObject.x === (event.data.finalPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
+        var done = drawableObject.x === finalPosition;
          
         if (!done) {
           requestAnimFrame(function() {
@@ -70,7 +71,7 @@ GAME = {
         else {   // maybe make just current instead of changing visible...
             GAME.gameboard.playerAnimations[event.data.objectName].move.visible = false;
             GAME.gameboard.playerAnimations[event.data.objectName].standing.visible = true;
-            GAME.gameboard.playerAnimations[event.data.objectName].current = GAME.gameboard.playerAnimations[moveEvent.objectName].standing;
+            GAME.gameboard.playerAnimations[event.data.objectName].current = GAME.gameboard.playerAnimations[event.data.objectName].standing;
             GAME.gameboard.playerAnimations[event.data.objectName].current.x = drawableObject.x;
             GAME.gameboard.playerAnimations[event.data.objectName].current.y = drawableObject.y;
             callback();
@@ -79,8 +80,8 @@ GAME = {
       attack : function(animation, callback) {
 
       },
-      defend : function(moveEvent, time, callback) {
-        var defendingPlayer = moveEvent.objectName;
+      defend : function(event, time, callback) {
+        var defendingPlayer = event.data.objectName;
         var attackingPlayer = null;
         if (moveEvent.objectName == 'player1') {
           attackingPlayer = 'player2';
@@ -177,10 +178,10 @@ function Drawer() {
       }
       else{
           if(p1Grid < 0){
-              context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+            TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
           if(p2Grid > 24){
-              context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+            TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
       }
   }
@@ -207,9 +208,7 @@ var GameBoard = function() {
   
   this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
   this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png';
-  
-
-  
+ 
   this.backGroundWidth = 1050;
   this.backGroundHeight = 650;
   this.islandWidth = 870;

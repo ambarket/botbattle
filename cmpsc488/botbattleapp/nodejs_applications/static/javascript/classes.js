@@ -1,6 +1,6 @@
 // Define global TEST_ARENA namespace to be shared throughout client side code
 TEST_ARENA = {
-    'myId' : null // will probably be used
+    'myId' : null, // will probably be used
     'canvas' : null, // Set in testArena.js after page has loaded
     'context' : null, // Set in testArena.js after page is loaded
     'scale' : 1, // set by resizeCanvas
@@ -211,16 +211,9 @@ drawableSprite.prototype.draw = function(context) {
     }
 };
 
-
-
-
-
-
-
-
-//--------------------------The Animator (Controller)------------------------------------
-function Animator(gameboard) {
-    
+//----------------------------------------------------------------------------------------------
+// Put generic functions here that manipulate the position of drawable objects
+TEST_ARENA.animationHelpers = new (function() {
   /**
    * Move the animated object along x at speed pixels/second from its current position towards
    * drawableObject.endpos
@@ -229,20 +222,20 @@ function Animator(gameboard) {
    * @param {Number} lastUpdateTime The time of the last frame update of this object
    * @param {Number} speed The speed in pixels/second to move the object
    */
-  this.updateXPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
+  this.updateXPositionLinearlyWithTime = function(drawableObject, endingX, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
-      var backwards = moveEvent.endingX - drawableObject.x < 0;
+      var backwards = endingX - drawableObject.x < 0;
       
       // pixels / second
       var linearSpeedX = (backwards) ? -1 * speed : speed;
       var linearDistEachFrameX = linearSpeedX * timeDiff / 1000;
       drawableObject.x += linearDistEachFrameX;
 
-      if (backwards && drawableObject.x <= moveEvent.endingX) {
-        drawableObject.x = moveEvent.endingX;
-      } else if (!backwards && drawableObject.x >= moveEvent.endingX) {
-        drawableObject.x = moveEvent.endingX;
+      if (backwards && drawableObject.x <= endingX) {
+        drawableObject.x = endingX;
+      } else if (!backwards && drawableObject.x >= endingX) {
+        drawableObject.x = endingX;
       }
 
       return time;
@@ -256,6 +249,7 @@ function Animator(gameboard) {
    * @param {Number} lastUpdateTime The time of the last frame update of this object
    * @param {Number} speed The speed in pixels/second to move the object
    */
+  /* TODO: Refactor as done with the X one above
   this.updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
@@ -274,7 +268,8 @@ function Animator(gameboard) {
 
       return time;
     }
-}
+    */
+})();
 
 //-----------------Coin Flip---------------------------
 var coinFlip = function(weight){

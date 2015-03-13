@@ -60,7 +60,7 @@
     ev.preventDefault();
   }, false);
   
-  function resetTestArena() {
+  (function resetTestArena() {
     TEST_ARENA.canvas = document.getElementById("GameCanvas");
     TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
     TEST_ARENA.resetGameStateQueue();
@@ -83,7 +83,5 @@
         GAME.drawer.drawBoard();
       })();
     })
-  }
-
-
+  })();
 })();
