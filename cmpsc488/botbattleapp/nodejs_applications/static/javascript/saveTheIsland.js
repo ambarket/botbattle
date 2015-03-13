@@ -220,8 +220,8 @@ function Drawer() {
      *      fillStyle:
      *      strokeStyle:
      */
-    //TODO: Do better than just copying this for loop again and probably move tileParameters to
-    //  gameBoard.
+
+    //  probably move tileParameters to gameBoard.
     //  Maybe we actually want to move all hardcoded canvas pixel related stuff to the drawer
     var tileParameters = {
         'player1StartingX' : 50,
@@ -232,40 +232,27 @@ function Drawer() {
         'fillStyle' : '#FFFFD1',
     }
     
-    for (var i = 0; i < GAME.gameboard.player1Tiles.length; i++) {
-      var currentX = (tileParameters.player1StartingX + (50* i));
-      (new drawableRectangle({ 
-        x: currentX * TEST_ARENA.scale, 
-        y: tileParameters.y * TEST_ARENA.scale,
-        width: tileParameters.width * TEST_ARENA.scale,
-        height: tileParameters.height * TEST_ARENA.scale,
-        fillStyle: tileParameters.fillStyle,
-      })).draw(TEST_ARENA.context);
-      
-      // TODO: Make drawableText object instead of copying this everywhere
-      var fontSize = 30 * TEST_ARENA.scale;
-      TEST_ARENA.context.font= fontSize + 'px Arial';
-      TEST_ARENA.context.fillStyle="black";
-      TEST_ARENA.context.fillText(GAME.gameboard.player1Tiles[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
+    function drawTileArray(tileArray, startingX) {
+      for (var i = 0; i < tileArray.length; i++) {
+        var currentX = (startingX + (50* i));
+        (new drawableRectangle({ 
+          x: currentX * TEST_ARENA.scale, 
+          y: tileParameters.y * TEST_ARENA.scale,
+          width: tileParameters.width * TEST_ARENA.scale,
+          height: tileParameters.height * TEST_ARENA.scale,
+          fillStyle: tileParameters.fillStyle,
+        })).draw(TEST_ARENA.context);
+        
+        // TODO: Make drawableText object instead of copying this everywhere
+        var fontSize = 30 * TEST_ARENA.scale;
+        TEST_ARENA.context.font= fontSize + 'px Arial';
+        TEST_ARENA.context.fillStyle="black";
+        TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
+      }
     }
-    console.log(GAME.gameboard.player2Tiles.length);
-    for (var i = 0; i < GAME.gameboard.player2Tiles.length; i++) {
-      var currentX = (tileParameters.player2StartingX + (50* i));
-      (new drawableRectangle({ 
-        x: currentX * TEST_ARENA.scale, 
-        y: tileParameters.y * TEST_ARENA.scale,
-        width: tileParameters.width * TEST_ARENA.scale,
-        height: tileParameters.height * TEST_ARENA.scale,
-        fillStyle: tileParameters.fillStyle,
-      })).draw(TEST_ARENA.context);
-      
-      // TODO: Make drawableText object instead of copying this everywhere
-      var fontSize = 30 * TEST_ARENA.scale;
-      TEST_ARENA.context.font= fontSize + 'px Arial';
-      TEST_ARENA.context.fillStyle="black";
-      TEST_ARENA.context.fillText(GAME.gameboard.player2Tiles[i], (currentX + 17) * TEST_ARENA.scale, (tileParameters.y + 36)* TEST_ARENA.scale );
-    }
-      
+    
+    drawTileArray(GAME.gameboard.player1Tiles, tileParameters.player1StartingX); 
+    drawTileArray(GAME.gameboard.player2Tiles, tileParameters.player2StartingX); 
   }
 }
 
