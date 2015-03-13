@@ -257,7 +257,7 @@ var GameBoard = function() {
   var fontSize = 30 * TEST_ARENA.scale;
   context.font= fontSize + 'px Arial';
   context.fillStyle="black";
-      context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 300, 650/2 * TEST_ARENA.scale);
+      context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale);
   
   var self = this;
   
