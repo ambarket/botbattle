@@ -70,17 +70,17 @@ var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeig
 
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableRectangle;
-drawableImage.prototype.draw = function(context) {
-  // temporary add to outline the boxes of objects for measureing purposes
-	 /* context.beginPath();
-	  context.rect(this.x, this.y, this.destWidth, this.destHeight);
-	  context.fillStyle = '#8ED6FF';
-	  context.fill();
-	  context.lineWidth = this.borderWidth;
-	  context.strokeStyle = 'black';
-	  context.stroke(); */
-	  
+drawableImage.prototype.draw = function(context) {	  
 	if(this.visible){
+		// temporary add to outline the boxes of objects for measureing purposes
+		  context.beginPath();
+		  context.rect(this.x * scale, this.y * scale, this.destWidth * scale, this.destHeight * scale);
+		  context.fillStyle = '#8ED6FF';
+		  context.fill();
+		  context.lineWidth = this.borderWidth;
+		  context.strokeStyle = 'black';
+		  context.stroke();
+		  
 	  this.update();
 	  
 	  if(this.numberOfFrames !== 1){
@@ -133,7 +133,7 @@ var MoveEvent = function(objectName, endingX, endingY) {
 	var gameboard = new GameBoard();
   AnimatableEvent.call(this, 'move', objectName);
   
-  this.endingX = (endingX * gameboard.gridWidth) + gameboard.islandStart;
+  this.endingX = (endingX * gameboard.gridWidth) + gameboard.islandStart;// - (gameboard.robotWidth/2) + gameboard.gridCenter;
   this.endingY = endingY;
 }
 
@@ -178,7 +178,7 @@ var GameBoard = function() {
   
   this.resize = function(){
 
-	  var canvasContainer = document.getElementsByClassName('col_9')[0].getBoundingClientRect();
+	  var canvasContainer = document.getElementsByClassName('col_9')[0].getBoundingClientRect();// this should be get parent
 	  //console.log(canvasContainer);
   	  canvas.width = Math.min(canvasContainer.width, 1050);
   	  canvas.height = canvas.width * 0.619047619;  // 650/1050 = 0.619047619
@@ -188,7 +188,7 @@ var GameBoard = function() {
   this.backGroundWidth = 1050;
   this.backGroundHeight = 650;
   this.islandWidth = 870;
-  this.islandStart = 83;
+  this.islandStart = 80;
   this.islandCenterHeight = 468;
   this.robotWidth = 43;
   this.robotHeight = 79;
@@ -216,20 +216,20 @@ var GameBoard = function() {
       player1 : new drawableImage(self.player1SpriteSheet, 
       							self.player1StandingSpriteSheetX, 
       							self.player1StandingSpriteSheetY, 
-      							self.robotWidth, 
+      							43, 
       							self.robotHeight, 
       							self.player1PositionX, 
       							self.player1PositionY, 
-      							self.robotWidth, 
+      							43, 
       							self.robotHeight, null, null, null, false, true, imageLoadedCallback),
       player2 : new drawableImage(self.player2SpriteSheet, 
       							self.player2StandingSpriteSheetX, 
       							self.player2StandingSpriteSheetY, 
-      							self.robotWidth, 
+      							43, 
       							self.robotHeight, 
       							self.player2PositionX, 
       							self.player2PositionY, 
-      							self.robotWidth, 
+      							43, 
       							self.robotHeight, null, null, null, false, true, imageLoadedCallback),
       player1Running : new drawableImage('static/images/RunningRight.png', 
       							0, 
