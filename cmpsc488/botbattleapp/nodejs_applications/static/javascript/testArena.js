@@ -60,6 +60,8 @@
     ev.preventDefault();
   }, false);
   
+  // TODO: Maybe extend this into a button that when clicked would reset the entire canvas
+  //    and all object back to default so another game could be played
   (function resetTestArena() {
     TEST_ARENA.canvas = document.getElementById("GameCanvas");
     TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');

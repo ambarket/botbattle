@@ -148,7 +148,7 @@ drawableImage.prototype.draw = function(context) {
  *  width,      //required
  *  height,         //required
  *  indexStart, 
- *  ticksPer, 
+ *  ticksPerFrame, 
  *  numberOfFrames,
  *  loop, 
  *  visible, 
@@ -283,17 +283,19 @@ TEST_ARENA.animationHelpers = new (function() {
       return time;
     }
     */
+  //-----------------Coin Flip---------------------------
+   this.coinFlip = function(weight){
+      var coin = Math.random();
+      if(weight){
+          return (coin + weight <= .50);
+      }
+      else{
+          return (coin <= .50);
+      }
+  }
 })();
 
-//-----------------Coin Flip---------------------------
-var coinFlip = function(weight){
-	  var coin = Math.random();
-	  if(weight){
-		  return (coin + weight <= .50);
-	  }
-	  else{
-		  return (coin <= .50);
-	  }
-}
+
+
 
 
