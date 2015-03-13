@@ -73,26 +73,36 @@
       document.getElementById("send_move").disabled = true;
       var req = new XMLHttpRequest();
       req.open("POST", "testArenaUpdate", true);
-      req.send(TEST_ARENA.myId);
-      req.onload = function(event) {
-        if (req.status === 200) {
-          console.log("onload");
-          console.log(req.responseText);
-    
-          // Parse into JSON
-          var response = JSON.parse(req.responseText);
-          // Just use each turn object as a gamestate.
-          // Each gamestate must have an animatableEvents array, gameData object, and debugData object
-          for (var turnIndex in response){
-            TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
+      try {
+        req.send(TEST_ARENA.myId);
+        //TODO I think onReadyStateChange may allow us to detect if the request failed to post,
+        //  need to do something about this because otherwise button just remains disabled.
+        // Test by shutting down server then clicking it.
+        req.onload = function(event) {
+          if (req.status === 200) {
+            TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "GameState received");
+            console.log(req.responseText);
+      
+            // Parse into JSON
+            var response = JSON.parse(req.responseText);
+            // Just use each turn object as a gamestate.
+            // Each gamestate must have an animatableEvents array, gameData object, and debugData object
+            for (var turnIndex in response){
+              TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
+            }
+          } 
+          else {
+            TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "Failed to get GameState");
           }
-          
           document.getElementById("send_move").disabled = false;
-        } 
-        else {
-          console.log("error onload");
-        }
-      };
+        };
+      }
+      catch(err) {
+        TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', err.message);
+        document.getElementById("send_move").disabled = false;
+      }
+
+
       ev.preventDefault();
     }
     

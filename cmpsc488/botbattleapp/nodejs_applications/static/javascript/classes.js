@@ -235,8 +235,8 @@ drawableSprite.prototype.draw = function(context) {
 }
 
 //----------------------------------------------------------------------------------------------
-// Put generic functions here that manipulate the position of drawable objects
-TEST_ARENA.animationHelpers = new (function() {
+// Put generic functions here that manipulate the position of drawable objects and other stuff
+TEST_ARENA.helpers = new (function() {
   /**
    * Move the animated object along x at speed pixels/second from its current position towards
    * drawableObject.endpos
@@ -302,6 +302,23 @@ TEST_ARENA.animationHelpers = new (function() {
           return (coin <= .50);
       }
   }
+   
+   
+   this.appendArrayOfDivsToHtmlElementById = function(id, contentArray) {
+     for (var i = 0; i < contentArray.length; i++) {
+       this.appendDivToHtmlElementById(id, contentArray[i]);
+     }
+   }
+
+   this.appendDivToHtmlElementById = function(id, content) {
+     //Add debugging data to the page
+     var element =  document.getElementById(id);
+     var html = [];
+     html.push(element.innerHTML);
+     html.push('<div>' + content + '</div>');
+     element.innerHTML = html.join('');
+     element.scrollTop = element.scrollHeight;
+   }
 })();
 
 

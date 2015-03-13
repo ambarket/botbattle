@@ -1,23 +1,9 @@
-function appendArrayOfDivsToHtmlElementById(id, contentArray) {
-  for (var i = 0; i < contentArray.length; i++) {
-    appendDivToHtmlElementById(id, contentArray[i]);
-  }
-}
 
-function appendDivToHtmlElementById(id, content) {
-  //Add debugging data to the page
-  var element =  document.getElementById(id);
-  var html = [];
-  html.push(element.innerHTML);
-  html.push('<div>' + content + '</div>');
-  element.innerHTML = html.join('');
-  element.scrollTop = element.scrollHeight;
-}
 
 GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
-      appendDivToHtmlElementById('moveList', gameData.turnDescription);
+      TEST_ARENA.helpers.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
       //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
@@ -26,8 +12,8 @@ GAME = {
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
-      appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
-      appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
+      TEST_ARENA.helpers.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      TEST_ARENA.helpers.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
     
@@ -81,7 +67,7 @@ GAME = {
         
         // Immediately invoke this loop that will run until the animation is complete, then call the callback
         (function moveLoop(lastUpdateTime) {
-          var currentTime = TEST_ARENA.animationHelpers.updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
+          var currentTime = TEST_ARENA.helpers.updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
           
           var done = player.current.x === finalPosition;
            
