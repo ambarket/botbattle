@@ -82,16 +82,6 @@
 
 var myId = null;
 
-/*
-$(document).ready(function() {
-  $('#send_move').click(function(e) {
-    // do ajax request
-    console.log("sent out move to" + socket.id);
-    $('#stdin').text("");
-    $('#send_move').hide();
-  });
-});
-*/
 
 document.getElementById("send_move").addEventListener('click', function(ev) {
   document.getElementById("send_move").disabled = true;
