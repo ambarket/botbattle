@@ -1,20 +1,22 @@
 var scale = 1;
 //--------------------------Drawable Objects------------------------------------
-var drawableObject = function(x, y) {
+var drawableObject = function(x, y, width, height) {
 	this.x = x || 0;
 	this.y = y || 0;
+	this.width = width || 0;
+	this.height = height || 0;
 };
 
 drawableObject.prototype.draw = function(context) {
   context.fillRect(this.x,this.y,1,1);
 };
 
+/*
 var drawableRectangle = function(x, y, width, height, borderWidth) {
   drawableObject.call(this, x, y);
   this.sourceWidth = width;
   this.sourceHeight = height;
   this.borderWidth = borderWidth;
-
 };
 
 drawableRectangle.prototype = Object.create(drawableObject.prototype);
@@ -28,26 +30,82 @@ drawableRectangle.prototype.draw = function(context) {
   context.strokeStyle = 'black';
   context.stroke();
 };
-// need to make this have optional parameters and multiple constructors so don't have to pass null and pass objects
-var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, indexStart, ticksPer, numberOfFrames, loop, visible, loadedCallback) {
-  drawableObject.call(this, destX, destY);
+*/
+/**
+ * options : {
+ *  imageSrc, 
+ *  sourceX, 
+ *  sourceY, 
+ *  sourceWidth, 
+ *  sourceHeight, 
+ *  x, 
+ *  y, 
+ *  width, 
+ *  height, 
+ *  indexStart, 
+ *  ticksPer, 
+ *  numberOfFrames,
+ *  loop, 
+ *  visible, 
+ *  loadedCallback
+ * }
+ */
+var drawableImage = function(options) {
   var self = this;
-  this.sourceX = sourceX || 0;
-  this.sourceY = sourceY || 0;
-  this.sourceWidth = sourceWidth;
-  this.sourceHeight = sourceHeight;
+  var defaultOptions : {
+    imageSrc : null,    // Required attribute 
+    x : null,           // Required attribute 
+    y : null,           // Required attribute
+    width : null,       // Required attribute 
+    height : null,      // Required attribute 
+    sourceX : null,     
+    sourceY : null,     
+    sourceWidth : null,  
+    sourceHeight : null,
+    indexStart : 0,     // Which frame to start at
+    ticksPerFrame : 1,  // how many calls to update before the frame switches
+    numberOfFrames : 1,
+    loop : false,       // TODO Is this fully implemented?
+    visible : true,
+    loadedCallback : null
+   }
+  if (!options.imageSrc || 
+      !options.x && !(options.x === 0) ||
+      !options.y && !(options.y === 0) ||
+      !options.width && !(options.width === 0) ||
+      !options.height && !(options.height === 0)) {
+    console.log("Error in drawableImage constructor, missing required arguments, returning null now");
+    return null;
+  }
+  
+  drawableObject.call(this, options.x, options.y, options.width, options.height);
+  // This can probably be written nicer but I think i implemented the optional stuff you wanted
+  this.sourceX = options.sourceX || options.x;
+  if (options.sourceX === 0) {this.sourceX = 0}
+  this.sourceY = options.sourceY || options.y;
+  if (options.sourceY === 0) {this.sourceY = 0}
+  this.sourceWidth = options.sourceWidth || options.width;
+  if (options.sourceWidth === 0) {this.sourceWidth = 0}
+  this.sourceHeight = options.sourceHeight || options.height;
+  if (options.sourceHeight === 0) {this.sourceWidth = 0}
+  
   this.img = new Image();
-  this.img.onload = loadedCallback;
-  this.img.src = imageSrc;
-  //this.y = (typeof destY === "undefined" || destY === "null") ? sourceY : destY; <--------------this won't work for some reason
-  this.destWidth = destWidth || sourceWidth;
-  this.destHeight = destHeight || sourceHeight;
-  this.frameIndex = indexStart || 0;
+  this.img.onload = options.loadedCallback;
+  this.img.src = options.imageSrc;
+
+  this.frameIndex = options.indexStart || 0;
   this.tickCount = 0;
-  this.ticksPerFrame = ticksPer || 1;
-  this.numberOfFrames = numberOfFrames || 1;
+  this.ticksPerFrame = options.ticksPerFrame || 1;
+  this.numberOfFrames = options.numberOfFrames || 1;
   this.loop = loop;
   this.visible = visible;
+  
+  //must use total image width not sprite width, force this here instead of in draw
+  if(this.numberOfFrames !== 1) {
+    this.sourceX = this.frameIndex * this.sourceWidth / this.numberOfFrames;
+    this.sourceWidth = this.sourceWidth / this.numberOfFrames, // image width / frames
+  }
+    
   this.done = false;
   this.update = function () {
       self.tickCount += 1;	
@@ -64,47 +122,15 @@ var drawableImage = function(imageSrc, sourceX, sourceY, sourceWidth, sourceHeig
       	}
       }
   }; 
-  
-  //console.log(this);
 };
 
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableRectangle;
 drawableImage.prototype.draw = function(context) {
-  // temporary add to outline the boxes of objects for measureing purposes
-	 /* context.beginPath();
-	  context.rect(this.x, this.y, this.destWidth, this.destHeight);
-	  context.fillStyle = '#8ED6FF';
-	  context.fill();
-	  context.lineWidth = this.borderWidth;
-	  context.strokeStyle = 'black';
-	  context.stroke(); */
-	  
 	if(this.visible){
 	  this.update();
-	  
-	  if(this.numberOfFrames !== 1){
-		  context.drawImage(this.img, 
-				  			this.frameIndex * this.sourceWidth / this.numberOfFrames, // must use total image width not sprite width
-				  			this.sourceY, 
-				  			this.sourceWidth / this.numberOfFrames, // image width / frames
-				  			this.sourceHeight, 
-				  			this.x * scale,   // destination positionx
-				  			this.y * scale,   // destination positiony
-				  			this.destWidth * scale,    // width you want it to be in the end
-				  			this.destHeight * scale);  // height you want it to be in the end
-	  }
-	  else{  
-		  context.drawImage(this.img, 
-				  			this.sourceX, 
-				  			this.sourceY, 
-				  			this.sourceWidth, 
-				  			this.sourceHeight, 
-				  			this.x * scale, 
-				  			this.y * scale, 
-				  			this.destWidth * scale, 
-				  			this.destHeight * scale);
-	  }
+	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth / this.numberOfFrames, 
+	      this.sourceHeight, this.x * scale, this.y * scale, this.width * scale,  this.height * scale); 
 	}
 };
 
