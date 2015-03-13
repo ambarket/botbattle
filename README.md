@@ -9,7 +9,7 @@ You can find hosted copies of a recent master branch here
 To test the initial configuration page repeatedly check here
     https://ambarket.info:8000    
     
-To see the test arena check here
+To see the test arena check here (updated with defended attack animation and ajax call to get the game states)
     https://ambarket.info:8001
 
 # Java JSON handling
