@@ -161,7 +161,7 @@ var drawableSprite = function(options) {
       !options.y && !(options.y === 0) ||
       !options.width && !(options.width === 0) ||
       !options.height && !(options.height === 0)) {
-    console.log("Error in drawableImage constructor, missing required arguments, returning null now");
+    console.log("Error in drawableSprite constructor, missing required arguments, returning null now");
     return null;
   }
   
