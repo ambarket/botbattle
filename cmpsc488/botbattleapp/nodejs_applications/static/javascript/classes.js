@@ -389,7 +389,7 @@ function Animator(gameboard) {
         attackingPlayer = 'player1';
       }
       // Set current state and position of defending player
-      gameboard.playerAnimations[defendingPlayer].defend.x = gameboard.playerAnimations[defendingPlayer].standing.x;
+      gameboard.playerAnimations[defendingPlayer].defend.x = gameboard.playerAnimations[defendingPlayer].standing.x - ((gameboard.playerAnimations[defendingPlayer].defend.destWidth * scale)/2) + gameboard.gridCenter;
       gameboard.playerAnimations[defendingPlayer].defend.y = gameboard.playerAnimations[defendingPlayer].standing.y;  
       gameboard.playerAnimations[defendingPlayer].standing.visible = false;
       gameboard.playerAnimations[defendingPlayer].defend.visible = true;
@@ -397,7 +397,7 @@ function Animator(gameboard) {
       gameboard.playerAnimations[defendingPlayer].current = defendingSprite;
       
       // Set current state and position of attacking player
-      gameboard.playerAnimations[attackingPlayer].defend.x = gameboard.playerAnimations[attackingPlayer].standing.x;
+      gameboard.playerAnimations[attackingPlayer].defend.x = gameboard.playerAnimations[attackingPlayer].standing.x - ((gameboard.playerAnimations[attackingPlayer].defend.destWidth * scale)/2) + gameboard.gridCenter;
       gameboard.playerAnimations[attackingPlayer].defend.y = gameboard.playerAnimations[attackingPlayer].standing.y;  
       gameboard.playerAnimations[attackingPlayer].standing.visible = false;
       gameboard.playerAnimations[attackingPlayer].defend.visible = true;
