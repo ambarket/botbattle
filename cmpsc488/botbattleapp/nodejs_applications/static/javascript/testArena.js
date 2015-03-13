@@ -98,28 +98,15 @@ document.getElementById("send_move").addEventListener('click', function(ev) {
       console.log(req.responseText);
       var gameboard = new GameBoard();
       var animator = new Animator();
+
       // Parse into JSON
       var response = JSON.parse(req.responseText);
-      // Parse into GameState Object
+      // Just use each turn object as a gamestate.
+      // Each gamestate must have an animatableEvents array, gameData object, and debugData object
       for (var turnIndex in response){
-          for (var animationObjectIndex in response[turnIndex]['animations']){
-            var animationObject = response[turnIndex]['animations'][animationObjectIndex];
-            switch(animationObject.event) {
-              case 'move': 
-                gameState.animationsList.push(new MoveEvent(animationObject.player, animationObject.data, 
-                    gameboard.drawableObjects[animationObject.player].y));
-                break;
-              case 'defend':
-                gameState.animationsList.push(new DefendEvent(animationObject.player));
-                break;
-            }
-          }
-          var player1Tiles = response[turnIndex]['player1Tiles'];
-          var player2Tiles = response[turnIndex]['player2Tiles'];
-          var move = response[turnIndex]['move'];
-          var debug = response[turnIndex]['debug'];
+        animator.addNewGameState(response[turnIndex]);
       }
-      animator.addNewGameState(gameState);
+      
       document.getElementById("send_move").disabled = false;
     } 
     else {
