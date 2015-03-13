@@ -52,8 +52,8 @@ function BotBattleApp(server) {
                     {
                       'event': 'move',
                       'data': { 
-                        'objectName' : 'player2',
-                        'finalPosition' : 11 
+                        'objectName' : 'player1',
+                        'finalPosition' : 9 
                       } 
                     },
                  ],
@@ -74,17 +74,17 @@ function BotBattleApp(server) {
                          'event': 'move',
                          'data': 
                          { 
-                          'objectName' : 'player1',
-                          'finalPosition' : 10 
+                          'objectName' : 'player2',
+                          'finalPosition' : 11 
                          } 
                        },
                         {
                           'event': 'defend',
                           'data': 
                            { 
-                            'attacker' : 'player1',
-                            'defender' : 'player2',
-                            'attackerFinalPosition' : 6  // After a defend the attacker should move back to their original position
+                            'attacker' : 'player2',
+                            'defender' : 'player1',
+                            //'attackerFinalPosition' : 6  // After a defend the attacker should move back to their original position
                            } 
                         },
                         {
@@ -92,7 +92,32 @@ function BotBattleApp(server) {
                           'data': 
                            { 
                             'objectName' : 'player1',
-                            'finalPosition' : 6  // After a defend the attacker should move back to their original position
+                            'finalPosition' : 5  // After a defend the attacker should move back to their original position
+                           } 
+                        },
+                        {
+                          'event': 'move',
+                          'data': 
+                           { 
+                            'objectName' : 'player2',
+                            'finalPosition' : 18  // After a defend the attacker should move back to their original position
+                           } 
+                        },
+                        {
+                          'event': 'move',
+                          'data': 
+                           { 
+                            'objectName' : 'player1',
+                            'finalPosition' : 16  // After a defend the attacker should move back to their original position
+                           } 
+                        },
+                        {
+                          'event': 'defend',
+                          'data': 
+                           { 
+                            'attacker' : 'player1',
+                            'defender' : 'player2',
+                            //'attackerFinalPosition' : 6  // After a defend the attacker should move back to their original position
                            } 
                         },
                     ],

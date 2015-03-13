@@ -387,7 +387,7 @@ var GameBoard = function() {
       player1Blocking : new drawableSprite(player1BlockingSpriteOptions),
       player2Blocking : new drawableSprite(player2BlockingSpriteOptions),
       player1Attacking : new drawableSprite(player1AttackingSpriteOptions),
-      player2Attacking : new drawableSprite(player1AttackingSpriteOptions),
+      player2Attacking : new drawableSprite(player2AttackingSpriteOptions),
     }
     
     this.playerAnimations = {
