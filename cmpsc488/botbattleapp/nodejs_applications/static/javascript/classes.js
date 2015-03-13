@@ -99,7 +99,6 @@ drawableRectangle.prototype.draw = function(context) {
  * }
  */
 var drawableImage = function(options) {
-  var self = this;
   if (!options.imageSrc || 
       !options.x && !(options.x === 0) ||
       !options.y && !(options.y === 0) ||
@@ -129,7 +128,7 @@ var drawableImage = function(options) {
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableImage;
 drawableImage.prototype.draw = function(context) {
-	if(this.visible){
+	if(this.visible){		  
 	  this.update();
 	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, 
 	      this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale,  this.height * TEST_ARENA.scale); 
@@ -174,27 +173,27 @@ var drawableSprite = function(options) {
   this.loop = options.loop || false;
   if (options.visible !== false) {options.visible = true} // enforce default of true this way
   this.visible = options.visible;
-  
+
   this.done = false;
   this.tickCount = 0;
   this.update = function () {
-
-      self.tickCount += 1;  
-      if (self.tickCount > self.ticksPerFrame) {
-        self.tickCount = 0;
-        if(self.frameIndex < self.numberOfFrames - 1){
-          self.frameIndex += 1; 
-        }
-        else{
-          if (!self.loop) {
-            self.done = true;
+        if(!self.done){
+          self.tickCount += 1;  
+          if (self.tickCount > self.ticksPerFrame) {
+            self.tickCount = 0;
+            if(self.frameIndex < self.numberOfFrames - 1){
+              self.frameIndex += 1; 
+            }
+            else{
+              if (!self.loop) {
+                self.done = true;
+              }
+              self.frameIndex = 0;
+            }
           }
-          self.frameIndex = 0;
         }
-      }
   }; 
-};
-
+}
 drawableSprite.prototype = Object.create(drawableImage.prototype);
 drawableSprite.prototype.constructor = drawableSprite;
 drawableSprite.prototype.draw = function(context) {
@@ -223,7 +222,7 @@ drawableSprite.prototype.draw = function(context) {
                           this.height * TEST_ARENA.scale);
     }
   }
-};
+}
 
 //----------------------------------------------------------------------------------------------
 // Put generic functions here that manipulate the position of drawable objects

@@ -80,44 +80,44 @@ GAME = {
 
       },
       defend : function(event, time, callback) {
-        var defendingPlayer = event.data.attacker;
-        var attackingPlayer = event.data.defender;
         
+        var defendingPlayer = GAME.gameboard.playerAnimations[event.data.defender];
+        var attackingPlayer = GAME.gameboard.playerAnimations[event.data.attacker];
         // Set current state and position of defending player
-        GAME.gameboard.playerAnimations[defendingPlayer].defend.x = GAME.gameboard.playerAnimations[defendingPlayer].standing.x;
-        GAME.gameboard.playerAnimations[defendingPlayer].defend.y = GAME.gameboard.playerAnimations[defendingPlayer].standing.y;  
-        GAME.gameboard.playerAnimations[defendingPlayer].standing.visible = false;
-        GAME.gameboard.playerAnimations[defendingPlayer].defend.visible = true;
-        var defendingSprite = GAME.gameboard.playerAnimations[defendingPlayer].defend;
-        GAME.gameboard.playerAnimations[defendingPlayer].current = defendingSprite;
+
+        // in the future -- position changes like this need to be based on the grid position then shifted so the "winner" isn't messed up anymore
+
+        defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+        defendingPlayer.defend.y = defendingPlayer.standing.y;  
+        defendingPlayer.standing.visible = false;
+        defendingPlayer.defend.visible = true;
+        defendingPlayer.current = defendingPlayer.defend;
         
         // Set current state and position of attacking player
-        GAME.gameboard.playerAnimations[attackingPlayer].defend.x = GAME.gameboard.playerAnimations[attackingPlayer].standing.x;
-        GAME.gameboard.playerAnimations[attackingPlayer].defend.y = GAME.gameboard.playerAnimations[attackingPlayer].standing.y;  
-        GAME.gameboard.playerAnimations[attackingPlayer].standing.visible = false;
-        GAME.gameboard.playerAnimations[attackingPlayer].defend.visible = true;
-        var attackingSprite = GAME.gameboard.playerAnimations[attackingPlayer].defend;
-        GAME.gameboard.playerAnimations[attackingPlayer].current = attackingSprite;
+        attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+        attackingPlayer.attack.y = attackingPlayer.standing.y;  
+        attackingPlayer.standing.visible = false;
+        attackingPlayer.attack.visible = true;
+        attackingPlayer.current = attackingPlayer.attack;
         
-        // TODO: Should this be both defending and attacking?
-        if (!defendingSprite.done) {
+        
+        if (!(defendingPlayer.defend.done && attackingPlayer.attack.done)) {
           requestAnimFrame(function() {
             animations.defend(event, time, callback);
           });
         } 
         else {   // maybe make just current instead of changing visible...
-          defendingSprite.done = false;
+          defendingPlayer.defend.done = false;
           
-          GAME.gameboard.playerAnimations[defendingPlayer].defend.visible = false;
-          GAME.gameboard.playerAnimations[defendingPlayer].standing.visible = true;
-          //GAME.gameboard.playerAnimations[defendingPlayer].current = GAME.gameboard.playerAnimations[moveEvent.objectName].standing;
-          //GAME.gameboard.playerAnimations[defendingPlayer].current.x = defendingSprite.x;
-          //GAME.gameboard.playerAnimations[defendingPlayer].current.y = defendingSprite.y;
-          
-          GAME.gameboard.playerAnimations[attackingPlayer].defend.visible = false;
-          GAME.gameboard.playerAnimations[attackingPlayer].standing.visible = true;
-          
+          defendingPlayer.defend.visible = false;
+          defendingPlayer.standing.visible = true;
+            
+          attackingPlayer.attack.done = false;
+          attackingPlayer.attack.visible = false;
+          attackingPlayer.standing.visible = true;
+            
           // Note attacking player will fall backwards as result of next event
+          console.log("here");
           callback();
         }
       },
@@ -345,6 +345,39 @@ var GameBoard = function() {
         'loadedCallback' : imageLoadedCallback
       }
     
+    var player1AttackingSpriteOptions = {
+        'imageSrc' : 'static/images/ShootingRight.png',
+        'sourceX' : 0,
+        'sourceY' : self.player1StandingSpriteSheetY,
+        'sourceWidth' : 360,
+        'x' : self.player1PositionX,
+        'y' : self.player1PositionY,
+        'width' : 90,
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 12, 
+        'numberOfFrames' : 4,
+        'loop' : false, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
+    var player2AttackingSpriteOptions = {
+        'imageSrc' : 'static/images/ShootingLeft.png',
+        'sourceX' : 0,
+        'sourceY' : self.player2StandingSpriteSheetY,
+        'sourceWidth' : 360,
+        'x' : self.player2PositionX,
+        'y' : self.player2PositionY,
+        'width' : 90,
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 12, 
+        'numberOfFrames' : 4,
+        'loop' : false, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
+    
     this.drawableObjects = {
       backgroundImg : new drawableSprite(backgroundImgOptions),
       player1 : new drawableSprite(player1StandingSpriteOptions),
@@ -352,29 +385,31 @@ var GameBoard = function() {
       player1Running : new drawableSprite(player1RunningSpriteOptions),
       player2Running : new drawableSprite(player2RunningSpriteOptions),
       player1Blocking : new drawableSprite(player1BlockingSpriteOptions),
-      player2Blocking : new drawableSprite(player2BlockingSpriteOptions)
+      player2Blocking : new drawableSprite(player2BlockingSpriteOptions),
+      player1Attacking : new drawableSprite(player1AttackingSpriteOptions),
+      player2Attacking : new drawableSprite(player1AttackingSpriteOptions),
     }
     
     this.playerAnimations = {
-          player1 : {
-              current : self.drawableObjects.player1,
-              standing : self.drawableObjects.player1,
-              move : self.drawableObjects.player1Running,
-              //attack : "player1Attack",
-              defend : self.drawableObjects.player1Blocking,
-              //hit : "player1Falling",
-              //lose : "player1Lost"
-          },
-          player2 : {
-              current : self.drawableObjects.player2,
-              standing : self.drawableObjects.player2,
-              move : self.drawableObjects.player2Running,
-              //attack : "player2Attack",
-              defend : self.drawableObjects.player2Blocking,
-              //hit : "player2Falling",
-              //lose : "player2Lost"
-          }
-    }
+        player1 : {
+            current : self.drawableObjects.player1,
+            standing : self.drawableObjects.player1,
+            move : self.drawableObjects.player1Running,
+            attack : self.drawableObjects.player1Attacking,
+            defend : self.drawableObjects.player1Blocking,
+            //hit : "player1Falling",
+            //lose : "player1Lost"
+        },
+        player2 : {
+            current : self.drawableObjects.player2,
+            standing : self.drawableObjects.player2,
+            move : self.drawableObjects.player2Running,
+            attack : self.drawableObjects.player2Attacking,
+            defend : self.drawableObjects.player2Blocking,
+            //hit : "player2Falling",
+            //lose : "player2Lost"
+        }
+  }
     
     
     function makeNewTree(x, y) {
