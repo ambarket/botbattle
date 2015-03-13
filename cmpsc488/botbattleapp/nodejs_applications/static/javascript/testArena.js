@@ -1,3 +1,4 @@
+// Wrap everything in a function, so local variables dont become globals
 (function() {
   window.requestAnimFrame = (function(callback) {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
@@ -31,82 +32,58 @@
       } 
     });
   });
-
   
-  // Define global TEST_ARENA namespace to be shared throughout client side code
-  var canvas = 
-  TEST_ARENA = {
-      'canvas' : document.getElementById("GameCanvas"),
-      'context' : document.getElementById("GameCanvas").getContext('2d'),
-      'scale' : 1, // set by resizeCanvas
-      'resizeCanvas' : function(){
-        this.canvas.width = Math.min(this.canvas.parentNode.getBoundingClientRect().width, 1050);
-        this.canvas.height = this.canvas.width * 0.619047619;  // 650/1050 = 0.619047619
-        this.scale = document.getElementById("GameCanvas").width / 1050;
-      },
- 
-  }
+  document.getElementById("send_move").addEventListener('click', function(ev) {
+    document.getElementById("send_move").disabled = true;
+    var req = new XMLHttpRequest();
+    req.open("POST", "testArenaUpdate", true);
+    req.send(TEST_ARENA.myId);
+    req.onload = function(event) {
+      if (req.status === 200) {
+        console.log("onload");
+        console.log(req.responseText);
   
-  GAME.resetGameboard(function(err) {
-    var drawer = new Drawer();
-
-    TEST_ARENA.resizeCanvas();
-    //resize();
+        // Parse into JSON
+        var response = JSON.parse(req.responseText);
+        // Just use each turn object as a gamestate.
+        // Each gamestate must have an animatableEvents array, gameData object, and debugData object
+        for (var turnIndex in response){
+          TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
+        }
+        
+        document.getElementById("send_move").disabled = false;
+      } 
+      else {
+        console.log("error onload");
+      }
+    };
+    ev.preventDefault();
+  }, false);
+  
+  function resetTestArena() {
+    TEST_ARENA.canvas = document.getElementById("GameCanvas");
+    TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
+    TEST_ARENA.resetGameStateQueue();
     
-    window.onresize = function() {
-      console.log("resize");
-      console.log(TEST_ARENA);
+    GAME.resetGameboard(function(err) {
+    
       TEST_ARENA.resizeCanvas();
-      //resize();
-      drawer.drawBoard();
-    }
-    
-    var time;
-    //var drawer = new Drawer(gameboard);
-
-    (function draw() {
-      requestAnimFrame(draw);
-      var now = new Date().getTime(), dt = now - (time || now);
-
-      time = now;
-      //console.log("drawing");
-      drawer.drawBoard();
-    })();
-  })
-})();
-
-var myId = null;
-
-
-document.getElementById("send_move").addEventListener('click', function(ev) {
-  document.getElementById("send_move").disabled = true;
-  var req = new XMLHttpRequest();
-  req.open("POST", "testArenaUpdate", true);
-  req.send(myId);
-  //console.log("onload");
-  var gameState = {
-      animationsList : []
-  }
-  req.onload = function(event) {
-    if (req.status === 200) {
-      console.log("onload");
-      console.log(req.responseText);
-      var gameboard = new GameBoard();
-      var animator = new Animator();
-
-      // Parse into JSON
-      var response = JSON.parse(req.responseText);
-      // Just use each turn object as a gamestate.
-      // Each gamestate must have an animatableEvents array, gameData object, and debugData object
-      for (var turnIndex in response){
-        animator.addNewGameState(response[turnIndex]);
+      
+      window.onresize = function() {
+        TEST_ARENA.resizeCanvas();
       }
       
-      document.getElementById("send_move").disabled = false;
-    } 
-    else {
-      console.log("error onload");
-    }
-  };
-  ev.preventDefault();
-}, false);
+      // What's time for?
+      var time;
+      (function draw() {
+        requestAnimFrame(draw);
+        var now = new Date().getTime(), dt = now - (time || now);
+    
+        time = now;
+        GAME.drawer.drawBoard();
+      })();
+    })
+  }
+
+
+})();

@@ -35,7 +35,8 @@ GAME = {
         }
     },
     
-    'GAME.gameboard' : null, // will be set by the resetGAME.gameboard method
+    'gameboard' : null, // will be set by the resetGAME.gameboard method
+    'drawer' : new Drawer(),
     
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
@@ -136,8 +137,10 @@ function Drawer() {
   arguments.callee._singletonInstance = this;
   
   var self = this;
+  /*
   var canvas = document.getElementById('GameCanvas');
   var context = canvas.getContext('2d');
+  */
   
   this.drawBoard = function() {
       
@@ -146,11 +149,11 @@ function Drawer() {
     //console.log("Drawing GAME.gameboard");
     
     for (object in GAME.gameboard.drawableObjects) {
-      GAME.gameboard.drawableObjects[object].draw(context);
+      GAME.gameboard.drawableObjects[object].draw(TEST_ARENA.context);
     }
     for (list in GAME.gameboard.backgroundElements){
         for(object in GAME.gameboard.backgroundElements[list]){
-            GAME.gameboard.backgroundElements[list][object].draw(context);
+            GAME.gameboard.backgroundElements[list][object].draw(TEST_ARENA.context);
         }
     }
     drawGridNumbers();
@@ -167,10 +170,10 @@ function Drawer() {
       var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
       
       var fontSize = 30 * TEST_ARENA.scale;
-      context.font= fontSize + 'px Arial';
-      context.fillStyle="black";
+      TEST_ARENA.context.font= fontSize + 'px Arial';
+      TEST_ARENA.context.fillStyle="black";
       if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
-          context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
       else{
           if(p1Grid < 0){
@@ -180,10 +183,6 @@ function Drawer() {
               context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
       }
-  }
-  
-  var clearCanvas = function() {
-    context.clearRect(0, 0, self.canvas.width, self.canvas.height); // not needed because background draws over old stuff
   }
 }
 

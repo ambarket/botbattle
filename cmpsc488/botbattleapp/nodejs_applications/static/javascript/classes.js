@@ -1,3 +1,56 @@
+// Define global TEST_ARENA namespace to be shared throughout client side code
+TEST_ARENA = {
+    'myId' : null // will probably be used
+    'canvas' : null, // Set in testArena.js after page has loaded
+    'context' : null, // Set in testArena.js after page is loaded
+    'scale' : 1, // set by resizeCanvas
+    'resizeCanvas' : function(){
+      this.canvas.width = Math.min(this.canvas.parentNode.getBoundingClientRect().width, 1050);
+      this.canvas.height = this.canvas.width * 0.619047619;  // 650/1050 = 0.619047619
+      this.scale = document.getElementById("GameCanvas").width / 1050;
+    },
+    'gameStateQueue' : null //Set by resetGameStateQueue
+}
+
+TEST_ARENA.resetGameStateQueue = function() {
+  // Stop it if its running since were about to lose reference to it.
+  if (TEST_ARENA.gameStateQueue) {TEST_ARENA.gameStateQueue.stop()}
+  TEST_ARENA.gameStateQueue = new (function(){
+    var self = this;
+    var gameStateQueue = [];
+    var imRunning = false;
+    
+    this.addNewGameState = function(gamestate) {
+      gameStateQueue.push(gamestate);
+  
+      if (!imRunning) {
+        imRunning = true;
+        processNextGameState();
+      }
+    }
+    
+    this.stop = function() {
+      imRunning = false;
+    }
+  
+    var processNextGameState = function() {
+      var nextGameState = gameStateQueue.splice(0, 1)[0];
+  
+      if (!nextGameState) {
+        imRunning = false;
+      } else {
+        // TODO: Handle errors
+        GAME.processGameData(nextGameState.gameData, function(err) {
+          GAME.processDebugData(nextGameState.debugData, function(err) {
+            async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
+              processNextGameState();
+            });
+          });        
+        });
+      }
+    }
+  })();
+}
 
 //--------------------------Drawable Objects------------------------------------
 var drawableObject = function(x, y, width, height) {
@@ -162,42 +215,12 @@ drawableSprite.prototype.draw = function(context) {
 
 
 
+
+
+
 //--------------------------The Animator (Controller)------------------------------------
 function Animator(gameboard) {
-  if ( arguments.callee._singletonInstance )
-    return arguments.callee._singletonInstance;
-  arguments.callee._singletonInstance = this;
-  
-  var self = this;
-  var gameStateQueue = [];
-  var imRunning = false;
-  
-  this.addNewGameState = function(gamestate) {
-    gameStateQueue.push(gamestate);
-
-    if (!imRunning) {
-      imRunning = true;
-      processNextGameState();
-    }
-  }
-
-  var processNextGameState = function() {
-    var nextGameState = gameStateQueue.splice(0, 1)[0];
-
-    if (!nextGameState) {
-      imRunning = false;
-    } else {
-      // TODO: Handle errors
-      GAME.processGameData(nextGameState.gameData, function(err) {
-        GAME.processDebugData(nextGameState.debugData, function(err) {
-          async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
-            processNextGameState();
-          });
-        });        
-      });
-    }
-  }
-  
+    
   /**
    * Move the animated object along x at speed pixels/second from its current position towards
    * drawableObject.endpos
