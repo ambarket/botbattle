@@ -33,42 +33,20 @@ drawableRectangle.prototype.draw = function(context) {
 */
 /**
  * options : {
- *  imageSrc, 
+ *  imageSrc,   //required
  *  sourceX, 
  *  sourceY, 
  *  sourceWidth, 
  *  sourceHeight, 
- *  x, 
- *  y, 
- *  width, 
- *  height, 
- *  indexStart, 
- *  ticksPer, 
- *  numberOfFrames,
- *  loop, 
- *  visible, 
+ *  x,          //required
+ *  y,           //required
+ *  width,      //required
+ *  height,         //required
  *  loadedCallback
  * }
  */
 var drawableImage = function(options) {
   var self = this;
-  var defaultOptions : {
-    imageSrc : null,    // Required attribute 
-    x : null,           // Required attribute 
-    y : null,           // Required attribute
-    width : null,       // Required attribute 
-    height : null,      // Required attribute 
-    sourceX : null,     
-    sourceY : null,     
-    sourceWidth : null,  
-    sourceHeight : null,
-    indexStart : 0,     // Which frame to start at
-    ticksPerFrame : 1,  // how many calls to update before the frame switches
-    numberOfFrames : 1,
-    loop : false,       // TODO Is this fully implemented?
-    visible : true,
-    loadedCallback : null
-   }
   if (!options.imageSrc || 
       !options.x && !(options.x === 0) ||
       !options.y && !(options.y === 0) ||
@@ -79,7 +57,7 @@ var drawableImage = function(options) {
   }
   
   drawableObject.call(this, options.x, options.y, options.width, options.height);
-  // This can probably be written nicer but I think i implemented the optional stuff you wanted
+
   this.sourceX = options.sourceX || options.x;
   if (options.sourceX === 0) {this.sourceX = 0}
   this.sourceY = options.sourceY || options.y;
@@ -89,50 +67,96 @@ var drawableImage = function(options) {
   this.sourceHeight = options.sourceHeight || options.height;
   if (options.sourceHeight === 0) {this.sourceWidth = 0}
   
+  // Note image starts loading as soon as the src attribute is set
   this.img = new Image();
   this.img.onload = options.loadedCallback;
   this.img.src = options.imageSrc;
+};
+
+drawableImage.prototype = Object.create(drawableObject.prototype);
+drawableImage.prototype.constructor = drawableImage;
+drawableImage.prototype.draw = function(context) {
+	if(this.visible){
+	  this.update();
+	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, 
+	      this.x * scale, this.y * scale, this.width * scale,  this.height * scale); 
+	}
+};
+
+/**
+ * options : {
+ *  imageSrc,   //required
+ *  sourceX, 
+ *  sourceY, 
+ *  sourceWidth, 
+ *  sourceHeight, 
+ *  x,          //required
+ *  y,           //required
+ *  width,      //required
+ *  height,         //required
+ *  indexStart, 
+ *  ticksPer, 
+ *  numberOfFrames,
+ *  loop, 
+ *  visible, 
+ *  loadedCallback
+ * }
+ */
+var drawableSprite = function(options) {
+  var self = this;
+  if (!options.imageSrc || 
+      !options.x && !(options.x === 0) ||
+      !options.y && !(options.y === 0) ||
+      !options.width && !(options.width === 0) ||
+      !options.height && !(options.height === 0)) {
+    console.log("Error in drawableImage constructor, missing required arguments, returning null now");
+    return null;
+  }
+  
+  drawableImage.call(this, options);
 
   this.frameIndex = options.indexStart || 0;
-  this.tickCount = 0;
   this.ticksPerFrame = options.ticksPerFrame || 1;
   this.numberOfFrames = options.numberOfFrames || 1;
-  this.loop = loop;
-  this.visible = visible;
+  this.loop = options.loop || false;
+  this.visible = options.visible || true;
   
   //must use total image width not sprite width, force this here instead of in draw
   if(this.numberOfFrames !== 1) {
     this.sourceX = this.frameIndex * this.sourceWidth / this.numberOfFrames;
-    this.sourceWidth = this.sourceWidth / this.numberOfFrames, // image width / frames
+    this.sourceWidth = this.sourceWidth / this.numberOfFrames; // image width / frames
   }
     
   this.done = false;
+  this.tickCount = 0;
   this.update = function () {
-      self.tickCount += 1;	
+      self.tickCount += 1;  
       if (self.tickCount > self.ticksPerFrame) {
-      	self.tickCount = 0;
-      	if(self.frameIndex < self.numberOfFrames - 1){
+        self.tickCount = 0;
+        if(self.frameIndex < self.numberOfFrames - 1){
           self.frameIndex += 1; 
-      	}
-      	else{
-      	  if (!loop) {
+        }
+        else{
+          if (!loop) {
             self.done = true;
-      	  }
-      	  self.frameIndex = 0;
-      	}
+          }
+          self.frameIndex = 0;
+        }
       }
   }; 
 };
 
-drawableImage.prototype = Object.create(drawableObject.prototype);
-drawableImage.prototype.constructor = drawableRectangle;
-drawableImage.prototype.draw = function(context) {
-	if(this.visible){
-	  this.update();
-	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth / this.numberOfFrames, 
-	      this.sourceHeight, this.x * scale, this.y * scale, this.width * scale,  this.height * scale); 
-	}
+drawableSprite.prototype = Object.create(drawableImage.prototype);
+drawableSprite.prototype.constructor = drawableSprite;
+drawableSprite.prototype.draw = function(context) {
+    if(this.visible){
+      this.update();
+      context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth / this.numberOfFrames, 
+          this.sourceHeight, this.x * scale, this.y * scale, this.width * scale,  this.height * scale); 
+    }
 };
+
+
 
 //--------------------------The GameBoard (Model)------------------------------------
 var GameBoard = function() {
@@ -190,62 +214,129 @@ var GameBoard = function() {
   
   this.loadImages = function(callback) {
     // can get the image width property automatically
+    /**
+      options : {
+       'imageSrc' :   ,
+       'sourceX' :   ,
+       'sourceY' :   ,
+       'sourceWidth' :   , 
+       'sourceHeight' :   ,
+       'x' :   ,
+       'y' :   ,
+       'width' :   ,
+       'height' :   ,
+       'indexStart' :   , 
+       'ticksPer' :   , 
+       'numberOfFrames' :   ,
+       'loop' :   , 
+       'visible' :   ,
+       'loadedCallback' :   ,
+     }
+     */
+    
+    var backgroundImgOptions = {
+         'imageSrc' : 'static/images/SaveTheIslandBackGround3.png', 
+         'x' : 0,          
+         'y' : 0,       
+         'width' : self.backGroundWidth, 
+         'height' : self.backGroundHeight,
+         'loadedCallback' : imageLoadedCallback
+    }
+    
+    var player1StandingSpriteOptions = {
+      'imageSrc' : self.player1SpriteSheet,
+      'sourceX' : self.player1StandingSpriteSheetX,
+      'sourceY' : self.player1StandingSpriteSheetY,
+      'x' : self.player1PositionX,
+      'y' : self.player1PositionY,
+      'width' : self.robotWidth,
+      'height' : self.robotHeight,
+      'loadedCallback' : imageLoadedCallback
+    }
+
+    var player2StandingSpriteOptions = {
+        'imageSrc' : self.player2SpriteSheet,
+        'sourceX' : self.player2StandingSpriteSheetX,
+        'sourceY' : self.player2StandingSpriteSheetY,
+        'x' : self.player2PositionX,
+        'y' : self.player2PositionY,
+        'width' : self.robotWidth,
+        'height' : self.robotHeight,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
+    var player1RunningSpriteOptions = {
+        'imageSrc' : 'static/images/RunningRight.png',
+        'sourceX' : 0,
+        'sourceY' : self.player1StandingSpriteSheetY,
+        'sourceWidth' : 592,
+        'x' : self.player1PositionX,
+        'y' : self.player1PositionY,
+        'width' : 74,
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 8, 
+        'numberOfFrames' : 8,
+        'loop' : true, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
+    var player2RunningSpriteOptions = {
+        'imageSrc' : 'static/images/RunningLeft.png',
+        'sourceX' : 0,
+        'sourceY' : self.player2StandingSpriteSheetY,
+        'sourceWidth' : 592,
+        'x' : self.player2PositionX,
+        'y' : self.player2PositionY,
+        'width' : 74,
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 8, 
+        'numberOfFrames' : 8,
+        'loop' : true, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
+    var player1BlockingSpriteOptions = {
+        'imageSrc' : 'static/images/BlockingRight.png',
+        'sourceX' : 0,
+        'sourceY' : self.player1StandingSpriteSheetY,
+        'sourceWidth' : 518,
+        'x' : self.player1PositionX,
+        'y' : self.player1PositionY,
+        'width' : 74,
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 8, 
+        'numberOfFrames' : 7,
+        'loop' : false, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
+    var player2BlockingSpriteOptions = {
+        'imageSrc' : 'static/images/BlockingLeft.png',
+        'sourceX' : 0,
+        'sourceY' : self.player2StandingSpriteSheetY,
+        'sourceWidth' : 518,
+        'x' : self.player2PositionX,
+        'y' : self.player2PositionY,
+        'width' : 74,
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 8, 
+        'numberOfFrames' : 7,
+        'loop' : false, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
     this.drawableObjects = {
-      backgroundImg : new drawableImage('static/images/SaveTheIslandBackGround3.png', 0, 0, self.backGroundWidth, self.backGroundHeight, 0, 0, self.backGroundWidth, self.backGroundHeight, null, null, null, false, true, imageLoadedCallback),
-      player1 : new drawableImage(self.player1SpriteSheet, 
-      							self.player1StandingSpriteSheetX, 
-      							self.player1StandingSpriteSheetY, 
-      							self.robotWidth, 
-      							self.robotHeight, 
-      							self.player1PositionX, 
-      							self.player1PositionY, 
-      							self.robotWidth, 
-      							self.robotHeight, null, null, null, false, true, imageLoadedCallback),
-      player2 : new drawableImage(self.player2SpriteSheet, 
-      							self.player2StandingSpriteSheetX, 
-      							self.player2StandingSpriteSheetY, 
-      							self.robotWidth, 
-      							self.robotHeight, 
-      							self.player2PositionX, 
-      							self.player2PositionY, 
-      							self.robotWidth, 
-      							self.robotHeight, null, null, null, false, true, imageLoadedCallback),
-      player1Running : new drawableImage('static/images/RunningRight.png', 
-      							0, 
-      							self.player1StandingSpriteSheetY, 
-      							592, 
-      							self.robotHeight, 
-      							self.player1PositionX, 
-      							self.player1PositionY, 
-      							74, 
-      							self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
-  	player2Running : new drawableImage('static/images/RunningLeft.png', 
-  								0, 
-  								self.player2StandingSpriteSheetY, 
-  								592, 
-  								self.robotHeight, 
-  								self.player2PositionX, 
-  								self.player2PositionY, 
-  								74, 
-  								self.robotHeight, null, 8, 8, true, false, imageLoadedCallback),
-  	player1Blocking : new drawableImage('static/images/BlockingRight.png', 
-  								0, 
-  								self.player1StandingSpriteSheetY, 
-  								518, 
-  								self.robotHeight, 
-  								self.player1PositionX, 
-  								self.player1PositionY, 
-  								74, 
-  								self.robotHeight, null, 8, 7, false, false, imageLoadedCallback),
-  	player2Blocking : new drawableImage('static/images/BlockingLeft.png', 
-  								0, 
-  								self.player2StandingSpriteSheetY, 
-  								518, 
-  								self.robotHeight, 
-  								self.player2PositionX, 
-  								self.player2PositionY, 
-  								74, 
-  								self.robotHeight, null, 8, 7, false, false, imageLoadedCallback),
+      backgroundImg : new drawableSprite(backgroundImgOptions),
+      player1 : new drawableSprite(player1StandingSpriteOptions),
+      player2 : new drawableSprite(player2StandingSpriteOptions),
+      player1Running : new drawableSprite(player1RunningSpriteOptions),
+      player2Running : new drawableSprite(player2RunningSpriteOptions),
+      player1Blocking : new drawableSprite(player1BlockingSpriteOptions),
+      player2Blocking : new drawableSprite(player2BlockingSpriteOptions)
     }
     
     this.playerAnimations = {
@@ -269,15 +360,31 @@ var GameBoard = function() {
   		  }
     }
     
+    
+    function makeNewTree(x, y) {
+      return {
+        'imageSrc' : 'static/images/tree.png',
+        'sourceX' : 0,
+        'sourceY' : 0,
+        'sourceWidth' : 32,
+        'sourceHeight' : 49,
+        'x' : x,
+        'y' : y,
+        'width' : 20,
+        'height' : 20,
+        'loadedCallback' : imageLoadedCallback
+      }
+    }
+    var treeSpriteDefaultsOptions = 
       this.backgroundElements = {
         trees1 : {
-          tree1 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 10, 110, 20, 20, null, null, null, false, true, imageLoadedCallback),
-          tree2 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 75, 100, 20, 20, null, null, null, false, true, imageLoadedCallback),
+          tree1 : new drawableImage(makeNewTree(10, 110)),
+          tree2 : new drawableImage(makeNewTree(75, 100)),
         },
         trees2 : {
-            tree3 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 150, 154, 20, 20, null, null, null, false, true, imageLoadedCallback),
-            tree4 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 250, 160, 20, 20, null, null, null, false, true, imageLoadedCallback),
-            tree5 : new drawableImage('static/images/tree.png', 0, 0, 32, 49, 350, 125, 20, 20, null, null, null, false, true, imageLoadedCallback),
+            tree3 : new drawableImage(makeNewTree(150, 154)),
+            tree4 : new drawableImage(makeNewTree(250, 160)),
+            tree5 : new drawableImage(makeNewTree(350, 125)),
         }
       }
       
