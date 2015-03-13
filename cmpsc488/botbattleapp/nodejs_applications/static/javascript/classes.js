@@ -280,101 +280,14 @@ function Animator(gameboard) {
   var self = this;
   var gameStateQueue = [];
   var imRunning = false;
-  var drawer = new Drawer(gameboard);
   
-  var animations = {
-    move : function(event, lastUpdateTime, callback) {
-        //backgroundAnimations();
-      
-      gameboard.playerAnimations[event.data.objectName].standing.visible = false;
-      gameboard.playerAnimations[event.data.objectName].move.visible = true;
-      
-      var drawableObject = gameboard.playerAnimations[event.data.objectName].move;
-      gameboard.playerAnimations[event.data.objectName].current = drawableObject;
-      
-      var time = updateXPositionLinearlyWithTime(drawableObject, event, lastUpdateTime, gameboard.islandWidth * 0.183908046); // 0.183908046 is 160/870 
-      
-      var done = drawableObject.x === (event.data.finalPosition * gameboard.gridWidth) + gameboard.islandStart;
-       
-      if (!done) {
-        requestAnimFrame(function() {
-          animations.move(event, time, callback);
-        });
-      } 
-      else {   // maybe make just current instead of changing visible...
-    	  gameboard.playerAnimations[event.data.objectName].move.visible = false;
-    	  gameboard.playerAnimations[event.data.objectName].standing.visible = true;
-          gameboard.playerAnimations[event.data.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
-          gameboard.playerAnimations[event.data.objectName].current.x = drawableObject.x;
-          gameboard.playerAnimations[event.data.objectName].current.y = drawableObject.y;
-          callback();
-      }
-    },
-    attack : function(animation, callback) {
-
-    },
-    defend : function(moveEvent, time, callback) {
-      var defendingPlayer = moveEvent.objectName;
-      var attackingPlayer = null;
-      if (moveEvent.objectName == 'player1') {
-        attackingPlayer = 'player2';
-      }
-      else {
-        attackingPlayer = 'player1';
-      }
-      // Set current state and position of defending player
-      gameboard.playerAnimations[defendingPlayer].defend.x = gameboard.playerAnimations[defendingPlayer].standing.x;
-      gameboard.playerAnimations[defendingPlayer].defend.y = gameboard.playerAnimations[defendingPlayer].standing.y;  
-      gameboard.playerAnimations[defendingPlayer].standing.visible = false;
-      gameboard.playerAnimations[defendingPlayer].defend.visible = true;
-      var defendingSprite = gameboard.playerAnimations[defendingPlayer].defend;
-      gameboard.playerAnimations[defendingPlayer].current = defendingSprite;
-      
-      // Set current state and position of attacking player
-      gameboard.playerAnimations[attackingPlayer].defend.x = gameboard.playerAnimations[attackingPlayer].standing.x;
-      gameboard.playerAnimations[attackingPlayer].defend.y = gameboard.playerAnimations[attackingPlayer].standing.y;  
-      gameboard.playerAnimations[attackingPlayer].standing.visible = false;
-      gameboard.playerAnimations[attackingPlayer].defend.visible = true;
-      var attackingSprite = gameboard.playerAnimations[attackingPlayer].defend;
-      gameboard.playerAnimations[attackingPlayer].current = attackingSprite;
-      
-      
-      var done = moveEvent.animationComplete(defendingSprite);
-      if (!done) {
-        requestAnimFrame(function() {
-          animations.defend(moveEvent, time, callback);
-        });
-      } 
-      else {   // maybe make just current instead of changing visible...
-    	  gameboard.playerAnimations[defendingPlayer].defend.visible = false;
-    	  gameboard.playerAnimations[defendingPlayer].standing.visible = true;
-          //gameboard.playerAnimations[defendingPlayer].current = gameboard.playerAnimations[moveEvent.objectName].standing;
-          //gameboard.playerAnimations[defendingPlayer].current.x = defendingSprite.x;
-          //gameboard.playerAnimations[defendingPlayer].current.y = defendingSprite.y;
-          
-          gameboard.playerAnimations[attackingPlayer].defend.visible = false;
-          gameboard.playerAnimations[attackingPlayer].standing.visible = true;
-          
-          // Note attacking player will fall backwards as result of next event
-          callback();
-      }
-    },
-    died : function(animation, callback) {
-
-    }
-  }
-
   this.addNewGameState = function(gamestate) {
     gameStateQueue.push(gamestate);
 
     if (!imRunning) {
-      start();
+      imRunning = true;
+      processNextGameState();
     }
-  }
-
-  var start = function() {
-    imRunning = true;
-    processNextGameState();
   }
 
   var processNextGameState = function() {
@@ -383,39 +296,15 @@ function Animator(gameboard) {
     if (!nextGameState) {
       imRunning = false;
     } else {
-        animateGameState(nextGameState, function() {
-        processNextGameState()
-      })
+      // TODO: Handle errors
+      USER_DEFINITIONS.processGameData(nextGameState.gameData, function(err) {
+        USER_DEFINITIONS.processDebugData(nextGameState.debugData, function(err) {
+          async.eachSeries(nextGameState.animatableEvents, USER_DEFINITIONS.processAnimatableEvent, function(err) {
+            processNextGameState();
+          });
+        });        
+      });
     }
-  }
-
-  var animateGameState = function(gamestate, callback) {
-
-    //TODO Process gameData and debugData here
-    
-    async.eachSeries(gamestate.animatableEvents, animateIndividual, callback);
-  };
-
-  var animateIndividual = function(animatableEvent, callback) {
-    var startTime = (new Date()).getTime();
-    animations[animatableEvent.event](animatableEvent, startTime, callback);
-  }
-  
-  var treeMove = 1;
-  this.upDateBackground = function(startTime) {
-    
-	//requestAnimationFrame(self.backgroundAnimations);
-	//drawer.drawBoard();
-	
-	treeMove *= -1;
-	
-	// Move the trees around
-    for (treeIndex in gameboard.backgroundElements.trees1){
-    	gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * scale);
-    }
-    for (treeIndex in gameboard.backgroundElements.trees2){
-    	gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * scale);
-      }
   }
   
   /**
@@ -426,7 +315,7 @@ function Animator(gameboard) {
    * @param {Number} lastUpdateTime The time of the last frame update of this object
    * @param {Number} speed The speed in pixels/second to move the object
    */
-  var updateXPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
+  this.updateXPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
       var backwards = moveEvent.endingX - drawableObject.x < 0;
@@ -453,7 +342,7 @@ function Animator(gameboard) {
    * @param {Number} lastUpdateTime The time of the last frame update of this object
    * @param {Number} speed The speed in pixels/second to move the object
    */
-  var updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
+  this.updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
       var time = (new Date()).getTime();
       var timeDiff = time - lastUpdateTime;
       var up = moveEvent.endingY - drawableObject.y < 0;
