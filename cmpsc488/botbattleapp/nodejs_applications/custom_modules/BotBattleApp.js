@@ -132,7 +132,7 @@ function BotBattleApp(server) {
                 },
               ] // End game state array
 	  );
-	  }, 10); 
+	  }, 500); 
 
 	}); 
 
