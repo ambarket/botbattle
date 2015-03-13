@@ -1,6 +1,5 @@
 Heres our general idea of how it will look. As we flesh it out more we well update this file.
-
-           [ // Instead of named objects called turns, just use an array of objects, on our end were calling these gamestates
+[ // Instead of named objects called turns, just use an array of objects, on our end were calling these gamestates
              // and they will be processed in the order that they are defined in this array
              // Each gaem state has three properties
              //  animatableEvents : an array of animatableEvent objects
@@ -11,8 +10,8 @@ Heres our general idea of how it will look. As we flesh it out more we well upda
                     {
                       'event': 'move',
                       'data': { 
-                        'objectName' : 'player2',
-                        'finalPosition' : 11 
+                        'objectName' : 'player1',
+                        'finalPosition' : 9 
                       } 
                     },
                  ],
@@ -29,23 +28,16 @@ Heres our general idea of how it will look. As we flesh it out more we well upda
                {
                   'animatableEvents': 
                     [
-                       {
-                         'event': 'move',
-                         'data': 
-                         { 
-                          'object_name' : 'player1',
-                          'final_position' : 10 
-                         } 
-                       },
                         {
-                          'event': 'defend',
+                          'event': 'defendedAttack',
                           'data': 
                            { 
-                            'attacker' : 'player1',
-                            'defender' : 'player2',
-                            'attackerFinalPosition' : 6  // After a defend the attacker should move back to their original position
+                            'attacker' : 'player2',
+                            'defender' : 'player1',
+                            'attackerStartingPosition' : 24,  // After a defend the attacker should move back to their original position
+                            'attackerAttackPosition' : 11
                            } 
-                        },
+                        },  
                     ],
                     'gameData' : {
                       'player1Tiles' : [1, 3, 2, 2, 3],
@@ -56,4 +48,24 @@ Heres our general idea of how it will look. As we flesh it out more we well upda
                       lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
                     },
                 },
+                // Turn 3
+                {
+                  'animatableEvents': [     // Each animatableEvent must have an event name and data object
+                     {
+                       'event': 'move',
+                       'data': { 
+                         'objectName' : 'player1',
+                         'finalPosition' : 0 
+                       } 
+                     },
+                  ],
+                  'gameData' : {
+                    'player1Tiles' : [1, 3, 5, 5, 3],    // The tiles after this turn
+                    'player2Tiles' : [2, 4, 3, 5, 1],
+                    'turnDescription' : "Player 2 used a 3 tile to move to position 11.",  // May not be necessary but would be nice.
+                  },
+                  'debugData' : {
+                       lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
+                  },
+                }, 
               ] // End game state array

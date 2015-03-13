@@ -70,56 +70,16 @@ function BotBattleApp(server) {
                {
                   'animatableEvents': 
                     [
-                       {
-                         'event': 'move',
-                         'data': 
-                         { 
-                          'objectName' : 'player2',
-                          'finalPosition' : 11 
-                         } 
-                       },
                         {
-                          'event': 'defend',
+                          'event': 'defendedAttack',
                           'data': 
                            { 
                             'attacker' : 'player2',
                             'defender' : 'player1',
-                            //'attackerFinalPosition' : 6  // After a defend the attacker should move back to their original position
+                            'attackerStartingPosition' : 24,  // After a defend the attacker should move back to their original position
+                            'attackerAttackPosition' : 11
                            } 
-                        },
-                        {
-                          'event': 'move',
-                          'data': 
-                           { 
-                            'objectName' : 'player1',
-                            'finalPosition' : 5  // After a defend the attacker should move back to their original position
-                           } 
-                        },
-                        {
-                          'event': 'move',
-                          'data': 
-                           { 
-                            'objectName' : 'player2',
-                            'finalPosition' : 18  // After a defend the attacker should move back to their original position
-                           } 
-                        },
-                        {
-                          'event': 'move',
-                          'data': 
-                           { 
-                            'objectName' : 'player1',
-                            'finalPosition' : 16  // After a defend the attacker should move back to their original position
-                           } 
-                        },
-                        {
-                          'event': 'defend',
-                          'data': 
-                           { 
-                            'attacker' : 'player1',
-                            'defender' : 'player2',
-                            //'attackerFinalPosition' : 6  // After a defend the attacker should move back to their original position
-                           } 
-                        },
+                        },  
                     ],
                     'gameData' : {
                       'player1Tiles' : [1, 3, 2, 2, 3],
@@ -130,6 +90,26 @@ function BotBattleApp(server) {
                       lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
                     },
                 },
+                // Turn 3
+                {
+                  'animatableEvents': [     // Each animatableEvent must have an event name and data object
+                     {
+                       'event': 'move',
+                       'data': { 
+                         'objectName' : 'player1',
+                         'finalPosition' : 0 
+                       } 
+                     },
+                  ],
+                  'gameData' : {
+                    'player1Tiles' : [1, 3, 5, 5, 3],    // The tiles after this turn
+                    'player2Tiles' : [2, 4, 3, 5, 1],
+                    'turnDescription' : "Player 2 used a 3 tile to move to position 11.",  // May not be necessary but would be nice.
+                  },
+                  'debugData' : {
+                       lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
+                  },
+                }, 
               ] // End game state array
 	  );
 	  }, 500); 
