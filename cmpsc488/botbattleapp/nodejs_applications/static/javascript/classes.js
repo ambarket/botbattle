@@ -275,7 +275,7 @@ var GameBoard = function() {
 								self.player1PositionX, 
 								self.player1PositionY, 
 								90, 
-								self.robotHeight, null, 10, 4, false, false, imageLoadedCallback),
+								self.robotHeight, null, 12, 4, false, false, imageLoadedCallback),
 	player2Attacking : new drawableImage('static/images/ShootingLeft.png', 
   								0, 
   								self.player2StandingSpriteSheetY, 
@@ -284,7 +284,7 @@ var GameBoard = function() {
   								self.player2PositionX, 
   								self.player2PositionY, 
   								90, 
-  								self.robotHeight, null, 10, 4, false, false, imageLoadedCallback),
+  								self.robotHeight, null, 12, 4, false, false, imageLoadedCallback),
     }
     
     this.playerAnimations = {
