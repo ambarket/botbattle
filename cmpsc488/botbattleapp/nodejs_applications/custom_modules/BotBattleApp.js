@@ -1,12 +1,17 @@
 
 function BotBattleApp(server, database) {
 	var self = this;
+
 	var paths = require('./BotBattlePaths');
 	var fileManager = new (require(paths.custom_modules.FileManager));
 	
-	server.addStaticFileRoute('/', 'static/html/testArena.html');
-	
-	//res.sendFile(path.resolve(paths.app_root, filePath));
+	server.addDynamicRoute('get', '/', function(req, res) {
+	  var path = require('path');
+	  
+	  
+	  
+	  res.sendFile(path.resolve(paths.static_content.html, 'testArena.html'));
+	});
 	
 	server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
 	  setTimeout(function() {

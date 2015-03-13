@@ -1,5 +1,5 @@
 {
-  "name": "HW6",
+  "name": "Bot!Battle!",
   "description": "Best app ever!!!",
   "version": "0.0.1",
   "private": true,
@@ -16,6 +16,7 @@
     "assert": "*",
     "util": "*",
     "multer": "~0.1.7",
-    "fs-extra": "*"
+    "fs-extra": "*",
+    "shortid": "~2.1.3"
   }
 }
