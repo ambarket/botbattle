@@ -73,13 +73,13 @@ drawableImage.prototype.constructor = drawableRectangle;
 drawableImage.prototype.draw = function(context) {	  
 	if(this.visible){
 		// temporary add to outline the boxes of objects for measureing purposes
-		  context.beginPath();
+		  /*context.beginPath();
 		  context.rect(this.x * scale, this.y * scale, this.destWidth * scale, this.destHeight * scale);
 		  context.fillStyle = '#8ED6FF';
 		  context.fill();
 		  context.lineWidth = this.borderWidth;
 		  context.strokeStyle = 'black';
-		  context.stroke();
+		  context.stroke();*/
 		  
 	  this.update();
 	  
@@ -267,6 +267,24 @@ var GameBoard = function() {
   								self.player2PositionY, 
   								74, 
   								self.robotHeight, null, 8, 7, false, false, imageLoadedCallback),
+	player1Attacking : new drawableImage('static/images/ShootingRight.png', 
+								0, 
+								self.player1StandingSpriteSheetY, 
+								360, 
+								self.robotHeight, 
+								self.player1PositionX, 
+								self.player1PositionY, 
+								90, 
+								self.robotHeight, null, 10, 4, false, false, imageLoadedCallback),
+	player2Attacking : new drawableImage('static/images/ShootingLeft.png', 
+  								0, 
+  								self.player2StandingSpriteSheetY, 
+  								360, 
+  								self.robotHeight, 
+  								self.player2PositionX, 
+  								self.player2PositionY, 
+  								90, 
+  								self.robotHeight, null, 10, 4, false, false, imageLoadedCallback),
     }
     
     this.playerAnimations = {
@@ -274,7 +292,7 @@ var GameBoard = function() {
   			  current : self.drawableObjects.player1,
   			  standing : self.drawableObjects.player1,
   			  move : self.drawableObjects.player1Running,
-  			  //attack : "player1Attack",
+  			  attack : self.drawableObjects.player1Attacking,
   			  defend : self.drawableObjects.player1Blocking,
   			  //hit : "player1Falling",
   			  //lose : "player1Lost"
@@ -283,7 +301,7 @@ var GameBoard = function() {
   			  current : self.drawableObjects.player2,
   			  standing : self.drawableObjects.player2,
   			  move : self.drawableObjects.player2Running,
-  			  //attack : "player2Attack",
+  			  attack : self.drawableObjects.player2Attacking,
   			  defend : self.drawableObjects.player2Blocking,
   			  //hit : "player2Falling",
   			  //lose : "player2Lost"
@@ -349,10 +367,10 @@ function Animator(gameboard) {
         else {   // maybe make just current instead of changing visible...
       	  gameboard.playerAnimations[moveEvent.objectName].move.visible = false;
       	  gameboard.playerAnimations[moveEvent.objectName].standing.visible = true;
-            gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
-            gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
-            gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
-            callback();
+          gameboard.playerAnimations[moveEvent.objectName].current = gameboard.playerAnimations[moveEvent.objectName].standing;
+          gameboard.playerAnimations[moveEvent.objectName].current.x = drawableObject.x;
+          gameboard.playerAnimations[moveEvent.objectName].current.y = drawableObject.y;
+          callback();
         }
     },
     /*fly : function(moveEvent, lastUpdateTime, callback) { // break this up to ascendHover and descendHover
@@ -389,24 +407,23 @@ function Animator(gameboard) {
         attackingPlayer = 'player1';
       }
       // Set current state and position of defending player
+      
+      // in the future -- position changes like this need to be based on the grid position then shifted so the "winner" isn't messed up anymore
       gameboard.playerAnimations[defendingPlayer].defend.x = gameboard.playerAnimations[defendingPlayer].standing.x - ((gameboard.playerAnimations[defendingPlayer].defend.destWidth * scale)/2) + gameboard.gridCenter;
       gameboard.playerAnimations[defendingPlayer].defend.y = gameboard.playerAnimations[defendingPlayer].standing.y;  
       gameboard.playerAnimations[defendingPlayer].standing.visible = false;
       gameboard.playerAnimations[defendingPlayer].defend.visible = true;
-      var defendingSprite = gameboard.playerAnimations[defendingPlayer].defend;
-      gameboard.playerAnimations[defendingPlayer].current = defendingSprite;
+      gameboard.playerAnimations[defendingPlayer].current = gameboard.playerAnimations[defendingPlayer].defend;
       
       // Set current state and position of attacking player
-      gameboard.playerAnimations[attackingPlayer].defend.x = gameboard.playerAnimations[attackingPlayer].standing.x - ((gameboard.playerAnimations[attackingPlayer].defend.destWidth * scale)/2) + gameboard.gridCenter;
-      gameboard.playerAnimations[attackingPlayer].defend.y = gameboard.playerAnimations[attackingPlayer].standing.y;  
+      gameboard.playerAnimations[attackingPlayer].attack.x = gameboard.playerAnimations[attackingPlayer].standing.x - ((gameboard.playerAnimations[attackingPlayer].attack.destWidth * scale)/2) + gameboard.gridCenter;
+      gameboard.playerAnimations[attackingPlayer].attack.y = gameboard.playerAnimations[attackingPlayer].standing.y;  
       gameboard.playerAnimations[attackingPlayer].standing.visible = false;
-      gameboard.playerAnimations[attackingPlayer].defend.visible = true;
-      var attackingSprite = gameboard.playerAnimations[attackingPlayer].defend;
-      gameboard.playerAnimations[attackingPlayer].current = attackingSprite;
+      gameboard.playerAnimations[attackingPlayer].attack.visible = true;
+      gameboard.playerAnimations[attackingPlayer].current = gameboard.playerAnimations[attackingPlayer].attack;
       
       
-      var done = moveEvent.animationComplete(defendingSprite);
-      if (!done) {
+      if (!moveEvent.animationComplete(gameboard.playerAnimations[defendingPlayer].defend)) {
         requestAnimFrame(function() {
           animations.defend(moveEvent, time, callback);
         });
@@ -418,7 +435,7 @@ function Animator(gameboard) {
           //gameboard.playerAnimations[defendingPlayer].current.x = defendingSprite.x;
           //gameboard.playerAnimations[defendingPlayer].current.y = defendingSprite.y;
           
-          gameboard.playerAnimations[attackingPlayer].defend.visible = false;
+          gameboard.playerAnimations[attackingPlayer].attack.visible = false;
           gameboard.playerAnimations[attackingPlayer].standing.visible = true;
           
           // Note attacking player will fall backwards as result of next event

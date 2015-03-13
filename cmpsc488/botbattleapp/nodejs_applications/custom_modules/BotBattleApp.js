@@ -52,7 +52,7 @@ function BotBattleApp(server) {
                     {
                       'player': 'player1',
                       'event': 'move',
-                      'data': 10 // The board position to move to (will be 0 to 24)
+                      'data': 9 // The board position to move to (will be 0 to 24)  attack needs to be two spaces away
                     },
                     {
                       'player': 'player2',

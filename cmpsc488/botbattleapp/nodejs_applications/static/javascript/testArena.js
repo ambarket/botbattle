@@ -45,11 +45,15 @@
       var testGameState = {
         animationsList : [ 
                           //new DefendEvent('player1'), 
-            new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y), 
+            new MoveEvent('player1', 9, gameboard.drawableObjects['player1'].y), 
+            //new DefendEvent('player1'),
+            new MoveEvent('player2', 11, gameboard.drawableObjects['player1'].y), 
             new DefendEvent('player1'),
-            new MoveEvent('player1', 1, gameboard.drawableObjects['player1'].y), 
-            new DefendEvent('player1'),
-            new MoveEvent('player1', 2, gameboard.drawableObjects['player1'].y), 
+            new MoveEvent('player1', 5, gameboard.drawableObjects['player1'].y), 
+            new MoveEvent('player2', 18, gameboard.drawableObjects['player1'].y), 
+            new MoveEvent('player1', 16, gameboard.drawableObjects['player1'].y), 
+            new DefendEvent('player2'),
+            /*new MoveEvent('player1', 2, gameboard.drawableObjects['player1'].y), 
             new DefendEvent('player1'),
             new MoveEvent('player1', 3, gameboard.drawableObjects['player1'].y), 
             new DefendEvent('player1'),
@@ -94,14 +98,12 @@
             new MoveEvent('player1', 23, gameboard.drawableObjects['player1'].y), 
             new DefendEvent('player1'),
             new MoveEvent('player1', 24, gameboard.drawableObjects['player1'].y), 
-            new DefendEvent('player1'),
-            new MoveEvent('player2', 11, gameboard.drawableObjects['player2'].y),
-            new DefendEvent('player1'), 
-            new DefendEvent('player2'), 
+            new DefendEvent('player1'),*/
+            //new MoveEvent('player2', 11, gameboard.drawableObjects['player2'].y),
+            //new DefendEvent('player1'), 
+            //new DefendEvent('player2'), 
             new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y),
             new MoveEvent('player2', 24, gameboard.drawableObjects['player2'].y),
-            new DefendEvent('player1'), 
-            new DefendEvent('player2')
        ]
             
       }
