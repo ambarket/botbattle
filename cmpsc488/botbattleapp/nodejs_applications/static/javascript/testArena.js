@@ -5,59 +5,13 @@
           window.setTimeout(callback, 1000 / 60);
         };
   })();
-
-  // maybe turn this into a game loop
-
-  // Simulate the arrival of a new game state by clicking the mouse
-  var gameboard = new GameBoard();
-  console.log(gameboard + " in testArena");
-  gameboard.loadImages(function(err) {
-    var animator = new Animator(gameboard);
-    var drawer = new Drawer(gameboard);
-
+  
+  // add click listener to canvas to get distances between two clicked points
+  (function() {
     var x1, x2, y1, y2;
     var clickCount = 0;
     var rect;
-
-    var canvas = document.getElementById('GameCanvas');
-
-    gameboard.resize();
-    
-    window.onresize = function() {
-      gameboard.resize();
-      //drawer.drawBoard();
-    }
-    
-    var time;
-    //var drawer = new Drawer(gameboard);
-
-    (function draw() {
-      requestAnimFrame(draw);
-      var now = new Date().getTime(), dt = now - (time || now);
-
-      time = now;
-
-      drawer.drawBoard();
-    })();
-
-    // add click listener to canvas
-    /*
     canvas.addEventListener('click', function(event) {
-
-      var testGameState = {
-        animationsList : [ 
-                          //new DefendEvent('player1'), 
-            new MoveEvent('player1', 10, gameboard.drawableObjects['player1'].y), 
-            new MoveEvent('player2', 11, gameboard.drawableObjects['player2'].y),
-            new DefendEvent('player1'), 
-            new DefendEvent('player2'), 
-            new MoveEvent('player1', 0, gameboard.drawableObjects['player1'].y),
-            new MoveEvent('player2', 24, gameboard.drawableObjects['player2'].y),
-            new DefendEvent('player1'), 
-            new DefendEvent('player2')
-       ]
-            
-      }
       console.log("Someone Clicked");
       if (event.ctrlKey) {
         rect = canvas.getBoundingClientRect();
@@ -74,12 +28,50 @@
               + Math.abs(y1 - y2) + "<hr> point1 = X: " + x1 + " Y: " + y1 + "<hr> point2 = X: " + x2 + " Y: " + y2;
           x1 = x2 = y1 = y2 = null;
         }
-      } else {
-        animator.addNewGameState(testGameState);
-      }
-
+      } 
     });
-    */
+  });
+
+  
+  // Define global TEST_ARENA namespace to be shared throughout client side code
+  var canvas = 
+  TEST_ARENA = {
+      'canvas' : document.getElementById("GameCanvas"),
+      'context' : document.getElementById("GameCanvas").getContext('2d'),
+      'scale' : 1, // set by resizeCanvas
+      'resizeCanvas' : function(){
+        this.canvas.width = Math.min(this.canvas.parentNode.getBoundingClientRect().width, 1050);
+        this.canvas.height = this.canvas.width * 0.619047619;  // 650/1050 = 0.619047619
+        this.scale = document.getElementById("GameCanvas").width / 1050;
+      },
+ 
+  }
+  
+  GAME.resetGameboard(function(err) {
+    var drawer = new Drawer();
+
+    TEST_ARENA.resizeCanvas();
+    //resize();
+    
+    window.onresize = function() {
+      console.log("resize");
+      console.log(TEST_ARENA);
+      TEST_ARENA.resizeCanvas();
+      //resize();
+      drawer.drawBoard();
+    }
+    
+    var time;
+    //var drawer = new Drawer(gameboard);
+
+    (function draw() {
+      requestAnimFrame(draw);
+      var now = new Date().getTime(), dt = now - (time || now);
+
+      time = now;
+      //console.log("drawing");
+      drawer.drawBoard();
+    })();
   })
 })();
 

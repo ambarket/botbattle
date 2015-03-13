@@ -1,4 +1,4 @@
-var scale = 1;
+
 //--------------------------Drawable Objects------------------------------------
 var drawableObject = function(x, y, width, height) {
 	this.x = x || 0;
@@ -79,7 +79,7 @@ drawableImage.prototype.draw = function(context) {
 	if(this.visible){
 	  this.update();
 	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, 
-	      this.x * scale, this.y * scale, this.width * scale,  this.height * scale); 
+	      this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale,  this.height * TEST_ARENA.scale); 
 	}
 };
 
@@ -119,7 +119,9 @@ var drawableSprite = function(options) {
   this.ticksPerFrame = options.ticksPerFrame || 1;
   this.numberOfFrames = options.numberOfFrames || 1;
   this.loop = options.loop || false;
-  this.visible = options.visible || true;
+  if (options.visible !== false) {options.visible = true} // enforce default of true this way
+  this.visible = options.visible;
+  
   
   //must use total image width not sprite width, force this here instead of in draw
   if(this.numberOfFrames !== 1) {
@@ -137,7 +139,7 @@ var drawableSprite = function(options) {
           self.frameIndex += 1; 
         }
         else{
-          if (!loop) {
+          if (!self.loop) {
             self.done = true;
           }
           self.frameIndex = 0;
@@ -151,252 +153,14 @@ drawableSprite.prototype.constructor = drawableSprite;
 drawableSprite.prototype.draw = function(context) {
     if(this.visible){
       this.update();
-      context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth / this.numberOfFrames, 
-          this.sourceHeight, this.x * scale, this.y * scale, this.width * scale,  this.height * scale); 
+      context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, 
+          this.sourceHeight, this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale,  this.height * TEST_ARENA.scale); 
     }
 };
 
 
 
-//--------------------------The GameBoard (Model)------------------------------------
-var GameBoard = function() {
-  // Implements the singleton pattern so animator and drawer share the same GameBoard
-  if ( arguments.callee._singletonInstance ){
-    	return arguments.callee._singletonInstance;
-  }
-  arguments.callee._singletonInstance = this;
-  
-  var canvas = document.getElementById("GameCanvas");
-  var context = canvas.getContext('2d');
-  
-  var fontSize = 30 * scale;
-  context.font= fontSize + 'px Arial';
-  context.fillStyle="black";
-      context.fillText("Loading...", 1050/2 * scale - 300, 650/2 * scale);
-  
-  var self = this;
-  
-  this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
-  this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png';
-  
-  this.resize = function(){
 
-	  var canvasContainer = document.getElementsByClassName('col_9')[0].getBoundingClientRect();
-	  //console.log(canvasContainer);
-  	  canvas.width = Math.min(canvasContainer.width, 1050);
-  	  canvas.height = canvas.width * 0.619047619;  // 650/1050 = 0.619047619
-  	  scale = document.getElementById("GameCanvas").width / 1050;
-  }
-  
-  this.backGroundWidth = 1050;
-  this.backGroundHeight = 650;
-  this.islandWidth = 870;
-  this.islandStart = 83;
-  this.islandCenterHeight = 468;
-  this.robotWidth = 43;
-  this.robotHeight = 79;
-  this.numberOfGrids = 25;
-  this.gridWidth = self.islandWidth/25;
-  this.gridCenter = self.gridWidth/2;
-  console.log(self.gridCenter);
-  this.player1StartX = (0 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
-  this.player2StartX = (24 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
-  this.player1StartY = self.islandCenterHeight - self.robotHeight;
-  this.player2StartY = self.islandCenterHeight - self.robotHeight;  
-  this.player1StandingSpriteSheetX = 2107;
-  this.player1StandingSpriteSheetY = 22;
-  this.player2StandingSpriteSheetY = 22;
-  this.player2StandingSpriteSheetX = 687;
-  this.player1PositionX = self.player1StartX;
-  this.player1PositionY = self.player1StartY;
-  this.player2PositionX = self.player2StartX;
-  this.player2PositionY = self.player2StartY;
-  
-  this.loadImages = function(callback) {
-    // can get the image width property automatically
-    /**
-      options : {
-       'imageSrc' :   ,
-       'sourceX' :   ,
-       'sourceY' :   ,
-       'sourceWidth' :   , 
-       'sourceHeight' :   ,
-       'x' :   ,
-       'y' :   ,
-       'width' :   ,
-       'height' :   ,
-       'indexStart' :   , 
-       'ticksPer' :   , 
-       'numberOfFrames' :   ,
-       'loop' :   , 
-       'visible' :   ,
-       'loadedCallback' :   ,
-     }
-     */
-    
-    var backgroundImgOptions = {
-         'imageSrc' : 'static/images/SaveTheIslandBackGround3.png', 
-         'x' : 0,          
-         'y' : 0,       
-         'width' : self.backGroundWidth, 
-         'height' : self.backGroundHeight,
-         'loadedCallback' : imageLoadedCallback
-    }
-    
-    var player1StandingSpriteOptions = {
-      'imageSrc' : self.player1SpriteSheet,
-      'sourceX' : self.player1StandingSpriteSheetX,
-      'sourceY' : self.player1StandingSpriteSheetY,
-      'x' : self.player1PositionX,
-      'y' : self.player1PositionY,
-      'width' : self.robotWidth,
-      'height' : self.robotHeight,
-      'loadedCallback' : imageLoadedCallback
-    }
-
-    var player2StandingSpriteOptions = {
-        'imageSrc' : self.player2SpriteSheet,
-        'sourceX' : self.player2StandingSpriteSheetX,
-        'sourceY' : self.player2StandingSpriteSheetY,
-        'x' : self.player2PositionX,
-        'y' : self.player2PositionY,
-        'width' : self.robotWidth,
-        'height' : self.robotHeight,
-        'loadedCallback' : imageLoadedCallback
-      }
-    
-    var player1RunningSpriteOptions = {
-        'imageSrc' : 'static/images/RunningRight.png',
-        'sourceX' : 0,
-        'sourceY' : self.player1StandingSpriteSheetY,
-        'sourceWidth' : 592,
-        'x' : self.player1PositionX,
-        'y' : self.player1PositionY,
-        'width' : 74,
-        'height' : self.robotHeight,
-        'ticksPerFrame' : 8, 
-        'numberOfFrames' : 8,
-        'loop' : true, 
-        'visible' : false,
-        'loadedCallback' : imageLoadedCallback
-      }
-    
-    var player2RunningSpriteOptions = {
-        'imageSrc' : 'static/images/RunningLeft.png',
-        'sourceX' : 0,
-        'sourceY' : self.player2StandingSpriteSheetY,
-        'sourceWidth' : 592,
-        'x' : self.player2PositionX,
-        'y' : self.player2PositionY,
-        'width' : 74,
-        'height' : self.robotHeight,
-        'ticksPerFrame' : 8, 
-        'numberOfFrames' : 8,
-        'loop' : true, 
-        'visible' : false,
-        'loadedCallback' : imageLoadedCallback
-      }
-    
-    var player1BlockingSpriteOptions = {
-        'imageSrc' : 'static/images/BlockingRight.png',
-        'sourceX' : 0,
-        'sourceY' : self.player1StandingSpriteSheetY,
-        'sourceWidth' : 518,
-        'x' : self.player1PositionX,
-        'y' : self.player1PositionY,
-        'width' : 74,
-        'height' : self.robotHeight,
-        'ticksPerFrame' : 8, 
-        'numberOfFrames' : 7,
-        'loop' : false, 
-        'visible' : false,
-        'loadedCallback' : imageLoadedCallback
-      }
-    
-    var player2BlockingSpriteOptions = {
-        'imageSrc' : 'static/images/BlockingLeft.png',
-        'sourceX' : 0,
-        'sourceY' : self.player2StandingSpriteSheetY,
-        'sourceWidth' : 518,
-        'x' : self.player2PositionX,
-        'y' : self.player2PositionY,
-        'width' : 74,
-        'height' : self.robotHeight,
-        'ticksPerFrame' : 8, 
-        'numberOfFrames' : 7,
-        'loop' : false, 
-        'visible' : false,
-        'loadedCallback' : imageLoadedCallback
-      }
-    
-    this.drawableObjects = {
-      backgroundImg : new drawableSprite(backgroundImgOptions),
-      player1 : new drawableSprite(player1StandingSpriteOptions),
-      player2 : new drawableSprite(player2StandingSpriteOptions),
-      player1Running : new drawableSprite(player1RunningSpriteOptions),
-      player2Running : new drawableSprite(player2RunningSpriteOptions),
-      player1Blocking : new drawableSprite(player1BlockingSpriteOptions),
-      player2Blocking : new drawableSprite(player2BlockingSpriteOptions)
-    }
-    
-    this.playerAnimations = {
-  		  player1 : {
-  			  current : self.drawableObjects.player1,
-  			  standing : self.drawableObjects.player1,
-  			  move : self.drawableObjects.player1Running,
-  			  //attack : "player1Attack",
-  			  defend : self.drawableObjects.player1Blocking,
-  			  //hit : "player1Falling",
-  			  //lose : "player1Lost"
-  		  },
-  		  player2 : {
-  			  current : self.drawableObjects.player2,
-  			  standing : self.drawableObjects.player2,
-  			  move : self.drawableObjects.player2Running,
-  			  //attack : "player2Attack",
-  			  defend : self.drawableObjects.player2Blocking,
-  			  //hit : "player2Falling",
-  			  //lose : "player2Lost"
-  		  }
-    }
-    
-    
-    function makeNewTree(x, y) {
-      return {
-        'imageSrc' : 'static/images/tree.png',
-        'sourceX' : 0,
-        'sourceY' : 0,
-        'sourceWidth' : 32,
-        'sourceHeight' : 49,
-        'x' : x,
-        'y' : y,
-        'width' : 20,
-        'height' : 20,
-        'loadedCallback' : imageLoadedCallback
-      }
-    }
-    var treeSpriteDefaultsOptions = 
-      this.backgroundElements = {
-        trees1 : {
-          tree1 : new drawableImage(makeNewTree(10, 110)),
-          tree2 : new drawableImage(makeNewTree(75, 100)),
-        },
-        trees2 : {
-            tree3 : new drawableImage(makeNewTree(150, 154)),
-            tree4 : new drawableImage(makeNewTree(250, 160)),
-            tree5 : new drawableImage(makeNewTree(350, 125)),
-        }
-      }
-      
-      var imagesLoaded= 0, expectedImagesLoaded=12;
-      function imageLoadedCallback() {
-        imagesLoaded++;
-        if (imagesLoaded == expectedImagesLoaded) {
-          callback();
-        }
-      }
-  }
-}
 
 //--------------------------The Animator (Controller)------------------------------------
 function Animator(gameboard) {
@@ -424,9 +188,9 @@ function Animator(gameboard) {
       imRunning = false;
     } else {
       // TODO: Handle errors
-      USER_DEFINITIONS.processGameData(nextGameState.gameData, function(err) {
-        USER_DEFINITIONS.processDebugData(nextGameState.debugData, function(err) {
-          async.eachSeries(nextGameState.animatableEvents, USER_DEFINITIONS.processAnimatableEvent, function(err) {
+      GAME.processGameData(nextGameState.gameData, function(err) {
+        GAME.processDebugData(nextGameState.debugData, function(err) {
+          async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
             processNextGameState();
           });
         });        
@@ -500,60 +264,4 @@ var coinFlip = function(weight){
 	  }
 }
 
-//--------------------------The Drawer (View)------------------------------------
-function Drawer(gameboard) {
-  if ( arguments.callee._singletonInstance )
-    return arguments.callee._singletonInstance;
-  arguments.callee._singletonInstance = this;
-  
-  var self = this;
-  var canvas = document.getElementById('GameCanvas');
-  var context = canvas.getContext('2d');
-  var animator = new Animator(gameboard);
-  
-  this.drawBoard = function() {
-	  
-	//animator.upDateBackground();
-	//console.log("Drawing gameboard");
-    
-	for (object in gameboard.drawableObjects) {
-      gameboard.drawableObjects[object].draw(context);
-    }
-    for (list in gameboard.backgroundElements){
-    	for(object in gameboard.backgroundElements[list]){
-    		gameboard.backgroundElements[list][object].draw(context);
-    	}
-    }
-    drawGridNumbers();
-  }
-  
-  var drawGridNumbers = function(){
-	  var player1PositionX = gameboard.playerAnimations["player1"].current.x;
-	  var player1PositionY = gameboard.playerAnimations["player1"].current.y;
-	  var player2PositionX = gameboard.playerAnimations["player2"].current.x;
-	  var player2PositionY = gameboard.playerAnimations["player2"].current.y;
-	  var p1Grid = Math.floor((player1PositionX - gameboard.islandStart)/ gameboard.gridWidth);
-	  var p2Grid = Math.floor((player2PositionX - gameboard.islandStart)/ gameboard.gridWidth);
-	  //console.log(p1Grid, p2Grid);
-	  var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
-	  
-	  var fontSize = 30 * scale;
-	  context.font= fontSize + 'px Arial';
-	  context.fillStyle="black";
-	  if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
-		  context.fillText(Math.floor(distanceBetweenPlayers), 495 * scale, 550 * scale);
-	  }
-	  else{
-		  if(p1Grid < 0){
-			  context.fillText("Player 2 Wins", 405 * scale, 550 * scale);
-		  }
-		  if(p2Grid > 24){
-			  context.fillText("Player 1 Wins", 405 * scale, 550 * scale);
-		  }
-	  }
-  }
-  
-  var clearCanvas = function() {
-    context.clearRect(0, 0, self.canvas.width, self.canvas.height); // not needed because background draws over old stuff
-  }
-}
+
