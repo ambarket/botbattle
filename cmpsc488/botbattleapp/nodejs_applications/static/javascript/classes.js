@@ -175,16 +175,10 @@ var drawableSprite = function(options) {
   if (options.visible !== false) {options.visible = true} // enforce default of true this way
   this.visible = options.visible;
   
-  
-  //must use total image width not sprite width, force this here instead of in draw
-  if(this.numberOfFrames !== 1) {
-    this.sourceX = this.frameIndex * this.sourceWidth / this.numberOfFrames;
-    this.sourceWidth = this.sourceWidth / this.numberOfFrames; // image width / frames
-  }
-    
   this.done = false;
   this.tickCount = 0;
   this.update = function () {
+
       self.tickCount += 1;  
       if (self.tickCount > self.ticksPerFrame) {
         self.tickCount = 0;
@@ -206,9 +200,29 @@ drawableSprite.prototype.constructor = drawableSprite;
 drawableSprite.prototype.draw = function(context) {
     if(this.visible){
       this.update();
-      context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, 
-          this.sourceHeight, this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale,  this.height * TEST_ARENA.scale); 
+      if(this.numberOfFrames !== 1){
+        context.drawImage(this.img, 
+                          this.frameIndex * this.sourceWidth / this.numberOfFrames, // must use total image width not sprite width
+                          this.sourceY, 
+                          this.sourceWidth / this.numberOfFrames, // image width / frames
+                          this.sourceHeight, 
+                          this.x * TEST_ARENA.scale,   // destination positionx
+                          this.y * TEST_ARENA.scale,   // destination positiony
+                          this.width * TEST_ARENA.scale,    // width you want it to be in the end
+                          this.height * TEST_ARENA.scale);  // height you want it to be in the end
     }
+    else{  
+        context.drawImage(this.img, 
+                          this.sourceX, 
+                          this.sourceY, 
+                          this.sourceWidth, 
+                          this.sourceHeight, 
+                          this.x * TEST_ARENA.scale, 
+                          this.y * TEST_ARENA.scale, 
+                          this.width * TEST_ARENA.scale, 
+                          this.height * TEST_ARENA.scale);
+    }
+  }
 };
 
 //----------------------------------------------------------------------------------------------

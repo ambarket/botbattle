@@ -43,7 +43,6 @@ GAME = {
       // TODO: Add err argument if they can occur
       gb.loadResources(function() {
         GAME.gameboard = gb;
-        console.log(GAME.gameboard);
         readyCallback();
       });
     }
@@ -85,7 +84,6 @@ GAME = {
         var attackingPlayer = event.data.defender;
         
         // Set current state and position of defending player
-        console.log(GAME.gameboard.playerAnimations);
         GAME.gameboard.playerAnimations[defendingPlayer].defend.x = GAME.gameboard.playerAnimations[defendingPlayer].standing.x;
         GAME.gameboard.playerAnimations[defendingPlayer].defend.y = GAME.gameboard.playerAnimations[defendingPlayer].standing.y;  
         GAME.gameboard.playerAnimations[defendingPlayer].standing.visible = false;
