@@ -52,6 +52,7 @@ TEST_ARENA.resetGameStateQueue = function() {
   })();
 }
 
+//TODO: Make these members of the TEST_ARENA object instead of global
 //--------------------------Drawable Objects------------------------------------
 var drawableObject = function(x, y, width, height) {
 	this.x = x || 0;
@@ -61,29 +62,38 @@ var drawableObject = function(x, y, width, height) {
 };
 
 drawableObject.prototype.draw = function(context) {
-  context.fillRect(this.x,this.y,1,1);
+  context.fillRect(this.x,this.y, this.width, this.height);
 };
 
-/*
-var drawableRectangle = function(x, y, width, height, borderWidth) {
-  drawableObject.call(this, x, y);
-  this.sourceWidth = width;
-  this.sourceHeight = height;
-  this.borderWidth = borderWidth;
+/** options
+ *  {
+ *      x: Number
+ *      y: number
+ *      width:
+ *      height:
+ *      borderWidth:
+ *      fillStyle:
+ *      strokeStyle:
+ */
+var drawableRectangle = function(options) {
+  drawableObject.call(this, options.x, options.y, options.width, options.height);
+  this.borderWidth = options.borderWidth || 1;
+  this.fillStyle = options.fillStyle || '#FFFFFF';
+  this.strokeStyle = options.strokeStyle || 'black';
 };
 
 drawableRectangle.prototype = Object.create(drawableObject.prototype);
 drawableRectangle.prototype.constructor = drawableRectangle;
 drawableRectangle.prototype.draw = function(context) {
   context.beginPath();
-  context.rect(this.x, this.y, this.destWidth, this.destHeight);
-  context.fillStyle = '#8ED6FF';
+  context.rect(this.x, this.y, this.width, this.height);
+  context.fillStyle = this.fillStyle;
   context.fill();
   context.lineWidth = this.borderWidth;
-  context.strokeStyle = 'black';
+  context.strokeStyle = this.strokeStyle;
   context.stroke();
 };
-*/
+
 /**
  * options : {
  *  imageSrc,   //required

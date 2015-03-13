@@ -18,6 +18,9 @@ GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
       appendDivToHtmlElementById('moveList', gameData.turnDescription);
+      this.gameboard.player1Tiles = gameData.player1Tiles;
+      this.gameboard.player2Tiles = gameData.player2Tiles;
+      //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
       processGameDataCallback();
     },
 
@@ -177,6 +180,7 @@ function Drawer() {
         }
     }
     drawGridNumbers();
+    drawPlayerTiles();
   }
   
   var drawGridNumbers = function(){
@@ -203,6 +207,65 @@ function Drawer() {
             TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
       }
+  }
+  
+  var drawPlayerTiles = function() {
+    /** options
+     *  {
+     *      x: Number
+     *      y: number
+     *      width:
+     *      height:
+     *      borderWidth:
+     *      fillStyle:
+     *      strokeStyle:
+     */
+    //TODO: Do better than just copying this for loop again and probably move tileParameters to
+    //  gameBoard.
+    //  Maybe we actually want to move all hardcoded canvas pixel related stuff to the drawer
+    var tileParameters = {
+        'player1StartingX' : 50,
+        'player2StartingX' : 700,
+        'y' : 550,
+        'width' : 50,
+        'height' : 50,
+        'fillStyle' : '#FFFFD1',
+    }
+    
+    for (var i = 0; i < GAME.gameboard.player1Tiles.length; i++) {
+      var currentX = (tileParameters.player1StartingX + (50* i));
+      (new drawableRectangle({ 
+        x: currentX * TEST_ARENA.scale, 
+        y: tileParameters.y * TEST_ARENA.scale,
+        width: tileParameters.width * TEST_ARENA.scale,
+        height: tileParameters.height * TEST_ARENA.scale,
+        fillStyle: tileParameters.fillStyle,
+      })).draw(TEST_ARENA.context);
+      
+      // TODO: Make drawableText object instead of copying this everywhere
+      var fontSize = 30 * TEST_ARENA.scale;
+      TEST_ARENA.context.font= fontSize + 'px Arial';
+      TEST_ARENA.context.fillStyle="black";
+      TEST_ARENA.context.fillText(GAME.gameboard.player1Tiles[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
+    }
+    console.log(GAME.gameboard.player2Tiles.length);
+    for (var i = 0; i < GAME.gameboard.player2Tiles.length; i++) {
+      var currentX = (tileParameters.player2StartingX + (50* i));
+      (new drawableRectangle({ 
+        x: currentX * TEST_ARENA.scale, 
+        y: tileParameters.y * TEST_ARENA.scale,
+        width: tileParameters.width * TEST_ARENA.scale,
+        height: tileParameters.height * TEST_ARENA.scale,
+        fillStyle: tileParameters.fillStyle,
+      })).draw(TEST_ARENA.context);
+      
+      // TODO: Make drawableText object instead of copying this everywhere
+      var fontSize = 30 * TEST_ARENA.scale;
+      TEST_ARENA.context.font= fontSize + 'px Arial';
+      TEST_ARENA.context.fillStyle="black";
+      TEST_ARENA.context.fillText(GAME.gameboard.player2Tiles[i], (currentX + 17) * TEST_ARENA.scale, (tileParameters.y + 36)* TEST_ARENA.scale );
+    }
+      
   }
 }
 
@@ -413,6 +476,9 @@ var GameBoard = function() {
       player1Attacking : new drawableSprite(player1AttackingSpriteOptions),
       player2Attacking : new drawableSprite(player2AttackingSpriteOptions),
     }
+    
+    this.player1Tiles = [0,0,0,0,0];
+    this.player2Tiles = [0,0,0,0,0];
     
     this.playerAnimations = {
         player1 : {
