@@ -267,14 +267,14 @@ var GameBoard = function() {
   this.backGroundWidth = 1050;
   this.backGroundHeight = 650;
   this.islandWidth = 870;
-  this.islandStart = 83;
+  this.islandStart = 80; // Changed from 83
   this.islandCenterHeight = 468;
   this.robotWidth = 43;
   this.robotHeight = 79;
   this.numberOfGrids = 25;
   this.gridWidth = self.islandWidth/25;
   this.gridCenter = self.gridWidth/2;
-  console.log(self.gridCenter);
+  //console.log(self.gridCenter);
   this.player1StartX = (0 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
   this.player2StartX = (24 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
   this.player1StartY = self.islandCenterHeight - self.robotHeight;
@@ -325,7 +325,7 @@ var GameBoard = function() {
       'sourceY' : self.player1StandingSpriteSheetY,
       'x' : self.player1PositionX,
       'y' : self.player1PositionY,
-      'width' : self.robotWidth,
+      'width' : self.robotWidth, // Changed to 43 but that is the same as robotWidth
       'height' : self.robotHeight,
       'loadedCallback' : imageLoadedCallback
     }
