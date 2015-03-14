@@ -85,17 +85,56 @@ public class SaveTheIslandGame {
 				return false;
 			}
 			
+			int valueInt = Integer.parseInt(value);
+			int distance = Integer.parseInt(getDistance(board));
+			
 			//check that other players distance is greater then or equal to value
+			if( valueInt <= distance ) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 		else if ( player == 2 ) {
+			//check there is atleast one value
+			if( move.length() < 2 ) {
+				return false;
+			}
 			
+			//check that all values are the same
+			String value = move.substring(1, 2);
+			
+			for(int i = 1; i < move.length(); i++) {
+				if( value != move.substring(i, i+1) ) {
+					return false;
+				}
+			}
+			
+			//check that the player has all those values
+			String values = getPlayersValues(2, board);
+			int count = 0;
+			for(int i = 0; i < values.length(); i++) {
+				if( value == values.substring(i, i+1) ) {
+					count++;
+				}
+			}
+			
+			if( count != move.length() - 1 ) {
+				return false;
+			}
+			
+			int valueInt = Integer.parseInt(value);
+			int distance = Integer.parseInt(getDistance(board));
+			
+			//check that other players distance is greater then or equal to value
+			if( valueInt <= distance ) {
+				return true;
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
-		
-		int col = Integer.parseInt(move.substring(3, 4));
-		
-		return true;
 	}
 
 	
