@@ -8,7 +8,9 @@ function BotBattleApp(server, database) {
 	server.addDynamicRoute('get', '/', function(req, res) {
 	  var path = require('path');
 	  
-	  
+	  console.log(req.session.id, req.cookies['connect.sid']);
+	  req.session.views = 1234;
+	  //console.log(req.sessionId);
 	  
 	  res.sendFile(path.resolve(paths.static_content.html, 'testArena.html'));
 	});

@@ -366,8 +366,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
          }
      };
      
-     
-     this.testArenaInstances = 
+    
 };
 
 
