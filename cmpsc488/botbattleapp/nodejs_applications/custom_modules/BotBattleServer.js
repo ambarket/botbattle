@@ -176,21 +176,26 @@ module.exports = function BotBattleServer() {
    * @private
    */
   function registerCommonMiddleware () {
+    
+    var cookieParser = require('cookie-parser');
+    self.addMiddleware(cookieParser());
+    
     var shortid = require('shortid');
     var session = require('express-session');
     var sessionStore = session({
       secret : 'sshhh!',
       cookie : {
-        maxAge : 10
+        maxAge : 60000
       },
-      //secure: true,
-      resave : true,
-      saveUninitialized : true,
-      ///genid: function(req) {
+      secure: true,
+      resave : false,
+      saveUninitialized : false,
+      rolling : true,
+      genid: function(req) {
         //console.log(shortid.generate())
-     //   return shortid.generate(); // use UUIDs for session IDs
+        return shortid.generate(); // use UUIDs for session IDs
         //return genuuid()
-     // },
+      },
     });
     expressApp.use(sessionStore);
 
@@ -201,8 +206,7 @@ module.exports = function BotBattleServer() {
       extended : true
     }));
     
-    var cookieParser = require('cookie-parser');
-    self.addMiddleware(cookieParser());
+
   }
   
   /**
