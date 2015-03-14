@@ -1,0 +1,131 @@
+package game.manger;
+
+import java.util.Random;
+
+public class SaveTheIslandGame {
+	
+	public static String getStartingBoard() {
+		Random rng = new Random();
+		String board = "";
+		
+		for(int i = 0; i < 5; i++) {
+			board += rng.nextInt(6);
+		}
+		board += ";1";
+		
+		for(int i = 0; i < 23; i++) {
+			board += "0";
+		}
+		board += "2;";
+		for(int i = 0; i < 5; i++) {
+			board += rng.nextInt(6);
+		}
+		
+		return board;
+	}
+
+	//MOVE: PlayerValues
+	public static String updateBoard(String move, String board) {
+		// 1: 2,2
+
+		int player = Integer.parseInt(move.substring(0, 1));
+		
+		if( player == 1 ) {
+			//check there
+		}
+		else if ( player == 2 ) {
+			
+		}
+		
+		int col = Integer.parseInt(move.substring(3, 4));
+
+		
+		return board;
+	}
+	
+	//TODO
+	private static String getPlayersValues(int player, String board) {
+		return null;
+	}
+	
+	//TODO
+	private static String getDistance(String board) {		
+		return null;
+	}
+	
+	public static boolean isValidMove(String move, String board) {
+		
+		int player = Integer.parseInt(move.substring(0, 1));
+		// 122
+		if( player == 1 ) {
+			//check there is atleast one value
+			if( move.length() < 2 ) {
+				return false;
+			}
+			
+			//check that all values are the same
+			String value = move.substring(1, 2);
+			
+			for(int i = 1; i < move.length(); i++) {
+				if( value != move.substring(i, i+1) ) {
+					return false;
+				}
+			}
+			
+			//check that the player has all those values
+			String values = getPlayersValues(1, board);
+			int count = 0;
+			for(int i = 0; i < values.length(); i++) {
+				if( value == values.substring(i, i+1) ) {
+					count++;
+				}
+			}
+			
+			if( count != move.length() - 1 ) {
+				return false;
+			}
+			
+			//check that other players distance is greater then or equal to value
+		}
+		else if ( player == 2 ) {
+			
+		} else {
+			return false;
+		}
+		
+		int col = Integer.parseInt(move.substring(3, 4));
+		
+		return true;
+	}
+
+	
+	public static boolean isGameOver(String board) {
+		
+		if(isGameWon(board)){
+			return true;
+		}
+		
+		
+		return true;
+	}
+
+	
+	public static String getHTMLForBoard(String board) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	public static int getBotTimeoutInMilliseconds() {
+		return 3000;
+	}
+	
+	public static boolean isGameWon(String board) {
+		
+		return false;
+	}
+	
+	public static String getName() {
+		return "SaveTheIsland";
+	}
+}
