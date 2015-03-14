@@ -24,9 +24,9 @@ public class SaveTheIslandGame {
 		return board;
 	}
 
-	//MOVE: PlayerValues
+
 	public static String updateBoard(String move, String board) {
-		// 1: 2,2
+
 
 		int player = Integer.parseInt(move.substring(0, 1));
 		
@@ -53,85 +53,54 @@ public class SaveTheIslandGame {
 		return null;
 	}
 	
+	private static boolean isPlayersMoveValid(String move, String board, int player) {
+		//check there is atleast one value
+		if( move.length() < 2 ) {
+			return false;
+		}
+		
+		//check that all values are the same
+		String value = move.substring(1, 2);
+		
+		for(int i = 1; i < move.length(); i++) {
+			if( value != move.substring(i, i+1) ) {
+				return false;
+			}
+		}
+		
+		//check that the player has all those values
+		String values = getPlayersValues(player, board);
+		int count = 0;
+		for(int i = 0; i < values.length(); i++) {
+			if( value == values.substring(i, i+1) ) {
+				count++;
+			}
+		}
+		
+		if( count != move.length() - 1 ) {
+			return false;
+		}
+		
+		int valueInt = Integer.parseInt(value);
+		int distance = Integer.parseInt(getDistance(board));
+		
+		//check that other players distance is greater then or equal to value
+		if( valueInt <= distance ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static boolean isValidMove(String move, String board) {
 		
 		int player = Integer.parseInt(move.substring(0, 1));
 		// 122
 		if( player == 1 ) {
-			//check there is atleast one value
-			if( move.length() < 2 ) {
-				return false;
-			}
-			
-			//check that all values are the same
-			String value = move.substring(1, 2);
-			
-			for(int i = 1; i < move.length(); i++) {
-				if( value != move.substring(i, i+1) ) {
-					return false;
-				}
-			}
-			
-			//check that the player has all those values
-			String values = getPlayersValues(1, board);
-			int count = 0;
-			for(int i = 0; i < values.length(); i++) {
-				if( value == values.substring(i, i+1) ) {
-					count++;
-				}
-			}
-			
-			if( count != move.length() - 1 ) {
-				return false;
-			}
-			
-			int valueInt = Integer.parseInt(value);
-			int distance = Integer.parseInt(getDistance(board));
-			
-			//check that other players distance is greater then or equal to value
-			if( valueInt <= distance ) {
-				return true;
-			} else {
-				return false;
-			}
+			return isPlayersMoveValid(move, board, 1);
 		}
 		else if ( player == 2 ) {
-			//check there is atleast one value
-			if( move.length() < 2 ) {
-				return false;
-			}
-			
-			//check that all values are the same
-			String value = move.substring(1, 2);
-			
-			for(int i = 1; i < move.length(); i++) {
-				if( value != move.substring(i, i+1) ) {
-					return false;
-				}
-			}
-			
-			//check that the player has all those values
-			String values = getPlayersValues(2, board);
-			int count = 0;
-			for(int i = 0; i < values.length(); i++) {
-				if( value == values.substring(i, i+1) ) {
-					count++;
-				}
-			}
-			
-			if( count != move.length() - 1 ) {
-				return false;
-			}
-			
-			int valueInt = Integer.parseInt(value);
-			int distance = Integer.parseInt(getDistance(board));
-			
-			//check that other players distance is greater then or equal to value
-			if( valueInt <= distance ) {
-				return true;
-			} else {
-				return false;
-			}
+			return isPlayersMoveValid(move, board, 2);
 		} else {
 			return false;
 		}
@@ -143,25 +112,23 @@ public class SaveTheIslandGame {
 		if(isGameWon(board)){
 			return true;
 		}
-		
+		// TODO
 		
 		return true;
 	}
 
+	public static boolean isGameWon(String board) {
+		// TODO
+		return false;
+	}
 	
 	public static String getHTMLForBoard(String board) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	
 	public static int getBotTimeoutInMilliseconds() {
 		return 3000;
-	}
-	
-	public static boolean isGameWon(String board) {
-		
-		return false;
 	}
 	
 	public static String getName() {
