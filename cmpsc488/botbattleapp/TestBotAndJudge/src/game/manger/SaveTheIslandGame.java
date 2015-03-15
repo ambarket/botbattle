@@ -4,6 +4,46 @@ import java.util.Random;
 
 public class SaveTheIslandGame {
 	
+	static class Board {
+		public static String getPlayersTiles(int player, String board) {
+			
+			if( player == 1 ) {
+				return board.split(";")[0];
+			} else {
+				return board.split(";")[2];
+			}
+		}
+		
+		public static String getIsland(String board) {
+			return board.split(";")[1];
+		}
+		
+		private static int getDistanceBetweenPlayers(String board) {		
+			String island = getIsland(board);
+			String distance = island.substring(island.indexOf("1"), island.indexOf("2") + 1);
+			
+			return distance.length() - 1;
+		}
+		
+		public static String replacePlayersTiles(String board, int player, int value, int numOfValues) {
+			Random rng = new Random();
+			
+			String tiles = getPlayersTiles(player, board);
+			String newTiles = "";
+			
+			for(int i = 0; i < 5; i++) {
+				if( Integer.parseInt(tiles.substring(i, i+1)) == value && numOfValues > 0 ) {
+					newTiles += rng.nextInt(6);
+					numOfValues--;
+				} else {
+					newTiles += tiles.substring(i, i+1);
+				}
+			}
+			
+			return newTiles;
+		}
+	}
+	
 	public static String getStartingBoard() {
 		Random rng = new Random();
 		String board = "";
@@ -23,34 +63,21 @@ public class SaveTheIslandGame {
 		
 		return board;
 	}
+	
 
 
-	public static String updateBoard(String move, String board) {
-
-
-		int player = Integer.parseInt(move.substring(0, 1));
+	public static String updateBoard(String move, String board, int player) {
 		
 		if( player == 1 ) {
-			//check there
+
 		}
 		else if ( player == 2 ) {
 			
 		}
 		
-		int col = Integer.parseInt(move.substring(3, 4));
 
 		
 		return board;
-	}
-	
-	//TODO
-	private static String getPlayersValues(int player, String board) {
-		return null;
-	}
-	
-	//TODO
-	private static String getDistance(String board) {		
-		return null;
 	}
 	
 	private static boolean isPlayersMoveValid(String move, String board, int player) {
@@ -69,7 +96,7 @@ public class SaveTheIslandGame {
 		}
 		
 		//check that the player has all those values
-		String values = getPlayersValues(player, board);
+		String values = Board.getPlayersTiles(player, board);
 		int count = 0;
 		for(int i = 0; i < values.length(); i++) {
 			if( value == values.substring(i, i+1) ) {
@@ -82,7 +109,7 @@ public class SaveTheIslandGame {
 		}
 		
 		int valueInt = Integer.parseInt(value);
-		int distance = Integer.parseInt(getDistance(board));
+		int distance = Board.getDistanceBetweenPlayers(board);
 		
 		//check that other players distance is greater then or equal to value
 		if( valueInt <= distance ) {
@@ -92,6 +119,7 @@ public class SaveTheIslandGame {
 		}
 	}
 	
+	//TODO
 	public static boolean isValidMove(String move, String board) {
 		
 		int player = Integer.parseInt(move.substring(0, 1));
@@ -108,18 +136,22 @@ public class SaveTheIslandGame {
 
 	
 	public static boolean isGameOver(String board) {
-		
+		//This game doesnt have ties so winning is the only way it will end.
 		if(isGameWon(board)){
 			return true;
 		}
-		// TODO
 		
-		return true;
+		return false;
 	}
 
 	public static boolean isGameWon(String board) {
-		// TODO
-		return false;
+		String island = Board.getIsland(board);
+		
+		if( island.indexOf("1") != -1 && island.indexOf("2") != -1 ) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	public static String getHTMLForBoard(String board) {
