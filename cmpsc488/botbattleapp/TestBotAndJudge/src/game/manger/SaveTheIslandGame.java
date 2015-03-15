@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class SaveTheIslandGame {
 	
+	//-------------------------- BOARD CLASS ---------------------
 	static class Board {
 		public static String getPlayersTiles(int player, String board) {
 			
@@ -43,6 +44,7 @@ public class SaveTheIslandGame {
 			return newTiles;
 		}
 	}
+	//----------------------- END BOARD CLASS ---------------------
 	
 	public static String getStartingBoard() {
 		Random rng = new Random();
@@ -64,8 +66,12 @@ public class SaveTheIslandGame {
 		return board;
 	}
 	
+	//TODO implement this
+	public static String getJSONstringFromGameResults(GameResults results) {
+		return null;
+	}
 
-
+	//TODO finish this
 	public static String updateBoard(String move, String board, int player) {
 		
 		if( player == 1 ) {
