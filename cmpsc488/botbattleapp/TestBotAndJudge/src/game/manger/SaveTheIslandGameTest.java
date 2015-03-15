@@ -1,6 +1,7 @@
 package game.manger;
 
 import static org.junit.Assert.*;
+import game.manger.SaveTheIslandGame.Board;
 
 import org.junit.Test;
 
@@ -27,12 +28,15 @@ public class SaveTheIslandGameTest {
 
 	@Test
 	public void testIsValidMove() {
-		fail("Not yet implemented");
+		String board = SaveTheIslandGame.getStartingBoard();
+		String tiles = Board.getPlayersTiles(0, board);
+		String move = tiles.substring(0, 1);
+		assertTrue(SaveTheIslandGame.isValidMove(move, board));
 	}
 
 	@Test
-	public void testIsGameOver() {
-		fail("Not yet implemented");
+	public void testIsGameOverWithStartingBoard() {
+		assertFalse(SaveTheIslandGame.isGameOver(SaveTheIslandGame.getStartingBoard()));
 	}
 
 	@Test
