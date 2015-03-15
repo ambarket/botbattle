@@ -87,7 +87,7 @@ public class TicTacToeGameTest {
 		String board = TicTacToeGame.getStartingBoard();
 		String move = "0, 0, X";
 		
-		assertFalse(TicTacToeGame.isValidMove(move, board));
+		assertFalse(TicTacToeGame.isValidMove(move, board, 1));
 	}
 	
 	/**
@@ -98,7 +98,7 @@ public class TicTacToeGameTest {
 		String board = TicTacToeGame.getStartingBoard();
 		String move = "11, 22, X";
 		
-		assertFalse(TicTacToeGame.isValidMove(move, board));
+		assertFalse(TicTacToeGame.isValidMove(move, board, 1));
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class TicTacToeGameTest {
 		String board = TicTacToeGame.getStartingBoard();
 		String move = "2, 2, A";
 		
-		assertFalse(TicTacToeGame.isValidMove(move, board));
+		assertFalse(TicTacToeGame.isValidMove(move, board, 1));
 	}
 	/**
 	 * Test method for {@link game.manger.TicTacToeGame#isGameOver()}.

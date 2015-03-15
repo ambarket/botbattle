@@ -10,7 +10,7 @@ public class GameManager implements Runnable {
 	 * @param player1
 	 * @param player2
 	 */
-	public GameManager(Player player1, Player player2) {//TODO: Remove GameInterface and just make it Game
+	public GameManager(Player player1, Player player2) {
 		this.player1 = player1;
 		this.player2 = player2;
 		results = new GameResults();		
@@ -33,7 +33,7 @@ public class GameManager implements Runnable {
 				results.addMove(move, 2);
 			}				
 
-			if(Game.isValidMove(move, board)){
+			if(Game.isValidMove(move, board, (i%2) + 1)){
 				board = Game.updateBoard(move, board);
 				results.addBoard(board);
 				
