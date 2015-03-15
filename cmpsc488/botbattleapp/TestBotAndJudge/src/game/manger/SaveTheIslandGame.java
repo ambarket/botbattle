@@ -18,7 +18,7 @@ public class SaveTheIslandGame {
 			return board.split(";")[1];
 		}
 		
-		private static int getDistanceBetweenPlayers(String board) {		
+		public static int getDistanceBetweenPlayers(String board) {		
 			String island = getIsland(board);
 			String distance = island.substring(island.indexOf("1"), island.indexOf("2") + 1);
 			
@@ -80,14 +80,14 @@ public class SaveTheIslandGame {
 		return board;
 	}
 	
-	private static boolean isPlayersMoveValid(String move, String board, int player) {
+	protected static boolean isPlayersMoveValid(String move, String board, int player) {
 		//check there is atleast one value
-		if( move.length() < 2 ) {
+		if( move.length() < 1 ) {
 			return false;
 		}
 		
 		//check that all values are the same
-		String value = move.substring(1, 2);
+		String value = move.substring(0, 1);
 		
 		for(int i = 1; i < move.length(); i++) {
 			if( value != move.substring(i, i+1) ) {
@@ -104,7 +104,7 @@ public class SaveTheIslandGame {
 			}
 		}
 		
-		if( count != move.length() - 1 ) {
+		if( count != move.length() ) {
 			return false;
 		}
 		
@@ -119,11 +119,10 @@ public class SaveTheIslandGame {
 		}
 	}
 	
-	//TODO
 	public static boolean isValidMove(String move, String board) {
 		
 		int player = Integer.parseInt(move.substring(0, 1));
-		// 122
+
 		if( player == 1 ) {
 			return isPlayersMoveValid(move, board, 1);
 		}
@@ -133,7 +132,6 @@ public class SaveTheIslandGame {
 			return false;
 		}
 	}
-
 	
 	public static boolean isGameOver(String board) {
 		//This game doesnt have ties so winning is the only way it will end.
