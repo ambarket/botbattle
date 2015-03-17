@@ -66,9 +66,33 @@ public class SaveTheIslandGame {
 			}
 	
 			island[index] = '0';
-			island[index + distance] = String.valueOf(player).charAt(0);
+			if( index + distance >= 0 && index + distance < island.length ) {
+				island[index + distance] = String.valueOf(player).charAt(0);
+			}//else player got knocked off the island
+			
 			
 			return getPlayersTiles(1, board) + ";" + String.valueOf(island) + ";" + getPlayersTiles(2, board);
+		}
+		
+		public static String executeAttack(String board, int victim, int numOfAttacks) {
+			String tiles = getPlayersTiles(victim, board);
+			int defenseTiles  = 0, 
+					distance = getDistanceBetweenPlayers(board);
+			
+			for (int i = 0; i < 5; i++) {
+				if( Integer.parseInt(tiles.substring(i, i+1)) == distance ) {
+					defenseTiles++;
+				} 
+				
+				if( defenseTiles == numOfAttacks ) {
+					break;
+				}
+			}
+			
+			replacePlayersTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
+			numOfAttacks = -(numOfAttacks - defenseTiles);
+			
+			return movePlayer(board, victim, numOfAttacks * getDistanceBetweenPlayers(board));
 		}
 	}
 	//----------------------- END BOARD CLASS ---------------------

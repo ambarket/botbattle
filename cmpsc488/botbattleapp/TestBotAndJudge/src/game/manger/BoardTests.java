@@ -131,4 +131,44 @@ public class BoardTests {
 		assertEquals("11111;0000010000200;12345", updatedBoard);
 	}
 	
+	@Test
+	public void testExecuteAttackSimple() {
+		String board = "11111;0000010002000;12345";
+		String updatedBoard = Board.executeAttack(board, 1, 1);
+		
+		assertEquals("11111;0100000002000;12345", updatedBoard);
+	}
+	
+	
+	@Test
+	public void testExecuteAttackSimpleOtherPlayer() {
+		String board = "11141;00000100020000;12335";
+		String updatedBoard = Board.executeAttack(board, 2, 1);
+		
+		assertEquals("11141;00000100000002;12335", updatedBoard);
+	}
+	
+	@Test
+	public void testExecuteAttackWithDefense() {
+		String board = "11141;0000010002000;12344";
+		String updatedBoard = Board.executeAttack(board, 1, 2);
+		
+		assertEquals("0100000002000", Board.getIsland(updatedBoard));
+	}
+	
+	@Test
+	public void testExecuteAttackWithKnockOffIsland() {
+		String board = "11111;0000010002000;12344";
+		String updatedBoard = Board.executeAttack(board, 1, 2);
+		
+		assertEquals("0000000002000", Board.getIsland(updatedBoard));
+	}
+	
+	@Test
+	public void testExecuteAttackWithKnockOffIslandReverse() {
+		String board = "11144;0000010002000;12311";
+		String updatedBoard = Board.executeAttack(board, 2, 2);
+		
+		assertEquals("0000010000000", Board.getIsland(updatedBoard));
+	}
 }
