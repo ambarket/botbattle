@@ -54,19 +54,12 @@ function registerLoginRoutes(server, database) {
 
   
   server.addDynamicRoute('post', '/verify_login',
-      passport.authenticate('local', { successRedirect: '/success',
+      passport.authenticate('local', { successRedirect: '/',
                                        failureRedirect: '/login',
                                        failureFlash: true,
                                        successFlash: true})
   );
   
-  server.addDynamicRoute('get', '/success', function(req,res) {
-
-    //res.redirect('/login');
-    res.render('pages/login', { message: req.flash('success') });
-    //res.send("Login successful");
-    console.log(JSON.stringify(req.session));
-  });
   
 }
 
@@ -76,7 +69,7 @@ function registerTestArenaRoutes(server) {
   
   
   server.addDynamicRoute('get', '/', function(req, res) {
-    res.render('pages/testArena', { message : req.flash('error')});
+    res.render('pages/testArena', { message : req.flash('success')});
   });
   
   
