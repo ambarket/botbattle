@@ -136,47 +136,6 @@ public class SaveTheIslandGame {
 		return board;
 	}
 	
-	//TODO rewrite this using Board functions
-	protected static boolean isPlayersMoveValid(String move, String board, int player) {
-		//check there is atleast one value
-		if( move.length() < 1 ) {
-			return false;
-		}
-		
-		
-		//check that all values are the same
-		String value = move.substring(0, 1);
-		
-		for(int i = 1; i < move.length(); i++) {
-			if( value != move.substring(i, i+1) ) {
-				return false;
-			}
-		}
-		
-		//check that the player has all those values
-		String values = Board.getPlayersTiles(player, board);
-		int count = 0;
-		for(int i = 0; i < values.length(); i++) {
-			if( value == values.substring(i, i+1) ) {
-				count++;
-			}
-		}
-		
-		if( count != move.length() ) {
-			return false;
-		}
-		
-		int valueInt = Integer.parseInt(value);
-		int distance = Board.getDistanceBetweenPlayers(board);
-		
-		//check that other players distance is greater then or equal to value
-		if( valueInt <= distance ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
 	public static boolean isGameOver(String board) {
 		//This game doesnt have ties so winning is the only way it will end.
 		if(isGameWon(board)){
