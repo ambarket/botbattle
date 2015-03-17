@@ -57,6 +57,19 @@ public class SaveTheIslandGame {
 			return count == value;
 		}
 		
+		public static String movePlayer(String board, int player, int distance) {
+			char[] island = getIsland(board).toCharArray();
+			int index = getIsland(board).indexOf(String.valueOf(player));
+			
+			if( player == 2 ) {
+				distance = -distance;
+			}
+	
+			island[index] = '0';
+			island[index + distance] = String.valueOf(player).charAt(0);
+			
+			return getPlayersTiles(1, board) + ";" + String.valueOf(island) + ";" + getPlayersTiles(2, board);
+		}
 	}
 	//----------------------- END BOARD CLASS ---------------------
 	
@@ -104,6 +117,7 @@ public class SaveTheIslandGame {
 		if( move.length() < 1 ) {
 			return false;
 		}
+		
 		
 		//check that all values are the same
 		String value = move.substring(0, 1);
@@ -168,5 +182,9 @@ public class SaveTheIslandGame {
 	
 	public static String getName() {
 		return "SaveTheIsland";
+	}
+
+	public static boolean isValidMove(String move, String board, int player) {
+		return isPlayersMoveValid(move, board, player);
 	}
 }

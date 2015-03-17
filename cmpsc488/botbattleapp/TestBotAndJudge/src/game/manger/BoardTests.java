@@ -94,5 +94,41 @@ public class BoardTests {
 		}
 		assertEquals(5, count);
 	}
-
+	
+	@Test
+	public void testmovePlayerForwardOneSpace() {
+		String board = "11111;0000010002000;12345";
+		
+		String updatedBoard = Board.movePlayer(board, 1, 1);
+		
+		assertEquals("11111;0000001002000;12345", updatedBoard);
+	}
+	
+	@Test
+	public void testmovePlayerBackwardOneSpace() {
+		String board = "11111;0000010002000;12345";
+		
+		String updatedBoard = Board.movePlayer(board, 1, -1);
+		
+		assertEquals("11111;0000100002000;12345", updatedBoard);
+	}
+	
+	@Test
+	public void testmovePlayerForwardOneSpaceForPlayer2() {
+		String board = "11111;0000010002000;12345";
+		
+		String updatedBoard = Board.movePlayer(board, 2, 1);
+		
+		assertEquals("11111;0000010020000;12345", updatedBoard);
+	}
+	
+	@Test
+	public void testmovePlayerBackwardOneSpaceForPlayer2() {
+		String board = "11111;0000010002000;12345";
+		
+		String updatedBoard = Board.movePlayer(board, 2, -1);
+		
+		assertEquals("11111;0000010000200;12345", updatedBoard);
+	}
+	
 }
