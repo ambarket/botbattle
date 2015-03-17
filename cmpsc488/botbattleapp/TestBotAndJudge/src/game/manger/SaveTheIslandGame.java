@@ -124,16 +124,21 @@ public class SaveTheIslandGame {
 
 	//TODO finish this
 	public static String updateBoard(String move, String board, int player) {
-		
+		String updatedBoard = "";
+		String[] peices;
 		if( move.startsWith("attack") ) {
-			
+			 peices = move.split(";");
+			 int value = Integer.parseInt(peices[1].substring(0, 1));
+			 updatedBoard = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
 		}
 		else if( move.startsWith("retreat") ) {
-			
+			peices = move.split(";");
+			 int value = Integer.parseInt(peices[1].substring(0, 1));
+			 updatedBoard = Board.movePlayer(board, player, -value);
 		}
 
 		
-		return board;
+		return updatedBoard;
 	}
 	
 	public static boolean isGameOver(String board) {
