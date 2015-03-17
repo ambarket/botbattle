@@ -50,7 +50,7 @@ function BotBattleApp(server, database) {
 	  //       that spawned it.
 	  // 6) Wait for the initial game state to be sent by the Game Manager via stdout
 	  // 7) Send this initial game state to the client via res.send()
-	}
+	});
 	
 	/**
      * Requested by the "Kill Game" Button on the test arena page
@@ -60,7 +60,7 @@ function BotBattleApp(server, database) {
       // Send a response back that the client should use to reset its canvas 
       //    and other html and javascript stuff so that the user can request
       //    playNewGame again and it will work.
-    }
+    });
 	
     /**
      * Requested by the "Send Move" Button on the test arena page
