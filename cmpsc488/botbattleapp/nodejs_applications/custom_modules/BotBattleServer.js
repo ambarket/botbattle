@@ -176,14 +176,19 @@ module.exports = function BotBattleServer() {
    * @private
    */
   function registerCommonMiddleware () {
-    
     var cookieParser = require('cookie-parser');
     self.addMiddleware(cookieParser());
+    
+    var bodyParser = require('body-parser');
+    self.addMiddleware(bodyParser.json());
+    self.addMiddleware(bodyParser.urlencoded({
+      extended : true
+    }));
     
     var shortid = require('shortid');
     var session = require('express-session');
     var sessionStore = session({
-      secret : 'sshhh!',
+      secret : 'CXj3n"2KgOj*-4tm*Z0uD2B4X+Q^m3',
       cookie : {
         maxAge : 60000
       },
@@ -197,16 +202,14 @@ module.exports = function BotBattleServer() {
         //return genuuid()
       },
     });
-    expressApp.use(sessionStore);
-
-    // Add body-parser
-    var bodyParser = require('body-parser');
-    self.addMiddleware(bodyParser.json());
-    self.addMiddleware(bodyParser.urlencoded({
-      extended : true
-    }));
+    self.addMiddleware(sessionStore);
     
-
+    var passport = require('passport');
+    self.addMiddleware(passport.initialize());
+    self.addMiddleware(passport.session());
+    
+    var flash = require('connect-flash');
+    self.addMiddleware(flash());
   }
   
   /**
