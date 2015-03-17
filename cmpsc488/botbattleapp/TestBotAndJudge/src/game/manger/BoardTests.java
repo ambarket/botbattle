@@ -96,6 +96,20 @@ public class BoardTests {
 	}
 	
 	@Test
+	public void testCheckPlayersTiles() {
+		String board = "03241;1000000000000000000000002;12544";
+
+		assertTrue(Board.checkPlayersTiles(board, 1, 0, 1));
+	}
+	
+	@Test
+	public void testCheckPlayersTiles2() {
+		String board = "10150;1000000000000000000000002;52255";
+
+		assertTrue(Board.checkPlayersTiles(board, 1, 1, 1));
+	}
+	
+	@Test
 	public void testmovePlayerForwardOneSpace() {
 		String board = "11111;0000010002000;12345";
 		

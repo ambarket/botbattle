@@ -53,8 +53,8 @@ public class SaveTheIslandGame {
 					count++;
 				} 
 			}
-			
-			return count == value;
+
+			return count >= numOfValues;
 		}
 		
 		public static String movePlayer(String board, int player, int distance) {
@@ -136,6 +136,7 @@ public class SaveTheIslandGame {
 		return board;
 	}
 	
+	//TODO rewrite this using Board functions
 	protected static boolean isPlayersMoveValid(String move, String board, int player) {
 		//check there is atleast one value
 		if( move.length() < 1 ) {
@@ -209,6 +210,37 @@ public class SaveTheIslandGame {
 	}
 
 	public static boolean isValidMove(String move, String board, int player) {
-		return isPlayersMoveValid(move, board, player);
+		int typeOfMove = 0,
+			tilesForMove = 1;
+		String[] peices = move.split(";");
+		
+		if( peices.length != 2 ) {
+			return false;
+		}
+
+		if( !peices[typeOfMove].equals("attack") 
+				&& !peices[typeOfMove].equals("retreat") ) {
+			return false;
+		}
+
+		//Check all given tiles are the same
+		int tileValue = Integer.parseInt(peices[tilesForMove].substring(0, 1));
+		peices[tilesForMove].matches(tileValue + "+");
+
+		//Check player has those tiles
+		if( !Board.checkPlayersTiles(board, player, tileValue, peices[tilesForMove].length()) ) {
+			return false;
+		}
+
+		return true;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

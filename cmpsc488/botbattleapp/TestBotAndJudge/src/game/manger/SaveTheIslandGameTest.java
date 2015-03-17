@@ -29,19 +29,41 @@ public class SaveTheIslandGameTest {
 	@Test
 	public void testIsValidMove() {
 		String board = SaveTheIslandGame.getStartingBoard();
-		String tiles = Board.getPlayersTiles(0, board);
-		String move = tiles.substring(0, 1);
-		assertTrue(SaveTheIslandGame.isValidMove(move, board));
+		String tiles = Board.getPlayersTiles(1, board);
+		String move = "attack;" + tiles.substring(0, 1);
+
+		assertTrue(SaveTheIslandGame.isValidMove(move, board, 1));
+	}
+	
+	@Test
+	public void testIsValidMoveWithBadType() {
+		String board = SaveTheIslandGame.getStartingBoard();
+		String tiles = Board.getPlayersTiles(1, board);
+		String move = "ammack;" + tiles.substring(0, 1);
+
+		assertFalse(SaveTheIslandGame.isValidMove(move, board, 1));
+	}
+	
+	@Test
+	public void testIsValidMoveWithBadTile() {
+		String board = SaveTheIslandGame.getStartingBoard();
+		String tiles = Board.getPlayersTiles(1, board);
+		String move = "attack;6";
+
+		assertFalse(SaveTheIslandGame.isValidMove(move, board, 1));
+	}
+	
+	@Test
+	public void testIsValidMoveWithBadNumberOfTiles() {
+		String board = SaveTheIslandGame.getStartingBoard();
+		String tiles = Board.getPlayersTiles(1, board);
+		String move = "attack;" + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1);
+
+		assertFalse(SaveTheIslandGame.isValidMove(move, board, 1));
 	}
 
 	@Test
 	public void testIsGameOverWithStartingBoard() {
 		assertFalse(SaveTheIslandGame.isGameOver(SaveTheIslandGame.getStartingBoard()));
 	}
-
-	@Test
-	public void testIsGameWon() {
-		fail("Not yet implemented");
-	}
-
 }
