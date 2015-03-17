@@ -176,14 +176,26 @@ module.exports = function BotBattleServer() {
    * @private
    */
   function registerCommonMiddleware () {
+    
+    var cookieParser = require('cookie-parser');
+    self.addMiddleware(cookieParser());
+    
+    var shortid = require('shortid');
     var session = require('express-session');
     var sessionStore = session({
-      secret : 'sssh!',
+      secret : 'sshhh!',
       cookie : {
-        maxAge : 600000
+        maxAge : 60000
       },
-      resave : true,
-      saveUninitialized : true
+      secure: true,
+      resave : false,
+      saveUninitialized : false,
+      rolling : true,
+      genid: function(req) {
+        //console.log(shortid.generate())
+        return shortid.generate(); // use UUIDs for session IDs
+        //return genuuid()
+      },
     });
     expressApp.use(sessionStore);
 
@@ -193,6 +205,8 @@ module.exports = function BotBattleServer() {
     self.addMiddleware(bodyParser.urlencoded({
       extended : true
     }));
+    
+
   }
   
   /**
@@ -210,11 +224,10 @@ module.exports = function BotBattleServer() {
     });
 
     var express = require('express');
-    // Serve static css files
     self.addStaticFolderRoute('/static/css', paths.static_content.css);
-    
-    // Serve static javascript files
     self.addStaticFolderRoute('/static/javascript', paths.static_content.javascript);
+    self.addStaticFolderRoute('/static/images', paths.static_content.images);
+    self.addStaticFolderRoute('/static/icons', paths.static_content.icons);
   }
 }
 
