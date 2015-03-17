@@ -58,8 +58,8 @@ function registerLoginRoutes(server, database) {
   );
   
   server.addDynamicRoute('get', '/success', function(req,res) {
-    //res.render('login', { message: req.flash('success') });
-    res.send("Login successful");
+    res.render('layout', { message: req.flash('success') });
+    //res.send("Login successful");
     console.log(JSON.stringify(req.session));
   });
   

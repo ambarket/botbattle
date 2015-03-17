@@ -176,6 +176,13 @@ module.exports = function BotBattleServer() {
    * @private
    */
   function registerCommonMiddleware () {
+    var flash = require('connect-flash');
+    self.addMiddleware(flash());
+    
+    // Use the ejs templating engine
+    //http://robdodson.me/how-to-use-ejs-in-express/
+    expressApp.set('view engine', 'ejs');  
+    
     var cookieParser = require('cookie-parser');
     self.addMiddleware(cookieParser());
     
@@ -208,8 +215,7 @@ module.exports = function BotBattleServer() {
     self.addMiddleware(passport.initialize());
     self.addMiddleware(passport.session());
     
-    var flash = require('connect-flash');
-    self.addMiddleware(flash());
+
   }
   
   /**
