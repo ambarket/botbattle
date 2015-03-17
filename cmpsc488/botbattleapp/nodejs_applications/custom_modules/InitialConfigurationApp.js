@@ -416,9 +416,13 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   (function registerInitialConfigurationRoutes() {
+    initConfigAppServer.addDynamicRoute('get', '/', function(req, res) {
+      res.render('pages/initialConfiguration');
+    });
+    /*
     initConfigAppServer.addStaticFileRoute('/', paths.static_content.html
         + 'initialConfiguration.html');
-
+    */
     var multer = require('multer');
     initConfigAppServer
         .addDynamicRoute(

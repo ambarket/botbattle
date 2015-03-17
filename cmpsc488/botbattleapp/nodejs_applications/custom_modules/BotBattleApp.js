@@ -48,7 +48,10 @@ function registerLoginRoutes(server, database) {
   });
   
   var paths = require('./BotBattlePaths');
-  server.addStaticFileRoute('/login', paths.static_content.html + 'login.html');
+  server.addDynamicRoute('get', '/login', function(req, res) {
+    res.render('pages/login', { message : req.flash('error')});
+  });
+
   
   server.addDynamicRoute('post', '/verify_login',
       passport.authenticate('local', { successRedirect: '/success',
@@ -58,7 +61,9 @@ function registerLoginRoutes(server, database) {
   );
   
   server.addDynamicRoute('get', '/success', function(req,res) {
-    res.render('layout', { message: req.flash('success') });
+
+    //res.redirect('/login');
+    res.render('pages/login', { message: req.flash('success') });
     //res.send("Login successful");
     console.log(JSON.stringify(req.session));
   });
@@ -69,7 +74,13 @@ function registerTestArenaRoutes(server) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
   
+  
   server.addDynamicRoute('get', '/', function(req, res) {
+    res.render('pages/testArena', { message : req.flash('error')});
+  });
+  
+  
+  //server.addDynamicRoute('get', '/', function(req, res) {
     // Everytime the page is refreshed, we want a whole new session. (Original comment for the below code)
     //   This fails because it replaces the session of all other existing tabs
     //   with this new one. It seems the only way to keep track of multiple browser
@@ -81,7 +92,8 @@ function registerTestArenaRoutes(server) {
     //   The other obvious though is to just allow on connection to the server from each browser,
     //   however to implement this you have to keep track of things yourself anyway. Below I tried complaining
     //   if there was already a cookie set but this fails for reloading the page in a single tab.
-     req.session.regenerate(function(err) {
+    
+    /*req.session.regenerate(function(err) {
        console.log(req.session.id, req.cookies['connect.sid']);
        // res.cookie('rememberme', 'yes', { maxAge: 900000, httpOnly: true});
         console.log(req.session);
@@ -93,8 +105,10 @@ function registerTestArenaRoutes(server) {
         //else {
         //  res.send("Sorry you already have an open session");
         //}
-     });
-  });
+     });*/
+  //  res.sendFile(path.resolve(paths.static_content.html, 'testArena.html'));
+  //});
+  
   
   /**
    * Requested by the "Play Game" Button on the test arena page

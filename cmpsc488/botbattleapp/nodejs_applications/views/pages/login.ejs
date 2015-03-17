@@ -1,21 +1,46 @@
-<!DOCTYPE html>  
-<html lang="en">  
-  <head>
-    <meta charset="utf-8">
-    <title>Pivotal Search</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
+<!-- views/pages/index.ejs -->
 
-    <!-- HTML5 shim, for IE6-8 support of HTML elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
 
-    <!-- styles -->
-    <link href="stylesheets/style.css" rel="stylesheet">
+    <header>
+        <% include ../partials/header %>
+    </header>
 
-  </head>
-  <body>
-    <%- body %>
-  </body>
-</html>  
+    <main>
+        <div class="error">
+          <p><%= message %></p>
+        </div>
+        
+        <form id="loginForm" action = "/verify_login" method="post">
+          <div class="form-item">
+            <label id="title" for="username"> Username <span
+              class="form-required" title="This field is required."> * </span>
+            </label> 
+            <input type="text" name="username" maxlength="35" size="40" value="testUser" required/>
+          </div>
+          <div class="form-item">
+            <label id="title" for="password"> Password <span
+              class="form-required" title="This field is required."> * </span>
+            </label> 
+            <input type="password" name="password" maxlength="35" size="40" value="testPass" required/>
+          </div>
+      
+          <div>
+            <input type="submit" value="Log In"/>
+          </div>
+      </form>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
+
+  

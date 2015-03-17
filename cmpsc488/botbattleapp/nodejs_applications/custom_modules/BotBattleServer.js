@@ -229,6 +229,7 @@ module.exports = function BotBattleServer() {
     // Log every incoming request, then pass along for further processing
     self.addMiddleware(function(req, res, next) {
       logger.log(req.method, req.url);
+      logger.log("Session: ", JSON.stringify(req.session));
       next();
     });
 
