@@ -11,8 +11,34 @@
 
         <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
-            <li><a href="/login">Login</a></li>
+            
+            <% if(!locals.username) { %>
+                <li><a href="/login">Login</a></li>
+            <% } else{ %>
+                <li><a href="/logout">Logout</a></li>
+            <% } %>
+            
+            
+            <% if(!locals.group) { %>
+                <!-- do nothing -->
+            <% } else{ %>
+                <%if (locals.group === 'student') { %>
+                    <li><a href="/studentPortal">Student Portal</a></li>
+                <% } %>
+                <%if (locals.group === 'admin') { %>
+                    <li><a href="/adminPortal">Admin Portal</a></li>
+                <% } %> 
+            <% } %>
         </ul>
       
     </div>
 </nav>
+
+<div class="message">
+    <!--<p>"Locals: <%= JSON.stringify(locals) %></p>-->
+    <% if(locals.message) { %>
+        <p><%= locals.message %></p>
+    <% } else{ %>
+      <!-- No Messages -->
+    <% } %>
+</div>

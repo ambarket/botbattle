@@ -228,6 +228,9 @@ module.exports = function BotBattleServer() {
   function registerCommonRoutes() {
     // Log every incoming request, then pass along for further processing
     self.addMiddleware(function(req, res, next) {
+      if (req.session && !req.session.locals) {
+        req.session.locals = {};
+      }
       logger.log(req.method, req.url);
       logger.log("Session: ", JSON.stringify(req.session));
       next();

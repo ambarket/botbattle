@@ -189,7 +189,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   function createAdminUserTask(callback) {
     self.emit('status_update', 'Creating the administrator user');
     var adminUser = objectFactory.User.newInstance(
-        sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
+        sanitizedFormData.adminUserName, sanitizedFormData.adminPassword, 'admin');
 
     database.insertAdminUser(adminUser, function(err) {
       if (!err) {

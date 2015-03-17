@@ -1,10 +1,11 @@
-function User(username, password) {
+function User(username, password, group) {
       this.username = username;
       this.password = password; 
+      this.group = group;
 }
 User.keyFieldName = 'username';
-User.newInstance = function(username, password) {
-  return new User(username, password);
+User.newInstance = function(username, password, group) {
+  return new User(username, password, group);
 };
 
 function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {

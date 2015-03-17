@@ -5,6 +5,7 @@ function BotBattleApp(server, database) {
 	var paths = require('./BotBattlePaths');
 	var fileManager = new (require(paths.custom_modules.FileManager));
 	
+	
 	registerTestArenaRoutes(server);
 	registerLoginRoutes(server, database);
 }
@@ -25,14 +26,18 @@ function registerLoginRoutes(server, database) {
       function(username, password, done) {
         console.log(username, password);
         database.queryAllUsers(username, function(err, user) {
-          console.log('here', err, user);
-          if (err) { return done(err); }
+          if (err) { return done(err, false, 'An error occured during verification'); }
           if (!user || !user.password === password) {
-            return done(null, false, { message: 'Incorrect username or password' });
+            return done(null, false, 'Incorrect username or password');
           }
-          else {
-            return done(null, user, { message: 'Successfully logged in!' });
+          if (!user.password === password) {
+            return done(null, false, 'Incorrect username or password');
           }
+          if (!user.group) {
+            return done(null, false, 'Valid username and password but no group');
+          }
+          
+          return done(null, user, 'Login successful');
         });
       }
     ));
@@ -49,18 +54,86 @@ function registerLoginRoutes(server, database) {
   
   var paths = require('./BotBattlePaths');
   server.addDynamicRoute('get', '/login', function(req, res) {
-    res.render('pages/login', { message : req.flash('error')});
+    var locals = copyLocalsAndDeleteMessage(req.session);
+    res.render('pages/login', { 'locals' : locals});
   });
 
   
-  server.addDynamicRoute('post', '/verify_login',
-      passport.authenticate('local', { successRedirect: '/',
-                                       failureRedirect: '/login',
-                                       failureFlash: true,
-                                       successFlash: true})
-  );
+  server.addDynamicRoute('post', '/verify_login', function(req, res, next) {
+      passport.authenticate('local', function(err, user, info) {
+        req.session.locals.message = info;
+        if (err) { 
+          //return res.redirect('/login'); 
+          return next(err); 
+        }
+        if (!user) { 
+          return res.redirect('/login'); 
+        }
+        req.logIn(user, function(err) {
+          if (err) { 
+            return next(err); 
+          }
+          req.session.locals.username = req.user.username;
+          req.session.locals.group = req.user.group;
+          
+          if (user.group === 'admin') {
+            return res.redirect('/adminPortal');
+          }
+          if (user.group === 'student') {
+            return res.redirect('/studentPortal');
+          }
+          
+        });
+      })(req, res, next);
+  });
   
+  server.addDynamicRoute('get', '/adminPortal', function(req, res) {
+    if (req.user) {
+      console.log(req.user);
+      var locals = copyLocalsAndDeleteMessage(req.session);
+      res.render('pages/adminPortal', { 'locals' : locals});
+    }
+    else {
+      req.session.locals.message = "You are not authenticated , dont try to go to the admin portal";
+      res.redirect('/');
+    }
+  });
   
+  server.addDynamicRoute('get', '/studentPortal', function(req, res) {
+    if (req.user) {
+      var locals = copyLocalsAndDeleteMessage(req.session);
+      res.render('pages/studentPortal', { 'locals' : locals});
+    }
+    else {
+      req.session.locals.message = "You are not authenticated , dont try to go to the student portal";
+      res.redirect('/');
+    }
+  });
+  
+  server.addDynamicRoute('get', '/logout', function(req, res) {
+    req.logout();
+    
+    req.session.regenerate(function(err) {
+      req.session.locals = {};
+      req.session.locals.message = 'Successfully logged out';
+      res.redirect('/');
+    });
+  });
+  
+}
+
+/**
+ * This is weird but its the only way I could find to unset the message while still sending it.
+ * @param session
+ * @returns {object} deep copy of session.locals
+ */
+function copyLocalsAndDeleteMessage(session) {
+  var retval = {}
+  for (var key in session.locals) {
+    retval[key] = session.locals[key];
+  }
+  session.locals.message = null;
+  return retval;
 }
 
 function registerTestArenaRoutes(server) {
@@ -69,7 +142,8 @@ function registerTestArenaRoutes(server) {
   
   
   server.addDynamicRoute('get', '/', function(req, res) {
-    res.render('pages/testArena', { message : req.flash('success')});
+    var locals = copyLocalsAndDeleteMessage(req.session);
+    res.render('pages/testArena', { 'locals' : locals});
   });
   
   
