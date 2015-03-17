@@ -43,6 +43,20 @@ public class SaveTheIslandGame {
 			
 			return newTiles;
 		}
+		
+		public static boolean checkPlayersTiles(String board, int player, int value, int numOfValues) {
+			String tiles = getPlayersTiles(player, board);
+			int count = 0;
+			
+			for(int i = 0; i < 5; i++) {
+				if( Integer.parseInt(tiles.substring(i, i+1)) == value ) {
+					count++;
+				} 
+			}
+			
+			return count == value;
+		}
+		
 	}
 	//----------------------- END BOARD CLASS ---------------------
 	
@@ -74,13 +88,12 @@ public class SaveTheIslandGame {
 	//TODO finish this
 	public static String updateBoard(String move, String board, int player) {
 		
-		if( player == 1 ) {
-
-		}
-		else if ( player == 2 ) {
+		if( move.startsWith("attack") ) {
 			
 		}
-		
+		else if( move.startsWith("retreat") ) {
+			
+		}
 
 		
 		return board;
@@ -120,20 +133,6 @@ public class SaveTheIslandGame {
 		//check that other players distance is greater then or equal to value
 		if( valueInt <= distance ) {
 			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	public static boolean isValidMove(String move, String board) {
-		
-		int player = Integer.parseInt(move.substring(0, 1));
-
-		if( player == 1 ) {
-			return isPlayersMoveValid(move, board, 1);
-		}
-		else if ( player == 2 ) {
-			return isPlayersMoveValid(move, board, 2);
 		} else {
 			return false;
 		}
