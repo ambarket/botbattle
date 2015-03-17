@@ -233,6 +233,8 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      this.insertTournament = function(tournamentObject, callback) {
     	 insertSingleDocumentByKeyFieldInCollection(tournamentObject, objectFactory.Tournament.keyFieldName, 'Tournaments', callback );
       };
+      
+      
     // ... and so on
 
     function insertSingleDocumentByKeyFieldInCollection(document, keyFieldName, collectionName, callback) {
@@ -363,6 +365,8 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
            });
          }
      };
+     
+    
 };
 
 
