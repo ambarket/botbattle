@@ -6,8 +6,7 @@ public class SaveTheIslandGame {
 	
 	//-------------------------- BOARD CLASS ---------------------
 	static class Board {
-		public static String getPlayersTiles(int player, String board) {
-			
+		public static String getPlayersTiles(int player, String board) {			
 			if( player == 1 ) {
 				return board.split(";")[0];
 			} else {
@@ -122,7 +121,7 @@ public class SaveTheIslandGame {
 		return null;
 	}
 
-	//TODO finish this
+	//TODO the only thing else that is needed is the shuffle command.
 	public static String updateBoard(String move, String board, int player) {
 		String updatedBoard = "";
 		String[] peices;
@@ -136,7 +135,6 @@ public class SaveTheIslandGame {
 			 int value = Integer.parseInt(peices[1].substring(0, 1));
 			 updatedBoard = Board.movePlayer(board, player, -value);
 		}
-
 		
 		return updatedBoard;
 	}
