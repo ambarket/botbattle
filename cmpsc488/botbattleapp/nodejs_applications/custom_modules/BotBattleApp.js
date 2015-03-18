@@ -26,16 +26,16 @@ function registerLoginRoutes(server, database) {
         database.queryAllUsers(username, function(err, user) {
           if (err) { return done(err, false, 'An error occured during verification'); }
           if (!user || !user.password === password) {
-            return done(null, false, 'Incorrect username or password');
+            return done(null, false,  { 'type' : 'error', 'text' : 'Incorrect username or password' });
           }
           if (!user.password === password) {
-            return done(null, false, 'Incorrect username or password');
+            return done(null, false, { 'type' : 'error', 'text' : 'Incorrect username or password' });
           }
           if (!user.group) {
-            return done(null, false, 'Valid username and password but no group');
+            return done(null, false, { 'type' : 'error', 'text' : 'Valid username and password but no group' });
           }
           
-          return done(null, user, 'Login successful');
+          return done(null, user, { 'type' : 'success', 'text' : 'Login successful'});
         });
       }
     ));
@@ -92,13 +92,13 @@ function registerLoginRoutes(server, database) {
         res.render(paths.static_content.views + 'pages/adminPortal', { 'locals' : locals});
       }
       else {
-        req.session.locals.message = "Sorry, you don't have permission to access the admin portal";
+        req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, you don't have permission to access the admin portal" };
         res.redirect('/');
       }
       
     }
     else {
-      req.session.locals.message = "Sorry, you don't have permission to access the admin portal";
+      req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, you don't have permission to access the admin portal"};
       res.redirect('/');
     }
   });
@@ -110,12 +110,12 @@ function registerLoginRoutes(server, database) {
         res.render(paths.static_content.views + 'pages/studentPortal', { 'locals' : locals});
       }
       else {
-        req.session.locals.message = "Sorry, admins don't have a student portal";
+        req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, admins don't have a student portal"};
         res.redirect('/');
       }
     }
     else {
-      req.session.locals.message = "Sorry, you don't have permission to access the student portal";
+      req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, you don't have permission to access the student portal"};
       res.redirect('/');
     }
   });
@@ -125,7 +125,7 @@ function registerLoginRoutes(server, database) {
     
     req.session.regenerate(function(err) {
       req.session.locals = {};
-      req.session.locals.message = 'Successfully logged out';
+      req.session.locals.message = { 'type' : 'success', 'text' : 'Successfully logged out'};
       res.redirect('/');
     });
   });

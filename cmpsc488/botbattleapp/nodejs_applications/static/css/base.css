@@ -31,6 +31,12 @@ body {
 	 /*border:1px solid;*/
 	 overflow:auto
 }
+/* This corresponds to the message from the previous actiont hat is flashed to the user */
+.message{
+	color: grey;
+	text-align: center;
+	vertical-align: middle;
+}
 
 #submitButton{
 	font-size: 20px;
