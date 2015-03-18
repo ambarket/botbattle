@@ -1,0 +1,17 @@
+<div class="message">
+    <!--<p>"Locals: <%= JSON.stringify(locals) %></p>-->
+    <% if(locals.message) { %>
+        <% if (locals.message.type === 'success') { %>
+          <!-- A good thing happened -->
+          <p style="color:green"><%= locals.message.text %></p>
+        <% } else if (locals.message.type === 'error') { %>
+          <!-- A bad thing happened -->
+          <p style="color:red"><%= locals.message.text %></p>
+        <% } else { %>
+          <!-- Not necessarily good or bad -->
+          <p><%= locals.message.text %></p>
+        <% } %>
+    <% } else{ %>
+      <!-- No Messages -->
+    <% } %>
+</div>

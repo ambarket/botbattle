@@ -152,22 +152,50 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
     function dropCollection(collectionName, callback) {
       databaseClient.collection(collectionName, function(err, collection) {
-        //logger.log(collection);
+        //logger.log('database', collection);
         collection.drop(function (err, result) {
           //TODO This is not very clean but we actually want to allow this to fail in the case that
           //    the collection to drop didnt exist. In this case the result === false, which is checked below
           //    maybe revisit this if we have time, but works for now.
           if (err && !err.toString().indexOf("ns not found")) {
-            logger.log(err.toString());
+            logger.log('database', err.toString());
             callback(err);
           }
           else {
-            //logger.log(result);
-            logger.log((result===false) ? "Tryed to drop " + collectionName + " but it didn't exist" : collectionName + " collection dropped successfully");
+            //logger.log('database', result);
+            logger.log('database', (result===false) ? "Tryed to drop " + collectionName + " but it didn't exist" : collectionName + " collection dropped successfully");
             callback(null);
           }
         });
 
+      });
+    }
+    
+    
+    /**
+     * Queries for the specified username, first in admin users, then in tournament users
+     */
+    this.queryAllUsers = function(username, callback) {
+      self.queryAdminUsers(username, function(err, user) {
+        if (err) { return callback(err); }
+        else {
+          if (user) {
+            return callback(null, user);
+          }
+          else {
+            self.queryForStudentInSystemTournament(username, function(err, user) {
+              if (err) { return done(err); }
+              else {
+                if (user) {
+                  return callback(null, user);
+                }
+                else {
+                  return callback(null, null);
+                }
+              }
+            });
+          }
+        }
       });
     }
     
@@ -180,22 +208,23 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      */
     this.insertAdminUser = function(userObject, callback) {
       //TODO Check if its a valid userObject
-      insertSingleDocumentByKeyFieldInCollection(userObject, objectFactory.User.keyFieldName, 'AdminUsers', callback );
+      insertSingletonDocumentByKeyFieldInCollection(userObject, objectFactory.User.keyFieldName, 'AdminUsers', callback );
     }
     
     /**
      * Queries for specified username into the AdminUsers collection of the DB.
      * @param {String} username A username to query for
-     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument. 
+     * @param {Function} callback Function to call after querying. Will be passed any error that occurs as first argument. 
      * Second argument will be the document found to match the key. If multiple documents were found an error will be returned
      * and the second argument will be null. If no documents were found, both the first and second arguments will be null.
-     * @method queryAdminUser
+     * @method queryAdminUsers
      * @public
      */
-    this.queryAdminUser = function(username, callback) {
+    //TODO: Maybe change query to allow for multiples to be returned. I'm questioning this right now
+    this.queryAdminUsers = function(username, callback) {
       //TODO Check if its a valid userObject and make keyFIeld a static property in the ObjectFactory
       //    so that you don't need an instance to find out what it is.
-      queryForSingleDocumentByKeyFieldInCollection(username, objectFactory.User.keyFieldName, 'AdminUsers', callback);
+      queryForSingletonDocumentByKeyFieldInCollection(username, objectFactory.User.keyFieldName, 'AdminUsers', callback);
     }
        
     /**
@@ -207,7 +236,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      */
     this.insertGameModule = function(gameModuleObject, callback) {
     //TODO Check if its a valid gameModuleObject
-      insertSingleDocumentByKeyFieldInCollection(gameModuleObject, objectFactory.GameModule.keyFieldName, 'GameModules', callback );
+      insertSingletonDocumentByKeyFieldInCollection(gameModuleObject, objectFactory.GameModule.keyFieldName, 'GameModules', callback );
     }
     
     /**
@@ -216,36 +245,76 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument. 
      * Second argument will be the document found to match the key. If multiple documents were found an error will be returned
      * and the second argument will be null. If no documents were found, both the first and second arguments will be null.
-     * @method queryAdminUser
+     * @method queryGameModule
      * @public
      */
     this.queryGameModule = function(gameName, callback) {
       //TODO Check if its a valid userObject and make keyFIeld a static property in the ObjectFactory
       //    so that you don't need an instance to find out what it is.
-      queryForSingleDocumentByKeyFieldInCollection(gameName, objectFactory.GameModule.keyFieldName, 'GameModules', callback);
+      queryForSingletonDocumentByKeyFieldInCollection(gameName, objectFactory.GameModule.keyFieldName, 'GameModules', callback);
+    }
+    
+    /**
+     * Queries for the specified username amongst all tournaments in the system. And returns the first one found.
+     * WARNING: This method makes sense for a single tournament system. THe tournaments collection and the methods that 
+     * operate on it are more generic than that. If multiple tournaments are used in the future, another method will
+     * have to be used for this purpose.
+     * 
+     * If found, user object will be returned as second argument, null otherwise.
+     */
+    this.queryForStudentInSystemTournament = function(username, callback) {
+      self.queryTournaments(function(err, tournaments) {
+        if (err) { 
+          // Saw this method in the passport module. Just shorthand for having return/break on the next line as
+          //    we've done in the past. callback doesn't actually return a value.
+          return callback(err);
+        }
+        else {
+          
+          // Maybe even through an error because there must always be one tournament
+          if (tournaments == null) {
+            return callback(null, null);
+          }
+          
+          // Kind of silly to have this when we know its going to be one tournament.
+          for (var tournamentIndex = 0; tournamentIndex < tournaments.length; tournamentIndex++) {
+            for(var userIndex = 0; userIndex < tournaments[tournamentIndex].usersArray.length; userIndex++) {
+              if (tournaments[tournamentIndex].usersArray[userIndex].username === username) {
+                return callback(null, tournaments[tournamentIndex].usersArray[userIndex]);
+              }
+            }
+          }
+          // No user found, return null.
+          logger.log('database', "No user named '" + username + "' found in the system tournament");
+          return callback(null, null);
+        }
+      });
     }
     
     
-    this.queryTournament = function(tournamentName, callback) {
-    	queryForSingleDocumentByKeyFieldInCollection(tournamentName, objectFactory.Tournament.keyFieldName, 'Tournaments', callback);
+    /**
+     * Returns an array of all objects found in the tournaments collection as second argument to callback
+     */
+    this.queryTournaments = function(callback) {
+    	queryForAllDocumentsInCollection('Tournaments', callback);
     };
     
      this.insertTournament = function(tournamentObject, callback) {
-    	 insertSingleDocumentByKeyFieldInCollection(tournamentObject, objectFactory.Tournament.keyFieldName, 'Tournaments', callback );
+    	 insertSingletonDocumentByKeyFieldInCollection(tournamentObject, objectFactory.Tournament.keyFieldName, 'Tournaments', callback );
       };
       
       
     // ... and so on
 
-    function insertSingleDocumentByKeyFieldInCollection(document, keyFieldName, collectionName, callback) {
+    function insertSingletonDocumentByKeyFieldInCollection(document, keyFieldName, collectionName, callback) {
     	// maybe break all of these up into smaller functions and others like Dr. Blum suggested in class
       if (databaseClient === null) {
         callback(new Error("Database hasn't been initialized, cannot insert!"))
       } 
       else {
-        queryForSingleDocumentByKeyFieldInCollection(document[keyFieldName], keyFieldName, collectionName, function(err, foundDocument) {
+        queryForSingletonDocumentByKeyFieldInCollection(document[keyFieldName], keyFieldName, collectionName, function(err, foundDocument) {
           if(err) {
-            logger.log(err);
+            logger.log('database', err);
             callback(err);
           }
           else {
@@ -261,15 +330,15 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
                   callback(err);
                 } 
                 else {
-                  logger.log(document);
-                  collection.insert(document, {w:1}, function(err) {
+
+                  collection.insert(document, {w:1}, function(err, result) {
                     if (err) {
                       err.message = "Failed to insert " + JSON.stringify(document)  +  " into the '" + collectionName + "' collection." ;
-                      logger.log(err);
+                      logger.log('database', err);
                       callback(err);
                     }
                     else {
-                      logger.log("Success inserting " + JSON.stringify(document) + " into the '" + collectionName + "' collection.");
+                      logger.log('database', "Success inserting " + JSON.stringify(document) + " into the '" + collectionName + "' collection.");
                       callback(null);
                     }
                   });
@@ -281,7 +350,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       }
     }
     
-    function queryForSingleDocumentByKeyFieldInCollection(keyValue, keyFieldName, collectionName, callback) {
+    function queryForAllDocumentsInCollection(collectionName, callback) {
       if (databaseClient === null) {
         callback(new Error("Database hasn't been initialized, cannot query!"))
       } 
@@ -291,24 +360,59 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
               callback(err);
             } 
             else {
-              var query = {keyFieldName : keyValue};
-              collection.find(query).toArray(function(err, items) {
+              collection.find({}).toArray(function(err, items) {
                 if (err) {
-                  err.message = "Error when attempting to find '" + keyFieldName + ":" + keyValue 
-                                  + "' in the '" + collectionName + "' collection.\n" + err.message;
-                  logger.log(err);
+                  err.message = "Error when attempting to find all documents in the '" 
+                    + collectionName + "' collection.\n" + err.message;
+                  logger.log('database', err);
                   callback(err);
                 }
                 else {
                   if (items.length === 0) {
-                    logger.log("No document found matching '" + keyFieldName + ":" + keyValue 
+                    logger.log('database', "No documents found in the '" + collectionName + "' collection.");
+                    callback(null, null);
+                  }
+                  else {
+                    logger.log('database', "Found " + items.length + " documents in the '" + collectionName + "' collection.");
+                    callback(err, items);
+                  }
+                }
+              })
+            }
+        });
+      }
+    }
+    
+    function queryForSingletonDocumentByKeyFieldInCollection(keyValue, keyFieldName, collectionName, callback) {      
+      if (databaseClient === null) {
+        callback(new Error("Database hasn't been initialized, cannot query!"))
+      } 
+      else {
+        databaseClient.collection(collectionName, function(err, collection) {
+            if (err) {
+              callback(err);
+            } 
+            else {
+              var query = {};
+              query[keyFieldName] = keyValue;
+              
+              collection.find(query).toArray(function(err, items) {
+                if (err) {
+                  err.message = "Error when attempting to find '" + keyFieldName + ":" + keyValue 
+                                  + "' in the '" + collectionName + "' collection.\n" + err.message;
+                  logger.log('database', err);
+                  callback(err);
+                }
+                else {
+                  if (items.length === 0) {
+                    logger.log('database', "No document found matching '" + keyFieldName + ":" + keyValue 
                                 + "' in the '" + collectionName + "' collection.");
                     callback(null, null);
                   }
                   else if (items.length === 1) {
-                    logger.log("Found document matching '" + keyFieldName + ":" + keyValue 
+                    logger.log('database', "Found document matching '" + keyFieldName + ":" + keyValue 
                         + "' in the '" + collectionName + "' collection.");
-                    logger.log("Here's the document: " + JSON.stringify(items[0]) );
+                    logger.log('database', "Here's the document: " + JSON.stringify(items[0]) );
                     callback(null, items[0]);
                   }
                   else {
@@ -327,40 +431,40 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
      
      this.insertThenFindUnitTest = function(collectionName) {
-       logger.log("Running simple unit test of DB connection, insertion, and retrieval...");
+       logger.log('database', "Running simple unit test of DB connection, insertion, and retrieval...");
        if (databaseClient === null) {
-         logger.log("You haven't called connect yet!");
+         logger.log('database', "You haven't called connect yet!");
        }
        else {
          databaseClient.collection(collectionName, function(err, collection) {
-             logger.log("fetch results");
-             logger.log("\terr: " + err);
-             logger.log("\tcollection:" + collection);
-             logger.log("end fetch of testCollection");
+             logger.log('database', "fetch results");
+             logger.log('database', "\terr: " + err);
+             logger.log('database', "\tcollection:" + collection);
+             logger.log('database', "end fetch of testCollection");
              if (!err) {
                collection.insert([{a:1}, {a:2}, {a:3}], {w:1}, function(err, result) {
-                 logger.log("insertion results");
-                 logger.log("\terr: " + err);
-                 logger.log("\tresult:" + result);
-                 logger.log("end insertion results");
+                 logger.log('database', "insertion results");
+                 logger.log('database', "\terr: " + err);
+                 logger.log('database', "\tresult:" + result);
+                 logger.log('database', "end insertion results");
                  if (result) {
                    // Peform a simple find and return all the documents
                    collection.find().toArray(function(err, docs) {
-                     logger.log("find results");
-                     logger.log("\terr: " + err);
-                     logger.log("\tdocs:" + JSON.stringify(docs));
-                     logger.log("end find results");
+                     logger.log('database', "find results");
+                     logger.log('database', "\terr: " + err);
+                     logger.log('database', "\tdocs:" + JSON.stringify(docs));
+                     logger.log('database', "end find results");
                      collection.drop();
-                     logger.log("Collection dropped, test complete");
+                     logger.log('database', "Collection dropped, test complete");
                    });
                  }
                  else {
-                   logger.log("Cant call find, the insertion result was false");
+                   logger.log('database', "Cant call find, the insertion result was false");
                  }
                });
              }
              else {
-               logger.log("Cant call insert, there was an error retriving the collection");
+               logger.log('database', "Cant call insert, there was an error retriving the collection");
              }
            });
          }

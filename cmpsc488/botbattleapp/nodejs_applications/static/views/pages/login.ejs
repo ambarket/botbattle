@@ -1,0 +1,44 @@
+<!-- views/pages/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <% include ../partials/message %>
+    
+    <main>
+        <form id="loginForm" action = "/verify_login" method="post">
+          <div class="form-item">
+            <label id="title" for="username"> Username <span
+              class="form-required" title="This field is required."> * </span>
+            </label> 
+            <input type="text" name="username" maxlength="35" size="40" value="testUser" required/>
+          </div>
+          <div class="form-item">
+            <label id="title" for="password"> Password <span
+              class="form-required" title="This field is required."> * </span>
+            </label> 
+            <input type="password" name="password" maxlength="35" size="40" value="testPass" required/>
+          </div>
+      
+          <div>
+            <input type="submit" value="Log In"/>
+          </div>
+      </form>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
+
+  

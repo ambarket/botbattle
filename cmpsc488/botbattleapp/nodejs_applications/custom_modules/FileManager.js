@@ -214,7 +214,7 @@ function FileManager(botBattleDatabase) {
             }
             
             if (!numberOfErrors) {
-                usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1]);
+                usersArray[line] = objectFactory.User.newInstance(lineElements[0], lineElements[1], 'student');
             }
             if (numberOfErrors >= 5) {
               break;
@@ -289,7 +289,7 @@ function FileManager(botBattleDatabase) {
              if(callback && typeof(callback) == "function") {callback(err);} 
            }
            else{
-             logger.log("Deleted " + folderPath);
+             logger.log("fileManager", "Deleted " + folderPath);
              if(callback && typeof(callback) == "function") {callback(null);}
            }
         });
