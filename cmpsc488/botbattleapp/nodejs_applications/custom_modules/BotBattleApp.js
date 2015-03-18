@@ -1,8 +1,7 @@
-
+var paths = require('./BotBattlePaths');
+  
 function BotBattleApp(server, database) {
 	var self = this;
-
-	var paths = require('./BotBattlePaths');
 	var fileManager = new (require(paths.custom_modules.FileManager));
 	
 	
@@ -51,10 +50,10 @@ function registerLoginRoutes(server, database) {
     });
   });
   
-  var paths = require('./BotBattlePaths');
+
   server.addDynamicRoute('get', '/login', function(req, res) {
     var locals = copyLocalsAndDeleteMessage(req.session);
-    res.render('pages/login', { 'locals' : locals});
+    res.render(paths.static_content.views + 'pages/login', { 'locals' : locals});
   });
 
   
@@ -90,7 +89,7 @@ function registerLoginRoutes(server, database) {
     if (req.user) {
       if (req.user.group == 'admin') {
         var locals = copyLocalsAndDeleteMessage(req.session);
-        res.render('pages/adminPortal', { 'locals' : locals});
+        res.render(paths.static_content.views + 'pages/adminPortal', { 'locals' : locals});
       }
       else {
         req.session.locals.message = "Sorry, you don't have permission to access the admin portal";
@@ -108,7 +107,7 @@ function registerLoginRoutes(server, database) {
     if (req.user) {
       if (req.user.group == 'student') {
         var locals = copyLocalsAndDeleteMessage(req.session);
-        res.render('pages/studentPortal', { 'locals' : locals});
+        res.render(paths.static_content.views + 'pages/studentPortal', { 'locals' : locals});
       }
       else {
         req.session.locals.message = "Sorry, admins don't have a student portal";
@@ -154,7 +153,7 @@ function registerTestArenaRoutes(server) {
   
   server.addDynamicRoute('get', '/', function(req, res) {
     var locals = copyLocalsAndDeleteMessage(req.session);
-    res.render('pages/testArena', { 'locals' : locals});
+    res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
   

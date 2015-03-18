@@ -176,8 +176,7 @@ module.exports = function BotBattleServer() {
    * @private
    */
   function registerCommonMiddleware () {
-    var flash = require('connect-flash');
-    self.addMiddleware(flash());
+    expressApp.set('views', paths.static_content.views);
     
     // Use the ejs templating engine
     //http://robdodson.me/how-to-use-ejs-in-express/
