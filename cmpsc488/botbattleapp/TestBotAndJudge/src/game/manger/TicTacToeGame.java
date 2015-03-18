@@ -1,24 +1,14 @@
 package game.manger;
 
-public class TicTacToeGame implements GameInterface {
+public class TicTacToeGame {
 	
-	private String board;
 	
-	public TicTacToeGame() {
-		board = "000000000";
-	}
-	
-	public TicTacToeGame(String board) {
-		this.board = board;
-	}
-	
-	@Override
-	public String getBoard() {
-		return board;
+	public static String getStartingBoard() {
+		return "000000000";
 	}
 
-	@Override
-	public void updateBoard(String move) {
+	
+	public static String updateBoard(String move, String board) {
 		// 0123456
 		// 1, 1, X
 		//Move will be of the form: row, col, value
@@ -28,11 +18,17 @@ public class TicTacToeGame implements GameInterface {
 		String s = move.substring(6);
 
 		board = board.substring(0, index) + s + board.substring(index + 1);
-
+		
+		return board;
 	}
 
-	@Override
-	public boolean isValidMove(String move) {
+	//Player value is not used in tic-tac-toe
+	public static boolean isValidMove(String move, String board, int player) {
+		
+		if( move == null ) {
+			return false;
+		}
+		
 		//Move will be of the form: row, col, value
 		int row = -1;
 		int col = -1;
@@ -61,10 +57,10 @@ public class TicTacToeGame implements GameInterface {
 			return true;
 	}
 
-	@Override
-	public boolean isGameOver() {
+	
+	public static boolean isGameOver(String board) {
 		
-		if(isGameWon()){
+		if(isGameWon(board)){
 			return true;
 		}
 		
@@ -77,24 +73,24 @@ public class TicTacToeGame implements GameInterface {
 		return true;
 	}
 
-	@Override
-	public String getHTMLForBoard() {
+	
+	public static String getHTMLForBoard(String board) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public int getBotTimeoutInMilliseconds() {
+	
+	public static int getBotTimeoutInMilliseconds() {
 		return 3000;
 	}
 
-	@Override
-	public String toString() {
+	
+	public static String getName() {
 		return "TicTacToe";
 	}
 
-	@Override
-	public boolean isGameWon() {
+	
+	public static boolean isGameWon(String board) {
 		
 		for(int i = 0; i < 3; i++)
 		{
@@ -133,5 +129,4 @@ public class TicTacToeGame implements GameInterface {
 		
 		return false;
 	}
-
 }

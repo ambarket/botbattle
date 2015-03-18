@@ -22,8 +22,13 @@ public class Game {
 		return board;
 	}
 
-	
-	public static boolean isValidMove(String move, String board) {
+	//Player value is not used in tic-tac-toe
+	public static boolean isValidMove(String move, String board, int player) {
+		
+		if( move == null ) {
+			return false;
+		}
+		
 		//Move will be of the form: row, col, value
 		int row = -1;
 		int col = -1;

@@ -60,6 +60,7 @@ public class GameResults {
 	}
 	
 	//TODO: remove new lines and tabs once this gets approved
+	//TODO: move this to game class
 	public String toJSONString(){
 		String jsonString = "{\n";
 		

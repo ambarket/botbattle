@@ -54,6 +54,7 @@ module.exports.static_content = {
   'html' : path.join(static_content_directory,  'html/'),
   'images' : path.join(static_content_directory,  'images/'),
   'icons' : path.join(static_content_directory,  'icons/'),
+  'views' : path.join(static_content_directory,  'views/'),
 }
 
 var local_storage_directory = path.join(module.exports.app_root, 'local_storage');
