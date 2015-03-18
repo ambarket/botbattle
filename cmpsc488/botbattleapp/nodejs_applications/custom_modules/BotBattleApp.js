@@ -89,23 +89,35 @@ function registerLoginRoutes(server, database) {
   
   server.addDynamicRoute('get', '/adminPortal', function(req, res) {
     if (req.user) {
-      console.log(req.user);
-      var locals = copyLocalsAndDeleteMessage(req.session);
-      res.render('pages/adminPortal', { 'locals' : locals});
+      if (req.user.group == 'admin') {
+        var locals = copyLocalsAndDeleteMessage(req.session);
+        res.render('pages/adminPortal', { 'locals' : locals});
+      }
+      else {
+        req.session.locals.message = "Sorry, you don't have permission to access the admin portal";
+        res.redirect('/');
+      }
+      
     }
     else {
-      req.session.locals.message = "You are not authenticated , dont try to go to the admin portal";
+      req.session.locals.message = "Sorry, you don't have permission to access the admin portal";
       res.redirect('/');
     }
   });
   
   server.addDynamicRoute('get', '/studentPortal', function(req, res) {
     if (req.user) {
-      var locals = copyLocalsAndDeleteMessage(req.session);
-      res.render('pages/studentPortal', { 'locals' : locals});
+      if (req.user.group == 'student') {
+        var locals = copyLocalsAndDeleteMessage(req.session);
+        res.render('pages/studentPortal', { 'locals' : locals});
+      }
+      else {
+        req.session.locals.message = "Sorry, admins don't have a student portal";
+        res.redirect('/');
+      }
     }
     else {
-      req.session.locals.message = "You are not authenticated , dont try to go to the student portal";
+      req.session.locals.message = "Sorry, you don't have permission to access the student portal";
       res.redirect('/');
     }
   });
