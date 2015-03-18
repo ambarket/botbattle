@@ -106,7 +106,7 @@ module.exports = function BotBattleServer() {
       expressApp[method](url, callback);
     }
     else {
-      logger.log("Failed to add dynamic route to " + method + ":" + url);
+      logger.log('httpsServer', "Failed to add dynamic route to " + method + ":" + url);
     }
   };
   
@@ -231,8 +231,8 @@ module.exports = function BotBattleServer() {
       if (req.session && !req.session.locals) {
         req.session.locals = {};
       }
-      logger.log(req.method, req.url);
-      logger.log("Session: ", JSON.stringify(req.session));
+      logger.log('httpsServer', req.method, req.url);
+      logger.log('session', JSON.stringify(req.session));
       next();
     });
 

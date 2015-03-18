@@ -3,14 +3,15 @@
 
 // A mapping of categories (can be sent as first argument to logger.log method)
 //  to an array of destinations. Will be extended in the future to support files as well.
-//  current supports 'console' or 'ignore'.
+//  current supports 'console'.
 //  If the first argument to logger.log is not one of these categories, 'general will be applied.
 var categoryDestinations = {
-    general : ['console'],
+    general : ['ignore'],
     database : ['console'],
     session : ['console'],
     fileManager : ['console'],
     initialConfig : ['console'],
+    httpsServer : ['console']
 }
   
 function Logger(destination) {
@@ -28,7 +29,12 @@ function Logger(destination) {
     var message = "";
     var category = arguments[0];
     if (categoryDestinations[category]) {
-      message += " " + category + ":";
+      if (categoryDestinations[category].indexOf('ignore') !== -1) {
+        return;
+      }
+      else {
+        message += " " + category + ":";
+      }
     }
     else {
       message += " " + "general" + ": " + arguments[0];

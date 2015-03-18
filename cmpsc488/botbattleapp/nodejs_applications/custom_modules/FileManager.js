@@ -289,7 +289,7 @@ function FileManager(botBattleDatabase) {
              if(callback && typeof(callback) == "function") {callback(err);} 
            }
            else{
-             logger.log("Deleted " + folderPath);
+             logger.log("fileManager", "Deleted " + folderPath);
              if(callback && typeof(callback) == "function") {callback(null);}
            }
         });
