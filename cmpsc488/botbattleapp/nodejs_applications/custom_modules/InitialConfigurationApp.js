@@ -189,7 +189,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   function createAdminUserTask(callback) {
     self.emit('status_update', 'Creating the administrator user');
     var adminUser = objectFactory.User.newInstance(
-        sanitizedFormData.adminUserName, sanitizedFormData.adminPassword);
+        sanitizedFormData.adminUserName, sanitizedFormData.adminPassword, 'admin');
 
     database.insertAdminUser(adminUser, function(err) {
       if (!err) {
@@ -416,9 +416,13 @@ function InitialConfigurationApp(initConfigAppServer) {
    * @private
    */
   (function registerInitialConfigurationRoutes() {
+    initConfigAppServer.addDynamicRoute('get', '/', function(req, res) {
+      res.render('pages/initialConfiguration');
+    });
+    /*
     initConfigAppServer.addStaticFileRoute('/', paths.static_content.html
         + 'initialConfiguration.html');
-
+    */
     var multer = require('multer');
     initConfigAppServer
         .addDynamicRoute(

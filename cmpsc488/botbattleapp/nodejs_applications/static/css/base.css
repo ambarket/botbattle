@@ -1,0 +1,94 @@
+body {
+    font-family: PT Sans,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: normal;
+		font-size: 14px;
+		color: #6F6F6F;
+		line-height: 150%;
+}
+
+.centered{
+	margin-left: 10%;
+	margin-right: 10%;
+}
+
+#title{
+	font-size: 18px;
+	color: #7777AA;
+}
+
+.largeText{
+	font-size: 20px;
+}
+
+.error {
+	color: red;
+}
+
+#message{
+	 font-size: 15px;
+	 height:300px;
+	 width:autopx;
+	 /*border:1px solid;*/
+	 overflow:auto
+}
+/* This corresponds to the message from the previous actiont hat is flashed to the user */
+.message{
+	color: grey;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#submitButton{
+	font-size: 20px;
+	background: #7777AA;
+	border-radius: 10px;
+}
+
+.form-required {
+    color: #F00;
+}
+
+textarea, input[type="text"], input[type="password"], input[type="datetime"], 
+input[type="datetime-local"], input[type="date"], input[type="month"], 
+input[type="time"], input[type="week"], input[type="number"], input[type="email"], 
+input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+    transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s;
+    display: inline-block;
+    /*height: 20px;*/
+    padding: 4px 6px;
+    margin-bottom: 9px;
+    font-size: 14px;
+    /*line-height: 20px;*/
+    color: #555;
+    border-radius: 3px;
+    line-height: 150%;
+    margin-left: 0px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+label, input, button, select, textarea {
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 20px;
+}
+    
+button, input, select, textarea {
+    margin: 0px;
+    font-size: 100%;
+    vertical-align: middle;
+}
+    
+a:focus, .btn:focus, * {
+    outline: medium none;
+}
+
+.form-item .description {
+    font-size: 0.85em;
+}

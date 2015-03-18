@@ -106,7 +106,7 @@ module.exports = function BotBattleServer() {
       expressApp[method](url, callback);
     }
     else {
-      logger.log("Failed to add dynamic route to " + method + ":" + url);
+      logger.log('httpsServer', "Failed to add dynamic route to " + method + ":" + url);
     }
   };
   
@@ -176,14 +176,25 @@ module.exports = function BotBattleServer() {
    * @private
    */
   function registerCommonMiddleware () {
+    expressApp.set('views', paths.static_content.views);
+    
+    // Use the ejs templating engine
+    //http://robdodson.me/how-to-use-ejs-in-express/
+    expressApp.set('view engine', 'ejs');  
     
     var cookieParser = require('cookie-parser');
     self.addMiddleware(cookieParser());
     
+    var bodyParser = require('body-parser');
+    self.addMiddleware(bodyParser.json());
+    self.addMiddleware(bodyParser.urlencoded({
+      extended : true
+    }));
+    
     var shortid = require('shortid');
     var session = require('express-session');
     var sessionStore = session({
-      secret : 'sshhh!',
+      secret : 'CXj3n"2KgOj*-4tm*Z0uD2B4X+Q^m3',
       cookie : {
         maxAge : 60000
       },
@@ -197,14 +208,11 @@ module.exports = function BotBattleServer() {
         //return genuuid()
       },
     });
-    expressApp.use(sessionStore);
-
-    // Add body-parser
-    var bodyParser = require('body-parser');
-    self.addMiddleware(bodyParser.json());
-    self.addMiddleware(bodyParser.urlencoded({
-      extended : true
-    }));
+    self.addMiddleware(sessionStore);
+    
+    var passport = require('passport');
+    self.addMiddleware(passport.initialize());
+    self.addMiddleware(passport.session());
     
 
   }
@@ -219,7 +227,11 @@ module.exports = function BotBattleServer() {
   function registerCommonRoutes() {
     // Log every incoming request, then pass along for further processing
     self.addMiddleware(function(req, res, next) {
-      logger.log(req.method, req.url);
+      if (req.session && !req.session.locals) {
+        req.session.locals = {};
+      }
+      logger.log('httpsServer', req.method, req.url);
+      logger.log('session', JSON.stringify(req.session));
       next();
     });
 

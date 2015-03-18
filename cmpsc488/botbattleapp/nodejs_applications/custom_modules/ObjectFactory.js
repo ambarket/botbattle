@@ -1,10 +1,11 @@
-function User(username, password) {
+function User(username, password, group) {
       this.username = username;
       this.password = password; 
+      this.group = group;
 }
 User.keyFieldName = 'username';
-User.newInstance = function(username, password) {
-  return new User(username, password);
+User.newInstance = function(username, password, group) {
+  return new User(username, password, group);
 };
 
 function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
@@ -20,12 +21,12 @@ GameModule.newInstance = function(gameName, gameModuleDirectory, rulesFilePath, 
   return new GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout);
 };
 
-function Tournament(tournamentName, tournamentDirectory, gameName, uploadDeadline, userList, state) {
+function Tournament(tournamentName, tournamentDirectory, gameName, uploadDeadline, usersArray, state) {
   this.tournamentName = tournamentName;
   this.directory = tournamentDirectory;
   this.gameName = gameName;     // Used as key into the database to get the game module
   this.uploadDeadline = uploadDeadline; //Data have to decide how we want to store it, probably in ticks
-  this.userList = userList;     // List of StudentUser objects
+  this.usersArray = usersArray;     // Array of User objects
   this.state = state;           //{ one of { ‘upload’, ‘running’, ‘private’, ‘public’}
 }
 Tournament.keyFieldName = 'tournamentName';
