@@ -7,8 +7,8 @@
 //  If the first argument to logger.log is not one of these categories, 'general will be applied.
 var categoryDestinations = {
     general : ['ignore'],
-    database : ['console'],
-    session : ['console'],
+    database : ['ignore'],
+    session : ['ignore'],
     fileManager : ['console'],
     initialConfig : ['console'],
     httpsServer : ['console']

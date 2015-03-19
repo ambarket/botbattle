@@ -1,5 +1,8 @@
-// Wrap everything in a function, so local variables dont become globals
+
+//Wrap everything in a function, so local variables dont become globals
 (function() {
+
+
   window.requestAnimFrame = (function(callback) {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
         || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
@@ -42,7 +45,6 @@
       var x1, x2, y1, y2;
       var clickCount = 0;
       var rect;
-      console.log("here");
       TEST_ARENA.canvas.addEventListener('click', function(event) {
         console.log("Someone Clicked");
         if (event.ctrlKey) {
