@@ -42,8 +42,7 @@ public class testDriver {
 		Tournament t = new Tournament(null, null, c);
 		try {
 			t.runTournament();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) { //TODO this should probablly be caught lower down
 			e.printStackTrace();
 		}
 	}

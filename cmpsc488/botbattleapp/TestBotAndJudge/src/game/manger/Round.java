@@ -15,7 +15,7 @@ public class Round {
 			Player p2 = null;
 
 			if( i + 1 > competitors.getNumberOfCompetitors() ) { //Possible we have odd number of competitors
-				p2 = new Player("badBot", "badBot");// TODO
+				p2 = new Player("badBot", "badBot");// TODO make generic bad bot to always time out
 			} else {
 				p2 = new Player(competitors.getBotPath(i + 1), competitors.getUser(i + 1));
 			}
@@ -43,7 +43,7 @@ public class Round {
 		return winners;
 	}
 	
-	public String toHTML() { //TODO 
+	public String toHTML() { //TODO toHTML for round
 		String html = "";
 		
 		for (GameManager gameManager : games) {

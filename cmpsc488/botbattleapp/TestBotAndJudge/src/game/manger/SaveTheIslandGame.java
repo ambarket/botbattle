@@ -116,7 +116,7 @@ public class SaveTheIslandGame {
 		return board;
 	}
 	
-	//TODO implement this
+	//TODO implement getJSONstringFromGameResults
 	public static String getJSONstringFromGameResults(GameResults results) {
 		return null;
 	}
@@ -159,7 +159,7 @@ public class SaveTheIslandGame {
 	}
 	
 	public static String getHTMLForBoard(String board) {
-		// TODO Auto-generated method stub
+		// TODO implement getHTML for save the island
 		return null;
 	}
 	

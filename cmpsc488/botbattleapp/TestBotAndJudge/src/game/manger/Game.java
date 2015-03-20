@@ -75,7 +75,7 @@ public class Game {
 
 	
 	public static String getHTMLForBoard(String board) {
-		// TODO Auto-generated method stub
+		// TODO implement getHTMLForBoard for ticTacToe game
 		return null;
 	}
 
