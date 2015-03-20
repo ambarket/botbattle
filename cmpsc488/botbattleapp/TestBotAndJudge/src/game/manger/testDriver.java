@@ -7,7 +7,17 @@ import java.io.IOException;
  *
  */
 public class testDriver {
-
+	
+	//TODO move toJSONString from game results to game class
+	//TODO create simple save the island bot
+	//TODO test save the island game with simple bot
+	//TODO write unit tests for rounds
+	//TODO write unit tests for tournaments
+	//TODO write unit tests for Competitor Data
+	//TODO write unit tests for game manager
+	//TODO look into integration testing
+	//TODO decide if we need gameInterface, if so update it. 
+	
 	/**
 	 * @param args
 	 * @throws IOException 
