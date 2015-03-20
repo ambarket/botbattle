@@ -1,0 +1,96 @@
+<!-- views/pages/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+        
+       <link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />  
+         
+        <script type="text/javascript" src="/static/javascript/classes.js"></script>
+        <script type="text/javascript" src="/static/javascript/saveTheIsland.js"></script>
+        <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
+        <script type="text/javascript" src="/static/javascript/async.js"></script>
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+    </header>
+
+    <% include ../partials/message %>
+    
+    <main>	 
+        <div class="col_12">
+        	<div class="col_3">
+        <form id="testArenaForm" enctype="multipart/form-data"">
+             <div class="form-item">
+               <label for="player1_bot_or_human">
+                 Player 1 Type:
+                 <span class="form-required" title="This field is required."> * </span>
+               </label>
+               <input name="player1_bot_or_human" type="radio" required >Human</input>
+               <input name="player1_bot_or_human" type="radio" required >Bot</input>
+             </div>
+             <p>
+             <div class="form-item">
+                 <label for="player1_bot_upload">
+                 Select your bot for player 1
+                 <span class="form-required" title="This field is required."> * </span>
+               </label>
+                <input name="player1_bot_upload" type="file" required ></input>
+             </div>
+             <p>
+             <div class="form-item">
+                 <label for="player2_bot_upload">
+                 Select your bot for player 2
+                 <span class="form-required" title="This field is required."> * </span>
+               </label>
+                <input name="player2_bot_upload" type="file" required ></input>
+             </div>
+             <p>
+            <input id="submit" type="submit" value="Play Game">
+            <hr>
+          </form>
+        		
+        	<div class="form-item">
+              <h4>Human Input</h4>
+              <textarea id="stdin"></textarea> 
+              <button id = "send_move">Send Move</button> 
+              <div id = "send_move_message"></div> 
+            </div>
+            
+          <div><br><hr><br></div>
+          <div id="distance">CRTL + Mouse twice for coordinate info</div>
+            
+        	</div>
+        	<div class="col_9">
+        		<canvas style="border:1px solid" id="GameCanvas" width="1050" height="650"></canvas>
+        	</div>
+        	
+        	<hr />
+        	
+        	<div class="col_4 ioPanels">
+        	<h4>Move List</h4>
+                <div id="moveList"></div>
+        	</div>
+        	
+        	<div class="col_8 ioPanels">
+        	 <h4>Debugging Info</h4>
+        	 <div class="col_4 ioPanels">
+        	   <h5>Standard Output</h5>
+        	   <div id="stdout"></div>
+        	 </div>
+           <div class="col_4 ioPanels">
+             <h5>Standard Error</h5>
+             <div id="stderr"></div>
+           </div>
+        
+        	</div>
+        </div>
+        <!-- END GRID -->
+    </main>
+  </body>
+</html>

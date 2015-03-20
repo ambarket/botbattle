@@ -14,11 +14,11 @@ var logger = require(paths.custom_modules.Logger).newInstance('console');
 fileManager.parseConfigurationFile(function(err, config) {
   if (err) {
     logger.log(err.message);
-    logger.log("No valid configuration file found, running initial configuration at https://localhost:" + port);
+    logger.log('initialConfig', "No valid configuration file found, running initial configuration at https://localhost:" + port);
     runInitialConfiguration();
   }
   else {
-    logger.log("Successfuly read configuration file at " + paths.configuration_file);
+    logger.log('initialConfig', "Successfuly read configuration file at " + paths.configuration_file);
     
     var BotBattleDatabase = require(paths.custom_modules.BotBattleDatabase);
     var database = new BotBattleDatabase(config.databaseHost,
@@ -27,12 +27,11 @@ fileManager.parseConfigurationFile(function(err, config) {
 
     database.connectToExistingDatabase(function(err) {
       if (!err) {
-        logger.log("Successfully connected to the database found in the configuration file");
+        logger.log('initialConfig', "Successfully connected to the database found in the configuration file");
         runBotBattleApp(database);
       }
       else {
-        logger.log("Error connecting to the database found in the configuration file");
-        logger.log(err)
+        logger.log('initialConfig', "Error connecting to the database found in the configuration file", err);
       }
     });
   }
@@ -62,7 +61,7 @@ function runInitialConfiguration() {
         
         // Close the server, then load a new one to serve the botBattleApp
         initConfigAppServer.shutdown(function(err) {
-          console.log('The initial configuration server has been shutdown!');
+          logger.log('initialConfig','The initial configuration server has been shutdown!');
           runBotBattleApp(database);
           // Probably not even be necessary now that these are defined locally in this function
           initConfigAppServer = null;
@@ -71,7 +70,7 @@ function runInitialConfiguration() {
       });
 }
 function runBotBattleApp(database) {
-  logger.log("Running Bot!Battle! at https://localhost:" + port);
+  logger.log('httpsServer', "Running Bot!Battle! at https://localhost:" + port);
   fileManager.deleteInitConfigTmp(function(){});
   var botBattleAppServer = new BotBattleServer().initAndStartListening(port);
   var botBattleApp = (new require(paths.custom_modules.BotBattleApp))(botBattleAppServer, database);

@@ -1,13 +1,14 @@
-<!DOCTYPE html>
+<!-- views/pages/index.ejs -->
 
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<link rel="stylesheet" type="text/css"
-	href="static/css/initialConfiguration.css">
-<title>BOTBATTLE!!!</title>
+    <% include ../partials/basic_head %>
 </head>
-<body class="centered">
+<body class="container">
+
+    <main class="centered">
+    
 	<form id="initConfigForm" enctype="multipart/form-data"">
 
 			<h1>Database Configuration</h1>
@@ -132,6 +133,12 @@
 	 <div id="message"></div>
 	</div>
 	
+	</main>
+	
+	
+  <footer>
+      <% include ../partials/footer %>
+  </footer>
 
 </body>
 
@@ -143,6 +150,7 @@
       and also may have resulting is some weird behavior of socket.io. -->
       
 <script src="/static/javascript/initialConfigurationClient.js"></script>
+
 
 
 </html>
