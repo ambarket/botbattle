@@ -59,6 +59,18 @@ public class GameResults {
 		this.winner = winner;
 	}
 	
+	public List<String> getBoards() {
+		return boards;
+	}
+
+	public List<String> getPlayer1Moves() {
+		return player1Moves;
+	}
+
+	public List<String> getPlayer2Moves() {
+		return player2Moves;
+	}
+
 	//TODO: remove new lines and tabs once this gets approved
 	//TODO: move this to game class
 	public String toJSONString(){
