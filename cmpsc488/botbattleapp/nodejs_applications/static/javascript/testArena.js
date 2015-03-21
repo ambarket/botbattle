@@ -24,15 +24,13 @@
         TEST_ARENA.resizeCanvas();
       }
       
-      // What's time for?
-      var time;
-      (function draw() {
-        requestAnimFrame(draw);
-        var now = new Date().getTime(), dt = now - (time || now);
-    
-        time = now;
+      function draw() {
         GAME.drawer.drawBoard();
-      })();
+        requestAnimFrame(draw);
+      };
+      
+      draw();
+      
     })
   })();
   
