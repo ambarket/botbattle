@@ -24,6 +24,23 @@ TEST_ARENA = {
               GAME.gameboard.backgroundElements[list][object].scale(this.scaleFactor);
           }
       }
+      GAME.gameboard.backGroundWidth *= this.scaleFactor;
+      GAME.gameboard.backGroundHeight *= this.scaleFactor;
+      GAME.gameboard.islandWidth *= this.scaleFactor;
+      GAME.gameboard.islandStart *= this.scaleFactor;
+      GAME.gameboard.islandCenterHeight *= this.scaleFactor;
+      GAME.gameboard.fontSize *= this.scaleFactor;
+      GAME.gameboard.gridWidth = GAME.gameboard.islandWidth/25;
+      GAME.gameboard.gridCenter = GAME.gameboard.gridWidth/2;
+      //console.log(self.gridCenter);
+      GAME.gameboard.player1StartX = (0 * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+      GAME.gameboard.player2StartX = (24 * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+      GAME.gameboard.player1StartY = GAME.gameboard.islandCenterHeight - GAME.gameboard.robotHeight;
+      GAME.gameboard.player2StartY = GAME.gameboard.islandCenterHeight - GAME.gameboard.robotHeight;  
+      GAME.gameboard.player1PositionX = GAME.gameboard.player1StartX;
+      GAME.gameboard.player1PositionY = GAME.gameboard.player1StartY;
+      GAME.gameboard.player2PositionX = GAME.gameboard.player2StartX;
+      GAME.gameboard.player2PositionY = GAME.gameboard.player2StartY;
     },
     'gameStateQueue' : null //Set by resetGameStateQueue
 }

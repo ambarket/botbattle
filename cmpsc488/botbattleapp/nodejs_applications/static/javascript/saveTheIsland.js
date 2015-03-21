@@ -35,10 +35,10 @@ GAME = {
       
       // Move the trees around
       for (treeIndex in GAME.gameboard.backgroundElements.trees1){
-          GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scale);
+          GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scaleFactor);
       }
       for (treeIndex in GAME.gameboard.backgroundElements.trees2){
-          GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scale);
+          GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scaleFactor);
       }
     },
     
@@ -98,7 +98,7 @@ GAME = {
           // Set current state and position of defending player
 
           // in the future -- position changes like this need to be based on the grid position then shifted so the "winner" isn't messed up anymore
-          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scaleFactor)/2) + GAME.gameboard.gridCenter;
           defendingPlayer.defend.y = defendingPlayer.standing.y;  
           defendingPlayer.standing.visible = false;
           defendingPlayer.defend.visible = true;
@@ -106,7 +106,7 @@ GAME = {
           
           // Set current state and position of attacking player
           //TODO  change this so it is based on grid positions. And above and everywhere else too.
-          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scaleFactor)/2) + GAME.gameboard.gridCenter;
           attackingPlayer.attack.y = attackingPlayer.standing.y;  
           attackingPlayer.standing.visible = false;
           attackingPlayer.attack.visible = true;
@@ -179,20 +179,19 @@ function Drawer() {
       //console.log(p1Grid, p2Grid);
       var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
       
-      var fontSize = 30 * TEST_ARENA.scale;
-      TEST_ARENA.context.font= fontSize + 'px Arial';
+      TEST_ARENA.context.font= GAME.gameboardfontSize + 'px Arial';
       TEST_ARENA.context.fillStyle="black";
       
       // TODO  fix this like above mentions
       if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
-        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scaleFactor, 550 * TEST_ARENA.scaleFactor);
       }
       else{
           if(p1Grid < 0){
-            TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+            TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scaleFactor);
           }
           if(p2Grid > 24){
-            TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+            TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scaleFactor);
           }
       }
   }
@@ -232,18 +231,18 @@ function Drawer() {
         var currentX = (startingX + (50* i));
         
         (new drawableRectangle({ 
-          x: currentX * TEST_ARENA.scale, 
-          y: tileParameters.y * TEST_ARENA.scale,
-          width: tileParameters.width * TEST_ARENA.scale,
-          height: tileParameters.height * TEST_ARENA.scale,
+          x: currentX * TEST_ARENA.scaleFactor, 
+          y: tileParameters.y * TEST_ARENA.scaleFactor,
+          width: tileParameters.width * TEST_ARENA.scaleFactor,
+          height: tileParameters.height * TEST_ARENA.scaleFactor,
           fillStyle: tileParameters.fillStyle,
         })).draw(TEST_ARENA.context);
         
         // TODO: Make drawableText object instead of copying this everywhere
-        var fontSize = 30 * TEST_ARENA.scale;
+        var fontSize = 30 * TEST_ARENA.scaleFactor;
         TEST_ARENA.context.font= fontSize + 'px Arial';
         TEST_ARENA.context.fillStyle="black";
-        TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
+        TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scaleFactor , (tileParameters.y + 35) * TEST_ARENA.scaleFactor );
       }
     }
     
@@ -264,22 +263,17 @@ var GameBoard = function() {
   var canvas = document.getElementById("GameCanvas");
   var context = canvas.getContext('2d');
   
-  var fontSize = 30 * TEST_ARENA.scale;
-  context.font= fontSize + 'px Arial';
-  context.fillStyle="black";
-  context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale);
-  
   var self = this;
   
   //  TODO   do away with this when making standing image sheet
   this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
   this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png';
  
-  this.backGroundWidth = 1050;
-  this.backGroundHeight = 650;
-  this.islandWidth = 870;
-  this.islandStart = 80; // Changed from 83
-  this.islandCenterHeight = 468;
+  this.backGroundWidth = 1050; // hardscaled
+  this.backGroundHeight = 650; // hardscaled
+  this.islandWidth = 870; // hardscaled
+  this.islandStart = 80; // Changed from 83 // hardscaled
+  this.islandCenterHeight = 468; // hardscaled
   this.robotWidth = 43;
   this.robotHeight = 79;
   this.numberOfGrids = 25;
@@ -298,6 +292,11 @@ var GameBoard = function() {
   this.player1PositionY = self.player1StartY;
   this.player2PositionX = self.player2StartX;
   this.player2PositionY = self.player2StartY;
+  
+  this.fontSize = 30;  // hardscaled
+  context.font= self.fontSize + 'px Arial';
+  context.fillStyle="black";
+  context.fillText("Loading...", self.backGroundWidth/2, self.backGroundWidth/2); // hardscaled
   
   this.loadResources = function(callback) {
     // can get the image width property automatically
