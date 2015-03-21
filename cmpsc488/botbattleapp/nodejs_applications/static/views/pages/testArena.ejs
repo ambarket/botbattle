@@ -57,7 +57,11 @@
             <hr>
           </form>
         		
-        	<div class="form-item">
+        	<p>
+            <input id="playGame" type="button" value="Play Game">
+            <p>
+            
+        	<div id="humanInput" class="form-item">
               <h4>Human Input</h4>
               <textarea id="stdin"></textarea> 
               <button id = "send_move">Send Move</button> 
@@ -135,9 +139,11 @@
 	$('#human').click(function(){ 
     	$('#submit').val( "Upload Bot");
     	$('#player1FileChoose').hide();
+    	$('#humanInput').show();
 	});
 	$('#bot').click(function(){ 
     	$('#submit').val( "Upload Bots");
     	$('#player1FileChoose').show();
+    	$('#humanInput').hide();
 	});
 </script>
