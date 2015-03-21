@@ -4,8 +4,8 @@ TEST_ARENA = {
     'canvas' : null, // Set in testArena.js after page has loaded
     'prevWidth' : null, // Set in testArena.js after page has loaded
     'context' : null, // Set in testArena.js after page is loaded
-    'scale' : 1, // set by resizeCanvas
-    'scaleFactor' : 1, // set by resizeCanvas
+    'scale' : 1, // set by resizeCanvas     CHANGE in size from ORIGINAL size of canvas
+    'scaleFactor' : 1, // set by resizeCanvas   CHANGE in size from PREVIOUS size of canvas since last resize was called 
     'resizeCanvas' : function(){
       this.prevWidth = this.canvas.width;
       console.log(this.prevCanvas);
@@ -14,7 +14,7 @@ TEST_ARENA = {
       this.scale = document.getElementById("GameCanvas").width / 1050;
       
       this.scaleFactor = this.canvas.width / this.prevWidth;
-      console.log(this.scaleFactor);
+      console.log(this.scaleFactor, this.scale);
       // Anything that uses scale needs to be updated here.
       for (object in GAME.gameboard.drawableObjects) {
         GAME.gameboard.drawableObjects[object].scale(this.scaleFactor);
@@ -104,7 +104,7 @@ drawableObject.prototype.scale = function(scale) {
   this.y = this.y * scale;
   this.width = this.width * scale;
   this.height = this.height * scale;
-  console.log('Called scale on', this);
+  //console.log('Called scale on', this);
 };
 
 var ScaleTest = function(scale) {

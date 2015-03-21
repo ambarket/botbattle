@@ -32,13 +32,13 @@ GAME = {
       //drawer.drawBoard();
       var treeMove = 1;
       treeMove *= -1;
-      
+      // TODO  this is all messed up now but still pointless
       // Move the trees around
       for (treeIndex in GAME.gameboard.backgroundElements.trees1){
-          GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scaleFactor);
+          GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scale);
       }
       for (treeIndex in GAME.gameboard.backgroundElements.trees2){
-          GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scaleFactor);
+          GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scale);
       }
     },
     
@@ -98,7 +98,7 @@ GAME = {
           // Set current state and position of defending player
 
           // in the future -- position changes like this need to be based on the grid position then shifted so the "winner" isn't messed up anymore
-          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scaleFactor)/2) + GAME.gameboard.gridCenter;
+          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
           defendingPlayer.defend.y = defendingPlayer.standing.y;  
           defendingPlayer.standing.visible = false;
           defendingPlayer.defend.visible = true;
@@ -106,7 +106,7 @@ GAME = {
           
           // Set current state and position of attacking player
           //TODO  change this so it is based on grid positions. And above and everywhere else too.
-          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scaleFactor)/2) + GAME.gameboard.gridCenter;
+          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
           attackingPlayer.attack.y = attackingPlayer.standing.y;  
           attackingPlayer.standing.visible = false;
           attackingPlayer.attack.visible = true;
@@ -184,14 +184,14 @@ function Drawer() {
       
       // TODO  fix this like above mentions
       if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
-        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scaleFactor, 550 * TEST_ARENA.scaleFactor);
+        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
       else{
           if(p1Grid < 0){
-            TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scaleFactor);
+            TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
           if(p2Grid > 24){
-            TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scaleFactor);
+            TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
       }
   }
@@ -231,18 +231,17 @@ function Drawer() {
         var currentX = (startingX + (50* i));
         
         (new drawableRectangle({ 
-          x: currentX * TEST_ARENA.scaleFactor, 
-          y: tileParameters.y * TEST_ARENA.scaleFactor,
-          width: tileParameters.width * TEST_ARENA.scaleFactor,
-          height: tileParameters.height * TEST_ARENA.scaleFactor,
+          x: currentX * TEST_ARENA.scale, 
+          y: tileParameters.y * TEST_ARENA.scale,
+          width: tileParameters.width * TEST_ARENA.scale,
+          height: tileParameters.height * TEST_ARENA.scale,
           fillStyle: tileParameters.fillStyle,
         })).draw(TEST_ARENA.context);
         
         // TODO: Make drawableText object instead of copying this everywhere
-        var fontSize = 30 * TEST_ARENA.scaleFactor;
-        TEST_ARENA.context.font= fontSize + 'px Arial';
+        TEST_ARENA.context.font= GAME.gameboard.fontSize + 'px Arial';
         TEST_ARENA.context.fillStyle="black";
-        TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scaleFactor , (tileParameters.y + 35) * TEST_ARENA.scaleFactor );
+        TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
       }
     }
     
