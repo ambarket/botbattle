@@ -209,8 +209,8 @@ drawableSprite.prototype = Object.create(drawableImage.prototype);
 drawableSprite.prototype.constructor = drawableSprite;
 drawableSprite.prototype.draw = function(context) {
     if(this.visible){
-      this.update();
       if(this.numberOfFrames !== 1){
+        this.update();
         context.drawImage(this.img, 
                           this.frameIndex * this.sourceWidth / this.numberOfFrames, // must use total image width not sprite width
                           this.sourceY, 
