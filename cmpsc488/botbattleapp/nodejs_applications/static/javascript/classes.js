@@ -2,12 +2,28 @@
 TEST_ARENA = {
     'myId' : null, // will probably be used
     'canvas' : null, // Set in testArena.js after page has loaded
+    'prevWidth' : null, // Set in testArena.js after page has loaded
     'context' : null, // Set in testArena.js after page is loaded
     'scale' : 1, // set by resizeCanvas
+    'scaleFactor' : 1, // set by resizeCanvas
     'resizeCanvas' : function(){
+      this.prevWidth = this.canvas.width;
+      console.log(this.prevCanvas);
       this.canvas.width = Math.min(this.canvas.parentNode.getBoundingClientRect().width, 1050);
       this.canvas.height = this.canvas.width * 0.619047619;  // 650/1050 = 0.619047619
       this.scale = document.getElementById("GameCanvas").width / 1050;
+      
+      this.scaleFactor = this.canvas.width / this.prevWidth;
+      console.log(this.scaleFactor);
+      // Anything that uses scale needs to be updated here.
+      for (object in GAME.gameboard.drawableObjects) {
+        GAME.gameboard.drawableObjects[object].scale(this.scaleFactor);
+      }
+      for (list in GAME.gameboard.backgroundElements){
+          for(object in GAME.gameboard.backgroundElements[list]){
+              GAME.gameboard.backgroundElements[list][object].scale(this.scaleFactor);
+          }
+      }
     },
     'gameStateQueue' : null //Set by resetGameStateQueue
 }
@@ -65,6 +81,27 @@ drawableObject.prototype.draw = function(context) {
   context.fillRect(this.x,this.y, this.width, this.height);
 };
 
+
+drawableObject.prototype.scale = function(scale) {
+  this.x = this.x * scale;
+  this.y = this.y * scale;
+  this.width = this.width * scale;
+  this.height = this.height * scale;
+  console.log('Called scale on', this);
+};
+
+var ScaleTest = function(scale) {
+  
+  for (object in GAME.gameboard.drawableObjects) {
+    GAME.gameboard.drawableObjects[object].scale(scale);
+  }
+  for (list in GAME.gameboard.backgroundElements){
+      for(object in GAME.gameboard.backgroundElements[list]){
+          GAME.gameboard.backgroundElements[list][object].scale(scale);
+      }
+  }
+}
+
 /** options
  *  {
  *      x: Number
@@ -93,6 +130,8 @@ drawableRectangle.prototype.draw = function(context) {
   context.strokeStyle = this.strokeStyle;
   context.stroke();
 };
+
+drawableRectangle.prototype.scale = drawableObject.prototype.scale;
 
 /**
  * options : {
@@ -142,9 +181,11 @@ drawableImage.prototype.constructor = drawableImage;
 drawableImage.prototype.draw = function(context) {
 	if(this.visible){
 	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, 
-	      this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale,  this.height * TEST_ARENA.scale); 
+	      this.x, this.y, this.width,  this.height); 
 	}
 };
+
+drawableImage.prototype.scale = drawableObject.prototype.scale;
 
 /**
  * options : {
@@ -207,7 +248,7 @@ var drawableSprite = function(options) {
 }
 drawableSprite.prototype = Object.create(drawableImage.prototype);
 drawableSprite.prototype.constructor = drawableSprite;
-drawableSprite.prototype.draw = function(context) {
+drawableSprite.prototype.draw = function(context) {  // TODO According to the profiler this is 10% cpu
     if(this.visible){
       if(this.numberOfFrames !== 1){
         this.update();
@@ -216,10 +257,10 @@ drawableSprite.prototype.draw = function(context) {
                           this.sourceY, 
                           this.sourceWidth / this.numberOfFrames, // image width / frames
                           this.sourceHeight, 
-                          this.x * TEST_ARENA.scale,   // destination positionx
-                          this.y * TEST_ARENA.scale,   // destination positiony
-                          this.width * TEST_ARENA.scale,    // width you want it to be in the end
-                          this.height * TEST_ARENA.scale);  // height you want it to be in the end
+                          this.x,   // destination positionx
+                          this.y,   // destination positiony
+                          this.width,    // width you want it to be in the end
+                          this.height);  // height you want it to be in the end
     }
     else{  
         context.drawImage(this.img, 
@@ -227,13 +268,15 @@ drawableSprite.prototype.draw = function(context) {
                           this.sourceY, 
                           this.sourceWidth, 
                           this.sourceHeight, 
-                          this.x * TEST_ARENA.scale, 
-                          this.y * TEST_ARENA.scale, 
-                          this.width * TEST_ARENA.scale, 
-                          this.height * TEST_ARENA.scale);
+                          this.x, 
+                          this.y, 
+                          this.width, 
+                          this.height);
     }
   }
 }
+
+drawableSprite.prototype.scale = drawableObject.prototype.scale;
 
 //----------------------------------------------------------------------------------------------
 // Put generic functions here that manipulate the position of drawable objects and other stuff
