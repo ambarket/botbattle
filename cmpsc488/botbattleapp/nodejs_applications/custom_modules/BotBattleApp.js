@@ -166,7 +166,7 @@ function registerTestArenaRoutes(server) {
   	  testArenaInstances[req.session.id] = { };  
   	}
   	testArenaInstances[req.session.id][id] = newInstance;
-  	console.log(testArenaInstances[req.session.id]);
+  	console.log("Current session\n",testArenaInstances[req.session.id]);
   	  
   	req.session.locals.id = id;
   	var locals = copyLocalsAndDeleteMessage(req.session);
@@ -213,6 +213,7 @@ function registerTestArenaRoutes(server) {
     // Make choose file buttons submit the form only if they are the second one to upload the bot.
     //  This way we clean up half of this to be in another route and play game stays just play game
     // and also you can play another game when one finishes without uploading nbew bots';
+    
     // 1) Ensure any previous Game Manager instances associated with this browser tab have been killed
     // 0) Grab the unique id of this client from the req and verify it is valid
     // 1.125) Ensure two appropriate number of bots (players) are present in storage
@@ -239,10 +240,11 @@ function registerTestArenaRoutes(server) {
     // Send a response back that the client should use to reset its canvas 
     //    and other html and javascript stuff so that the user can request
     //    playNewGame again and it will work.
-    console.log("In KillGame");
+    console.log("Killing ", req.query.id);
     
     //TODO: Look up why delete isn't recommended
     delete testArenaInstances[req.session.id][req.query.id];
+    console.log("After Kill \n", testArenaInstances[req.session.id]);
     res.send("killed");
   });
   
