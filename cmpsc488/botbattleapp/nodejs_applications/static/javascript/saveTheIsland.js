@@ -58,7 +58,7 @@ GAME = {
       move : function(eventData, processAnimatableEventCallback) {
         // Setup any variables needed for the animation
         var finalPosition = (eventData.finalPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
-        var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870
+        var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
         var player = GAME.gameboard.playerAnimations[eventData.objectName];
         player.standing.visible = false;
         player.move.visible = true;
@@ -105,6 +105,7 @@ GAME = {
           defendingPlayer.current = defendingPlayer.defend;
           
           // Set current state and position of attacking player
+          //TODO  change this so it is based on grid positions. And above and everywhere else too.
           attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
           attackingPlayer.attack.y = attackingPlayer.standing.y;  
           attackingPlayer.standing.visible = false;
@@ -146,16 +147,8 @@ function Drawer() {
   arguments.callee._singletonInstance = this;
   
   var self = this;
-  /*
-  var canvas = document.getElementById('GameCanvas');
-  var context = canvas.getContext('2d');
-  */
   
   this.drawBoard = function() {
-      
-    // TODO Not going to be in animator any more, and animator wont be called that
-    //animator.upDateBackground();
-    //console.log("Drawing GAME.gameboard");
 	  
 	//GAME.updateBackground();
     
@@ -173,9 +166,14 @@ function Drawer() {
   
   var drawGridNumbers = function(){
       var player1PositionX = GAME.gameboard.playerAnimations["player1"].current.x;
-      var player1PositionY = GAME.gameboard.playerAnimations["player1"].current.y;
+      //var player1PositionY = GAME.gameboard.playerAnimations["player1"].current.y;
       var player2PositionX = GAME.gameboard.playerAnimations["player2"].current.x;
-      var player2PositionY = GAME.gameboard.playerAnimations["player2"].current.y;
+      //var player2PositionY = GAME.gameboard.playerAnimations["player2"].current.y;
+      
+      //  TODO wanted to update so its based on grid position, but can't becuase it's constant update
+      //  could save lots of computations if only update when player is done moving and based on 
+      //  player position that is stored in player.  This wouldn't look as cool, but is way less error prone
+      //  and less processing.  Also this Math.floor is causeing problems here and below.
       var p1Grid = Math.floor((player1PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
       var p2Grid = Math.floor((player2PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
       //console.log(p1Grid, p2Grid);
@@ -184,6 +182,8 @@ function Drawer() {
       var fontSize = 30 * TEST_ARENA.scale;
       TEST_ARENA.context.font= fontSize + 'px Arial';
       TEST_ARENA.context.fillStyle="black";
+      
+      // TODO  fix this like above mentions
       if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
         TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
@@ -220,9 +220,17 @@ function Drawer() {
         'fillStyle' : '#FFFFD1',
     }
     
+    // TODO  in this and every other function that has a * scale we should set objects properties in the resize function so
+    //       we do not have to do the math every time.  This way it is figured out once per resize.
     function drawTileArray(tileArray, startingX) {
+      
+      // TODO overhaul this.  Essentially, a groupd of drawable images should be made that are static and
+      //      the numbers should be changed like they are changed in the draw numbers fuction so there is not
+      //      a new drawableRectangle made each time and just the .draw function can be called and we can even
+      //      have a fixed tile image to look better.
       for (var i = 0; i < tileArray.length; i++) {
         var currentX = (startingX + (50* i));
+        
         (new drawableRectangle({ 
           x: currentX * TEST_ARENA.scale, 
           y: tileParameters.y * TEST_ARENA.scale,
@@ -259,10 +267,11 @@ var GameBoard = function() {
   var fontSize = 30 * TEST_ARENA.scale;
   context.font= fontSize + 'px Arial';
   context.fillStyle="black";
-      context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale);
+  context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale);
   
   var self = this;
   
+  //  TODO   do away with this when making standing image sheet
   this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
   this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png';
  
@@ -441,7 +450,7 @@ var GameBoard = function() {
     
     
     this.drawableObjects = {
-      backgroundImg : new drawableSprite(backgroundImgOptions),
+      backgroundImg : new drawableImage(backgroundImgOptions),
       player1 : new drawableSprite(player1StandingSpriteOptions),
       player2 : new drawableSprite(player2StandingSpriteOptions),
       player1Running : new drawableSprite(player1RunningSpriteOptions),
