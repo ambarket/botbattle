@@ -143,6 +143,7 @@ function copyLocalsAndDeleteMessage(session) {
     retval[key] = session.locals[key];
   }
   session.locals.message = null;
+  session.locals.id = null;
   return retval;
 }
 
@@ -150,10 +151,28 @@ function registerTestArenaRoutes(server) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
   
+  var testArenaInstances = {};
   
   server.addDynamicRoute('get', '/', function(req, res) {
-    var locals = copyLocalsAndDeleteMessage(req.session);
-    res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
+  	var id = require('shortid').generate();
+  	  
+  	var newInstance = { 
+  	  'gameProcess' : null,
+  	  'state' : 'stopped',
+  	  'timoutToDelete' : 'tomorrow'
+  	};
+  	  
+  	if (!testArenaInstances[req.session.id]) {
+  	  testArenaInstances[req.session.id] = { };  
+  	}
+  	testArenaInstances[req.session.id][id] = newInstance;
+  	console.log("Current session\n",testArenaInstances[req.session.id]);
+  	  
+  	req.session.locals.id = id;
+  	var locals = copyLocalsAndDeleteMessage(req.session);
+  	
+  	//console.log(locals.id);
+  	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
   
@@ -191,8 +210,14 @@ function registerTestArenaRoutes(server) {
    * Requested by the "Play Game" Button on the test arena page
    */
   server.addDynamicRoute('post', '/playNewGame', function(req, res) {
-    // 0) Ensure any previous Game Manager instances associated with this browser tab have been killed
-    // 1) Grab the unique id of this client from the req and verify it is valid
+    // Make choose file buttons submit the form only if they are the second one to upload the bot.
+    //  This way we clean up half of this to be in another route and play game stays just play game
+    // and also you can play another game when one finishes without uploading nbew bots';
+    
+    // 1) Ensure any previous Game Manager instances associated with this browser tab have been killed
+    // 0) Grab the unique id of this client from the req and verify it is valid
+    // 1.125) Ensure two appropriate number of bots (players) are present in storage
+    // 1.25) Delete previous files in the directory of the unique id.
     // 1.5) Move the source files of the bot(s) to the directory of this unique id.
     // 2) Compile the bot(s)
     // 3) Build the JSON object to send to the Game Manager
@@ -201,6 +226,8 @@ function registerTestArenaRoutes(server) {
     //       into multiple arguments instead of just sending one object
     // 5) Somehow maintain a reference to that process object associated with the exact browser tab
     //       that spawned it.
+    // 5.5) Hide the play game button and unhide the Send Move button  // client side crap
+    // 5.75) When user sends the move hide the Send Move button.  // client side crap
     // 6) Wait for the initial game state to be sent by the Game Manager via stdout
     // 7) Send this initial game state to the client via res.send()
   });
@@ -208,11 +235,17 @@ function registerTestArenaRoutes(server) {
   /**
    * Requested by the "Kill Game" Button on the test arena page
    */
-  server.addDynamicRoute('post', '/killGame', function(req, res) {
+  server.addDynamicRoute('get', '/killGame', function(req, res) {
     // Kill any Game Manager instances associated with this browser tab
     // Send a response back that the client should use to reset its canvas 
     //    and other html and javascript stuff so that the user can request
     //    playNewGame again and it will work.
+    console.log("Killing ", req.query.id);
+    
+    //TODO: Look up why delete isn't recommended
+    delete testArenaInstances[req.session.id][req.query.id];
+    console.log("After Kill \n", testArenaInstances[req.session.id]);
+    res.send("killed");
   });
   
   /**

@@ -5,7 +5,7 @@
 <head>
     <% include ../partials/head %>
 </head>
-<body class="container">
+<body onbeforeunload="return leave()" class="container">
 
     <header>
         <% include ../partials/header %>
@@ -22,7 +22,44 @@
 
     <% include ../partials/message %>
     
-    <main>	 
+    <main >	
+    <script> 
+    	var id = '<%= locals.id %>'
+    	console.log(id);
+
+		function leave() {
+			return "Leaving the page will stop your program from running!";
+		}
+		
+		var unloadHandler = function () {
+			$.ajax( {
+				async: false,
+				data: {
+					//current_uri: document.location.toString(),
+					id: id
+				},
+				error: function () {
+					alert('Close notification error');
+				},
+				success: function ( data ) {
+					alert('Successful close notification');
+				},
+				url: '/killGame'
+			} );
+		}
+		
+		$( function () {
+			$( window ).unload( function () {
+				unloadHandler();
+			} );
+			$( 'a.outlink' ).click( function () {
+				unloadHandler = function () {};
+			} );
+		} );
+    </script>
+    
+    
+    
         <div class="col_12">
         	<div class="col_3">
         <form id="testArenaForm" enctype="multipart/form-data"">
