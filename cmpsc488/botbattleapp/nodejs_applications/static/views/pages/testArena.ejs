@@ -23,56 +23,19 @@
     <% include ../partials/message %>
     
     <main >	
-    <script> 
-    	var id = '<%= locals.id %>'
-    	console.log(id);
-
-		function leave() {
-			return "Leaving the page will stop your program from running!";
-		}
-		
-		var unloadHandler = function () {
-			$.ajax( {
-				async: false,
-				data: {
-					//current_uri: document.location.toString(),
-					id: id
-				},
-				error: function () {
-					alert('Close notification error');
-				},
-				success: function ( data ) {
-					alert('Successful close notification');
-				},
-				url: '/killGame'
-			} );
-		}
-		
-		$( function () {
-			$( window ).unload( function () {
-				unloadHandler();
-			} );
-			$( 'a.outlink' ).click( function () {
-				unloadHandler = function () {};
-			} );
-		} );
-    </script>
-    
-    
-    
-        <div class="col_12">
+       <div class="col_12">
         	<div class="col_3">
-        <form id="testArenaForm" enctype="multipart/form-data"">
-             <div class="form-item">
+        <form name="testArenaForm" id="testArenaForm" enctype="multipart/form-data">
+             <div id="playerRadio" class="form-item">
                <label for="player1_bot_or_human">
                  Player 1 Type:
                  <span class="form-required" title="This field is required."> * </span>
                </label>
-               <input name="player1_bot_or_human" type="radio" required >Human</input>
-               <input name="player1_bot_or_human" type="radio" required >Bot</input>
+               <input id="human" name="player1_bot_or_human" type="radio" checked="checked" required >Human</input>
+               <input id="bot" name="player1_bot_or_human" type="radio" required >Bot</input>
              </div>
              <p>
-             <div class="form-item">
+             <div style="display:none" id="player1FileChoose" class="form-item">
                  <label for="player1_bot_upload">
                  Select your bot for player 1
                  <span class="form-required" title="This field is required."> * </span>
@@ -80,7 +43,7 @@
                 <input name="player1_bot_upload" type="file" required ></input>
              </div>
              <p>
-             <div class="form-item">
+             <div id="player2FileChoose" class="form-item">
                  <label for="player2_bot_upload">
                  Select your bot for player 2
                  <span class="form-required" title="This field is required."> * </span>
@@ -88,7 +51,9 @@
                 <input name="player2_bot_upload" type="file" required ></input>
              </div>
              <p>
-            <input id="submit" type="submit" value="Play Game">
+             <p>
+            <input id="submit" type="submit" value="Upload Bot">
+            <p>
             <hr>
           </form>
         		
@@ -131,3 +96,48 @@
     </main>
   </body>
 </html>
+
+<script> 
+	var id = '<%= locals.id %>'
+	console.log(id);
+
+	function leave() {
+		return "Leaving the page will stop your program from running!";
+	}
+	
+	var unloadHandler = function () {
+		$.ajax( {
+			async: false,
+			data: {
+				//current_uri: document.location.toString(),
+				id: id
+			},
+			error: function () {
+				alert('Close notification error');
+			},
+			success: function ( data ) {
+				alert('Successful close notification');
+			},
+			url: '/killGame'
+		} );
+	}
+	
+	$( function () {
+		$( window ).unload( function () {
+			unloadHandler();
+		} );
+		$( 'a.outlink' ).click( function () {
+			unloadHandler = function () {};
+		} );
+	} );
+	 
+	// Listen for radio checks
+	$('#human').click(function(){ 
+    	$('#submit').val( "Upload Bot");
+    	$('#player1FileChoose').hide();
+	});
+	$('#bot').click(function(){ 
+    	$('#submit').val( "Upload Bots");
+    	$('#player1FileChoose').show();
+	});
+</script>
