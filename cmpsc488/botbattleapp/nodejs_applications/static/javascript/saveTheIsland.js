@@ -39,7 +39,7 @@ GAME = {
       }
       for (treeIndex in GAME.gameboard.backgroundElements.trees2){
           GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scale);
-        }
+      }
     },
     
     'gameboard' : null, // will be set by the resetGAME.gameboard method
@@ -156,6 +156,8 @@ function Drawer() {
     // TODO Not going to be in animator any more, and animator wont be called that
     //animator.upDateBackground();
     //console.log("Drawing GAME.gameboard");
+	  
+	//GAME.updateBackground();
     
     for (object in GAME.gameboard.drawableObjects) {
       GAME.gameboard.drawableObjects[object].draw(TEST_ARENA.context);
@@ -486,6 +488,7 @@ var GameBoard = function() {
         'y' : y,
         'width' : 20,
         'height' : 20,
+        'visible' : true,
         'loadedCallback' : imageLoadedCallback
       }
     }

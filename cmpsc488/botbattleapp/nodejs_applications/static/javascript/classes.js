@@ -128,6 +128,8 @@ var drawableImage = function(options) {
   if (options.sourceWidth === 0) {this.sourceWidth = 0}
   this.sourceHeight = options.sourceHeight || options.height;
   if (options.sourceHeight === 0) {this.sourceWidth = 0}
+  if (options.visible !== false) {options.visible = true} // enforce default of true this way
+  this.visible = options.visible;
   
   // Note image starts loading as soon as the src attribute is set
   this.img = new Image();
@@ -138,8 +140,7 @@ var drawableImage = function(options) {
 drawableImage.prototype = Object.create(drawableObject.prototype);
 drawableImage.prototype.constructor = drawableImage;
 drawableImage.prototype.draw = function(context) {
-	if(this.visible){		  
-	  this.update();
+	if(this.visible){
 	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, 
 	      this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale,  this.height * TEST_ARENA.scale); 
 	}
