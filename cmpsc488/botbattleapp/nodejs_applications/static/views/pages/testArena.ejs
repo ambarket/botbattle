@@ -113,18 +113,16 @@
 		return "Leaving the page will stop your program from running!";
 	}
 	
+	// TODO: guess this doesn't work sometimes
+	// https://xhr.spec.whatwg.org/
 	var unloadHandler = function () {
 		$.ajax( {
 			async: false,
 			data: {
-				//current_uri: document.location.toString(),
 				id: id
 			},
 			error: function () {
 				alert('Close notification error');
-			},
-			success: function ( data ) {
-				alert('Successful close notification');
 			},
 			url: '/killGame'
 		} );
@@ -140,8 +138,6 @@
 	} );
 
 	var resetForm = function(id) {
-	console.log("called this shit");
-	console.log(id);
 		document.getElementById(id).value = "";
 	}
 	

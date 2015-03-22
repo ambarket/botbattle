@@ -167,6 +167,9 @@ function registerTestArenaRoutes(server) {
   
   var testArenaInstances = {};
   
+  // TODO: THis needs serious investigation.  Could be that the session expires, but sometime new sessions are created
+  //   or there are other errors because occasionally if one tab is opened and then refreshed it will create
+  //   a new session folder...  
   server.addDynamicRoute('get', '/', function(req, res) {
   	var id = require('shortid').generate();
   	  
