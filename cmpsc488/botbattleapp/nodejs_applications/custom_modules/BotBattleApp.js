@@ -255,13 +255,25 @@ function registerTestArenaRoutes(server) {
     //    and other html and javascript stuff so that the user can request
     //    playNewGame again and it will work.
     console.log("Killing ", req.query.id);
-    
+    console.log("wtf", testArenaInstances[req.session.id]);
     //TODO: Look up why delete isn't recommended
     delete testArenaInstances[req.session.id][req.query.id];
-    //TODO: If folder has only one then delete the outer file because they just closed the last tab
     fileManager.deleteDirectoryForTestArenaTab(req.session.id, req.query.id, function(err, result){
       if(err){
         console.log(err);
+      }
+      // would be nice to have a counter to inc/dec when create and delete instead of checking
+      // sync each time we delete.
+      var path = require('path');
+      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id);
+      if(fileManager.getSubFolderCount(directoryPath) === 0){
+        // delete the parent directory
+        fileManager.deleteDirectoryForTestArenaSession(req.session.id, function(err, result){
+          if(err){
+            console.log(err);
+          }
+          console.log(result);
+        })
       }
       console.log(result);
     })
