@@ -282,6 +282,20 @@ function FileManager(botBattleDatabase) {
       removeFileOrFolder(directoryPath, callback);
     }
     
+    // should we make this async with callbacks?
+    this.getSubFolderCount = function(folder){
+      var folderContentList = fse.readdirSync(folder);
+      var count = 0;
+      var path = require('path');
+      var directoryPath = null;
+      for(var item in folderContentList){
+        directoryPath = path.resolve(folder, folderContentList[item]);
+        if(fse.lstatSync(directoryPath).isDirectory()){
+          count++;
+        }
+      }
+      return count;
+    }
     /**
      * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback
      * to return the success or fail message.
