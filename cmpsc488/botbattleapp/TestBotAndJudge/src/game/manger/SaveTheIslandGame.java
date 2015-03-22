@@ -110,17 +110,36 @@ public class SaveTheIslandGame {
 		return output;
 	}
 	
+	private static String animatedEventJSON(String event, String objctName, int finalPosition) {
+		String output = "\'animatableEvents\' : [{";
+		output += "\'event\': \'" + event + "\',\n";
+		output += "\'data\': {\n ";
+		output += "\'objectName\' : \'" + objctName + "\',\n";
+		output += "\'finalPosition\' : " + finalPosition + "}]\n";
+		
+		return output;
+	}
+	
+	private static String gameDataJSON(String player1Tiles, String player2Tiles, String description) {
+		String output = "\'gameData' : {\n";
+		output += "\t\'player1Tiles\' : \"" + tilesToArray(player1Tiles) + "\",\n";
+		output += "\t\'player2Tiles\' : \"" + tilesToArray(player2Tiles) + "\",\n";
+		output += "\t\'turnDescription\' : \"" + description + "\"\n}\n";
+		
+		return output;
+	}
+	
 	//TODO: remove new lines and tabs once this gets approved
 	public static String getJSONstringFromGameResults(GameResults results) {
 		String[] p1Moves = (String[]) results.getPlayer1Moves().toArray();
 		String[] p2Moves = (String[]) results.getPlayer2Moves().toArray();
 		String board = results.getBoards().get(0);
 		
-		String jsonString = "[{";		
-		jsonString += "\'gameData' : {\n";
-		jsonString += "\t\'player1Tiles\' : \"" + tilesToArray(Board.getPlayersTiles(1, board)) + "\",\n";
-		jsonString += "\t\'player2Tiles\' : \"" + tilesToArray(Board.getPlayersTiles(2, board)) + "\",\n";
-		jsonString += "\t\'turnDescription\' : \"" + "initial board" + "\"\n}\n";
+		String jsonString = "[{";	
+		
+		jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
+		jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), "initial board") + ",";
+
 		
 		for (int i = 1; i < results.getBoards().size(); i++) {
 			board = results.getBoards().get(i);
