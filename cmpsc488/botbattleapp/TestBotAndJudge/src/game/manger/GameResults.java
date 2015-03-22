@@ -70,35 +70,4 @@ public class GameResults {
 	public List<String> getPlayer2Moves() {
 		return player2Moves;
 	}
-
-	//TODO: remove new lines and tabs once this gets approved
-	//TODO: move this to game class
-	public String toJSONString(){
-		String jsonString = "{\n";
-		
-		int i = 0;
-		for (String board : boards) {
-			jsonString += "Round" + (i+1) + ": {\n";
-			jsonString += "\tboard: " + board + ",\n";
-			if(i % 2 == 0){
-				if(i/2 < player1Moves.size()){
-					jsonString += "\tplayer: 1,\n"; 
-					jsonString += "\tmove: " + player1Moves.get(i/2) + "\n";
-				}
-			}
-			else{
-				if(i/2 < player2Moves.size()){
-					jsonString += "\tplayer: 2,\n"; 
-					jsonString += "\tmove: " + player2Moves.get(i/2) + "\n";
-				}
-			}
-			
-			jsonString += "\t},\n";
-			i++;
-		}
-		jsonString += "winner: " + winner;
-		jsonString += "\n}";
-		
-		return jsonString;
-	}
 }
