@@ -52,7 +52,7 @@
              </div>
              <p>
              <p>
-            <input id="submit" type="submit" value="Upload Bot">
+            <input id="submitButton" type="submit" value="Upload Bot">
             <p>
             <hr>
           </form>
@@ -146,4 +146,22 @@
     	$('#player1FileChoose').show();
     	$('#humanInput').hide();
 	});
+	
+	/*form.addEventListener('submit', function(ev) {
+	  document.getElementById('submitButton').disabled = true; // make enabled if file upload changed
+	  
+	  var req = new XMLHttpRequest();
+	  var theForm = new FormData(form);
+	  req.open("POST", "processInitialConfiguration", true);
+	  req.send(theForm);
+	  
+	  req.onload = function(event) {
+	    if (req.status === 200) {
+	      console.log("onload");
+	    } else {
+	      console.log("error onload");
+	    }
+	  };
+	  ev.preventDefault();
+	}, false);*/
 </script>
