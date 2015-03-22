@@ -270,14 +270,18 @@ function FileManager(botBattleDatabase) {
     }
     
     this.deleteDirectoryForTestArenaSession = function(session, callback) {
+      var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session);
       removeFileOrFolder(directoryPath, callback);
     }
     
     this.deleteDirectoryForTestArenaTab = function(session, tabId, callback) {
+      var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
+      console.log(directoryPath);
       removeFileOrFolder(directoryPath, callback);
     }
+    
     /**
      * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback
      * to return the success or fail message.
