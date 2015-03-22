@@ -129,8 +129,8 @@ public class Game {
   }
 
   public static String getJSONstringFromGameResults(GameResults results) {
-    String[] player1Moves = (String[]) results.getPlayer1Moves().toArray();
-    String[] player2Moves = (String[]) results.getPlayer2Moves().toArray();
+    Object[] player1Moves = results.getPlayer1Moves().toArray();
+    Object[] player2Moves = results.getPlayer2Moves().toArray();
     List<String> boards = results.getBoards();
     int winner = results.getWinner();
     int i = 0;

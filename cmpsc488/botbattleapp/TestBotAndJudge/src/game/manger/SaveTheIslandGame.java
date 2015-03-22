@@ -165,8 +165,8 @@ public class SaveTheIslandGame {
 
   // TODO: remove new lines and tabs once this gets approved
   public static String getJSONstringFromGameResults(GameResults results) {
-    String[] p1Moves = (String[]) results.getPlayer1Moves().toArray();
-    String[] p2Moves = (String[]) results.getPlayer2Moves().toArray();
+    Object[] p1Moves = results.getPlayer1Moves().toArray();
+    Object[] p2Moves = results.getPlayer2Moves().toArray();
     String board = results.getBoards().get(0);
     String desc = "";
     String animation = "";
@@ -183,11 +183,11 @@ public class SaveTheIslandGame {
       board = results.getBoards().get(i);
 
       if (i % 2 == 1) {
-        desc = prettyPrintMove(p1Moves[i / 2], 1);
-        animation = animatedEventJSON(p1Moves[i / 2], "player1", 666);
+        desc = prettyPrintMove((String)p1Moves[i / 2], 1);
+        animation = animatedEventJSON((String)p1Moves[i / 2], "player1", 666);
       } else {
-        desc = prettyPrintMove(p2Moves[i / 2], 2);
-        animation = animatedEventJSON(p1Moves[i / 2], "player2", 666);
+        desc = prettyPrintMove((String)p2Moves[i / 2], 2);
+        animation = animatedEventJSON((String)p1Moves[i / 2], "player2", 666);
       }
       jsonString += animation + ",";
       jsonString +=
