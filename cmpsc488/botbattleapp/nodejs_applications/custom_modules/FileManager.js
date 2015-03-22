@@ -253,6 +253,31 @@ function FileManager(botBattleDatabase) {
       })
     } 
     
+    this.createDirectoryForTestArenaSession = function(session, callback) {
+      var path = require('path');
+      var newDirectoryPath = path.resolve(paths.local_storage.test_arena_tmp, session);
+      createFolder(newDirectoryPath, function(err, data) {
+        callback(err, newDirectoryPath);
+      });
+    }
+    
+    this.createDirectoryForTestArenaTab = function(session, tabId, callback) {
+      var path = require('path');
+      var newDirectoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
+      createFolder(newDirectoryPath, function(err, data) {
+        callback(err, newDirectoryPath);
+      });
+    }
+    
+    this.deleteDirectoryForTestArenaSession = function(session, callback) {
+      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session);
+      removeFileOrFolder(directoryPath, callback);
+    }
+    
+    this.deleteDirectoryForTestArenaTab = function(session, tabId, callback) {
+      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
+      removeFileOrFolder(directoryPath, callback);
+    }
     /**
      * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback
      * to return the success or fail message.
