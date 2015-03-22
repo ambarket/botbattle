@@ -2,9 +2,7 @@ var paths = require('./BotBattlePaths');
   
 function BotBattleApp(server, database) {
 	var self = this;
-	var fileManager = new (require(paths.custom_modules.FileManager));
-	
-	
+		
 	registerTestArenaRoutes(server);
 	registerLoginRoutes(server, database);
 }
@@ -150,6 +148,7 @@ function copyLocalsAndDeleteMessage(session) {
 function registerTestArenaRoutes(server) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
+  var fileManager = new (require(paths.custom_modules.FileManager));
   
   var testArenaInstances = {};
   
@@ -164,8 +163,22 @@ function registerTestArenaRoutes(server) {
   	  
   	if (!testArenaInstances[req.session.id]) {
   	  testArenaInstances[req.session.id] = { };  
+  	  fileManager.createDirectoryForTestArenaSession(req.session.id, function(err, result){
+  	    if(err){
+  	      console.log(err);
+  	    }
+  	    console.log(result);
+  	  })
   	}
+  	
   	testArenaInstances[req.session.id][id] = newInstance;
+  	fileManager.createDirectoryForTestArenaTab(req.session.id, id, function(err, result){
+      if(err){
+        console.log(err);
+      }
+      console.log(result);
+    })
+    
   	console.log("Current session\n",testArenaInstances[req.session.id]);
   	  
   	req.session.locals.id = id;
@@ -233,7 +246,8 @@ function registerTestArenaRoutes(server) {
   });
   
   /**
-   * Requested by the "Kill Game" Button on the test arena page
+   * Requested the test arena page is refreshed or a link is followed out
+   * i.e. when the page is reloaded.
    */
   server.addDynamicRoute('get', '/killGame', function(req, res) {
     // Kill any Game Manager instances associated with this browser tab
@@ -244,9 +258,171 @@ function registerTestArenaRoutes(server) {
     
     //TODO: Look up why delete isn't recommended
     delete testArenaInstances[req.session.id][req.query.id];
+    //TODO: If folder has only one then delete the outer file because they just closed the last tab
+    fileManager.deleteDirectoryForTestArenaTab(req.session.id, req.query.id, function(err, result){
+      if(err){
+        console.log(err);
+      }
+      console.log(result);
+    })
     console.log("After Kill \n", testArenaInstances[req.session.id]);
     res.send("killed");
   });
+  
+  /**
+   * Requested by the "Upload Bot/s" Button on the test arena page
+   */
+ /* var multer = require('multer');
+  server.addDynamicRoute('post', '/uploadBot',
+            multer({
+              dest : paths.test_arena_tmp + ,
+              limits : {
+                fieldNameSize : 100,
+              // files: 2,
+              // fields: 5
+              // fieldNameSize - integer - Max field name size (Default: 100
+              // bytes)
+              // fieldSize - integer - Max field value size (Default: 1MB)
+              // fields - integer - Max number of non-file fields (Default:
+              // Infinity)
+              // fileSize - integer - For multipart forms, the max file size (in
+              // bytes)
+              // (Default: Infinity)
+              // files - integer - For multipart forms, the max number of file
+              // fields
+              // (Default: Infinity)
+              // parts - integer - For multipart forms, the max number of parts
+              // (fields
+              // + files) (Default: Infinity)
+              // headerPairs - integer - For multipart forms, the max number of
+              // header
+              // key=>value pairs to parse Default: 2000 (same as node's http).
+              },
+              // putSingleFilesInArray: true, // this needs doen for future
+              // compat. but
+              // will break current multiproto.
+              rename : function(fieldname, filename) {
+                return filename;
+              },
+              onFileUploadStart : function(file, req, res) {
+                logger.log(file.fieldname + ' is starting ...');
+                var javaRE = /.*\.java/;
+                if (file.fieldname == 'gameSource') {
+                  if (file.name.match(javaRE)) {
+                    logger.log(file.fieldname + ':' + file.name
+                        + ' is a .java file, uploading will continue');
+                    self.emit('status_update',
+                        'Verified game module is a java file');
+                  } else {
+                    console
+                        .log(file.fieldname
+                            + ':'
+                            + file.name
+                            + ' is a NOT .java file, this file will not be uploaded');
+                    self
+                        .emit('config_error',
+                            'Error during form submission: Game module source is not a .java file');
+                    // Returning false cancels the upload.
+                    return false;
+                  }
+                }
+                var pdfRE = /.*\.pdf/;
+                if (file.fieldname == 'gameRules') {
+                  if (file.name.match(pdfRE)) {
+                    logger.log(file.fieldname + ':' + file.name
+                        + ' is a .pdf file, uploading will continue');
+                    self.emit('status_update',
+                        'Verified game rules is a pdf file');
+                  } else {
+                    console
+                        .log(file.fieldname
+                            + ':'
+                            + file.name
+                            + ' is a NOT .pdf file, this file will not be uploaded');
+                    self
+                        .emit('config_error',
+                            'Error during form submission: Game rules is not a .pdf file');
+                    // Returning false cancels the upload.
+                    return false;
+                  }
+                }
+              },
+              onFileUploadComplete : function(file, req, res) {
+                logger.log(file.fieldname + ' uploaded to  ' + file.path);
+              },
+              onError : function(error, next) {
+                logger.log(error)
+                next(error)
+              },
+              onFileSizeLimit : function(file) {
+                logger.log('Failed: ', file.originalname)
+                fs.unlink('./' + file.path) // delete the partially written file
+                                            // // set
+                // in limit object
+              },
+              onFilesLimit : function() {
+                logger.log('Crossed file limit!')
+              },
+              onFieldsLimit : function() {
+                logger.log('Crossed fields limit!')
+              },
+              onPartsLimit : function() {
+                logger.log('Crossed parts limit!')
+              },
+            }));
+
+    initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration',
+        function(req, res) {
+          // logger.log(JSON.stringify(req.body));
+          var sanitizer = require('sanitizer');
+          sanitizedFormData = {
+            // database parameters
+            databaseHost : sanitizer.sanitize(req.body.databaseHost),
+            databasePort : sanitizer.sanitize(req.body.databasePort),
+            databaseName : sanitizer.sanitize(req.body.databaseName),
+            databaseUserName : sanitizer.sanitize(req.body.databaseUserName),
+            databasePassword : sanitizer.sanitize(req.body.databasePassword),
+            // admin user parameters
+            adminUserName : sanitizer.sanitize(req.body.adminUserName),
+            adminPassword : sanitizer.sanitize(req.body.adminPassword),
+            // game module parameters
+            gameName : sanitizer.sanitize(req.body.gameName),
+            gameSource : req.files.gameSource,
+            gameRules : req.files.gameRules,
+            gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
+            // tournament parameters
+            tournamentName : sanitizer.sanitize(req.body.tournamentName),
+            studentList : req.files.studentList,
+            tournamentDeadline : sanitizer
+                .sanitize(req.body.tournamentDeadline),
+          };
+          
+          var valid = verifyAllFieldsWereSubmitted();
+          if (valid) {
+            valid = verifyAllFieldsMatchRegex();
+          }
+          
+          if (!valid) {
+            self.emit('status_update', 'Rolling back changes...');
+            // Only cleanup to do is clear the tmp directory of the uploaded files
+            fileManager.clearInitConfigTmp(function(err) {
+              if (!err) {
+                self.emit('status_update', "&nbsp&nbsp Successfully cleared initial configuration tmp directory");
+              }
+              else {
+                self.emit('config_error', "&nbsp&nbsp Failed to clear initial configuration tmp directory " + err.message);
+              }
+              self.emit('status_update', 'Finished rolling back initial configuration');
+              self.emit('reset_form');
+            });
+          } else {
+            self.emit('status_update', 'Form submission succesful');
+            self.emit('progress_update', 10);
+            executeAllInitialConfigurationTasksInSequence();
+          }
+          res.end();
+        });
+  })();*/
   
   /**
    * Requested by the "Send Move" Button on the test arena page
