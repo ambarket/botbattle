@@ -1,5 +1,7 @@
 package game.manger;
 
+import game.manger.SaveTheIslandGame.Board;
+
 import java.io.IOException;
 
 /**
@@ -24,21 +26,13 @@ public class testDriver {
 	 */
 	public static void main(String[] args) throws IOException {
 
-		TournamentTest();
+	//TournamentTest();
 		
-//		String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\TestBotAndJudge\\bin";
-//		
-//		
-//		Player p1 = new Player(path, "TicTacToeBot1");
-//		Player p2 = new Player(path, "TicTacToeBot2");
-//		//Player p2 = new Player(path, "BadTicTacToeBot1");
-//
-//		GameManager manager = new GameManager(p1, p2);
-//		manager.run();
-//		
-//		//System.out.println("\n" + manager);
-//		
-//		System.out.println("JSON: " + manager.getJSONStringOfResults());
+	  String s = SaveTheIslandGame.animatedEventJSON("initialSetup", "None", -1);
+	  System.out.println(s);
+	  String b = SaveTheIslandGame.getStartingBoard();
+	  s = SaveTheIslandGame.gameDataJSON(Board.getPlayersTiles(1, b), Board.getPlayersTiles(2, b), "Start");
+	  System.out.println(s);
 	}
 	
 	public static void TournamentTest() {
