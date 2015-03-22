@@ -192,6 +192,11 @@ module.exports = function BotBattleServer() {
     }));
     
     // TODO: How do we clear out cookies if they never expire
+    // https://www.npmjs.com/package/connect-mongo
+    // Warning The default server-side session storage, MemoryStore, is purposely not designed for 
+    // a production environment. It will leak memory under most conditions, does not scale past a single 
+    // process, and it meant for debugging and developing.
+    // The session store instance, defaults to a new MemoryStore instance.
     var shortid = require('shortid');
     var session = require('express-session');
     var sessionStore = session({
