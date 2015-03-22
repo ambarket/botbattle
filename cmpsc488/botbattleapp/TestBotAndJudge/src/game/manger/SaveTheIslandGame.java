@@ -30,9 +30,9 @@ public class SaveTheIslandGame {
     int value = Integer.parseInt(peices[1].substring(0, 1));
     if (move.startsWith("attack")) {
       updatedBoard = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
-    } else if (move.startsWith("retreat")) {     
+    } else if (move.startsWith("retreat")) {
       updatedBoard = Board.movePlayer(board, player, -value);
-    } else if( move.startsWith("move") ) {
+    } else if (move.startsWith("move")) {
       updatedBoard = Board.movePlayer(board, player, value);
     }
 
@@ -58,7 +58,7 @@ public class SaveTheIslandGame {
     }
   }
 
-  //TODO take another look at this, is attack the same as move forward?
+  // TODO take another look at this, is attack the same as move forward?
   public static boolean isValidMove(String move, String board, int player) {
     int typeOfMove = 0, tilesForMove = 1;
     String[] peices = move.split(";");
@@ -129,7 +129,7 @@ public class SaveTheIslandGame {
   protected static String prettyPrintMove(String move, int player) {
     String output = "Player " + player + " ";
     String tiles = move.split(";")[1];
-    
+
     if (move.startsWith("attack")) {
       output += "attacks with ";
 
@@ -155,14 +155,14 @@ public class SaveTheIslandGame {
     } else if (move.startsWith("Shuffle")) {
       output += " shuffles their tiles.";
     } else if (move.startsWith("move")) {
-      output += "moves forward "+ tiles + " spaces.";
+      output += "moves forward " + tiles + " spaces.";
     } else if (move.startsWith("retreat")) {
       output += "retreats " + tiles + " spaces.";
     }
-    
+
     return output;
   }
-  
+
   // TODO: remove new lines and tabs once this gets approved
   public static String getJSONstringFromGameResults(GameResults results) {
     String[] p1Moves = (String[]) results.getPlayer1Moves().toArray();
@@ -181,17 +181,17 @@ public class SaveTheIslandGame {
     for (int i = 1; i < results.getBoards().size(); i++) {
       jsonString += ",";
       board = results.getBoards().get(i);
-      
+
       if (i % 2 == 1) {
         desc = prettyPrintMove(p1Moves[i / 2], 1);
         animation = animatedEventJSON(p1Moves[i / 2], "player1", 666);
       } else {
         desc = prettyPrintMove(p2Moves[i / 2], 2);
-        animation = animatedEventJSON(p1Moves[i / 2], "player1", 666);
+        animation = animatedEventJSON(p1Moves[i / 2], "player2", 666);
       }
       jsonString += animation + ",";
-      jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-          desc);
+      jsonString +=
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc);
     }
 
     jsonString += "]";
