@@ -25,12 +25,13 @@
     <main >	
        <div class="col_12">
         	<div class="col_3">
-        <form name="testArenaForm" id="testArenaForm" enctype="multipart/form-data">
+        <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
              <div id="playerRadio" class="form-item">
                <label for="player1_bot_or_human">
                  Player 1 Type:
                  <span class="form-required" title="This field is required."> * </span>
                </label>
+               <input id="tabId" style="display:none" name="tabId" value="tabId">
                <input id="human" name="player1_bot_or_human" type="radio" checked="checked" required >Human</input>
                <input id="bot" name="player1_bot_or_human" type="radio" required >Bot</input>
              </div>
@@ -54,11 +55,13 @@
              <p>
             <input id="submitButton" type="submit" value="Upload Bot">
             <p>
+            <div id="status"></div>
             <hr>
           </form>
         		
         	<p>
             <input id="playGame" type="button" value="Play Game">
+            // this should start the game server side and return confirmation that it started
             <p>
             
         	<div id="humanInput" class="form-item">
@@ -103,6 +106,7 @@
 
 <script> 
 	var id = '<%= locals.id %>'
+	$('#tabId').val(id);
 	console.log(id);
 
 	function leave() {
@@ -137,31 +141,39 @@
 	 
 	// Listen for radio checks
 	$('#human').click(function(){ 
-    	$('#submit').val( "Upload Bot");
+    	$('#submitButton').val( "Upload Bot");
     	$('#player1FileChoose').hide();
     	$('#humanInput').show();
 	});
 	$('#bot').click(function(){ 
-    	$('#submit').val( "Upload Bots");
+    	$('#submitButton').val( "Upload Bots");
     	$('#player1FileChoose').show();
     	$('#humanInput').hide();
 	});
 	
-	/*form.addEventListener('submit', function(ev) {
-	  document.getElementById('submitButton').disabled = true; // make enabled if file upload changed
-	  
-	  var req = new XMLHttpRequest();
-	  var theForm = new FormData(form);
-	  req.open("POST", "processInitialConfiguration", true);
-	  req.send(theForm);
-	  
-	  req.onload = function(event) {
-	    if (req.status === 200) {
-	      console.log("onload");
+	var form = document.forms.namedItem("uploadBotForm");
+	console.log(form);
+	form.addEventListener('submit', function(ev) {
+	  	
+	  var
+	    oOutput = document.getElementById("status"),
+	    oData = new FormData(document.forms.namedItem("uploadBotForm"));
+	  //oData.append("CustomField", "This is some extra data");
+	
+	  var oReq = new XMLHttpRequest();
+	  oReq.open("POST", "uploadBot", true);
+	  oReq.onload = function(oEvent) {
+	    if (oReq.status == 200) {
+	    	oOutput.innerHTML = "Uploaded!";
+	    	//enable play game button
+	    	//then should stay disabled until game is over or change to restart game button
 	    } else {
-	      console.log("error onload");
+	    	oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
+	    	//disable play game button
 	    }
 	  };
+	
+	  oReq.send(oData);
 	  ev.preventDefault();
-	}, false);*/
+	}, false);
 </script>

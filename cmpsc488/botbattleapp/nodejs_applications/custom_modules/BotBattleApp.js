@@ -2,7 +2,7 @@ var paths = require('./BotBattlePaths');
   
 function BotBattleApp(server, database) {
 	var self = this;
-		
+	
 	registerTestArenaRoutes(server);
 	registerLoginRoutes(server, database);
 }
@@ -14,6 +14,21 @@ util.inherits(BotBattleApp, EventEmitter);
 
 module.exports = BotBattleApp;
 
+
+// write cleanup function that checks the timeout and connection existance (if possible) of the session object then
+//  removes the files and games if not valid anymore incase of error or crash or something.
+
+
+function verifyAllFieldsWereSubmitted(sanitizedFormData) {
+  var valid = true;
+  for (fieldName in sanitizedFormData) {
+    // Apparently the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
+    if (!sanitizedFormData[fieldName] || sanitizedFormData[fieldName] === 'undefined') {
+      valid = false;
+    }
+  }
+  return valid;
+}
 
 function registerLoginRoutes(server, database) {
   var passport = require('passport')
@@ -255,15 +270,18 @@ function registerTestArenaRoutes(server) {
     //    and other html and javascript stuff so that the user can request
     //    playNewGame again and it will work.
     console.log("Killing ", req.query.id);
-    console.log("wtf", testArenaInstances[req.session.id]);
     //TODO: Look up why delete isn't recommended
+    
+    //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
+    //      incase the user tries to change the value or it becomes corrupted.
     delete testArenaInstances[req.session.id][req.query.id];
     fileManager.deleteDirectoryForTestArenaTab(req.session.id, req.query.id, function(err, result){
       if(err){
         console.log(err);
       }
       // would be nice to have a counter to inc/dec when create and delete instead of checking
-      // sync each time we delete.
+      // sync each time we delete.  Or base on data array, but can never be sure because each way
+      // has problems.
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id);
       if(fileManager.getSubFolderCount(directoryPath) === 0){
@@ -284,157 +302,109 @@ function registerTestArenaRoutes(server) {
   /**
    * Requested by the "Upload Bot/s" Button on the test arena page
    */
- /* var multer = require('multer');
+  // TODO:  Test with many uploading at the same time.
+  var multer = require('multer');
   server.addDynamicRoute('post', '/uploadBot',
             multer({
-              dest : paths.test_arena_tmp + ,
+              dest: './local_storage/test_arena_tmp/',
               limits : {
-                fieldNameSize : 100,
-              // files: 2,
-              // fields: 5
-              // fieldNameSize - integer - Max field name size (Default: 100
-              // bytes)
-              // fieldSize - integer - Max field value size (Default: 1MB)
-              // fields - integer - Max number of non-file fields (Default:
-              // Infinity)
-              // fileSize - integer - For multipart forms, the max file size (in
-              // bytes)
-              // (Default: Infinity)
-              // files - integer - For multipart forms, the max number of file
-              // fields
-              // (Default: Infinity)
-              // parts - integer - For multipart forms, the max number of parts
-              // (fields
-              // + files) (Default: Infinity)
-              // headerPairs - integer - For multipart forms, the max number of
-              // header
-              // key=>value pairs to parse Default: 2000 (same as node's http).
+                        fieldNameSize : 100,
+                        files: 2,
+                      // fields: 5
+                      // fieldNameSize - integer - Max field name size (Default: 100 bytes)
+                      // fieldSize - integer - Max field value size (Default: 1MB)
+                      // fields - integer - Max number of non-file fields (Default: Infinity)
+                      // fileSize - integer - For multipart forms, the max file size (in bytes) (Default: Infinity)
+                      // files - integer - For multipart forms, the max number of file fields (Default: Infinity)
+                      // parts - integer - For multipart forms, the max number of parts (fields + files) (Default: Infinity)
+                      // headerPairs - integer - For multipart forms, the max number of header key=>value pairs to parse Default: 2000 (same as node's http).
               },
-              // putSingleFilesInArray: true, // this needs doen for future
-              // compat. but
-              // will break current multiproto.
-              rename : function(fieldname, filename) {
-                return filename;
+              //putSingleFilesInArray: true, // this needs done for future compat.
+              rename :  function(fieldname, filename) {
+                          if(fieldname === 'player1_bot_upload'){
+                            return 'bot1';
+                          }
+                          else if(fieldname === 'player2_bot_upload'){
+                            return 'bot2';
+                          }
+                          else{
+                            return filename;
+                          }                                  
+              },
+              changeDest: function(dest, req, res) {
+                // this is a big problem because we can not get the body until after the files are parsed
+                // or use get instead of post
+                console.log("called changeDest");
+                            var path = require('path');
+                            var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id, req.body.tabId);
+                            console.log("storing at ", directoryPath);
+                            return directoryPath; 
               },
               onFileUploadStart : function(file, req, res) {
-                logger.log(file.fieldname + ' is starting ...');
-                var javaRE = /.*\.java/;
-                if (file.fieldname == 'gameSource') {
-                  if (file.name.match(javaRE)) {
-                    logger.log(file.fieldname + ':' + file.name
-                        + ' is a .java file, uploading will continue');
-                    self.emit('status_update',
-                        'Verified game module is a java file');
-                  } else {
-                    console
-                        .log(file.fieldname
-                            + ':'
-                            + file.name
-                            + ' is a NOT .java file, this file will not be uploaded');
-                    self
-                        .emit('config_error',
-                            'Error during form submission: Game module source is not a .java file');
-                    // Returning false cancels the upload.
-                    return false;
-                  }
-                }
-                var pdfRE = /.*\.pdf/;
-                if (file.fieldname == 'gameRules') {
-                  if (file.name.match(pdfRE)) {
-                    logger.log(file.fieldname + ':' + file.name
-                        + ' is a .pdf file, uploading will continue');
-                    self.emit('status_update',
-                        'Verified game rules is a pdf file');
-                  } else {
-                    console
-                        .log(file.fieldname
-                            + ':'
-                            + file.name
-                            + ' is a NOT .pdf file, this file will not be uploaded');
-                    self
-                        .emit('config_error',
-                            'Error during form submission: Game rules is not a .pdf file');
-                    // Returning false cancels the upload.
-                    return false;
-                  }
-                }
+                                    console.log(file.fieldname + ' is starting ...');
+                                    var javaRE = /.*\.java/;
+                                    var cppRE = /.*\.cpp/;
+                                    var cxxRE = /.*\.cxx/;
+                                    if (file.fieldname == 'player1_bot_upload' || file.fieldname == 'player2_bot_upload') {
+                                      if (file.name.match(javaRE) || file.name.match(cppRE) || file.name.match(cxxRE)) {
+                                        console.log(file.fieldname + ':' + file.name
+                                            + ' is a .java/.cpp/.cxx file, uploading will continue');
+                                      } else {
+                                        console.log(file.fieldname
+                                                + ':'
+                                                + file.name
+                                                + ' is a NOT .java/.cpp/.cxx file, this file will not be uploaded');
+                                        // Returning false cancels the upload.
+                                        return false;
+                                      }
+                                    }
               },
               onFileUploadComplete : function(file, req, res) {
-                logger.log(file.fieldname + ' uploaded to  ' + file.path);
+                                      console.log(file.fieldname + ' uploaded to  ' + file.path);
               },
               onError : function(error, next) {
-                logger.log(error)
-                next(error)
+                          console.log(error)
+                          next(error)
               },
               onFileSizeLimit : function(file) {
-                logger.log('Failed: ', file.originalname)
-                fs.unlink('./' + file.path) // delete the partially written file
-                                            // // set
-                // in limit object
+                                  console.log('Failed: ', file.originalname)
+                                  fs.unlink('./' + file.path) // delete the partially written file
               },
               onFilesLimit : function() {
-                logger.log('Crossed file limit!')
+                               console.log('Crossed file limit!')
               },
               onFieldsLimit : function() {
-                logger.log('Crossed fields limit!')
+                                console.log('Crossed fields limit!')
               },
               onPartsLimit : function() {
-                logger.log('Crossed parts limit!')
+                               console.log('Crossed parts limit!')
               },
             }));
 
-    initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration',
+  server.addDynamicRoute('post', '/uploadBot',
         function(req, res) {
-          // logger.log(JSON.stringify(req.body));
+          console.log(JSON.stringify(req.body));
           var sanitizer = require('sanitizer');
-          sanitizedFormData = {
-            // database parameters
-            databaseHost : sanitizer.sanitize(req.body.databaseHost),
-            databasePort : sanitizer.sanitize(req.body.databasePort),
-            databaseName : sanitizer.sanitize(req.body.databaseName),
-            databaseUserName : sanitizer.sanitize(req.body.databaseUserName),
-            databasePassword : sanitizer.sanitize(req.body.databasePassword),
-            // admin user parameters
-            adminUserName : sanitizer.sanitize(req.body.adminUserName),
-            adminPassword : sanitizer.sanitize(req.body.adminPassword),
-            // game module parameters
-            gameName : sanitizer.sanitize(req.body.gameName),
-            gameSource : req.files.gameSource,
-            gameRules : req.files.gameRules,
-            gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
-            // tournament parameters
-            tournamentName : sanitizer.sanitize(req.body.tournamentName),
-            studentList : req.files.studentList,
-            tournamentDeadline : sanitizer
-                .sanitize(req.body.tournamentDeadline),
+          var sanitizedFormData = {
+            // tabId
+            tabId : sanitizer.sanitize(req.body.tabId), 
+            // player parameters
+            player1_bot_or_human : sanitizer.sanitize(req.body.player1_bot_or_human),
+            // bot upload parameters
+            player1_bot_upload : req.files.player1_bot_upload,
+            player2_bot_upload : req.files.player2_bot_upload,
           };
           
-          var valid = verifyAllFieldsWereSubmitted();
+          var valid = verifyAllFieldsWereSubmitted(sanitizedFormData);
           if (valid) {
-            valid = verifyAllFieldsMatchRegex();
+            //valid = verifyTabIdExists();
           }
           
           if (!valid) {
-            self.emit('status_update', 'Rolling back changes...');
-            // Only cleanup to do is clear the tmp directory of the uploaded files
-            fileManager.clearInitConfigTmp(function(err) {
-              if (!err) {
-                self.emit('status_update', "&nbsp&nbsp Successfully cleared initial configuration tmp directory");
-              }
-              else {
-                self.emit('config_error', "&nbsp&nbsp Failed to clear initial configuration tmp directory " + err.message);
-              }
-              self.emit('status_update', 'Finished rolling back initial configuration');
-              self.emit('reset_form');
-            });
-          } else {
-            self.emit('status_update', 'Form submission succesful');
-            self.emit('progress_update', 10);
-            executeAllInitialConfigurationTasksInSequence();
+            // do something here
           }
           res.end();
         });
-  })();*/
   
   /**
    * Requested by the "Send Move" Button on the test arena page
