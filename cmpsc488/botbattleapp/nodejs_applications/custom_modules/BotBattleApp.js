@@ -194,7 +194,7 @@ function registerTestArenaRoutes(server) {
       console.log(result);
     })
     
-  	console.log("Current session\n",testArenaInstances[req.session.id]);
+  	console.log("Current testArenaInstances\n",testArenaInstances);
   	  
   	req.session.locals.id = id;
   	var locals = copyLocalsAndDeleteMessage(req.session);
@@ -265,19 +265,19 @@ function registerTestArenaRoutes(server) {
    * i.e. when the page is reloaded.
    */
   server.addDynamicRoute('get', '/killGame', function(req, res) {
+    var id = req.query.id;
     // Kill any Game Manager instances associated with this browser tab
     // Send a response back that the client should use to reset its canvas 
     //    and other html and javascript stuff so that the user can request
     //    playNewGame again and it will work.
-    console.log("Killing ", req.query.id);
-    //TODO: Look up why delete isn't recommended
-    
+    console.log("Killing ", id);
+    //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
     //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
     //      incase the user tries to change the value or it becomes corrupted.
-    delete testArenaInstances[req.session.id][req.query.id];
-    fileManager.deleteDirectoryForTestArenaTab(req.session.id, req.query.id, function(err, result){
+    delete testArenaInstances[req.session.id][id];
+    fileManager.deleteDirectoryForTestArenaTab(req.session.id, id, function(err, result){
       if(err){
-        console.log(err);
+        console.log(err); 
       }
       // would be nice to have a counter to inc/dec when create and delete instead of checking
       // sync each time we delete.  Or base on data array, but can never be sure because each way
