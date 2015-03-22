@@ -191,12 +191,13 @@ module.exports = function BotBattleServer() {
       extended : true
     }));
     
+    // TODO: How do we clear out cookies if they never expire
     var shortid = require('shortid');
     var session = require('express-session');
     var sessionStore = session({
       secret : 'CXj3n"2KgOj*-4tm*Z0uD2B4X+Q^m3',
       cookie : {
-        maxAge : 60000
+        expires : false
       },
       secure: true,
       resave : false,

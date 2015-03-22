@@ -298,7 +298,7 @@ function registerTestArenaRoutes(server) {
       }
       console.log(result);
     })
-    console.log("After Kill \n", testArenaInstances[req.session.id]);
+    console.log("After Kill \n", testArenaInstances);
     res.send("killed");
   });
   
