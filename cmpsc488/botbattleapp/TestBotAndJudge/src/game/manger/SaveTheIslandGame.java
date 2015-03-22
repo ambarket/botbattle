@@ -112,7 +112,7 @@ public class SaveTheIslandGame {
     output += "\t\'event\': \'" + event + "\',\n";
     output += "\t\'data\': {\n ";
     output += "\t\t\'objectName\' : \'" + objctName + "\',\n";
-    output += "\t\t\'finalPosition\' : " + finalPosition + "\n\t\t}\n]\n";
+    output += "\t\t\'finalPosition\' : " + finalPosition + "\n\t\t}\n}]\n";
 
     return output;
   }
@@ -168,7 +168,8 @@ public class SaveTheIslandGame {
     String[] p1Moves = (String[]) results.getPlayer1Moves().toArray();
     String[] p2Moves = (String[]) results.getPlayer2Moves().toArray();
     String board = results.getBoards().get(0);
-
+    String desc = "";
+    String animation = "";
     String jsonString = "[{";
 
     jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
@@ -182,38 +183,18 @@ public class SaveTheIslandGame {
       board = results.getBoards().get(i);
       
       if (i % 2 == 1) {
-        jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-            p1Moves[i / 2]);
+        desc = prettyPrintMove(p1Moves[i / 2], 1);
+        animation = animatedEventJSON(p1Moves[i / 2], "player1", 666);
       } else {
-        jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-            p2Moves[i / 2]);
+        desc = prettyPrintMove(p2Moves[i / 2], 2);
+        animation = animatedEventJSON(p1Moves[i / 2], "player1", 666);
       }
+      jsonString += animation + ",";
+      jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+          desc);
     }
 
     jsonString += "]";
-
-    // [
-    // {
-    // 'animatableEvents': [
-    // {
-    // 'event': 'move',
-    // 'data': {
-    // 'objectName' : 'player1',
-    // 'finalPosition' : 9
-    // }
-    // },
-    // ],
-    // 'gameData' : {
-    // 'player1Tiles' : [1, 3, 5, 5, 3],
-    // 'player2Tiles' : [2, 4, 3, 5, 1],
-    // 'turnDescription' : "Player 2 used a 3 tile to move to position 11.",
-    // },
-    // 'debugData' : {
-    // lines : [ "An array", "of lines output by the bot", "stderr on this turn." ]
-    // },
-    // }
-    // ]
-
 
     return jsonString;
   }
