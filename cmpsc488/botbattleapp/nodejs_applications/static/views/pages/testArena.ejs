@@ -32,7 +32,7 @@
                  <span class="form-required" title="This field is required."> * </span>
                </label>
                <input id="tabId" style="display:none" name="tabId" value="tabId">
-               <input id="human" name="player1_bot_or_human" type="radio" checked="checked" required >Human</input>
+               <input id="human" name="player1_bot_or_human" type="radio" required >Human</input>
                <input id="bot" name="player1_bot_or_human" type="radio" required >Bot</input>
              </div>
              <p>
@@ -41,7 +41,7 @@
                  Select your bot for player 1
                  <span class="form-required" title="This field is required."> * </span>
                </label>
-                <input name="player1_bot_upload" type="file" required ></input>
+                <input id="player1_bot_upload" name="player1_bot_upload" type="file" required ></input>
              </div>
              <p>
              <div id="player2FileChoose" class="form-item">
@@ -49,7 +49,7 @@
                  Select your bot for player 2
                  <span class="form-required" title="This field is required."> * </span>
                </label>
-                <input name="player2_bot_upload" type="file" required ></input>
+                <input id="player2_bot_upload" name="player2_bot_upload" type="file" required ></input>
              </div>
              <p>
              <p>
@@ -138,17 +138,30 @@
 			unloadHandler = function () {};
 		} );
 	} );
-	 
+
+	var resetForm = function(id) {
+	console.log("called this shit");
+	console.log(id);
+		document.getElementById(id).value = "";
+	}
+	
 	// Listen for radio checks
 	$('#human').click(function(){ 
     	$('#submitButton').val( "Upload Bot");
     	$('#player1FileChoose').hide();
     	$('#humanInput').show();
+    	//document.getElementById("uploadBotForm").reset();
+    	resetForm('player2_bot_upload');
+    	resetForm('player1_bot_upload');
 	});
+	
 	$('#bot').click(function(){ 
     	$('#submitButton').val( "Upload Bots");
     	$('#player1FileChoose').show();
     	$('#humanInput').hide();
+    	//document.getElementById("uploadBotForm").reset();
+    	resetForm('player2_bot_upload');
+    	resetForm('player1_bot_upload');
 	});
 	
 	var form = document.forms.namedItem("uploadBotForm");
