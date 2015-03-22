@@ -175,11 +175,11 @@ public class SaveTheIslandGame {
     jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
     jsonString +=
         gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-            "initial board");
+            "initial board") + "}";
 
 
     for (int i = 1; i < results.getBoards().size(); i++) {
-      jsonString += ",";
+      jsonString += ",{";
       board = results.getBoards().get(i);
 
       if (i % 2 == 1) {
@@ -191,7 +191,7 @@ public class SaveTheIslandGame {
       }
       jsonString += animation + ",";
       jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc);
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc) + "}";
     }
 
     jsonString += "]";
