@@ -100,7 +100,17 @@ public class SaveTheIslandGame {
 		return "SaveTheIsland";
 	}
 	
-	//TODO implement getJSONstringFromGameResults
+	private static String tilesToArray(String tiles) {
+		String output = "[";
+		output += tiles.substring(0, 1) + ", ";
+		output += tiles.substring(1, 2) + ", ";
+		output += tiles.substring(2, 3) + ", ";
+		output += tiles.substring(3, 4) + ", ";
+		output += tiles.substring(4) + "]";
+		return output;
+	}
+	
+	//TODO: remove new lines and tabs once this gets approved
 	public static String getJSONstringFromGameResults(GameResults results) {
 		String[] p1Moves = (String[]) results.getPlayer1Moves().toArray();
 		String[] p2Moves = (String[]) results.getPlayer2Moves().toArray();
@@ -108,8 +118,8 @@ public class SaveTheIslandGame {
 		
 		String jsonString = "[{";		
 		jsonString += "\'gameData' : {\n";
-		jsonString += "\t\'player1Tiles\' : \"" + Board.getPlayersTiles(1, board) + "\",\n";
-		jsonString += "\t\'player2Tiles\' : \"" + Board.getPlayersTiles(2, board) + "\",\n";
+		jsonString += "\t\'player1Tiles\' : \"" + tilesToArray(Board.getPlayersTiles(1, board)) + "\",\n";
+		jsonString += "\t\'player2Tiles\' : \"" + tilesToArray(Board.getPlayersTiles(2, board)) + "\",\n";
 		jsonString += "\t\'turnDescription\' : \"" + "initial board" + "\"\n}\n";
 		
 		for (int i = 1; i < results.getBoards().size(); i++) {
