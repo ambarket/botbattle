@@ -26,15 +26,14 @@ public class SaveTheIslandGame {
   // TODO the only thing else that is needed is the shuffle command.
   public static String updateBoard(String move, String board, int player) {
     String updatedBoard = "";
-    String[] peices;
+    String[] peices = move.split(";");
+    int value = Integer.parseInt(peices[1].substring(0, 1));
     if (move.startsWith("attack")) {
-      peices = move.split(";");
-      int value = Integer.parseInt(peices[1].substring(0, 1));
       updatedBoard = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
-    } else if (move.startsWith("retreat")) {
-      peices = move.split(";");
-      int value = Integer.parseInt(peices[1].substring(0, 1));
+    } else if (move.startsWith("retreat")) {     
       updatedBoard = Board.movePlayer(board, player, -value);
+    } else if( move.startsWith("move") ) {
+      updatedBoard = Board.movePlayer(board, player, value);
     }
 
     return updatedBoard;
@@ -59,6 +58,7 @@ public class SaveTheIslandGame {
     }
   }
 
+  //TODO take another look at this, is attack the same as move forward?
   public static boolean isValidMove(String move, String board, int player) {
     int typeOfMove = 0, tilesForMove = 1;
     String[] peices = move.split(";");
@@ -107,25 +107,62 @@ public class SaveTheIslandGame {
     return output;
   }
 
-  private static String animatedEventJSON(String event, String objctName, int finalPosition) {
-    String output = "\'animatableEvents\' : [{";
-    output += "\'event\': \'" + event + "\',\n";
-    output += "\'data\': {\n ";
-    output += "\'objectName\' : \'" + objctName + "\',\n";
-    output += "\'finalPosition\' : " + finalPosition + "}]\n";
+  protected static String animatedEventJSON(String event, String objctName, int finalPosition) {
+    String output = "\'animatableEvents\' : [\n{\n";
+    output += "\t\'event\': \'" + event + "\',\n";
+    output += "\t\'data\': {\n ";
+    output += "\t\t\'objectName\' : \'" + objctName + "\',\n";
+    output += "\t\t\'finalPosition\' : " + finalPosition + "\n\t\t}\n]\n";
 
     return output;
   }
 
-  private static String gameDataJSON(String player1Tiles, String player2Tiles, String description) {
+  protected static String gameDataJSON(String player1Tiles, String player2Tiles, String description) {
     String output = "\'gameData' : {\n";
-    output += "\t\'player1Tiles\' : \"" + tilesToArray(player1Tiles) + "\",\n";
-    output += "\t\'player2Tiles\' : \"" + tilesToArray(player2Tiles) + "\",\n";
+    output += "\t\'player1Tiles\' : " + tilesToArray(player1Tiles) + ",\n";
+    output += "\t\'player2Tiles\' : " + tilesToArray(player2Tiles) + ",\n";
     output += "\t\'turnDescription\' : \"" + description + "\"\n}\n";
 
     return output;
   }
 
+  protected static String prettyPrintMove(String move, int player) {
+    String output = "Player " + player + " ";
+    String tiles = move.split(";")[1];
+    
+    if (move.startsWith("attack")) {
+      output += "attacks with ";
+
+      switch (tiles.length()) {
+        case 1:
+          output += "one " + tiles + " tile.";
+          break;
+        case 2:
+          output += "two " + tiles.substring(0, 1) + " tiles.";
+          break;
+        case 3:
+          output += "three " + tiles.substring(0, 1) + " tiles.";
+          break;
+        case 4:
+          output += "four " + tiles.substring(0, 1) + " tiles.";
+          break;
+        case 5:
+          output += "five " + tiles.substring(0, 1) + " tiles.";
+          break;
+        default:
+          break;
+      }
+    } else if (move.startsWith("Shuffle")) {
+      output += " shuffles their tiles.";
+    } else if (move.startsWith("move")) {
+      output += "moves forward "+ tiles + " spaces.";
+    } else if (move.startsWith("retreat")) {
+      output += "retreats " + tiles + " spaces.";
+    }
+    
+    return output;
+  }
+  
   // TODO: remove new lines and tabs once this gets approved
   public static String getJSONstringFromGameResults(GameResults results) {
     String[] p1Moves = (String[]) results.getPlayer1Moves().toArray();
@@ -137,21 +174,19 @@ public class SaveTheIslandGame {
     jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
     jsonString +=
         gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-            "initial board") + ",";
+            "initial board");
 
 
     for (int i = 1; i < results.getBoards().size(); i++) {
+      jsonString += ",";
       board = results.getBoards().get(i);
-
-      jsonString += "\'gameData' : {\n";
-      jsonString += "\t\'player1Tiles\' : \"" + Board.getPlayersTiles(1, board) + "\",\n";
-      jsonString += "\t\'player2Tiles\' : \"" + Board.getPlayersTiles(2, board) + "\",\n";
-
-
+      
       if (i % 2 == 1) {
-        jsonString += "\t\'turnDescription\' : \"" + p1Moves[i / 2] + "\"\n}\n";
+        jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+            p1Moves[i / 2]);
       } else {
-        jsonString += "\t\'turnDescription\' : \"" + p2Moves[i / 2] + "\"\n}\n";
+        jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+            p2Moves[i / 2]);
       }
     }
 
