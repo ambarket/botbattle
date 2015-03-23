@@ -278,7 +278,7 @@ function registerTestArenaRoutes(server) {
     //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
     //      incase the user tries to change the value or it becomes corrupted.
     delete testArenaInstances[req.session.id][id];
-    fileManager.deleteDirectoryForTestArenaTab(req.session.id, id, function(err, result){
+    fileManager.deleteDirectoryForTestArenaTab(req.session.id, id, function(err){
       if(err){
         console.log(err); 
       }
@@ -289,14 +289,12 @@ function registerTestArenaRoutes(server) {
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id);
       if(fileManager.getSubFolderCount(directoryPath) === 0){
         // delete the parent directory
-        fileManager.deleteDirectoryForTestArenaSession(req.session.id, function(err, result){
+        fileManager.deleteDirectoryForTestArenaSession(req.session.id, function(err){
           if(err){
             console.log(err);
           }
-          console.log(result);
         })
       }
-      console.log(result);
     })
     console.log("After Kill \n", testArenaInstances);
     res.send("killed");
