@@ -297,7 +297,9 @@ function registerTestArenaRoutes(server) {
     //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
     //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
     //      incase the user tries to change the value or it becomes corrupted.
-    delete testArenaInstances[req.session.id][id];
+    if (testArenaInstances[req.session.id][id]) {
+      delete testArenaInstances[req.session.id][id];
+    }
     fileManager.deleteDirectoryForTestArenaTab(req.session.id, id, function(err){
       if(err){
         console.log(err); 
