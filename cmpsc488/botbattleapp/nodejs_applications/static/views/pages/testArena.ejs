@@ -32,8 +32,8 @@
                  <span class="form-required" title="This field is required."> * </span>
                </label>
                <input id="tabId" style="display:none" name="tabId" value="tabId">
-               <input id="human" name="player1_bot_or_human" type="radio" required >Human</input>
-               <input id="bot" name="player1_bot_or_human" type="radio" required >Bot</input>
+               <input id="human" name="player1_bot_or_human" type="radio" value="human" checked="checked" required >Human</input>
+               <input id="bot" name="player1_bot_or_human" type="radio" value="bot" required >Bot</input>
              </div>
              <p>
              <div style="display:none" id="player1FileChoose" class="form-item">
@@ -41,7 +41,7 @@
                  Select your bot for player 1
                  <span class="form-required" title="This field is required."> * </span>
                </label>
-                <input id="player1_bot_upload" name="player1_bot_upload" type="file" required ></input>
+                <input id="player1_bot_upload" name="player1_bot_upload" type="file" ></input>
              </div>
              <p>
              <div id="player2FileChoose" class="form-item">
@@ -53,7 +53,7 @@
              </div>
              <p>
              <p>
-            <input id="submitButton" type="submit" value="Upload Bot">
+            <input id="submitForm" type="submit" value="Upload Bot">
             <p>
             <div id="status"></div>
             <hr>
@@ -141,23 +141,35 @@
 		document.getElementById(id).value = "";
 	}
 	
+	$('#player1_bot_upload').click(function(){		
+    	document.getElementById("status").innerHTML = "";
+	});
+	
+	$('#player2_bot_upload').click(function(){		
+    	document.getElementById("status").innerHTML = "";
+	});
+	
 	// Listen for radio checks
 	$('#human').click(function(){ 
-    	$('#submitButton').val( "Upload Bot");
+    	$('#submitForm').val( "Upload Bot");
     	$('#player1FileChoose').hide();
     	$('#humanInput').show();
     	//document.getElementById("uploadBotForm").reset();
     	resetForm('player2_bot_upload');
-    	resetForm('player1_bot_upload');
+    	resetForm('player1_bot_upload');    	
+    	document.getElementById("status").innerHTML = "";
+    	document.getElementById("player1_bot_upload").required = false;
 	});
 	
 	$('#bot').click(function(){ 
-    	$('#submitButton').val( "Upload Bots");
+    	$('#submitForm').val( "Upload Bots");
     	$('#player1FileChoose').show();
     	$('#humanInput').hide();
     	//document.getElementById("uploadBotForm").reset();
     	resetForm('player2_bot_upload');
     	resetForm('player1_bot_upload');
+    	document.getElementById("status").innerHTML = "";
+    	document.getElementById("player1_bot_upload").required = true;
 	});
 	
 	var form = document.forms.namedItem("uploadBotForm");
