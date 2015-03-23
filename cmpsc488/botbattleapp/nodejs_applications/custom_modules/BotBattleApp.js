@@ -333,13 +333,10 @@ function registerTestArenaRoutes(server) {
                           }                                  
               },
               changeDest: function(dest, req, res) {
-                // this is a big problem because we can not get the body until after the files are parsed
-                // or use get instead of post
-                console.log("called changeDest");
+                            var id = req.body.tabId;
                             var path = require('path');
-                            var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id, req.body.tabId);
-                            console.log("storing at ", directoryPath);
-                            return directoryPath; 
+                            directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id, id);
+                            return directoryPath;                            
               },
               onFileUploadStart : function(file, req, res) {
                                     console.log(file.fieldname + ' is starting ...');

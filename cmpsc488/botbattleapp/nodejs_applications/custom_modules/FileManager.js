@@ -312,7 +312,6 @@ function FileManager(botBattleDatabase) {
     this.deleteDirectoryForTestArenaTab = function(session, tabId, callback) {
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
-      console.log("path",directoryPath);
       removeFileOrFolder(directoryPath, callback);
     }
     
