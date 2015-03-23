@@ -167,9 +167,7 @@ function registerTestArenaRoutes(server) {
   
   var testArenaInstances = {};
   
-  // TODO: THis needs serious investigation.  Could be that the session expires, but sometime new sessions are created
-  //   or there are other errors because occasionally if one tab is opened and then refreshed it will create
-  //   a new session folder...  
+   
   server.addDynamicRoute('get', '/', function(req, res) {
   	var id = require('shortid').generate();
   	  
@@ -206,7 +204,29 @@ function registerTestArenaRoutes(server) {
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
-  
+  server.addDynamicRoute('get', '/clearBots', function(req, res) {
+    console.log(req.query);
+    console.log(req.query.id);
+      fileManager.deleteDirectoryForTestArenaTab(req.session.id, req.query.id, function(err){
+        if(err){
+          console.log(err);
+          // TODO: actually send an appropriate HTTP error code/message
+          res.send(err);
+        }
+        else {
+          fileManager.createDirectoryForTestArenaTab(req.session.id, req.query.id, function(err, result){
+            if(err){
+              console.log(err);
+              res.send(err);
+            }
+            else {
+              console.log(result);
+              res.send();
+            }
+          })
+        }
+      })
+    });
   //server.addDynamicRoute('get', '/', function(req, res) {
     // Everytime the page is refreshed, we want a whole new session. (Original comment for the below code)
     //   This fails because it replaces the session of all other existing tabs
