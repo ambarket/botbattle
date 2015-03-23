@@ -8,7 +8,7 @@
 var categoryDestinations = {
     general : ['ignore'],
     database : ['ignore'],
-    session : ['console'],
+    session : ['ignore'],
     fileManager : ['console'],
     initialConfig : ['console'],
     httpsServer : ['console']
