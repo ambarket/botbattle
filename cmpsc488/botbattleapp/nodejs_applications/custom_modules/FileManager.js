@@ -253,6 +253,14 @@ function FileManager(botBattleDatabase) {
       })
     } 
     
+    /**
+     * ASYNC: Allows for the creation of a test arena temp directory associated with a session id.
+     *        in the form of test_arena_tmp\session
+     * @method createDirectoryForTestArenaSession
+     * @param {String} session - session id for folder identification
+     * @param {Function} callback(err, message)
+     * @public
+     */
     this.createDirectoryForTestArenaSession = function(session, callback) {
       var path = require('path');
       var newDirectoryPath = path.resolve(paths.local_storage.test_arena_tmp, session);
@@ -261,6 +269,15 @@ function FileManager(botBattleDatabase) {
       });
     }
     
+    /**
+     * ASYNC: Allows for the creation of a test arena temp directory associated with a tabId and a session id.
+     *        in the form of test_arena_tmp\session\tabId
+     * @method createDirectoryForTestArenaTab
+     * @param {String} session - session id for folder identification
+     * @param {String} tabId - tab id for folder identification
+     * @param {Function} callback(err, message)
+     * @public
+     */
     this.createDirectoryForTestArenaTab = function(session, tabId, callback) {
       var path = require('path');
       var newDirectoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
@@ -269,19 +286,43 @@ function FileManager(botBattleDatabase) {
       });
     }
     
+    /**
+     * ASYNC: Allows for the deletion of a test arena temp directory associated with a session id.
+     *          in the form of test_arena_tmp\session
+     * @method deleteDirectoryForTestArenaSession
+     * @param {String} session - session id for folder identification
+     * @param {Function} callback(err)
+     * @public
+     */
     this.deleteDirectoryForTestArenaSession = function(session, callback) {
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session);
       removeFileOrFolder(directoryPath, callback);
     }
     
+    /**
+     * ASYNC: Allows for the deletion of a test arena temp directory associated with a tabId and a session id.
+     *          in the form of test_arena_tmp\session\tabId
+     * @method deleteDirectoryForTestArenaTab
+     * @param {String} session - session id for folder identification
+     * @param {String} tabId - tab id for folder identification
+     * @param {Function} callback(err)
+     * @public
+     */
     this.deleteDirectoryForTestArenaTab = function(session, tabId, callback) {
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
-      console.log(directoryPath);
+      console.log("path",directoryPath);
       removeFileOrFolder(directoryPath, callback);
     }
     
+    /**
+     * SYNC: Allows to count all sub-directories in the provided directory
+     * @method getSubFolderCount
+     * @param {String} folder - absolute path for folder to count sub-folders
+     * @return {integer} count - number of sub-folders in the folder
+     * @public
+     */
     // should we make this async with callbacks?
     this.getSubFolderCount = function(folder){
       var folderContentList = fse.readdirSync(folder);
