@@ -13,13 +13,13 @@ ________________________________________________________________________________
         
 Finish FileManager after setting up initConfig html and wiring to know what is needed (add to after test arena also)
 
-Look into Multer more for initConfig and testArena to see if necessary
+<strike>Look into Multer more for initConfig and testArena to see if necessary</strike>
         
-Move Test Arena socket.io connection handshake proposal.txt from investigate io branch to master branch 
-      then start a new branch to work on Test Arena
+<strike>Move Test Arena socket.io connection handshake proposal.txt from investigate io branch to master branch 
+      then start a new branch to work on Test Arena</strike>
       
-<strike> In test arena branch make a new testArena.html and use basicInOutErr.html as a template </strike> and
-     modify botBattleApp.js to work with test arena 
+<strike> In test arena branch make a new testArena.html and use basicInOutErr.html as a template  and
+     modify botBattleApp.js to work with test arena </strike>
      
 Add other html pages and set up wiring by modifying botBattleApp.js (maybe new branches for each of these
       until they work)  
@@ -29,8 +29,7 @@ Test Arena
 			standing, floating (thrust, shadow), running, water waves
 		Fix pixel ratio
 		add 25 cells for location on island of equal robot width (currently need 1250 px just for island with robots 
-		    that are 50px wide + space to make it look like an island on both sides... (maybe add logic to scale by 
-		    calling a transform after loading images and checking client screen size.)
+		    that are 50px wide + space to make it look like an island on both sides... <strike>(maybe add logic to scale 			by calling a transform after loading images and checking client screen size.)</strike>
       
 ******Keep Master as clean and functional as possible!!!
 
@@ -38,7 +37,7 @@ ________________________________________________________________________________
 
 #Detailed sequence of events for client connects to public portal use case
 
-      Client 
+    <strike>  Client 
         opens browser and create GET request for /
       
       Server 
@@ -93,7 +92,7 @@ ________________________________________________________________________________
           On 'im_disconnecting' (socket specific)
             delete the database entry
             delete anything on the file system
-            (don't delete the socket and bidirectional mapping, that will be handled by the 'disconnect' event)
+            (don't delete the socket and bidirectional mapping, that will be handled by the 'disconnect' event)</strike>
         
       
             
