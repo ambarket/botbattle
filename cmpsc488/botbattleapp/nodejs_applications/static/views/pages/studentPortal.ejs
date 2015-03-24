@@ -16,6 +16,27 @@
     <main>
       <div>
         Student portal stuff goes here.
+        <pre>
+        This page will display the following information about the tournament
+            Tournament name
+            A link to the game rules for the tournament
+            The upload deadline for the tournament
+            An indicator of if you’ve uploaded a bot for the tournament yet
+
+            A upload file input  field and an Upload Bot button if not past the deadline. No need to select the language of the bot just 
+              check the file extension and refuse if its not right.
+              
+                Upon clicking submit the system verifies that it compiles, if it doesn’t compile the compiler errors will be displayed 
+                  somewhere on the Enter Tournament Page. If it was successful then adds it to that tournaments list of bots and sets the 
+                  indicator that says you have uploaded your bot
+                  
+                    User should be able to overwrite a previous bot submission if it is not past the deadline
+                    
+                    The bot will be uploaded to and compiled in [Private Tournaments Folder]/[username]/
+                    
+                    And an entry will be added to botsList field of the database entry for the tournament mapping this username to the 
+                      path of the uploaded bot.
+</pre>
       </div>
     </main>
 

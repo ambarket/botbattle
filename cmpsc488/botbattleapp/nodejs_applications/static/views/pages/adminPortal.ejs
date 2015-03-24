@@ -16,6 +16,48 @@
     <main>
       <div>
         Admin portal stuff goes here.
+        <pre>
+        Game Management Area
+            Just list all information about the game module and allow the admin to upload a new rules.html.
+            
+        Tournament Management
+            You are presented with a page listing the tournament for the system
+            The following information will be displayed about the tournament…
+                Tournament Name
+                The upload deadline (editable)
+                An indicator of if all of the students in this tournament have uploaded bots yet (low priority)
+                An edit students button
+                a run button (maybe not necessary if we run as soon as the upload deadline has expired)
+                A delete button (delete from DB and private tournaments directory only). 
+                In addition, if the tournament has been run, 
+                    A button that links to the private tournament page, 
+                    A copy to public button (and remove from public button)
+                     A download button (low priority)
+                             
+        Clicking on the indicator (b.iii) brings up a page that shows the user list for the tournament and whether or not each user 
+        has uploaded a bot yet and the date and time that they did so and maybe a count of fails (compile) because he hates when people 
+        don’t test. (Seems like this would be quite nice for Blum to know who has and has not uploaded a bot and provide assistance to 
+        those who are lagging or struggling more than others) but is certainly a low or medium requirement.
+        
+        Clicking the edit user list button brings up a page that allows you to add additional users manually to the tournament in case 
+        you missed them, and delete individual users from the tournament. (probably could be integrated with the list described for the 
+        indicator button)
+        
+        Clicking on the run button causes the node program to collect all necessary data and make a call to the gamewrapper’s runTournament 
+        method. If everything was successful a success  code is sent back to the node program at which point the tournament is updated to 
+        have a public checkbox and a display button that links to the tournament. If there was an error running the tournament, we messed up.
+        
+        Clicking the link to the tournament page displays the webpage generated from running the tournament and allows the admin to click 
+        through game by game or round by round of the tournament.
+        
+        These results will be copied into the public tournaments folder when the admin clicks the copy to public button. This button is then 
+        changed to the delete from public button after successful copying. The results also remain in the private tournaments folder after 
+        this action. 
+        
+        Clicking the remove from public button deletes the tournament from the public folder(In case he checked it by accident)
+        Clicking the download button creates a zip archive of the tournament webpage and initiates a file download (nice and probably not 
+        terribly difficult but definitively a low requirement as the admin can get to this manually through the file system) 
+       </pre>
       </div>
     </main>
 
