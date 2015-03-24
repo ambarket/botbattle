@@ -254,74 +254,40 @@ function FileManager(botBattleDatabase) {
     } 
     
     /**
-     * ASYNC: Allows for the creation of a test arena temp directory associated with a session id.
-     *        in the form of test_arena_tmp\session
-     * @method createDirectoryForTestArenaSession
-     * @param {String} session - session id for folder identification
-     * @param {Function} callback(err, message)
-     * @public
-     */
-    this.createDirectoryForTestArenaSession = function(session, callback) {
-      var path = require('path');
-      var newDirectoryPath = path.resolve(paths.local_storage.test_arena_tmp, session);
-      createFolder(newDirectoryPath, function(err, data) {
-        callback(err, newDirectoryPath);
-      });
-    }
-    
-    /**
-     * ASYNC: Allows for the creation of a test arena temp directory associated with a tabId and a session id.
-     *        in the form of test_arena_tmp\session\tabId
-     * @method createDirectoryForTestArenaTab
-     * @param {String} session - session id for folder identification
-     * @param {String} tabId - tab id for folder identification
-     * @param {Function} callback(err, message)
-     * @public
-     */
-    this.createDirectoryForTestArenaTab = function(session, tabId, callback) {
-      var path = require('path');
-      var newDirectoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
-      createFolder(newDirectoryPath, function(err, data) {
-        callback(err, newDirectoryPath);
-      });
-    }
-    
-    /**
-     * ASYNC: Allows for the deletion of a test arena temp directory associated with a session id.
-     *          in the form of test_arena_tmp\session
-     * @method deleteDirectoryForTestArenaSession
-     * @param {String} session - session id for folder identification
+     * ASYNC: Allows for the creation of a game instance directory that holds bots
+     * @method createGameInstanceDirectory
+     * @param {String} gameId - game id for folder identification
      * @param {Function} callback(err)
      * @public
      */
-    this.deleteDirectoryForTestArenaSession = function(session, callback) {
+    this.createGameInstanceDirectory = function(gameId, callback) {
       var path = require('path');
-      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session);
+      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, gameId);
       removeFileOrFolder(directoryPath, callback);
     }
     
     /**
-     * ASYNC: Allows for the deletion of a test arena temp directory associated with a tabId and a session id.
-     *          in the form of test_arena_tmp\session\tabId
-     * @method deleteDirectoryForTestArenaTab
-     * @param {String} session - session id for folder identification
-     * @param {String} tabId - tab id for folder identification
+     * ASYNC: Allows for the deletion of a game instance directory that holds bots
+     * @method deleteGameInstanceDirectory
+     * @param {String} gameId - game id for folder identification
      * @param {Function} callback(err)
      * @public
      */
-    this.deleteDirectoryForTestArenaTab = function(session, tabId, callback) {
+    this.deleteGameInstanceDirectory = function(gameId, callback) {
       var path = require('path');
-      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, session, tabId);
+      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, gameId);
       removeFileOrFolder(directoryPath, callback);
     }
     
-    /**
+    /* Likely not needed anymore.
+     * 
+     /**
      * SYNC: Allows to count all sub-directories in the provided directory
      * @method getSubFolderCount
      * @param {String} folder - absolute path for folder to count sub-folders
      * @return {integer} count - -1 if it doesn't exist, otherwise, number of sub-folders in the folder
      * @public
-     */
+     *
     // should we make this async with callbacks?
     this.getSubFolderCount = function(folder){
       // ensure exists. if no subfolders when killbot finishes will crash server. i.e. somehow session is removed
@@ -348,7 +314,8 @@ function FileManager(botBattleDatabase) {
         }
       }
       return count;
-    }
+    }*/
+    
     /**
      * ASYNC: Allows for the creation of a folder at the given path.  createFolder also takes a callback
      * to return the success or fail message.
