@@ -3,6 +3,11 @@ var paths = require('./BotBattlePaths');
 function BotBattleApp(server, database) {
 	var self = this;
 	
+	Date.prototype.addHours= function(h){
+	    this.setHours(this.getHours()+h);
+	    return this;
+	}
+	
 	registerTestArenaRoutes(server);
 	registerLoginRoutes(server, database);
 }
@@ -169,93 +174,56 @@ function registerTestArenaRoutes(server) {
   
    
   server.addDynamicRoute('get', '/', function(req, res) {
-  	var id = require('shortid').generate();
-  	  
-  	var newInstance = { 
-  	  'gameProcess' : null,
-  	  'state' : 'stopped',
-  	  'timoutToDelete' : 'tomorrow'
-  	};
-  	  
-  	if (!testArenaInstances[req.session.id]) {
-  	  testArenaInstances[req.session.id] = { };  
-  	  fileManager.createDirectoryForTestArenaSession(req.session.id, function(err, result){
-  	    if(err){
-  	      console.log(err);
-  	    }
-  	    console.log(result);
-  	  })
-  	}
-  	
-  	testArenaInstances[req.session.id][id] = newInstance;
-  	fileManager.createDirectoryForTestArenaTab(req.session.id, id, function(err, result){
-      if(err){
-        console.log(err);
-      }
-      console.log(result);
-    })
-    
-  	console.log("Current testArenaInstances\n",testArenaInstances);
-  	  
-  	req.session.locals.id = id;
   	var locals = copyLocalsAndDeleteMessage(req.session);
-  	
-  	//console.log(locals.id);
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
+  // all oter functions that require session need to be changed because the structure is now different
   server.addDynamicRoute('get', '/clearBots', function(req, res) {
-    console.log(req.query);
-    console.log(req.query.id);
-      fileManager.deleteDirectoryForTestArenaTab(req.session.id, req.query.id, function(err){
+    /*  this should be done on upload, but we have that only 2 routes working and multer problem thing...
+     * 1. Delete folder if id provided by client exists
+     * 2. create object in testArenaInstances as needed
+     * 3. create files like before.
+     * 4  return the new id
+     */
+      var id = req.query.id;
+      // if client exists in the testArenaInstance then delete it and the instance object
+      if(testArenaInstances[id]){
+        delete testArenaInstances[id];
+        fileManager.deleteGameInstanceDirectory(id, function(err){
+          if(err){
+            console.log(err);
+            // TODO: actually send an appropriate HTTP error code/message
+            res.send(err);
+          }
+      }
+      // create a new object and folder with the id
+      var id = require('shortid').generate();
+      
+      timoutToDelete = new Date().addHours(4);
+        
+      var newInstance = { 
+        'gameProcess' : null,
+        'state' : 'stopped',
+        'timoutToDelete' : timoutToDelete
+      }; 
+      
+      testArenaInstances[id] = newInstance;
+        
+      fileManager.createGameInstanceDirectory(id, function(err, result){
         if(err){
           console.log(err);
           // TODO: actually send an appropriate HTTP error code/message
           res.send(err);
         }
-        else {
-          fileManager.createDirectoryForTestArenaTab(req.session.id, req.query.id, function(err, result){
-            if(err){
-              console.log(err);
-              res.send(err);
-            }
-            else {
-              console.log(result);
-              res.send();
-            }
-          })
-        }
+        console.log(result);
       })
-    });
-  //server.addDynamicRoute('get', '/', function(req, res) {
-    // Everytime the page is refreshed, we want a whole new session. (Original comment for the below code)
-    //   This fails because it replaces the session of all other existing tabs
-    //   with this new one. It seems the only way to keep track of multiple browser
-    //   tabs associated with separate server side data is to use our own tracking 
-    //   mechanism. There are some sources that site making cookies and or HTML5 session storage
-    //   work for this. e.g. https://sites.google.com/site/sarittechworld/track-client-windows
-    //   but I think it makes for sense for us to just implement our own way similar to what
-    //   was done in SocketIOConnectionTracker. 
-    //   The other obvious though is to just allow on connection to the server from each browser,
-    //   however to implement this you have to keep track of things yourself anyway. Below I tried complaining
-    //   if there was already a cookie set but this fails for reloading the page in a single tab.
-    
-    /*req.session.regenerate(function(err) {
-       console.log(req.session.id, req.cookies['connect.sid']);
-       // res.cookie('rememberme', 'yes', { maxAge: 900000, httpOnly: true});
-        console.log(req.session);
-        req.session.views = 1234;
-        //console.log(req.sessionId);
-        //if (!req.cookies['connect.sid']) {
-          res.sendFile(path.resolve(paths.static_content.html, 'testArena.html'));
-        //}
-        //else {
-        //  res.send("Sorry you already have an open session");
-        //}
-     });*/
-  //  res.sendFile(path.resolve(paths.static_content.html, 'testArena.html'));
-  //});
-  
+      
+      console.log("Current testArenaInstances\n",testArenaInstances);
+      req.session.locals.id = id;
+      // return the id to the client
+      res.send();
+    }); 
   
   /**
    * Requested by the "Play Game" Button on the test arena page
