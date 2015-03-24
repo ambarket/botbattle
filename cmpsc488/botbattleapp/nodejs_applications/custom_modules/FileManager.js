@@ -319,18 +319,31 @@ function FileManager(botBattleDatabase) {
      * SYNC: Allows to count all sub-directories in the provided directory
      * @method getSubFolderCount
      * @param {String} folder - absolute path for folder to count sub-folders
-     * @return {integer} count - number of sub-folders in the folder
+     * @return {integer} count - -1 if it doesn't exist, otherwise, number of sub-folders in the folder
      * @public
      */
     // should we make this async with callbacks?
     this.getSubFolderCount = function(folder){
-      var folderContentList = fse.readdirSync(folder);
+      // ensure exists. if no subfolders when killbot finishes will crash server. i.e. somehow session is removed
+      // and the tab is then closed
+      try{
+        var folderContentList = fse.readdirSync(folder);
+      }
+      catch(error){
+        if(error.errno === 34){
+          console.log(error);
+          return -1;
+        }
+        else{
+          console.log(error);
+        }
+      }
       var count = 0;
       var path = require('path');
       var directoryPath = null;
       for(var item in folderContentList){
         directoryPath = path.resolve(folder, folderContentList[item]);
-        if(fse.lstatSync(directoryPath).isDirectory()){
+        if(fse.statSync(directoryPath).isDirectory()){
           count++;
         }
       }
