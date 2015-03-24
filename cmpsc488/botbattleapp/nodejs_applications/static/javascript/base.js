@@ -4,5 +4,5 @@
   $('.message').slideDown(function() {
       setTimeout(function() {
           $('.message').slideUp();
-      }, 1000);
+      }, 3000);
   });
