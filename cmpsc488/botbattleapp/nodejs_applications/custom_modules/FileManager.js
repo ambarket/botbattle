@@ -21,8 +21,8 @@ function FileManager(botBattleDatabase) {
     
     /**
      * Upon successful completion, all paths in paths.local_storage will exist. Note this will not
-     * delete any files in those folders if they already exist, for that, use clearLocalStorage
-     * @method initLocalStorage
+     * delete any files in those folders if they already exist, for that, use deleteLocalStorage
+     * @method ensureLocalStorage
      * @param {Function} callback used by async.waterfall(...). 
      * @private
      */
@@ -409,29 +409,3 @@ module.exports = FileManager;
 module.exports.newInstance = function() {
   return new FileManager();
 }
-      
-     //  read file
-     //  read folder
-     //  perhaps relate funtions to users instead of just set or get
-       
-     //  Create Game Modules Directory
-     //  Create Private Tournament Directory
-     //  Create Public Tournaments Directory
-     //  Create Test Arenas Tmp Directory 
-    
-     //  Setup the Game Module
-     //  Create sub directory in Game Modules
-     //  Save the Game.java file
-     //  Save the rules.pdf file
-     
-
-/* It could be that fs.stat is executed before fs.rename. The correct way to do this is to chain the callbacks.
-
-fs.rename('/tmp/hello', '/tmp/world', function (err) {
-  if (err) throw err;
-  fs.stat('/tmp/world', function (err, stats) {
-    if (err) throw err;
-    logger.log('stats: ' + JSON.stringify(stats));
-  });
-});
-In busy processes, the programmer is strongly encouraged to use the asynchronous versions of these calls. The synchronous versions will block the entire process until they complete--halting all connections. */
