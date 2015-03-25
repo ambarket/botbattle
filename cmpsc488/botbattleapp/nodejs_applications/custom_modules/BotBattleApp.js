@@ -60,7 +60,7 @@ function cleanTest_Arena_tmp() {
     }
     console.log("Cleaned :", count, " instances.");
     cleanTest_Arena_tmp();
-  }, 5000); // 5 seconds
+  }, 3600000); // 1 hour
 }
 
 cleanTest_Arena_tmp();
@@ -240,8 +240,8 @@ function registerTestArenaRoutes(server) {
       // create a new object and folder with the id
       var id = require('shortid').generate();
       
-      //timoutToDelete = new Date().addHours(4);
-      timoutToDelete = new Date().addSeconds(30);
+      timoutToDelete = new Date().addHours(4);
+      //timoutToDelete = new Date().addSeconds(30);
         
       var newInstance = { 
         'gameProcess' : null,
