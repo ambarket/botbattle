@@ -20,5 +20,10 @@ From JSON: http://theoryapp.com/parse-json-in-java/
 Library: http://www.json.org/java/
 
 # Resources
-Express <a href="http://expressjs.com/api.html#app.use"> app.use </a>
-        <a href="http://expressjs.com/api.html#req"> app.req </a>
+Express 
+
+<a href="http://expressjs.com/api.html#app.use"> app.use </a>
+
+<a href="http://expressjs.com/api.html#req"> app.req </a>
+        
+<a href="http://expressjs.com/api.html#res.sendStatus"> res.sendStatus </a>
