@@ -26,12 +26,12 @@
        <div class="col_12">
         	<div class="col_3">
         <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
+        	<input id="tabId" style="display:none" name="tabId" value="tabId">
              <div id="playerRadio" class="form-item">
                <label for="player1_bot_or_human">
                  Player 1 Type:
                  <span class="form-required" title="This field is required."> * </span>
                </label>
-               <input id="tabId" style="display:none" name="tabId" value="tabId">
                <input id="human" name="player1_bot_or_human" type="radio" value="human" checked="checked" required >Human</input>
                <input id="bot" name="player1_bot_or_human" type="radio" value="bot" required >Bot</input>
              </div>
@@ -178,7 +178,7 @@
 	form.addEventListener('submit', function(ev) {		
 	  var req1 = new XMLHttpRequest();
 	  // disable the upload button
-	  req1.open("GET", "clearBots/?id=" + id, true);
+	  req1.open("GET", "newGame/?id=" + id, true);
 	  
 	  req1.onload = function(){	
 	      console.log("in onload"); 
