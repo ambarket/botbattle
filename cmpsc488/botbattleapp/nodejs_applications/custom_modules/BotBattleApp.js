@@ -2,11 +2,22 @@ var paths = require('./BotBattlePaths');
   
 function BotBattleApp(server, database) {
 	var self = this;
+    this.testArenaInstances = {};
 	
 	Date.prototype.addHours= function(h){
 	    this.setHours(this.getHours()+h);
 	    return this;
 	}
+	
+	Date.prototype.addMinutes= function(m){
+      this.setMinutes(this.getMinutes()+m);
+      return this;
+    }
+	
+	Date.prototype.addSeconds= function(s){
+      this.setSeconds(this.getSeconds()+s);
+      return this;
+    }
 	
 	registerTestArenaRoutes(server);
 	registerLoginRoutes(server, database);
@@ -19,10 +30,40 @@ util.inherits(BotBattleApp, EventEmitter);
 
 module.exports = BotBattleApp;
 
+var fileManager = new (require(paths.custom_modules.FileManager));
 
-// write cleanup function that checks the timeout and connection existance (if possible) of the session object then
-//  removes the files and games if not valid anymore incase of error or crash or something.
+var now = new Date();
+var count = 0;
 
+function cleanTest_Arena_tmp() {
+  setTimeout(function () {
+    console.log("Cleaning");
+    count = 0;
+    instance = undefined;
+    now = Date.now();
+    for(var instance in testArenaInstances){
+      console.log("instance", instance)
+      console.log("now", now);
+      console.log("Delete at", testArenaInstances[instance].timoutToDelete)
+      if(now > testArenaInstances[instance].timoutToDelete){
+        delete testArenaInstances[instance];
+        count++;
+        // kill spawned game here too and anything created during a game
+        fileManager.deleteGameInstanceDirectory(instance, function(err){
+          if(err){
+            console.log(err);
+            // TODO: actually send an appropriate HTTP error code/message
+            res.send(err);
+          }
+        });
+      }
+    }
+    console.log("Cleaned :", count, " instances.");
+    cleanTest_Arena_tmp();
+  }, 5000); // 5 seconds
+}
+
+cleanTest_Arena_tmp();
 
 function verifyAllFieldsWereSubmitted(sanitizedFormData) {
   var valid = true;
@@ -169,9 +210,6 @@ function registerTestArenaRoutes(server) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
   var fileManager = new (require(paths.custom_modules.FileManager));
-  
-  var testArenaInstances = {};
-  
    
   server.addDynamicRoute('get', '/', function(req, res) {
   	var locals = copyLocalsAndDeleteMessage(req.session);
@@ -202,7 +240,8 @@ function registerTestArenaRoutes(server) {
       // create a new object and folder with the id
       var id = require('shortid').generate();
       
-      timoutToDelete = new Date().addHours(4);
+      //timoutToDelete = new Date().addHours(4);
+      timoutToDelete = new Date().addSeconds(30);
         
       var newInstance = { 
         'gameProcess' : null,
