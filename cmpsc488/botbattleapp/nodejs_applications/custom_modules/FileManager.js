@@ -74,8 +74,7 @@ function FileManager(botBattleDatabase) {
       var path = require('path');
       fse.readdir(paths.init_config_tmp, function(err, files) {
         for (var i = 0; i < files.length; i++) {
-          files[i] = path.resolve(paths.init_config_tmp, files[i])
-              
+          files[i] = path.resolve(paths.init_config_tmp, files[i])              
         }
         var async = require('async');
         async.each(files, removeFileOrFolder, callback);
@@ -263,7 +262,7 @@ function FileManager(botBattleDatabase) {
     this.createGameInstanceDirectory = function(gameId, callback) {
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, gameId);
-      removeFileOrFolder(directoryPath, callback);
+      createFolder(directoryPath, callback);
     }
     
     /**
@@ -274,6 +273,10 @@ function FileManager(botBattleDatabase) {
      * @public
      */
     this.deleteGameInstanceDirectory = function(gameId, callback) {
+      // if gameId is null or undefined this will delete the parent folder so return
+      if(!gameId){
+        return;
+      }
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, gameId);
       removeFileOrFolder(directoryPath, callback);
