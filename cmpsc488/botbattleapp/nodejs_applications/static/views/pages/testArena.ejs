@@ -105,10 +105,10 @@
 </html>
 
 <script> 
-	var id = '<%= locals.id %>'
+	var id;
 	document.getElementById("tabId").value = id;
-	//console.log(id);
-	//console.log(document.getElementById("tabId"));
+	console.log("setIdFirst",id);
+	console.log("TabIdFirst",document.getElementById("tabId"));
 
 	function leave() {
 		return "Leaving the page will stop your program from running!";
@@ -182,6 +182,10 @@
 	  
 	  req1.onload = function(){	
 	      console.log("in onload"); 
+	      id = req1.responseText;
+	      document.getElementById("tabId").value = id;
+		  console.log("server response",id);
+	      console.log("tabId",document.getElementById("tabId"));
           var
           oOutput = document.getElementById("status"),
           oData = new FormData(document.forms.namedItem("uploadBotForm"));  	  
