@@ -179,7 +179,7 @@ function registerTestArenaRoutes(server) {
   });
   
   // all oter functions that require session need to be changed because the structure is now different
-  server.addDynamicRoute('get', '/clearBots', function(req, res) {
+  server.addDynamicRoute('get', '/newGame', function(req, res) {
     /*  this should be done on upload, but we have that only 2 routes working and multer problem thing...
      * 1. Delete folder if id provided by client exists
      * 2. create object in testArenaInstances as needed
@@ -190,12 +190,14 @@ function registerTestArenaRoutes(server) {
       // if client exists in the testArenaInstance then delete it and the instance object
       if(testArenaInstances[id]){
         delete testArenaInstances[id];
+        // kill spawned game here too and anything created during a game
         fileManager.deleteGameInstanceDirectory(id, function(err){
           if(err){
             console.log(err);
             // TODO: actually send an appropriate HTTP error code/message
             res.send(err);
           }
+        });
       }
       // create a new object and folder with the id
       var id = require('shortid').generate();
@@ -216,13 +218,12 @@ function registerTestArenaRoutes(server) {
           // TODO: actually send an appropriate HTTP error code/message
           res.send(err);
         }
-        console.log(result);
-      })
-      
-      console.log("Current testArenaInstances\n",testArenaInstances);
-      req.session.locals.id = id;
-      // return the id to the client
-      res.send();
+        console.log("results", result);
+        console.log("Current testArenaInstances\n",testArenaInstances);
+        //req.session.locals.id = id;
+        // return the id to the client
+        res.send(id);
+      })      
     }); 
   
   /**
@@ -265,25 +266,12 @@ function registerTestArenaRoutes(server) {
     //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
     //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
     //      incase the user tries to change the value or it becomes corrupted.
-    if (testArenaInstances[req.session.id][id]) {
-      delete testArenaInstances[req.session.id][id];
+    if (testArenaInstances[id]) {
+      delete testArenaInstances[id];
     }
-    fileManager.deleteDirectoryForTestArenaTab(req.session.id, id, function(err){
+    fileManager.deleteGameInstanceDirectory(id, function(err){
       if(err){
         console.log(err); 
-      }
-      // would be nice to have a counter to inc/dec when create and delete instead of checking
-      // sync each time we delete.  Or base on data array, but can never be sure because each way
-      // has problems.
-      var path = require('path');
-      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id);
-      if(fileManager.getSubFolderCount(directoryPath) === 0){
-        // delete the parent directory
-        fileManager.deleteDirectoryForTestArenaSession(req.session.id, function(err){
-          if(err){
-            console.log(err);
-          }
-        })
       }
     })
     console.log("After Kill \n", testArenaInstances);
@@ -312,21 +300,15 @@ function registerTestArenaRoutes(server) {
               },
               //putSingleFilesInArray: true, // this needs done for future compat.
               rename :  function(fieldname, filename) {
-                          if(fieldname === 'player1_bot_upload'){
-                            return 'bot1';
-                          }
-                          else if(fieldname === 'player2_bot_upload'){
-                            return 'bot2';
-                          }
-                          else{
-                            return filename;
-                          }                                  
+                            return filename;                                 
               },
               changeDest: function(dest, req, res) {
                             var id = req.body.tabId;
+                            console.log("id",id);
                             var path = require('path');
-                            directoryPath = path.resolve(paths.local_storage.test_arena_tmp, req.session.id, id);
-                            return directoryPath;                            
+                            directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
+                            console.log("bots ",directoryPath);
+                            return directoryPath;                           
               },
               onFileUploadStart : function(file, req, res) {
                                     console.log(file.fieldname + ' is starting ...');
