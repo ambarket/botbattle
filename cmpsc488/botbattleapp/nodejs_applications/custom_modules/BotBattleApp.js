@@ -2,7 +2,6 @@ var paths = require('./BotBattlePaths');
   
 function BotBattleApp(server, database) {
 	var self = this;
-    this.testArenaInstances = {};
 	
 	Date.prototype.addHours= function(h){
 	    this.setHours(this.getHours()+h);
@@ -30,22 +29,24 @@ util.inherits(BotBattleApp, EventEmitter);
 
 module.exports = BotBattleApp;
 
-var fileManager = new (require(paths.custom_modules.FileManager));
 
-var now = new Date();
-var count = 0;
+var fileManager = new (require(paths.custom_modules.FileManager));
+var testArenaInstances = {};
+//var now = new Date();
+//var count = 0;
 
 function cleanTest_Arena_tmp() {
+  var count = 0;
+  var instance;
+  var now = Date.now();
   setTimeout(function () {
     console.log("Cleaning");
-    count = 0;
-    instance = undefined;
-    now = Date.now();
-    for(var instance in testArenaInstances){
+    for(instance in testArenaInstances){
       console.log("instance", instance)
+      now = Date.now();
       console.log("now", now);
-      console.log("Delete at", testArenaInstances[instance].timoutToDelete)
-      if(now > testArenaInstances[instance].timoutToDelete){
+      console.log("Delete at", testArenaInstances[instance].gameExpireDateTime)
+      if(now > testArenaInstances[instance].gameExpireDateTime){
         delete testArenaInstances[instance];
         count++;
         // kill spawned game here too and anything created during a game
@@ -60,7 +61,7 @@ function cleanTest_Arena_tmp() {
     }
     console.log("Cleaned :", count, " instances.");
     cleanTest_Arena_tmp();
-  }, 3600000); // 1 hour
+  }, 3600000); // 1 hour 3600000
 }
 
 cleanTest_Arena_tmp();
@@ -209,7 +210,7 @@ function copyLocalsAndDeleteMessage(session) {
 function registerTestArenaRoutes(server) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
-  var fileManager = new (require(paths.custom_modules.FileManager));
+  //var fileManager = new (require(paths.custom_modules.FileManager));
    
   server.addDynamicRoute('get', '/', function(req, res) {
   	var locals = copyLocalsAndDeleteMessage(req.session);
@@ -219,10 +220,11 @@ function registerTestArenaRoutes(server) {
   // all oter functions that require session need to be changed because the structure is now different
   server.addDynamicRoute('get', '/newGame', function(req, res) {
     /*  this should be done on upload, but we have that only 2 routes working and multer problem thing...
-     * 1. Delete folder if id provided by client exists
+     * 1. Delete folder and instance and other game stuff if id provided by client exists (should be function)
      * 2. create object in testArenaInstances as needed
      * 3. create files like before.
-     * 4  return the new id
+     * 4. create game instance?
+     * 5. return the new id
      */
       var id = req.query.id;
       // if client exists in the testArenaInstance then delete it and the instance object
@@ -240,13 +242,13 @@ function registerTestArenaRoutes(server) {
       // create a new object and folder with the id
       var id = require('shortid').generate();
       
-      timoutToDelete = new Date().addHours(4);
-      //timoutToDelete = new Date().addSeconds(30);
+      var gameExpireDateTime = new Date().addHours(2);
+      //var gameExpireDateTime = new Date().addSeconds(15);
         
       var newInstance = { 
         'gameProcess' : null,
         'state' : 'stopped',
-        'timoutToDelete' : timoutToDelete
+        'gameExpireDateTime' : gameExpireDateTime
       }; 
       
       testArenaInstances[id] = newInstance;
@@ -345,7 +347,7 @@ function registerTestArenaRoutes(server) {
                             var id = req.body.tabId;
                             console.log("id",id);
                             var path = require('path');
-                            directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
+                            var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
                             console.log("bots ",directoryPath);
                             return directoryPath;                           
               },
