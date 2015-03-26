@@ -37,7 +37,7 @@ public class Tournament {
 		}
 	}
 	
-	public String toHTML(){//TODO
+	public String toHTML(){//TODO toHTML for Tournaments
 		String html = "";
 		
 		for (Round round : rounds) {

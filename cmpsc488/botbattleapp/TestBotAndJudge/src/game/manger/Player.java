@@ -73,10 +73,8 @@ public class Player implements Runnable {
 		} catch (IOException e) {
 			return "Bot Threw Exception";
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 	
 	
