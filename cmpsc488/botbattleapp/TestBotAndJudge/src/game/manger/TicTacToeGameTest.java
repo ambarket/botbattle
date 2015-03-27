@@ -31,7 +31,7 @@ public class TicTacToeGameTest {
 		String move = "1, 1, X";
 		String newBoard = "X00000000";
 		
-		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board));
+		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board, 1));
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class TicTacToeGameTest {
 		String move = "3, 3, X";
 		String newBoard = "00000000X";
 		
-		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board));
+		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board, 1));
 	}
 	
 	/**
@@ -55,7 +55,7 @@ public class TicTacToeGameTest {
 		String move = "2, 2, X";
 		String newBoard = "0000X0000";
 		
-		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board));
+		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board, 1));
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class TicTacToeGameTest {
 			for(int j = 1; j < 4; j++)
 			{
 				String move = i + ", " + j + ", X";
-				board = TicTacToeGame.updateBoard(move, board);
+				board = TicTacToeGame.updateBoard(move, board, 1);
 			}
 		}
 		
