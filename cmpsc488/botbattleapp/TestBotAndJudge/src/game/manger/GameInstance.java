@@ -4,6 +4,7 @@ public class GameInstance implements Runnable {
 
   private Player player1;
   private Player player2;
+  private GameInterface game;
   private GameResults results;
 
   /**
@@ -14,6 +15,7 @@ public class GameInstance implements Runnable {
     this.player1 = player1;
     this.player2 = player2;
     results = new GameResults();
+    game = new Game();
   }
 
   @Override
@@ -22,10 +24,10 @@ public class GameInstance implements Runnable {
 
     // Add starting board
     String move = "";
-    String board = Game.getStartingBoard();
-    results.addBoard(Game.getStartingBoard());
+    String board = game.getStartingBoard();
+    results.addBoard(game.getStartingBoard());
 
-    while (!Game.isGameOver(board)) {
+    while (!game.isGameOver(board)) {
 
       int player = (i % 2) + 1;
 
@@ -37,11 +39,11 @@ public class GameInstance implements Runnable {
         results.addMove(move, player);
       }
 
-      if (Game.isValidMove(move, board, player)) {
-        board = Game.updateBoard(move, board, player);
+      if (game.isValidMove(move, board, player)) {
+        board = game.updateBoard(move, board, player);
         results.addBoard(board);
 
-        if (Game.isGameWon(board)) {
+        if (game.isGameWon(board)) {
           System.out.println("Game Won by player" + player);
           results.setWinner(player);
           break;

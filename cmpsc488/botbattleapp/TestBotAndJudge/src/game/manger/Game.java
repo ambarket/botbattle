@@ -3,14 +3,14 @@ package game.manger;
 import java.util.List;
 
 //TIC-TAC-TOE 
-public class Game {
+public class Game implements GameInterface {
 
-  public static String getStartingBoard() {
+  public String getStartingBoard() {
     return "000000000";
   }
 
 
-  public static String updateBoard(String move, String board, int player){
+  public String updateBoard(String move, String board, int player){
     // 0123456
     // 1, 1, X
     // Move will be of the form: row, col, value
@@ -25,7 +25,7 @@ public class Game {
   }
 
   // Player value is not used in tic-tac-toe
-  public static boolean isValidMove(String move, String board, int player) {
+  public boolean isValidMove(String move, String board, int player) {
 
     if (move == null) {
       return false;
@@ -60,7 +60,7 @@ public class Game {
   }
 
 
-  public static boolean isGameOver(String board) {
+  public boolean isGameOver(String board) {
 
     if (isGameWon(board)) {
       return true;
@@ -76,7 +76,7 @@ public class Game {
   }
 
 
-  public static String getHTMLForBoard(String board) {
+  public String getHTMLForBoard(String board) {
     // TODO implement getHTMLForBoard for ticTacToe game
     return null;
   }
@@ -87,12 +87,7 @@ public class Game {
   }
 
 
-  public static String getName() {
-    return "TicTacToe";
-  }
-
-
-  public static boolean isGameWon(String board) {
+  public boolean isGameWon(String board) {
 
     for (int i = 0; i < 3; i++) {
       int index = 3 * i;
@@ -127,6 +122,11 @@ public class Game {
 
     return false;
   }
+
+  public static String getName() {
+    return "TicTacToe";
+  }
+
 
   public static String getJSONstringFromGameResults(GameResults results) {
     Object[] player1Moves = results.getPlayer1Moves().toArray();
