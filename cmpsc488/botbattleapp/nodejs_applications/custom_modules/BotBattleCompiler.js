@@ -7,16 +7,87 @@
  */
 function BotBattleCompiler() {
   var paths = require("./BotBattlePaths");
+  var path = require('path');
   var logger = require(paths.custom_modules.Logger).newInstance('console');
   var spawn = require('child_process').spawn;
+  var fileManager = new (require(paths.custom_modules.FileManager));
   var self = this;
+  
+  this.compileDirectoryJava = function(folder, callback) {
+    if (!callback || typeof(callback) != "function") {
+      console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
+      self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
+    }
+    else if (!folder) {
+      logger.log("Empty folder path sent to BotBattleCompiler.compile(...)");
+      self.emit('failed', "Empty folder path sent to BotBattleCompiler.compile(...)");
+      callback(new Error("Empty folder path sent to BotBattleCompiler.compile(...)"));
+    }
+    // get the list of files in the folder
+    var folderContentList = fileManager.getfolderContentList(folder);
+    // for items do the below
+    var sourceFiles = [];
+    for(var item in folderContentList){
+      if(folderContentList[item] !== "Rules"){
+        sourceFiles.push(folder + "/" + folderContentList[item]);
+      }
+    }
+    var compilationProcess = undefined;
+    directoryPath = path.resolve(folder, folderContentList[item]);
+    console.log("Compiling", sourceFiles);
+    compilationProcess = spawn('javac', sourceFiles);
+    compilationProcess
+    .on('close', function (code, signal) 
+        {
+          if (code !== 0) {
+            self.emit('failed', 'Compilation of ' + sourceFiles + ' failed with error code ' + code);
+            callback(new Error('Compilation of ' + sourceFiles + ' failed with error code ' + code));
+          }
+          else
+          {
+            self.emit('complete', 'Compilation of ' + sourceFiles + ' successful!');
+            callback(null, sourceFiles)
+          }
+        })
+        .on('exit', function (code, signal) 
+        {
+            if (code !== 0) {
+              //self.emit('failed', 'Compilation of ' + sourceFiles + ' failed with error code ' + code);
+              //callback(new Error('Compilation of ' + sourceFiles + ' failed with error code ' + code));
+            }
+            else
+            {
+              // close is fired right after this
+              //self.emit('complete', 'Exit Compilation of ' + sourceFiles + ' successful!');
+              //callback(null, sourceFiles)
+            }
+        })
+        .on('error', function (err) 
+        {
+          logger.log('Compiler error, killing the process.');
+          self.emit('failed', 'Compilation of ' + sourceFiles + ' failed on error event ' + err.message);
+          compilationProcess.stdin.pause();
+          compilationProcess.kill();
+          // Killing it should call either exit or close? We never checked for these before but seems like a good idea.
+          //callback(null, 'Compilation of ' + sourceFiles + ' failed on error event ' + err.message);
+        })
+       .stderr.on('data', function (data) 
+       {
+         self.emit('stderr', data.toString());
+       });
+       compilationProcess.stdout.on('data', function (data) 
+       {
+          self.emit('stdout', data.toString());
+       });
+    }
+  
   this.compile = function(sourceFilePath, callback) {
     var cppRE = /(.*\.cpp)|(.*\.cxx)/;
     var javaRE = /.*\.java/;
 
     var language = undefined;
     // Validate arguments before going further
-    if (!callback || typeof(callback) != "function" /*|| callback.getClass() != '[object Function]' TODO Doesn't work find another way*/) {
+    if (!callback || typeof(callback) != "function") {
       console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
       self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
     }
@@ -41,67 +112,66 @@ function BotBattleCompiler() {
       return;
     }
     
+    var compiledFilePath = undefined;
+    var compilationProcess = undefined;
     //TODO: This is how we did it before but isn't it possible that it compiles before we registered the listener?
     //          is there built in protection for this?   // seems this could be a problem.. just register listener
     //    first by swapping the switch and listeners reg.
     // Start the process.
-    var compiledFilePath = undefined;
-    var compilationProcess = undefined;
     switch(language) {
+      // need to fix and change this for c++
       case 'cpp':
         compiledFilePath = sourceFilePath+'.out';
         compilationProcess = spawn('g++', [sourceFilePath, '-o'+compiledFilePath]); 
         break;
       case 'java':
         compiledFilePath = sourceFilePath.slice(0, -5) + '.class';
-        compilationProcess = spawn('javac', [sourceFilePath])
+        compilationProcess = spawn('javac', [sourceFilePath + item]);
+        compilationProcess
+        .on('close', function (code, signal) 
+            {
+              if (code !== 0) {
+                self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
+                callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
+              }
+              else
+              {
+                self.emit('complete', 'Compilation of ' + sourceFilePath + ' successful!');
+                callback(null, compiledFilePath)
+              }
+            })
+            .on('exit', function (code, signal) 
+            {
+                if (code !== 0) {
+                  //self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
+                  //callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
+                }
+                else
+                {
+                  // close is fired right after this
+                  //self.emit('complete', 'Exit Compilation of ' + sourceFilePath + ' successful!');
+                  //callback(null, compiledFilePath)
+                }
+            })
+            .on('error', function (err) 
+            {
+              logger.log('Compiler error, killing the process.');
+              self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed on error event ' + err.message);
+              compilationProcess.stdin.pause();
+              compilationProcess.kill();
+              // Killing it should call either exit or close? We never checked for these before but seems like a good idea.
+              //callback(null, 'Compilation of ' + sourceFilePath + ' failed on error event ' + err.message);
+            })
+           .stderr.on('data', function (data) 
+           {
+             self.emit('stderr', data.toString());
+           });
+           compilationProcess.stdout.on('data', function (data) 
+           {
+              self.emit('stdout', data.toString());
+           });
         break;
-    }
-    
-    // Register the listeners
-    compilationProcess
-      .on('close', function (code, signal) 
-      {
-        if (code !== 0) {
-          self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-          callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
-        }
-        else
-        {
-          self.emit('complete', 'Compilation of ' + sourceFilePath + ' successful!');
-          callback(null, compiledFilePath)
-        }
-      })
-      .on('exit', function (code, signal) 
-      {
-          if (code !== 0) {
-            //self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-            //callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
-          }
-          else
-          {
-            // close is fired right after this
-            //self.emit('complete', 'Exit Compilation of ' + sourceFilePath + ' successful!');
-            //callback(null, compiledFilePath)
-          }
-      })
-      .on('error', function (err) 
-      {
-        logger.log('Compiler error, killing the process.');
-        self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed on error event ' + err.message);
-        compilationProcess.stdin.pause();
-        compilationProcess.kill();
-        // Killing it should call either exit or close? We never checked for these before but seems like a good idea.
-        //callback(null, 'Compilation of ' + sourceFilePath + ' failed on error event ' + err.message);
-      })
-     .stderr.on('data', function (data) 
-     {
-       self.emit('stderr', data.toString());
-     });
-     compilationProcess.stdout.on('data', function (data) 
-     {
-        self.emit('stdout', data.toString());
-     });
+    }   
   }
 }
 

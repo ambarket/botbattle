@@ -9,10 +9,11 @@
 function FileManager(botBattleDatabase) {
     // Private variables
     var fse = require('fs-extra');
+    var fs = require('fs-extra');
     var self = this;
 
     
-    // Only allow initFreshLocalStorage to be run once.
+    //  Only allow initFreshLocalStorage to be run once.
     //  Still need to make FileManager a singleton for this to really work
     var localStorageInitialized = false;
     var database = botBattleDatabase;
@@ -84,7 +85,7 @@ function FileManager(botBattleDatabase) {
     this.deleteInitConfigTmp = function(callback) {
       removeFileOrFolder(paths.init_config_tmp, callback);
     }
- 
+    /*
     this.createDirectoryForGameModule = function(gameName, callback) {
       var path = require('path');
       var newDirectoryPath = path.resolve(paths.local_storage.game_modules, gameName);
@@ -92,6 +93,7 @@ function FileManager(botBattleDatabase) {
         callback(err, newDirectoryPath);
       });
     }
+    */
     
     this.createDirectoryForPrivateTournament = function(tournamentName, callback) {
       var path = require('path');
@@ -230,6 +232,11 @@ function FileManager(botBattleDatabase) {
       });
     }
     
+    //copies directory, even if it has subdirectories or files
+    this.copyFileOrFolder = function(srcPath, destPath, callback) {
+      fse.copy(srcPath, destPath, callback);
+    }
+    
     this.moveFile = function(srcPath, destPath, callback) {
       //logger.log(srcPath, destPath);
       fse.move(srcPath, destPath, {'clobber':true}, callback);
@@ -280,6 +287,11 @@ function FileManager(botBattleDatabase) {
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, gameId);
       removeFileOrFolder(directoryPath, callback);
+    }
+    
+    this.getfolderContentList = function(folder){
+      var folderContentList = fse.readdirSync(folder);
+      return folderContentList
     }
     
     /* Likely not needed anymore.

@@ -252,6 +252,21 @@ function InitialConfigurationApp(initConfigAppServer) {
   }
 
   function initGameModuleTask1_CreateDirectoryFromGameName(tmpData, callback) {
+    var path = require('path');
+    var pathToDirectory = path.resolve(paths.local_storage.game_modules, tmpData.gameName);
+    fileManager.copyFileOrFolder(paths.gameEnvironment, pathToDirectory, function(err) {
+          if (err) {
+            err.message += "&nbsp&nbsp Error creating directory for game module";
+            callback(err);
+          } else {
+            self.emit('progress_update', 64);
+            self.emit('status_update', '&nbsp&nbsp Directory for game module created at ' + pathToDirectory);
+            
+            tmpData.newDirectoryPath = pathToDirectory;
+            callback(null, tmpData);
+          }
+    });
+    /*
     fileManager.createDirectoryForGameModule(tmpData.gameName, function(err, pathToDirectory) {
       if (err) {
         err.message += "&nbsp&nbsp Error creating directory for game module";
@@ -264,11 +279,12 @@ function InitialConfigurationApp(initConfigAppServer) {
         callback(null, tmpData);
       }
     });
+    */
   }
 
   function initGameModuleTask2_MoveGameRulesAndSourceIntoNewDirectory(tmpData, initGameModuleTask2Callback) {
     var path = require('path');
-    var newRulesFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameRulesFile.name);
+    var newRulesFilePath = path.resolve(tmpData.newDirectoryPath, "Rules", tmpData.gameRulesFile.name);
     var newSourceFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameSourceFile.name);
     fileManager.moveFile(tmpData.gameRulesFile.path, newRulesFilePath, function(err) {
       if (err) {
@@ -306,14 +322,14 @@ function InitialConfigurationApp(initConfigAppServer) {
           logger.log('compilation complete:', message);
         });
 
-    compiler.compile(tmpData.newSourceFilePath,
+    compiler.compileDirectoryJava(tmpData.newDirectoryPath,
         function(err, compiledFilePath) {
           if (err) {
-            err.message += "&nbsp&nbsp Error compiling game module source file";
+            err.message += "&nbsp&nbsp Error compiling "+ compiledFilePath +" source file";
             callback(err);
           } else {
             self.emit('progress_update', 72);
-            self.emit('status_update', '&nbsp&nbsp Successfully compiled game module source file!');
+            self.emit('status_update', '&nbsp&nbsp Successfully compiled '+ compiledFilePath +' source file!');
             tmpData.compiledFilePath = compiledFilePath;
             callback(err, tmpData);
           }

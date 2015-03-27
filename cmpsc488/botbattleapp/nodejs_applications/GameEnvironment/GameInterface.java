@@ -1,11 +1,11 @@
-package game.manger;
 
 
 /**
  * @author Randall Hudson
  *
  */
-public interface GameInterface {	
+public interface GameInterface {
+		
 	String getBoard();
 	void updateBoard(String move);
 	boolean isValidMove(String move);
@@ -13,4 +13,5 @@ public interface GameInterface {
 	boolean isGameWon();
 	String getHTMLForBoard();
 	int getBotTimeoutInMilliseconds();
+	
 }
