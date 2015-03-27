@@ -19,25 +19,29 @@ public class GameManager {
   // TODO write unit tests for game manager
   // TODO look into integration testing
   // TODO decide if we need gameInterface, if so update it.
+  // TODO clean up players construcotrs, could combine most of that work.
 
   /**
    * @param args
    * @throws IOException
+   * @throws InterruptedException 
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, InterruptedException {
 
     //TournamentTest();
     humanPlayersTest();
   }
   
-  public static void humanPlayersTest() throws IOException {
+  public static void humanPlayersTest() throws IOException, InterruptedException {
     System.out.flush();
     Player p1 = new Player(path);
     System.out.flush();
     Player p2 = new Player(path, "rvh5220");
     
     GameInstance game = new GameInstance(p1, p2);
-    game.run();
+    Thread runningGame = new Thread(game);
+    runningGame.start();
+    runningGame.join();
   }
 
   // This test is for a tic tac toe tournament
