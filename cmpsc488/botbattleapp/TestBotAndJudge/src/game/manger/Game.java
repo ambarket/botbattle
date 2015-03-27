@@ -2,6 +2,12 @@ package game.manger;
 
 import java.util.List;
 
+/*
+ * If you want to test a different game then just copy and paste its class here.
+ * E.g. if you want to test the save the island game copy everything in SaveTheIsland.java
+ *  and paste it here. Then just rename the class the Game.
+ */
+
 //TIC-TAC-TOE 
 public class Game implements GameInterface {
 
