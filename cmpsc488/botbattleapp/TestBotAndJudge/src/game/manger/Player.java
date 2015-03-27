@@ -83,7 +83,6 @@ public class Player implements Runnable {
         readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
       } else if (humanOrBot == HUMAN) {
         run();//Humans dont have a time out so wait forever.
-        System.out.println("after stuff: " + move);
       }
       
 
@@ -91,20 +90,21 @@ public class Player implements Runnable {
         return move;
       } else {
         botProcess.destroyForcibly();
-        System.out.println("Process ended");
         return "Bot Timed Out";
       }
 
     } catch (IOException e) {
+      botProcess.destroyForcibly();
       return "Bot Threw Exception";
     } catch (InterruptedException e) {
+      botProcess.destroyForcibly();
       return null;
     }
   }
   
   //This is the bots stdin, we write to it
   public OutputStream getOutputStream() {
-    if (botProcess != null)
+    if (botProcess != null && botProcess.isAlive())
       return botProcess.getOutputStream();
     else
       return null;
@@ -112,7 +112,7 @@ public class Player implements Runnable {
 
   //This is the bots stdout, we read from it
   public InputStream getInputStream() {
-    if (botProcess != null)
+    if (botProcess != null && botProcess.isAlive())
       return botProcess.getInputStream();
     else
       return null;
