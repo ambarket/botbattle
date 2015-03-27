@@ -242,6 +242,8 @@ function registerTestArenaRoutes(server) {
       // create a new object and folder with the id
       var id = require('shortid').generate();
       
+      // create a new game instance here
+      
       var gameExpireDateTime = new Date().addHours(2);
       //var gameExpireDateTime = new Date().addSeconds(15);
         
@@ -299,10 +301,6 @@ function registerTestArenaRoutes(server) {
    */
   server.addDynamicRoute('get', '/killGame', function(req, res) {
     var id = req.query.id;
-    // Kill any Game Manager instances associated with this browser tab
-    // Send a response back that the client should use to reset its canvas 
-    //    and other html and javascript stuff so that the user can request
-    //    playNewGame again and it will work.
     console.log("Killing ", id);
     //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
     //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
@@ -372,6 +370,17 @@ function registerTestArenaRoutes(server) {
               },
               onFileUploadComplete : function(file, req, res) {
                                       console.log(file.fieldname + ' uploaded to  ' + file.path);
+                                      // compile bot here
+                                      var compiler = new (require(paths.custom_modules.BotBattleCompiler));
+                                      compiler.compile(file.path,
+                                          function(err, compiledFilePath) {
+                                            if (err) {
+                                              err.message += "Error compiling "+ compiledFilePath +" source file";
+                                              console.log(err.message);
+                                            } else{
+                                              console.log("Compiled ", compiledFilePath);
+                                            }
+                                          });
               },
               onError : function(error, next) {
                           console.log(error)
