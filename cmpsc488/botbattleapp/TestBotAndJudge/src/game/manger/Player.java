@@ -76,13 +76,14 @@ public class Player implements Runnable {
       writer.write(board + "\n");
       writer.flush();
       read = false;
-
+      Thread readFromBotThread = new Thread(this);
+      readFromBotThread.start();
+      
       if (humanOrBot == BOT) {
-        Thread readFromBotThread = new Thread(this);
-        readFromBotThread.start();
+        
         readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
       } else if (humanOrBot == HUMAN) {
-        run();//Humans dont have a time out so wait forever.
+        readFromBotThread.join();//Humans dont have a time out so wait forever.
       }
       
 
