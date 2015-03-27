@@ -2,7 +2,7 @@ package game.manger;
 
 import java.util.List;
 
-
+//TIC-TAC-TOE 
 public class Game {
 
   public static String getStartingBoard() {
@@ -10,7 +10,7 @@ public class Game {
   }
 
 
-  public static String updateBoard(String move, String board) {
+  public static String updateBoard(String move, String board, int player){
     // 0123456
     // 1, 1, X
     // Move will be of the form: row, col, value
