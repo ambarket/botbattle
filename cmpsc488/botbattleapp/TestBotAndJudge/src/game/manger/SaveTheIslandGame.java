@@ -3,7 +3,7 @@ package game.manger;
 import java.util.Random;
 
 public class SaveTheIslandGame {
-  public static String getStartingBoard() {
+  public String getStartingBoard() {
     Random rng = new Random();
     String board = "";
 
@@ -23,8 +23,7 @@ public class SaveTheIslandGame {
     return board;
   }
 
-  // TODO the only thing else that is needed is the shuffle command.
-  public static String updateBoard(String move, String board, int player) {
+  public String updateBoard(String move, String board, int player) {
     String updatedBoard = "";
     String[] peices = move.split(";");
     int value = Integer.parseInt(peices[1].substring(0, 1));
@@ -39,7 +38,7 @@ public class SaveTheIslandGame {
     return updatedBoard;
   }
 
-  public static boolean isGameOver(String board) {
+  public boolean isGameOver(String board) {
     // This game doesnt have ties so winning is the only way it will end.
     if (isGameWon(board)) {
       return true;
@@ -48,7 +47,7 @@ public class SaveTheIslandGame {
     return false;
   }
 
-  public static boolean isGameWon(String board) {
+  public boolean isGameWon(String board) {
     String island = Board.getIsland(board);
 
     if (island.indexOf("1") != -1 && island.indexOf("2") != -1) {
@@ -59,7 +58,7 @@ public class SaveTheIslandGame {
   }
 
   // TODO take another look at this, is attack the same as move forward?
-  public static boolean isValidMove(String move, String board, int player) {
+  public boolean isValidMove(String move, String board, int player) {
     int typeOfMove = 0, tilesForMove = 1;
     String[] peices = move.split(";");
 
@@ -84,7 +83,7 @@ public class SaveTheIslandGame {
   }
 
 
-  public static String getHTMLForBoard(String board) {
+  public String getHTMLForBoard(String board) {
     // TODO implement getHTML for save the island
     return null;
   }
@@ -164,6 +163,7 @@ public class SaveTheIslandGame {
   }
 
   // TODO: remove new lines and tabs once this gets approved
+  //TODO this seems like its mostly done except for the animation stuff and testing
   public static String getJSONstringFromGameResults(GameResults results) {
     Object[] p1Moves = results.getPlayer1Moves().toArray();
     Object[] p2Moves = results.getPlayer2Moves().toArray();
