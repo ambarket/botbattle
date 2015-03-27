@@ -45,7 +45,7 @@ public class Game implements GameInterface {
       row = Integer.parseInt(move.substring(0, 1));
       col = Integer.parseInt(move.substring(3, 4));
       character = move.substring(6);
-    } catch (NumberFormatException e) {
+    } catch (Exception e) {
       System.out.println("Invalid move: " + move);
       return false;
     }
