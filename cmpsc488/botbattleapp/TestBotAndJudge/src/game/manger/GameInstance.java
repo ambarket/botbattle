@@ -30,7 +30,12 @@ public class GameInstance implements Runnable {
     while (!game.isGameOver(board)) {
 
       int player = (i % 2) + 1;
-
+      
+      //TODO: this line is here to make testing with arena and human players easier.
+      //      The human player should be player1
+      System.out.println("Wait for player ones move");
+      System.out.flush();
+      
       if (player == 1) {
         move = player1.getMove(board);
         results.addMove(move, player);
