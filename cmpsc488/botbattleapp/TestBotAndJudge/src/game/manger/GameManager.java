@@ -1,7 +1,5 @@
 package game.manger;
 
-import game.manger.SaveTheIslandGame.Board;
-
 import java.io.IOException;
 
 /**
@@ -10,7 +8,6 @@ import java.io.IOException;
  */
 public class GameManager {
 	
-	//TODO move toJSONString from game results to game class
 	//TODO create simple save the island bot
 	//TODO test save the island game with simple bot
 	//TODO write unit tests for rounds
@@ -35,6 +32,7 @@ public class GameManager {
 //	  System.out.println(s);
 	}
 	
+	//This test is for a tic tac toe tournament
 	public static void TournamentTest() {
 		String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\TestBotAndJudge\\bin";
 		CompetitorData c = new CompetitorData();
