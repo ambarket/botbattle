@@ -14,24 +14,23 @@ import java.io.OutputStreamWriter;
  *
  */
 public class Player implements Runnable {
+  public static final boolean HUMAN = false;
+  public static final boolean BOT = true;
+  
   protected String botFilePath;
   protected Process botProcess;
   protected String usersName;
   protected BufferedReader reader;
   protected BufferedWriter writer;
+  protected boolean humanOrBot;
   protected volatile boolean read;
   protected volatile String move;
 
-
-  // TODO: change thrown exception to try catch block or
-  // maybe add try catch block in gameManager
-  public Player(String botFilePath, String usersName) throws IOException {
-    this.botFilePath = botFilePath;
-    this.usersName = usersName;
-
-    ProcessBuilder builder = new ProcessBuilder("java", usersName); // TODO do somthing with file
-                                                                    // path here?
-
+  //This constructor is for human players
+  public Player(String botFilePath) throws IOException {
+    humanOrBot = HUMAN;
+    
+    ProcessBuilder builder = new ProcessBuilder("java", "HumanPlayer");
     builder.directory(new File(botFilePath));
     botProcess = builder.start();
 
@@ -40,6 +39,28 @@ public class Player implements Runnable {
 
     reader = new BufferedReader(new InputStreamReader(stdout));
     writer = new BufferedWriter(new OutputStreamWriter(stdin));
+    
+    read = false;
+    move = null;
+  }
+
+  // TODO: change thrown exception to try catch block or maybe add try catch block in gameManager
+  public Player(String botFilePath, String usersName) throws IOException {
+    this.botFilePath = botFilePath;
+    this.usersName = usersName;
+
+    ProcessBuilder builder = new ProcessBuilder("java", usersName); // TODO do somthing with file
+                                                                    // path here?
+    builder.directory(new File(botFilePath));
+    botProcess = builder.start();
+
+    OutputStream stdin = botProcess.getOutputStream();
+    InputStream stdout = botProcess.getInputStream();
+
+    reader = new BufferedReader(new InputStreamReader(stdout));
+    writer = new BufferedWriter(new OutputStreamWriter(stdin));
+    
+    humanOrBot = BOT;
     read = false;
     move = null;
   }
@@ -47,14 +68,24 @@ public class Player implements Runnable {
 
   public String getMove(String board) {
 
+    if(!botProcess.isAlive()){
+      return "Bot exited on its own.";
+    }
+    
     try {
       writer.write(board + "\n");
       writer.flush();
       read = false;
 
-      Thread readFromBotThread = new Thread(this);
-      readFromBotThread.start();
-      readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
+      if (humanOrBot == BOT) {
+        Thread readFromBotThread = new Thread(this);
+        readFromBotThread.start();
+        readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
+      } else if (humanOrBot == HUMAN) {
+        run();//Humans dont have a time out so wait forever.
+        System.out.println("after stuff: " + move);
+      }
+      
 
       if (read == true) {
         return move;
