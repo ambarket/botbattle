@@ -1,85 +1,54 @@
 package game.manger;
 
-public class GameManager implements Runnable {
+import game.manger.SaveTheIslandGame.Board;
 
-	private Player player1;
-	private Player player2;
-	private GameResults results;	
+import java.io.IOException;
+
+/**
+ * @author Randall Hudson
+ *
+ */
+public class GameManager {
+	
+	//TODO move toJSONString from game results to game class
+	//TODO create simple save the island bot
+	//TODO test save the island game with simple bot
+	//TODO write unit tests for rounds
+	//TODO write unit tests for tournaments
+	//TODO write unit tests for Competitor Data
+	//TODO write unit tests for game manager
+	//TODO look into integration testing
+	//TODO decide if we need gameInterface, if so update it. 
 	
 	/**
-	 * @param player1
-	 * @param player2
+	 * @param args
+	 * @throws IOException 
 	 */
-	public GameManager(Player player1, Player player2) {
-		this.player1 = player1;
-		this.player2 = player2;
-		results = new GameResults();		
-	}
+	public static void main(String[] args) throws IOException {
 
-	@Override
-	public void run() {
-		int i = 0;
-		String move = "";
-		String board = Game.getStartingBoard();
-		results.addBoard(Game.getStartingBoard());
-		while(!Game.isGameOver(board)){
-			
-			if(i % 2 == 0){
-				move = player1.getMove(board);
-				results.addMove(move, 1);
-			}				
-			else{
-				move = player2.getMove(board);
-				results.addMove(move, 2);
-			}				
-
-			if(Game.isValidMove(move, board, (i%2) + 1)){
-				board = Game.updateBoard(move, board);
-				results.addBoard(board);
-				
-				if(Game.isGameWon(board)){
-					System.out.println("Game Won by player" + ((i%2) + 1));
-					results.setWinner((i%2) + 1);
-					break;
-				}
-			}				
-			else{
-				results.setWinner((i%2) + 1);
-				System.out.println("Invalid move made");
-				break;
-			}
-			
-			i++;
-		}
+	TournamentTest();
 		
-		System.out.println("Game over");
-		System.out.println(this.getJSONStringOfResults());
+//	  String s = SaveTheIslandGame.animatedEventJSON("initialSetup", "None", -1);
+//	  System.out.println(s);
+//	  String b = SaveTheIslandGame.getStartingBoard();
+//	  s = SaveTheIslandGame.gameDataJSON(Board.getPlayersTiles(1, b), Board.getPlayersTiles(2, b), "Start");
+//	  System.out.println(s);
 	}
 	
-	public Player getWinner() {
-		if(results.getWinner() == 1) {
-			return player1;
-		} 
-		else if ( results.getWinner() == 2 ) {
-			return player2;
+	public static void TournamentTest() {
+		String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\TestBotAndJudge\\bin";
+		CompetitorData c = new CompetitorData();
+		c.addUser("rvh5220", path);
+		c.addUser("rvh5221", path);
+		c.addUser("rvh5222", path);
+		c.addUser("rvh5223", path);
+		
+		Tournament t = new Tournament(null, null, c);
+		try {
+			t.runTournament();
+		} catch (IOException e) { //TODO this should probablly be caught lower down
+			e.printStackTrace();
 		}
-	
-		return null;
 	}
-	
-	public String getHTMLForEntireGame(){ //TODO implement getHTML function in gameManager
-		return null;
-	}
-
-	public String getJSONStringOfResults() {
-		return Game.getJSONstringFromGameResults(results);
-	}
-
-	@Override
-	public String toString() {
-		return "GameManager [\n\tplayer1=" + player1 + ",\n\tplayer2=" + player2
-				+ ",\n game=" + Game.getName() + ",\n results=" + results + "]";
-	}
-	
 	
 }
