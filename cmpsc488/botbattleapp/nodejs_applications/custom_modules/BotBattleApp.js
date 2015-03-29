@@ -377,6 +377,7 @@ function registerTestArenaRoutes(server) {
                                             if (err) {
                                               err.message += "Error compiling "+ compiledFilePath +" source file";
                                               console.log(err.message);
+                                              //res.send(err.message); need to let the client know it failed
                                             } else{
                                               console.log("Compiled ", compiledFilePath);
                                             }
