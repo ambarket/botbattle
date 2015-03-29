@@ -167,7 +167,6 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
             callback(null);
           }
         });
-
       });
     }
     
@@ -241,8 +240,8 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     
     /**
      * Queries for specified gameName into the GameModules collection of the DB.
-     * @param {String} gameName  The name of the game module to query for
-     * @param {Function} callback Function to call after insertion. Will be passed any error that occurs as first argument. 
+     * @param {String} gameName:  The name of the game module to query for
+     * @param {Function} callback: Function to call after insertion. Will be passed any error that occurs as first argument. 
      * Second argument will be the document found to match the key. If multiple documents were found an error will be returned
      * and the second argument will be null. If no documents were found, both the first and second arguments will be null.
      * @method queryGameModule
@@ -252,6 +251,31 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       //TODO Check if its a valid userObject and make keyFIeld a static property in the ObjectFactory
       //    so that you don't need an instance to find out what it is.
       queryForSingletonDocumentByKeyFieldInCollection(gameName, objectFactory.GameModule.keyFieldName, 'GameModules', callback);
+    }
+    
+    /**
+     * Queries for a list of values from an attribute (field) from a specified collection
+     * @param {String} collection: The name of the collection to query
+     * @param {String} field: The name of the field to query values of in the collection
+     * @param {Function} callback: callback(err, listOfFieldValues)
+     * @method queryCollectionAttributeList
+     * @private
+     */
+    var queryCollectionAttributeList = function(collection, field, callback) {
+      // get all of the objects in the collection then loop through it and create a list of values of the field
+      queryForAllDocumentsInCollection(collectionName, function(err, collectionItems){
+        if(err){
+          logger.log("database","Error in queryCollectionAttributeList " + err);
+          callback(err,null);
+        } else {      
+          var listOfFieldValues = [];
+          for(var items in collectionItems){
+            listOfFieldValues.push(collectionItems[items].field);
+          }
+          logger.log("database", "queryCollectionAttributeList completed");
+          callback(null,listOfFieldValues);
+        }
+      }
     }
     
     /**
