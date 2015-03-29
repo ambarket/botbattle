@@ -6,17 +6,18 @@ import game.manger.SaveTheIslandGame.Board;
 import org.junit.Test;
 
 public class BoardTests {
-
+  static SaveTheIslandGame stiGame = new SaveTheIslandGame();
+  
 	@Test
 	public void testGetPlayersTilesReturnsCorrectLengthString() {
-		String board = SaveTheIslandGame.getStartingBoard();
+		String board = stiGame.getStartingBoard();
 		String tiles = Board.getPlayersTiles(1, board);
 		assertEquals(5, tiles.length());
 	}
 	
 	@Test
 	public void testGetPlayersTilesReturnsStringOfNumbers() {
-		String board = SaveTheIslandGame.getStartingBoard();
+		String board = stiGame.getStartingBoard();
 		String tiles = Board.getPlayersTiles(1, board);
 		Integer.parseInt(tiles);
 		//If no exception gets thrown we are good.
@@ -25,7 +26,7 @@ public class BoardTests {
 	
 	@Test
 	public void testGetPlayersTilesReturnsStringOfCorrectNumbers() {
-		String board = SaveTheIslandGame.getStartingBoard();
+		String board = stiGame.getStartingBoard();
 		String tiles = Board.getPlayersTiles(1, board);
 		
 		for(int i = 0; i < 5; i++) {
