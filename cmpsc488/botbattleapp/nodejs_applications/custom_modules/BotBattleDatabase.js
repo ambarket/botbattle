@@ -271,9 +271,9 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @method queryCollectionAttributeList
      * @private
      */
-    function queryCollectionAttributeList(collection, field, callback) {
+    function queryCollectionAttributeList(collectionName, field, callback) {
       // get all of the objects in the collection then loop through it and create a list of values of the field
-      self.queryForAllDocumentsInCollection(collectionName, function(err, collectionItems){
+      queryForAllDocumentsInCollection(collectionName, function(err, collectionItems){
         if(err){
           //logger.log("database",new Error("Error in queryCollectionAttributeList " + err));
           callback(err,null);
