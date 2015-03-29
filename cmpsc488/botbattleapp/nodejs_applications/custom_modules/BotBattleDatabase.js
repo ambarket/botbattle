@@ -260,7 +260,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @public
      */
     this.queryListOfGameNames = function(callback) {
-      queryCollectionAttributeList("GameModules", objectFactory.GameModule.keyFieldName, callback)
+      queryCollectionAttributeList("GameModules", objectFactory.GameModule.keyFieldName, callback);
     }
     
     /**
@@ -271,13 +271,14 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      * @method queryCollectionAttributeList
      * @private
      */
-    var queryCollectionAttributeList = function(collection, field, callback) {
+    function queryCollectionAttributeList(collection, field, callback) {
       // get all of the objects in the collection then loop through it and create a list of values of the field
-      queryForAllDocumentsInCollection(collectionName, function(err, collectionItems){
+      self.queryForAllDocumentsInCollection(collectionName, function(err, collectionItems){
         if(err){
-          logger.log("database",new Error("Error in queryCollectionAttributeList " + err);
+          //logger.log("database",new Error("Error in queryCollectionAttributeList " + err));
           callback(err,null);
-        } else {      
+        } 
+        else {      
           var listOfFieldValues = [];
           for(var items in collectionItems){
             listOfFieldValues.push(collectionItems[items].field);
@@ -285,7 +286,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           logger.log("database", "queryCollectionAttributeList completed");
           callback(null,listOfFieldValues);
         }
-      }
+      });
     }
     
     /**
