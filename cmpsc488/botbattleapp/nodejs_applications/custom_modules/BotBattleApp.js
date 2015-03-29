@@ -18,7 +18,7 @@ function BotBattleApp(server, database) {
       return this;
     }
 	
-	registerTestArenaRoutes(server);
+	registerTestArenaRoutes(server, database);
 	registerLoginRoutes(server, database);
 }
 
@@ -196,12 +196,15 @@ function copyLocalsAndDeleteMessage(session) {
   return retval;
 }
 
-function registerTestArenaRoutes(server) {
+function registerTestArenaRoutes(server, database) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
   //var fileManager = new (require(paths.custom_modules.FileManager));
    
   server.addDynamicRoute('get', '/', function(req, res) {
+    // TODO: Pass along a list of game modules so they can pick and then respond with when they make a new game
+    //       this will assist in spawning and such later and support multiple games in the future.
+    //       client will need a drop-down menu that can default to nothing if just 1 game exists.
   	var locals = copyLocalsAndDeleteMessage(req.session);
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
@@ -230,44 +233,58 @@ function registerTestArenaRoutes(server) {
       }
       // create a new object and folder with the id
       var id = require('shortid').generate();
-      
-      // create a new game instance here
-      
       var gameExpireDateTime = new Date().addHours(2);
-      //var gameExpireDateTime = new Date().addSeconds(15);
-        
+      //var gameExpireDateTime = new Date().addSeconds(15);      
+      
       var newInstance = { 
         'gameProcess' : null,
         'state' : 'stopped',
-        'gameExpireDateTime' : gameExpireDateTime
+        'gameExpireDateTime' : gameExpireDateTime,
+        'gameModule' : null
       }; 
       
-      testArenaInstances[id] = newInstance;
-        
-      fileManager.createGameInstanceDirectory(id, function(err, result){
+      database.queryListOfGameNames(function(err, nameList){
         if(err){
-          console.log(err);
-          // TODO: actually send an appropriate HTTP error code/message
-          res.send(err);
+          console.log("There was an error getting the Game name list ", err.message);
         }
-        fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
-          if(err){
-            console.log(err);
-            // TODO: actually send an appropriate HTTP error code/message
-            res.send(err);
-          }
-          fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
+        else{
+          console.log(nameList);
+          // The assumption is there will only be one game, but has support for multiple games in the future
+          database.queryGameModule(nameList[0], function(err, gameModule){
             if(err){
-              console.log(err);
-              // TODO: actually send an appropriate HTTP error code/message
-              res.send(err);
+              console.log('Could not get game module in BotBattleApp ' + err.message)
             }
-            console.log("results", result);
-            console.log("Current testArenaInstances\n",testArenaInstances);
-            res.send(id);
+            else{
+              newInstance.gameModule = gameModule;
+              testArenaInstances[id] = newInstance;
+              fileManager.createGameInstanceDirectory(id, function(err, result){
+                if(err){
+                  console.log(err);
+                  // TODO: actually send an appropriate HTTP error code/message
+                  res.send(err);
+                }
+                fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
+                  if(err){
+                    console.log(err);
+                    // TODO: actually send an appropriate HTTP error code/message
+                    res.send(err);
+                  }
+                  fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
+                    if(err){
+                      console.log(err);
+                      // TODO: actually send an appropriate HTTP error code/message
+                      res.send(err);
+                    }
+                    console.log("results", result);
+                    console.log("Current testArenaInstances\n",testArenaInstances);
+                    res.send(id);
+                  })
+                })
+              }); 
+            }
           })
-        })
-      })      
+        }
+      })     
     }); 
   
   /**
@@ -420,12 +437,55 @@ function registerTestArenaRoutes(server) {
             }));
 
   server.addDynamicRoute('post', '/uploadBot',
-        function(req, res) {
-          var id = req.body.tabId;
-          var path = require('path');
-          var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
+      function(req, res) {
+       /* var path = require('path');
+        var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
+        var id = req.body.tabId;
+        var spawn = require('child_process').spawn;
+        if (testArenaInstances[id]){
+            if (!testArenaInstances[id].gameProcess){
+                if(testArenaInstances[id].gameModule.classFilePath){
+                    testArenaInstances[id].gameProcess  = spawn('java', [testArenaInstances[id].filePath.slice(8, -5)], {cwd:'uploads/'});
+                    logger.log("Spawned new game. PID: " + testArenaInstances[req.body.tabId].gameProcess.pid + "\n");
+                    
+                    testArenaInstances[id].gameProcess.stdout.on('data', function(data)
+                    {
+                        testArenaInstances[id].sock.emit('stdout', {'output': data.toString()});
+                    });
+                    
+                    testArenaInstances[id].gameProcess.stderr.on('data', function(data)
+                    {
+                        testArenaInstances[id].sock.emit('stderr', {'output': data.toString()});
+                    });
+                    
+                    testArenaInstances[id].sock.emit('status', {'output': "Program PID: " + testArenaInstances[id].gameProcess.pid});
+                    
+                    testArenaInstances[id].gameProcess.on('close', function(code) 
+                    {
+                       testArenaInstances[id].sock.emit('status', {'output': 'program closed with code ' + code});
+                    });
+                    testArenaInstances[id].gameProcess.on('exit', function(code) 
+                    {
+                       testArenaInstances[id].sock.emit('status', {'output': 'program exited with code ' + code});
+                       logger.log("Exited :" + testArenaInstances[id].gameProcess.pid);
+                    });
+                }else{
+                    logger.log("Can't run program.  Filepath is null.\n");
+                }
+            }else{
+                logger.log("already running");
+            }
+        }else{
+          logger.log("invalid id");
+        }
+        res.end(); 
+          /*var path = require('path');
+          var folderContent = fileManager.getfolderContentList(paths.local_storage.game_modules);
+          var folderName = folderContent[0];
+          console.log(folderName);
+          var directoryPath = path.resolve(paths.local_storage.game_modules, folderName, 'Game.class'); // need to get the game folder name
           var compiler = new (require(paths.custom_modules.BotBattleCompiler));
-          /*compiler.compile(file.path,
+          compiler.compile(directoryPath,
               function(err, compiledFilePath) {
                 if (err) {
                   err.message += "Error compiling "+ compiledFilePath +" source file";
@@ -434,9 +494,8 @@ function registerTestArenaRoutes(server) {
                 } else{
                   console.log("Compiled ", compiledFilePath);
                 }
-              });*/
-          res.end();         
-        });
+              });*/  //  Duhh game is compiled... we need to launch it now....
+  });
   
   /**
    * Requested by the "Send Move" Button on the test arena page
