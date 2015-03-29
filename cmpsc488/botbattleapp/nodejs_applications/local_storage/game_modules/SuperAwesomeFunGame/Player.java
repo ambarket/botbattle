@@ -1,5 +1,4 @@
 
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,112 +13,134 @@ import java.io.OutputStreamWriter;
  *
  */
 public class Player implements Runnable {
-	protected String botFilePath;
-	protected Process botProcess;
-	protected String usersName;
-	protected BufferedReader reader;
-	protected BufferedWriter writer;
-	protected volatile boolean read;
-	protected volatile String move;
-	
-	
-	//TODO: change thrown exception to try catch block or
-	//		maybe add try catch block in gameManager
-	/**
-	 * 
-	 * @param botFilePath
-	 * @param usersName
-	 * @throws IOException
-	 */
-	public Player(String botFilePath, String usersName) throws IOException {
-		this.botFilePath = botFilePath;
-		this.usersName = usersName;
-		
-		ProcessBuilder builder = new ProcessBuilder("java", usersName); //TODO do somthing with file path here?
+  public static final boolean HUMAN = false;
+  public static final boolean BOT = true;
+  
+  protected String botFilePath;
+  protected Process botProcess;
+  protected String usersName;
+  protected BufferedReader reader;
+  protected BufferedWriter writer;
+  protected boolean humanOrBot;
+  protected volatile boolean read;
+  protected volatile String move;
 
-		builder.directory(new File(botFilePath));
-		botProcess = builder.start();
-		
-		OutputStream stdin = botProcess.getOutputStream(); 
-        InputStream stdout = botProcess.getInputStream();
+  //This constructor is for human players
+  public Player(String botFilePath) throws IOException {
+    humanOrBot = HUMAN;
+    
+    ProcessBuilder builder = new ProcessBuilder("java", "HumanPlayer");
+    builder.directory(new File(botFilePath));
+    botProcess = builder.start();
 
-        reader = new BufferedReader(new InputStreamReader(stdout));
-        writer = new BufferedWriter(new OutputStreamWriter(stdin));
-        read = false;  
-        move = null;
-	}
-	
+    OutputStream stdin = botProcess.getOutputStream();
+    InputStream stdout = botProcess.getInputStream();
 
-	public String getMove(String board){
+    reader = new BufferedReader(new InputStreamReader(stdout));
+    writer = new BufferedWriter(new OutputStreamWriter(stdin));
+    
+    read = false;
+    move = null;
+  }
 
-		try {
-			writer.write(board + "\n");
-			writer.flush();
-			read = false;
-			
-			Thread readFromBotThread = new Thread(this);
-			readFromBotThread.start();
-			readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
+  // TODO: change thrown exception to try catch block or maybe add try catch block in gameManager
+  public Player(String botFilePath, String usersName) throws IOException {
+    this.botFilePath = botFilePath;
+    this.usersName = usersName;
 
-			if(read == true){
-				return move;
-			}
-			else{				
-				botProcess.destroyForcibly();
-				System.out.println("Process ended");
-				return "Bot Timed Out";
-			}
+    ProcessBuilder builder = new ProcessBuilder("java", usersName); // TODO do somthing with file
+                                                                    // path here?
+    builder.directory(new File(botFilePath));
+    botProcess = builder.start();
 
-		} catch (IOException e) {
-			return "Bot Threw Exception";
-		} catch (InterruptedException e) {
-			return null;
-		}
-	}
-	
-	
-	
+    OutputStream stdin = botProcess.getOutputStream();
+    InputStream stdout = botProcess.getInputStream();
 
-	//TODO: determine if these Streams are needed outside of this class
-	//		if they are not then remove these getters
-	public OutputStream getOutputStream(){
-		if(botProcess != null)
-			return botProcess.getOutputStream();
-		else
-			return null;
-	}
-	
-	public InputStream getInputStream(){
-		if(botProcess != null)
-			return botProcess.getInputStream();
-		else
-			return null;
-	}
-	
-	
-	public String getBotFilePath() {
-		return botFilePath;
-	}
+    reader = new BufferedReader(new InputStreamReader(stdout));
+    writer = new BufferedWriter(new OutputStreamWriter(stdin));
+    
+    humanOrBot = BOT;
+    read = false;
+    move = null;
+  }
 
-	public String getUsersName() {
-		return usersName;
-	}
 
-	@Override
-	public void run() {
-			try {
-				move = reader.readLine();
-			} catch (IOException e) {
-				move = "Bot Threw Exception";
-			}
-			read = true;			
-	}
+  public String getMove(String board) {
 
-	@Override
-	public String toString() {
-		return "Player [\n\t\tbotFilePath=" + botFilePath + ",\n\t\t usersName="
-				+ usersName + "]";
-	}
-	
-	
+    if(!botProcess.isAlive()){
+      return "Bot exited on its own.";
+    }
+    
+    try {
+      writer.write(board + "\n");
+      writer.flush();
+      read = false;
+      Thread readFromBotThread = new Thread(this);
+      readFromBotThread.start();
+      
+      if (humanOrBot == BOT) {
+        
+        readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
+      } else if (humanOrBot == HUMAN) {
+        readFromBotThread.join();//Humans dont have a time out so wait forever.
+      }
+      
+
+      if (read == true) {
+        return move;
+      } else {
+        botProcess.destroyForcibly();
+        return "Bot Timed Out";
+      }
+
+    } catch (IOException e) {
+      botProcess.destroyForcibly();
+      return "Bot Threw Exception";
+    } catch (InterruptedException e) {
+      botProcess.destroyForcibly();
+      return null;
+    }
+  }
+  
+  //This is the bots stdin, we write to it
+  public OutputStream getOutputStream() {
+    if (botProcess != null && botProcess.isAlive())
+      return botProcess.getOutputStream();
+    else
+      return null;
+  }
+
+  //This is the bots stdout, we read from it
+  public InputStream getInputStream() {
+    if (botProcess != null && botProcess.isAlive())
+      return botProcess.getInputStream();
+    else
+      return null;
+  }
+
+
+  public String getBotFilePath() {
+    return botFilePath;
+  }
+
+  public String getUsersName() {
+    return usersName;
+  }
+
+  @Override
+  public void run() {
+    try {
+      move = reader.readLine();
+    } catch (IOException e) {
+      move = "Bot Threw Exception";
+    }
+    read = true;
+  }
+
+  @Override
+  public String toString() {
+    return "Player [\n\t\tbotFilePath=" + botFilePath + ",\n\t\t usersName=" + usersName + "]";
+  }
+
+
 }
