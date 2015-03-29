@@ -28,7 +28,7 @@ public class GameManager {
    */
   // Have to pass the path info and such to this
   public static void main(String[] args) throws IOException, InterruptedException {
-
+	  Scanner sc = new Scanner(System.in);
 	  String input = sc.next();
 	  while(!input.equals("Quit")){
 		  System.out.println(input);
