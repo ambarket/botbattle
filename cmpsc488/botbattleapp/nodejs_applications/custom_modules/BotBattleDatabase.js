@@ -254,6 +254,16 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     }
     
     /**
+     * Queries for a list of gameNames in the GameModules collection of the DB.
+     * @param {Function} callback: (err, ListOfGameNames)
+     * @method queryListOfGameNames
+     * @public
+     */
+    this.queryListOfGameNames = function(callback) {
+      queryCollectionAttributeList("GameModules", objectFactory.GameModule.keyFieldName, callback)
+    }
+    
+    /**
      * Queries for a list of values from an attribute (field) from a specified collection
      * @param {String} collection: The name of the collection to query
      * @param {String} field: The name of the field to query values of in the collection
@@ -265,7 +275,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
       // get all of the objects in the collection then loop through it and create a list of values of the field
       queryForAllDocumentsInCollection(collectionName, function(err, collectionItems){
         if(err){
-          logger.log("database","Error in queryCollectionAttributeList " + err);
+          logger.log("database",new Error("Error in queryCollectionAttributeList " + err);
           callback(err,null);
         } else {      
           var listOfFieldValues = [];
