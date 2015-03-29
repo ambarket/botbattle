@@ -25,6 +25,7 @@ public class GameManager {
    * @throws IOException
    * @throws InterruptedException 
    */
+  // Have to pass the path info and such to this
   public static void main(String[] args) throws IOException, InterruptedException {
 
     //TournamentTest();

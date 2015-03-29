@@ -66,17 +66,6 @@ function cleanTest_Arena_tmp() {
 
 cleanTest_Arena_tmp();
 
-function verifyAllFieldsWereSubmitted(sanitizedFormData) {
-  var valid = true;
-  for (fieldName in sanitizedFormData) {
-    // Apparently the JSON parser turns undefined form submissions into the string 'undefined' so have to check for it
-    if (!sanitizedFormData[fieldName] || sanitizedFormData[fieldName] === 'undefined') {
-      valid = false;
-    }
-  }
-  return valid;
-}
-
 function registerLoginRoutes(server, database) {
   var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
@@ -261,11 +250,23 @@ function registerTestArenaRoutes(server) {
           // TODO: actually send an appropriate HTTP error code/message
           res.send(err);
         }
-        console.log("results", result);
-        console.log("Current testArenaInstances\n",testArenaInstances);
-        //req.session.locals.id = id;
-        // return the id to the client
-        res.send(id);
+        fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
+          if(err){
+            console.log(err);
+            // TODO: actually send an appropriate HTTP error code/message
+            res.send(err);
+          }
+          fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
+            if(err){
+              console.log(err);
+              // TODO: actually send an appropriate HTTP error code/message
+              res.send(err);
+            }
+            console.log("results", result);
+            console.log("Current testArenaInstances\n",testArenaInstances);
+            res.send(id);
+          })
+        })
       })      
     }); 
   
@@ -273,16 +274,8 @@ function registerTestArenaRoutes(server) {
    * Requested by the "Play Game" Button on the test arena page
    */
   server.addDynamicRoute('post', '/playNewGame', function(req, res) {
-    // Make choose file buttons submit the form only if they are the second one to upload the bot.
-    //  This way we clean up half of this to be in another route and play game stays just play game
-    // and also you can play another game when one finishes without uploading nbew bots';
     
-    // 1) Ensure any previous Game Manager instances associated with this browser tab have been killed
-    // 0) Grab the unique id of this client from the req and verify it is valid
     // 1.125) Ensure two appropriate number of bots (players) are present in storage
-    // 1.25) Delete previous files in the directory of the unique id.
-    // 1.5) Move the source files of the bot(s) to the directory of this unique id.
-    // 2) Compile the bot(s)
     // 3) Build the JSON object to send to the Game Manager
     // 4) Spawn a new Game Manager and pass the JSON object as command line argument(s). 
     //       We could maybe make it easier on the Game Manager side by splitting things up here
@@ -343,10 +336,9 @@ function registerTestArenaRoutes(server) {
               },
               changeDest: function(dest, req, res) {
                             var id = req.body.tabId;
-                            console.log("id",id);
+                            //console.log("id",id);
                             var path = require('path');
                             var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
-                            console.log("bots ",directoryPath);
                             return directoryPath;                           
               },
               onFileUploadStart : function(file, req, res) {
@@ -370,18 +362,43 @@ function registerTestArenaRoutes(server) {
               },
               onFileUploadComplete : function(file, req, res) {
                                       console.log(file.fieldname + ' uploaded to  ' + file.path);
-                                      // compile bot here
+                                      var newBotDirectory;
+                                      var path = require('path');
                                       var compiler = new (require(paths.custom_modules.BotBattleCompiler));
-                                      compiler.compile(file.path,
-                                          function(err, compiledFilePath) {
-                                            if (err) {
-                                              err.message += "Error compiling "+ compiledFilePath +" source file";
-                                              console.log(err.message);
-                                              //res.send(err.message); need to let the client know it failed
-                                            } else{
-                                              console.log("Compiled ", compiledFilePath);
-                                            }
-                                          });
+                                      if(file.fieldname === "player1_bot_upload"){
+                                        newBotDirectory = path.resolve(paths.local_storage.test_arena_tmp, req.body.tabId, "bot1", file.name);
+                                        fileManager.moveFile(file.path, newBotDirectory, function(err){
+                                          if(err) console.log(err);
+                                          console.log("Moved ",file.path, " to ", newBotDirectory);
+                                          compiler.compile(newBotDirectory,
+                                              function(err, compiledFilePath) {
+                                                if (err) {
+                                                  err.message += "Error compiling "+ compiledFilePath +" source file";
+                                                  console.log(err.message);
+                                                  //res.append("CompileError", err.message.toString()); //need to let the client know it failed
+                                                } else{
+                                                  console.log("Compiled ", compiledFilePath);
+                                                }
+                                              }); 
+                                        });
+                                      }
+                                      if(file.fieldname === "player2_bot_upload"){
+                                        newBotDirectory = path.resolve(paths.local_storage.test_arena_tmp, req.body.tabId, "bot2", file.name);
+                                        fileManager.moveFile(file.path, newBotDirectory, function(err){
+                                          if(err) console.log(err);
+                                          console.log("Moved ",file.path, " to ", newBotDirectory);
+                                          compiler.compile(newBotDirectory,
+                                              function(err, compiledFilePath) {
+                                                if (err) {
+                                                  err.message += "Error compiling "+ compiledFilePath +" source file";
+                                                  console.log(err.message);
+                                                  //res.append("CompileError", err.message.toString()); //need to let the client know it failed
+                                                } else{
+                                                  console.log("Compiled ", compiledFilePath);
+                                                }
+                                              }); 
+                                        });
+                                      }                                                                       
               },
               onError : function(error, next) {
                           console.log(error)
@@ -404,27 +421,21 @@ function registerTestArenaRoutes(server) {
 
   server.addDynamicRoute('post', '/uploadBot',
         function(req, res) {
-          console.log(JSON.stringify(req.body));
-          var sanitizer = require('sanitizer');
-          var sanitizedFormData = {
-            // tabId
-            tabId : sanitizer.sanitize(req.body.tabId), 
-            // player parameters
-            player1_bot_or_human : sanitizer.sanitize(req.body.player1_bot_or_human),
-            // bot upload parameters
-            player1_bot_upload : req.files.player1_bot_upload,
-            player2_bot_upload : req.files.player2_bot_upload,
-          };
-          
-          var valid = verifyAllFieldsWereSubmitted(sanitizedFormData);
-          if (valid) {
-            //valid = verifyTabIdExists();
-          }
-          
-          if (!valid) {
-            // do something here
-          }
-          res.end();
+          var id = req.body.tabId;
+          var path = require('path');
+          var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
+          var compiler = new (require(paths.custom_modules.BotBattleCompiler));
+          /*compiler.compile(file.path,
+              function(err, compiledFilePath) {
+                if (err) {
+                  err.message += "Error compiling "+ compiledFilePath +" source file";
+                  console.log(err.message);
+                  res.append("CompileError", err.message.toString()); //need to let the client know it failed
+                } else{
+                  console.log("Compiled ", compiledFilePath);
+                }
+              });*/
+          res.end();         
         });
   
   /**

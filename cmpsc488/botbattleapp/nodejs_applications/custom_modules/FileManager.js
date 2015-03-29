@@ -273,6 +273,20 @@ function FileManager(botBattleDatabase) {
     }
     
     /**
+     * ASYNC: Allows for the creation of a bot folder in game instance directory
+     * @method createGameInstanceDirectory
+     * @param {String} gameId - game id for folder identification
+     * @param {String} folderName - name of inner folder to create
+     * @param {Function} callback(err)
+     * @public
+     */
+    this.createBotFolderInGameInstanceDirectory = function(gameId, folderName, callback) {
+      var path = require('path');
+      var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, gameId, folderName);
+      createFolder(directoryPath, callback);
+    }
+    
+    /**
      * ASYNC: Allows for the deletion of a game instance directory that holds bots
      * @method deleteGameInstanceDirectory
      * @param {String} gameId - game id for folder identification
