@@ -71,6 +71,13 @@
               <div id = "send_move_message"></div> 
             </div>
             
+            <div id="echoTest" class="form-item">
+              <h4>Echo Test</h4>
+              <textarea id="echo_stdin"></textarea> 
+              <button id = "echo_send_move">Send Move</button> 
+              <div id="echo_status">asdfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasdfasfasdfasdf</div> 
+            </div>
+            
           <div><br><hr><br></div>
           <div id="distance">CRTL + Mouse twice for coordinate info</div>
             
@@ -172,6 +179,19 @@
     	document.getElementById("status").innerHTML = "";
     	document.getElementById("player1_bot_upload").required = true;
 	});
+	
+	//TODO:  add a box and button to send text for echo test
+	document.getElementById("echo_send_move").addEventListener('click', function(ev) {		
+	  var req = new XMLHttpRequest();
+	  req.open("GET", "echoTest/?id=" + id +"&echo_stdin=" + document.getElementById("echo_stdin").value, true);
+	  req.onload = function(oEvent) {
+	  				var crap = req.responseText
+			    	console.log(crap);
+			    	document.getElementById("echo_status").innerHTML = crap;
+			  };
+	  req.send();	  
+	  ev.preventDefault();
+	}, false);
 	
 	var form = document.forms.namedItem("uploadBotForm");
 	

@@ -334,7 +334,7 @@ function registerTestArenaRoutes(server, database) {
                 callback(null);
               });
               
-              testArenaInstances[id].gameProcess.stdin.pause();
+              testArenaInstances[id].gameProcess.stdin.end();
               testArenaInstances[id].gameProcess.kill(); 
           }
           else{
@@ -490,35 +490,34 @@ function registerTestArenaRoutes(server, database) {
                     var workingGamePath = path.resolve(paths.local_storage.test_arena_tmp, id);
                     var file = testArenaInstances[id].gameModule.sourceFilePath;
                     var classPath = path.resolve(paths.local_storage.game_modules + "/" + testArenaInstances[id].gameModule.gameName);
-                    // likely have to move all of .class files to the working folder or just move the Game.class file 
-                    // and use command line to point to class path -cp
-                    // this needs to be GameManager not Game
-                    // java -classpath /home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/game_modules/SuperAwesomeFunGame GameManager
                     testArenaInstances[id].gameProcess  = spawn('java', ["-classpath", classPath, "GameManager"], {cwd: workingGamePath});
                     console.log('java',"-classpath", classPath, "GameManager");
                     logger.log("Spawned new game. PID: " + testArenaInstances[req.body.tabId].gameProcess.pid);
                     
-                    testArenaInstances[id].gameProcess.stdout.on('data', function(data)
+                    /*testArenaInstances[id].gameProcess.stdout.on('data', function(data)
                     {
                         //testArenaInstances[id].sock.emit('stdout', {'output': data.toString()});
                       console.log('stdout', {'output': data.toString()});
-                    });
+                    });*/
                     
                     testArenaInstances[id].gameProcess.stderr.on('data', function(data)
                     {
                         //testArenaInstances[id].sock.emit('stderr', {'output': data.toString()});
                         console.log('stderr', {'output': data.toString()});
                     });
-                    testArenaInstances[id].gameProcess.on('close', function(code) 
+                    
+                    /*testArenaInstances[id].gameProcess.on('close', function(code) 
                     {
                        //testArenaInstances[id].sock.emit('status', {'output': 'program closed with code ' + code});
                        console.log('status', {'output': 'program closed with code ' + code});
-                    });
+                    });*/
+                    
                     testArenaInstances[id].gameProcess.on('exit', function(code) 
                     {
                        //testArenaInstances[id].sock.emit('status', {'output': 'program exited with code ' + code});
                        logger.log("Exited :" + testArenaInstances[id].gameProcess.pid);
                     });
+                    
                 }else{
                     logger.log("Can't run program.  Filepath is null.\n");
                 }
@@ -547,13 +546,40 @@ function registerTestArenaRoutes(server, database) {
               });*/  //  Duhh game is compiled... we need to launch it now....
   });
   
+  // TODO: add a route that will send info to game for echo test.  testArenaInstances[id].gameProcess.stdin(text)
+  //       get stdout and echo response to the client.
+  /**
+   * Requested by the "Echo Test" Button on the test arena page
+   */
+  server.addDynamicRoute('get', '/echoTest', function(req, res) {
+    //console.log(JSON.stringify(req.query));
+    var id = req.query.id;
+    //console.log(req.query.echo_stdin);
+    testArenaInstances[id].gameProcess.stdin.write(req.query.echo_stdin + '\n');
+    //console.log(testArenaInstances[id].gameProcess.stdout);
+    //testArenaInstances[id].gameProcess.stdout.off('data');
+    testArenaInstances[id].gameProcess.stdout.on('data', function(data)
+        {
+          //testArenaInstances[id].sock.emit('stdout', {'output': data.toString()});
+          console.log('stdout', {'output': data.toString()});
+          res.write(data.toString());
+        });
+    testArenaInstances[id].gameProcess.on('close', function(code) 
+        {
+           //testArenaInstances[id].sock.emit('status', {'output': 'program closed with code ' + code});
+           console.log('status', {'output': 'program closed with code ' + code});
+           res.end();
+        });
+  });
+  
+  
   /**
    * Requested by the "Send Move" Button on the test arena page
    */
   server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
     // Here it should be asserted that this current session has 
     
-    /*setTimeout(function() {
+    setTimeout(function() {
        res.send(
            [ // Instead of named objects called turns, just use an array of objects, on our end were calling these gamestates
              // and they will be processed in the order that they are defined in this array
@@ -629,7 +655,7 @@ function registerTestArenaRoutes(server, database) {
               }, 
             ] // End game state array
     );
-    }, 500); */
+    }, 500); 
 
   }); 
   
