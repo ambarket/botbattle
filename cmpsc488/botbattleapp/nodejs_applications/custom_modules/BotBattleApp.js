@@ -553,10 +553,7 @@ function registerTestArenaRoutes(server, database) {
   server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
     // Here it should be asserted that this current session has 
     
-    setTimeout(function() {
-      //console.log("in ajax req", req.session.id, req.cookies['connect.sid']);
-      // res.cookie('rememberme', 'yes', { maxAge: 900000, httpOnly: true});
-       //console.log(req.session);
+    /*setTimeout(function() {
        res.send(
            [ // Instead of named objects called turns, just use an array of objects, on our end were calling these gamestates
              // and they will be processed in the order that they are defined in this array
@@ -632,7 +629,7 @@ function registerTestArenaRoutes(server, database) {
               }, 
             ] // End game state array
     );
-    }, 500); 
+    }, 500); */
 
   }); 
   
