@@ -16,16 +16,10 @@ public class GameManager {
   // TODO write unit tests for rounds
   // TODO write unit tests for tournaments
   // TODO write unit tests for Competitor Data
-  // TODO write unit tests for game manager
+  // TODO write unit tests for game instance
   // TODO look into integration testing
-  // TODO decide if we need gameInterface, if so update it.
   // TODO clean up players construcotrs, could combine most of that work.
 
-  /**
-   * @param args
-   * @throws IOException
-   * @throws InterruptedException 
-   */
   public static void main(String[] args) throws IOException, InterruptedException {
 
     //TournamentTest();
