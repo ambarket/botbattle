@@ -181,29 +181,34 @@
 	  req1.open("GET", "newGame/?id=" + id, true);
 	  
 	  req1.onload = function(){	
-	      console.log("in onload"); 
-	      id = req1.responseText;
-	      document.getElementById("tabId").value = id;
-		  console.log("server response",id);
-	      console.log("tabId",document.getElementById("tabId"));
-          var
-          oOutput = document.getElementById("status"),
-          oData = new FormData(document.forms.namedItem("uploadBotForm"));  	  
-	      var oReq = new XMLHttpRequest();
-	      oReq.open("POST", "uploadBot", true);
-		  oReq.onload = function(oEvent) {
-		    if (oReq.status == 200) {
-		    	oOutput.innerHTML = "Uploaded!";
-		    	// enable play game button
-		    	// then should stay disabled until game is over or change to restart game button
-		    } else {
-		    	oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
-		    	//disable play game button
-		    }
-		    // enable upload button in each case
-		  };
-		  oReq.send(oData);
-	      ev.preventDefault();   
+	      console.log("in onload");
+	      if(req1.responseText.id){	 
+	      	  var response = JSON.parse(req1.responseText);    	
+	      	  id = response.id;
+	      	  document.getElementById("tabId").value = id;
+	      	  console.log("server response",id);
+		      console.log("tabId",document.getElementById("tabId"));
+	          var
+	          oOutput = document.getElementById("status"),
+	          oData = new FormData(document.forms.namedItem("uploadBotForm"));  	  
+		      var oReq = new XMLHttpRequest();
+		      oReq.open("POST", "uploadBot", true);
+			  oReq.onload = function(oEvent) {
+			    if (oReq.status == 200) {
+			    	oOutput.innerHTML = "Uploaded!";
+			    	// enable play game button
+			    	// then should stay disabled until game is over or change to restart game button
+			    } else {
+			    	oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
+			    	//disable play game button
+			    }
+			    // enable upload button in each case
+			  };
+			  oReq.send(oData);
+		      ev.preventDefault();
+	      } else {
+	      	console.log("Server did not send id, instead : " + response);
+	      }		     
 	  };
 	  req1.send();	  
 	  ev.preventDefault();
