@@ -57,7 +57,6 @@ public class SaveTheIslandGame {
     }
   }
 
-  // TODO take another look at this, is attack the same as move forward?
   public boolean isValidMove(String move, String board, int player) {
     short TYPE_OF_MOVE = 0, TILES_USED = 1;
     String[] peices = move.split(";");
@@ -176,8 +175,6 @@ public class SaveTheIslandGame {
         default:
           break;
       }
-    } else if (move.startsWith("Shuffle")) {
-      output += " shuffles their tiles.";
     } else if (move.startsWith("move")) {
       output += "moves forward " + tiles + " spaces.";
     } else if (move.startsWith("retreat")) {
