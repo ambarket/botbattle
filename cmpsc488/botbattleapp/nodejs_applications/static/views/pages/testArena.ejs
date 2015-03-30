@@ -105,7 +105,7 @@
 </html>
 
 <script> 
-	var id;
+	var id = "defaultIdValue";
 	document.getElementById("tabId").value = id;
 	console.log("setIdFirst",id);
 	console.log("TabIdFirst",document.getElementById("tabId"));
@@ -182,8 +182,9 @@
 	  
 	  req1.onload = function(){	
 	      console.log("in onload");
-	      if(req1.responseText.id){	 
-	      	  var response = JSON.parse(req1.responseText);    	
+	      var response = JSON.parse(req1.response);
+	      console.log("request",response); 
+	      if(response.id){   	
 	      	  id = response.id;
 	      	  document.getElementById("tabId").value = id;
 	      	  console.log("server response",id);
@@ -207,7 +208,7 @@
 			  oReq.send(oData);
 		      ev.preventDefault();
 	      } else {
-	      	console.log("Server did not send id, instead : " + response);
+	      	console.log("Server did not send id, instead : " + JSON.stringify(response));
 	      }		     
 	  };
 	  req1.send();	  

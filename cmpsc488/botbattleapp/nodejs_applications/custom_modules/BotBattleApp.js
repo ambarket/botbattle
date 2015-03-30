@@ -224,7 +224,7 @@ function registerTestArenaRoutes(server, database) {
       // if client exists in the testArenaInstance then delete it and the instance object
       cleanUp(id, function(err){
         if(err){
-          logger.log(err);
+          logger.log("/newGame",err);
           // TODO: actually send an appropriate HTTP error code/message
           res.json({"error":err});
         }else{
@@ -343,9 +343,9 @@ function registerTestArenaRoutes(server, database) {
           }
       }
       else{
-        if(id !== "undefined"){
-          logger.log("invalid id");
-          callback("invalid id");
+        if(id !== "defaultIdValue"){
+          logger.log("cleanup","invalid id:", id);
+          callback("invalid id: " + id);
         }
         else{
           callback(null);
@@ -526,7 +526,7 @@ function registerTestArenaRoutes(server, database) {
                 logger.log("already running");
             }
         }else{
-          logger.log("invalid id");
+          logger.log("/uploadBot","invalid id");
         }
         res.end(); 
           /*var path = require('path');

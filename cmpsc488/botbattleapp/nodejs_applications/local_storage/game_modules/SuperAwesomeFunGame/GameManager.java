@@ -1,5 +1,6 @@
 
 import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * @author Randall Hudson
@@ -8,7 +9,7 @@ import java.io.IOException;
 public class GameManager {
   
   //You will need to change this path
-  public static  String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\TestBotAndJudge\\bin";
+  //public static  String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\TestBotAndJudge\\bin";
 
   // TODO create simple save the island bot
   // TODO test save the island game with simple bot
@@ -25,13 +26,19 @@ public class GameManager {
    * @throws IOException
    * @throws InterruptedException 
    */
+  // Have to pass the path info and such to this
   public static void main(String[] args) throws IOException, InterruptedException {
-
+	  Scanner sc = new Scanner(System.in);
+	  String input = sc.next();
+	  while(!input.equals("Quit")){
+		  System.out.println(input);
+		  input = sc.next();
+	  }
     //TournamentTest();
-    humanPlayersTest();
+    //humanPlayersTest();
   }
   
-  public static void humanPlayersTest() throws IOException, InterruptedException {
+  /*public static void humanPlayersTest() throws IOException, InterruptedException {
     System.out.flush();
     Player p1 = new Player(path);
     System.out.flush();
@@ -57,6 +64,6 @@ public class GameManager {
     } catch (IOException e) { // TODO this should probablly be caught lower down
       e.printStackTrace();
     }
-  }
+  }*/
 
 }
