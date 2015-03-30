@@ -34,7 +34,7 @@ public class SaveTheIslandGameTest {
     String tiles = Board.getPlayersTiles(1, board);
     String move = "attack;" + tiles.substring(0, 1);
 
-    assertTrue(stiGame.isValidMove(move, board, 1));
+    assertFalse(stiGame.isValidMove(move, board, 1));
   }
 
   @Test
