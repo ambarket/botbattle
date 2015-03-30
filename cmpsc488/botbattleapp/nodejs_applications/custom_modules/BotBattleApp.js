@@ -54,7 +54,7 @@ function cleanTest_Arena_tmp() {
           if(err){
             console.log(err);
             // TODO: actually send an appropriate HTTP error code/message
-            res.send(err);
+            res.json({"error":err});
           }
         });
       }
@@ -196,9 +196,11 @@ function copyLocalsAndDeleteMessage(session) {
   return retval;
 }
 
+// TODO: if we ever go into a branch on a route that has an error we must always res.end() or send() or the client hangs
 function registerTestArenaRoutes(server, database) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
+  var logger = require(paths.custom_modules.Logger).newInstance('console');
   //var fileManager = new (require(paths.custom_modules.FileManager));
    
   server.addDynamicRoute('get', '/', function(req, res) {
@@ -220,71 +222,76 @@ function registerTestArenaRoutes(server, database) {
      */
       var id = req.query.id;
       // if client exists in the testArenaInstance then delete it and the instance object
-      if(testArenaInstances[id]){
-        delete testArenaInstances[id];
-        // kill spawned game here too and anything created during a game
-        fileManager.deleteGameInstanceDirectory(id, function(err){
-          if(err){
-            console.log(err);
-            // TODO: actually send an appropriate HTTP error code/message
-            res.send(err);
-          }
-        });
-      }
-      // create a new object and folder with the id
-      var id = require('shortid').generate();
-      var gameExpireDateTime = new Date().addHours(2);
-      //var gameExpireDateTime = new Date().addSeconds(15);      
-      
-      var newInstance = { 
-        'gameProcess' : null,
-        'state' : 'stopped',
-        'gameExpireDateTime' : gameExpireDateTime,
-        'gameModule' : null
-      }; 
-      
-      database.queryListOfGameNames(function(err, nameList){
+      cleanUp(id, function(err){
         if(err){
-          console.log("There was an error getting the Game name list ", err.message);
-        }
-        else{
-          console.log(nameList);
-          // The assumption is there will only be one game, but has support for multiple games in the future
-          database.queryGameModule(nameList[0], function(err, gameModule){
+          logger.log(err);
+          // TODO: actually send an appropriate HTTP error code/message
+          res.json({"error":err});
+        }else{
+       // create a new object and folder with the id
+          var id = require('shortid').generate();
+          var gameExpireDateTime = new Date().addHours(2);
+          //var gameExpireDateTime = new Date().addSeconds(15);      
+          
+          var newInstance = { 
+            'gameProcess' : null,
+            'state' : 'stopped',
+            'gameExpireDateTime' : gameExpireDateTime,
+            'gameModule' : null
+          }; 
+          
+          database.queryListOfGameNames(function(err, nameList){
             if(err){
-              console.log('Could not get game module in BotBattleApp ' + err.message)
+              console.log("There was an error getting the Game name list ", err.message);
+              // TODO: actually send an appropriate HTTP error code/message
+              res.json({"error":err});
             }
             else{
-              newInstance.gameModule = gameModule;
-              testArenaInstances[id] = newInstance;
-              fileManager.createGameInstanceDirectory(id, function(err, result){
+              console.log(nameList);
+              // The assumption is there will only be one game, but has support for multiple games in the future
+              database.queryGameModule(nameList[0], function(err, gameModule){
                 if(err){
-                  console.log(err);
+                  console.log('Could not get game module in BotBattleApp ' + err.message)
                   // TODO: actually send an appropriate HTTP error code/message
-                  res.send(err);
+                  res.json({"error":err});
                 }
-                fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
-                  if(err){
-                    console.log(err);
-                    // TODO: actually send an appropriate HTTP error code/message
-                    res.send(err);
-                  }
-                  fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
+                else{
+                  newInstance.gameModule = gameModule;
+                  testArenaInstances[id] = newInstance;
+                  fileManager.createGameInstanceDirectory(id, function(err, result){
                     if(err){
                       console.log(err);
                       // TODO: actually send an appropriate HTTP error code/message
-                      res.send(err);
+                      res.json({"error":err});
                     }
-                    console.log("results", result);
-                    console.log("Current testArenaInstances\n",testArenaInstances);
-                    res.send(id);
-                  })
-                })
-              }); 
+                    else{
+                      fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
+                        if(err){
+                          console.log(err);
+                          // TODO: actually send an appropriate HTTP error code/message
+                          res.json({"error":err});
+                        }
+                        else{
+                          fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
+                            if(err){
+                              console.log(err);
+                              // TODO: actually send an appropriate HTTP error code/message
+                              res.json({"error":err});
+                            }
+                            console.log("results", result);
+                            console.log("Current testArenaInstances\n",testArenaInstances);
+                            res.json({"id" : id});
+                          })
+                        }
+                      })
+                    }
+                  }); 
+                }
+              })
             }
           })
         }
-      })     
+      });   
     }); 
   
   /**
@@ -302,9 +309,49 @@ function registerTestArenaRoutes(server, database) {
     // 5.5) Hide the play game button and unhide the Send Move button  // client side crap
     // 5.75) When user sends the move hide the Send Move button.  // client side crap
     // 6) Wait for the initial game state to be sent by the Game Manager via stdout
-    // 7) Send this initial game state to the client via res.send()
+    // 7) Send this initial game state to the client via res.json()
   });
   
+  function cleanUp(id, callback){
+  //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
+    //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
+    //      incase the user tries to change the value or it becomes corrupted.
+      if (testArenaInstances[id]){
+          if (testArenaInstances[id].gameProcess){
+              var pid = testArenaInstances[id].gameProcess.pid;
+              logger.log("End Child: " + pid);
+              
+              testArenaInstances[id].gameProcess.on('close', function(code) {
+                delete testArenaInstances[id];
+                fileManager.deleteGameInstanceDirectory(id, function(err){
+                  if(err){
+                    console.log(err);
+                    callback("Server file manage error"); 
+                  }
+                })
+                console.log("Child ", pid, "exited with code", code);
+                console.log("After Kill testArenaInstances is:\n", testArenaInstances);
+                callback(null);
+              });
+              
+              testArenaInstances[id].gameProcess.stdin.pause();
+              testArenaInstances[id].gameProcess.kill(); 
+          }
+          else{
+              logger.log("No child for id");
+              callback("No child for id");
+          }
+      }
+      else{
+        if(id !== "undefined"){
+          logger.log("invalid id");
+          callback("invalid id");
+        }
+        else{
+          callback(null);
+        }
+      }
+  }
   /**
    * Requested the test arena page is refreshed or a link is followed out
    * i.e. when the page is reloaded.
@@ -312,19 +359,15 @@ function registerTestArenaRoutes(server, database) {
   server.addDynamicRoute('get', '/killGame', function(req, res) {
     var id = req.query.id;
     console.log("Killing ", id);
-    //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
-    //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
-    //      incase the user tries to change the value or it becomes corrupted.
-    if (testArenaInstances[id]) {
-      delete testArenaInstances[id];
-    }
-    fileManager.deleteGameInstanceDirectory(id, function(err){
-      if(err){
-        console.log(err); 
-      }
-    })
-    console.log("After Kill \n", testArenaInstances);
-    res.send("killed");
+    cleanUp(id, function(err){
+       if(err){
+         logger.log(err);
+         res.json({"error":err});
+       }
+       else{
+         res.json({"error":"Killed"});
+       }
+    });
   });
   
   /**
@@ -438,35 +481,42 @@ function registerTestArenaRoutes(server, database) {
 
   server.addDynamicRoute('post', '/uploadBot',
       function(req, res) {
-       /* var path = require('path');
-        var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
+        var path = require('path');
         var id = req.body.tabId;
         var spawn = require('child_process').spawn;
         if (testArenaInstances[id]){
             if (!testArenaInstances[id].gameProcess){
                 if(testArenaInstances[id].gameModule.classFilePath){
-                    testArenaInstances[id].gameProcess  = spawn('java', [testArenaInstances[id].filePath.slice(8, -5)], {cwd:'uploads/'});
-                    logger.log("Spawned new game. PID: " + testArenaInstances[req.body.tabId].gameProcess.pid + "\n");
+                    var workingGamePath = path.resolve(paths.local_storage.test_arena_tmp, id);
+                    var file = testArenaInstances[id].gameModule.sourceFilePath;
+                    var classPath = path.resolve(paths.local_storage.game_modules + "/" + testArenaInstances[id].gameModule.gameName);
+                    // likely have to move all of .class files to the working folder or just move the Game.class file 
+                    // and use command line to point to class path -cp
+                    // this needs to be GameManager not Game
+                    // java -classpath /home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/game_modules/SuperAwesomeFunGame GameManager
+                    testArenaInstances[id].gameProcess  = spawn('java', ["-classpath", classPath, "GameManager"], {cwd: workingGamePath});
+                    console.log('java',"-classpath", classPath, "GameManager");
+                    logger.log("Spawned new game. PID: " + testArenaInstances[req.body.tabId].gameProcess.pid);
                     
                     testArenaInstances[id].gameProcess.stdout.on('data', function(data)
                     {
-                        testArenaInstances[id].sock.emit('stdout', {'output': data.toString()});
+                        //testArenaInstances[id].sock.emit('stdout', {'output': data.toString()});
+                      console.log('stdout', {'output': data.toString()});
                     });
                     
                     testArenaInstances[id].gameProcess.stderr.on('data', function(data)
                     {
-                        testArenaInstances[id].sock.emit('stderr', {'output': data.toString()});
+                        //testArenaInstances[id].sock.emit('stderr', {'output': data.toString()});
+                        console.log('stderr', {'output': data.toString()});
                     });
-                    
-                    testArenaInstances[id].sock.emit('status', {'output': "Program PID: " + testArenaInstances[id].gameProcess.pid});
-                    
                     testArenaInstances[id].gameProcess.on('close', function(code) 
                     {
-                       testArenaInstances[id].sock.emit('status', {'output': 'program closed with code ' + code});
+                       //testArenaInstances[id].sock.emit('status', {'output': 'program closed with code ' + code});
+                       console.log('status', {'output': 'program closed with code ' + code});
                     });
                     testArenaInstances[id].gameProcess.on('exit', function(code) 
                     {
-                       testArenaInstances[id].sock.emit('status', {'output': 'program exited with code ' + code});
+                       //testArenaInstances[id].sock.emit('status', {'output': 'program exited with code ' + code});
                        logger.log("Exited :" + testArenaInstances[id].gameProcess.pid);
                     });
                 }else{
