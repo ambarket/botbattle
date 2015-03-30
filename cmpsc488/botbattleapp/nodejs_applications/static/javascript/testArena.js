@@ -75,7 +75,7 @@
       var req = new XMLHttpRequest();
       req.open("POST", "testArenaUpdate", true);
       try {
-        req.send(TEST_ARENA.myId);
+        req.send(TEST_ARENA.myId);  // my.Id is not used.
         //TODO I think onReadyStateChange may allow us to detect if the request failed to post,
         //  need to do something about this because otherwise button just remains disabled.
         // Test by shutting down server then clicking it.

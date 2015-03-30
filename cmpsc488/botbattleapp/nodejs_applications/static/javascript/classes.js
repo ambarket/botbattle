@@ -1,6 +1,6 @@
 // Define global TEST_ARENA namespace to be shared throughout client side code
 TEST_ARENA = {
-    'myId' : null, // will probably be used
+    'myId' : null, // will probably be used (not currently used)
     'canvas' : null, // Set in testArena.js after page has loaded
     'prevWidth' : null, // Set in testArena.js after page has loaded
     'context' : null, // Set in testArena.js after page is loaded
