@@ -22,10 +22,12 @@ public class Player implements Runnable {
   protected String usersName;
   protected BufferedReader reader;
   protected BufferedWriter writer;
-  protected boolean humanOrBot;
+  protected boolean humanOrBot;//TODO based on feedback for ArenaGameManager this may be removable
   protected volatile boolean read;
   protected volatile String move;
 
+  
+  //TODO based on response for ArenaGameManager this constructor may not be needed
   //This constructor is for human players
   public Player(String botFilePath) throws IOException {
     humanOrBot = HUMAN;
@@ -49,8 +51,9 @@ public class Player implements Runnable {
     this.botFilePath = botFilePath;
     this.usersName = usersName;
 
-    ProcessBuilder builder = new ProcessBuilder("java", usersName); // TODO do somthing with file
-                                                                    // path here?
+    ProcessBuilder builder = new ProcessBuilder("java", botFilePath + "\\" + usersName);
+    //ProcessBuilder builder = new ProcessBuilder("java", usersName); 
+    
     builder.directory(new File(botFilePath));
     botProcess = builder.start();
 
@@ -103,23 +106,6 @@ public class Player implements Runnable {
     }
   }
   
-  //This is the bots stdin, we write to it
-  public OutputStream getOutputStream() {
-    if (botProcess != null && botProcess.isAlive())
-      return botProcess.getOutputStream();
-    else
-      return null;
-  }
-
-  //This is the bots stdout, we read from it
-  public InputStream getInputStream() {
-    if (botProcess != null && botProcess.isAlive())
-      return botProcess.getInputStream();
-    else
-      return null;
-  }
-
-
   public String getBotFilePath() {
     return botFilePath;
   }
