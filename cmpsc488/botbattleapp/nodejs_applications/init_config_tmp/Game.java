@@ -1,8 +1,7 @@
 
 import java.util.Random;
-
-// Save The Island Game
-public class Game implements GameInterface{
+//SaveTheIsland
+public class Game {
   public String getStartingBoard() {
     Random rng = new Random();
     String board = "";
@@ -57,25 +56,49 @@ public class Game implements GameInterface{
     }
   }
 
-  // TODO take another look at this, is attack the same as move forward?
   public boolean isValidMove(String move, String board, int player) {
-    int typeOfMove = 0, tilesForMove = 1;
+    short TYPE_OF_MOVE = 0, TILES_USED = 1;
     String[] peices = move.split(";");
-
-    if (peices.length != 2) {
+    int tileValue;
+    
+    //Attempt to get value for tile, if it doesn't parse then not a valid move
+    try {
+      tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
+    } catch (NumberFormatException e) {
       return false;
     }
 
-    if (!peices[typeOfMove].equals("attack") && !peices[typeOfMove].equals("retreat")) {
+    if (peices.length != 2) { 
       return false;
     }
+    
+    String typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
+    if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat")) {
+      return false;
+    }
+  
+    if( typeOfMove.equals("attack") ){
+      // Check all given tiles are the same
+      if(!peices[TILES_USED].matches(tileValue + "+")){
+        return false;
+      }
 
-    // Check all given tiles are the same
-    int tileValue = Integer.parseInt(peices[tilesForMove].substring(0, 1));
-    peices[tilesForMove].matches(tileValue + "+");
+      //Check that the other player is the correct distance away
+      if(tileValue != Board.getDistanceBetweenPlayers(board)){
+        return false;
+      }
+    } else if( typeOfMove.equals("move") || typeOfMove.equals("retreat")){
+      //Can only move or retreat by one tile
+      if(peices[TILES_USED].length() != 1) {
+        return false;
+      }
+    } else {
+      //Un recognized move type
+      return false;
+    }
 
     // Check player has those tiles
-    if (!Board.checkPlayersTiles(board, player, tileValue, peices[tilesForMove].length())) {
+    if (!Board.checkPlayersTiles(board, player, tileValue, peices[TILES_USED].length())) {
       return false;
     }
 
@@ -151,8 +174,6 @@ public class Game implements GameInterface{
         default:
           break;
       }
-    } else if (move.startsWith("Shuffle")) {
-      output += " shuffles their tiles.";
     } else if (move.startsWith("move")) {
       output += "moves forward " + tiles + " spaces.";
     } else if (move.startsWith("retreat")) {
