@@ -1,4 +1,4 @@
-package game.manger;
+
 
 public class GameInstance implements Runnable {
 

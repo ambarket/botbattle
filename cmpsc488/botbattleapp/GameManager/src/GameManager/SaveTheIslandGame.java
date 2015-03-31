@@ -1,4 +1,3 @@
-package game.manger;
 
 import java.util.Random;
 

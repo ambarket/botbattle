@@ -1,4 +1,4 @@
-package game.manger;
+
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

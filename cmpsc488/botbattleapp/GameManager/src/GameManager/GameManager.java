@@ -1,4 +1,4 @@
-package game.manger;
+
 
 import java.io.IOException;
 
@@ -21,9 +21,18 @@ public class GameManager {
   // TODO clean up players construcotrs, could combine most of that work.
 
   public static void main(String[] args) throws IOException, InterruptedException {
-
+    // Just testing echoing input
+    Scanner sc = new Scanner(System.in);
+    String input = sc.next();
+    while(!input.equals("Quit")){
+        System.out.println(input);
+        input = sc.next();
+    }
+    
+    //commented out while testing test arena
+    
     //TournamentTest();
-    humanPlayersTest();
+    //humanPlayersTest();
   }
   
   public static void humanPlayersTest() throws IOException, InterruptedException {

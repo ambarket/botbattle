@@ -1,4 +1,4 @@
-package game.manger;
+
 
 import static org.junit.Assert.*;
 import game.manger.SaveTheIslandGame.Board;
