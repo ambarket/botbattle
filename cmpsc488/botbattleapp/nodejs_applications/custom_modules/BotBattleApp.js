@@ -226,8 +226,8 @@ function registerTestArenaRoutes(server, database) {
         if(err){
           logger.log("/newGame",err);
           // TODO: actually send an appropriate HTTP error code/message
-          res.json({"error":err});
-        }else{
+          //res.json({"error":err});
+        }
        // create a new object and folder with the id
           var id = require('shortid').generate();
           var gameExpireDateTime = new Date().addHours(2);
@@ -291,7 +291,6 @@ function registerTestArenaRoutes(server, database) {
               })
             }
           })
-        }
       });   
     }); 
   
@@ -322,7 +321,14 @@ function registerTestArenaRoutes(server, database) {
           }
           else{
               logger.log("No child for id");
-              callback("No child for id");
+              delete testArenaInstances[id];
+              fileManager.deleteGameInstanceDirectory(id, function(err){
+                if(err){
+                  console.log(err);
+                  callback("Server file manage error"); 
+                }
+              })
+              callback(null);
           }
       }
       else{
