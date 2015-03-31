@@ -405,6 +405,8 @@ function registerTestArenaRoutes(server, database) {
                                                 + file.name
                                                 + ' is a NOT .java/.cpp/.cxx file, this file will not be uploaded');
                                         // Returning false cancels the upload.
+                                        res.json({"error" : "Illegal file type"});
+                                        testArenaInstances[req.body.tabId].botsCompiled = "wrongFileType";
                                         return false;
                                       }
                                     }
@@ -479,6 +481,9 @@ function registerTestArenaRoutes(server, database) {
         else{
           if(testArenaInstances[req.body.tabId].botsCompiled === false){
             res.json({"error" : "Bot compile error."});
+          }
+          else if(testArenaInstances[req.body.tabId].botsCompiled === "wrongFileType"){
+            return;
           }
           else if(testArenaInstances[req.body.tabId].botsCompiled === true){
             res.json({"status" : "Uploaded!"});
