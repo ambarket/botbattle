@@ -47,9 +47,15 @@ function cleanTest_Arena_tmp() {
       console.log("now", now);
       console.log("Delete at", testArenaInstances[instance].gameExpireDateTime)
       if(now > testArenaInstances[instance].gameExpireDateTime){
+        // kill spawned game here too and anything created during a game
+        if (testArenaInstances[id].gameProcess){
+          var pid = testArenaInstances[id].gameProcess.pid;
+          logger.log("End Child: " + pid);          
+          testArenaInstances[id].gameProcess.stdin.end();
+          testArenaInstances[id].gameProcess.kill(); 
+        }
         delete testArenaInstances[instance];
         count++;
-        // kill spawned game here too and anything created during a game
         fileManager.deleteGameInstanceDirectory(instance, function(err){
           if(err){
             console.log(err);
@@ -201,18 +207,17 @@ function registerTestArenaRoutes(server, database) {
   var paths = require('./BotBattlePaths');
   var path = require('path');
   var logger = require(paths.custom_modules.Logger).newInstance('console');
-  //var fileManager = new (require(paths.custom_modules.FileManager));
    
   server.addDynamicRoute('get', '/', function(req, res) {
-    // TODO: Pass along a list of game modules so they can pick and then respond with when they make a new game
-    //       this will assist in spawning and such later and support multiple games in the future.
-    //       client will need a drop-down menu that can default to nothing if just 1 game exists.
+    // TODO: Can support multiple game modules if pass a list along in future
   	var locals = copyLocalsAndDeleteMessage(req.session);
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
   // all oter functions that require session need to be changed because the structure is now different
   server.addDynamicRoute('get', '/newGame', function(req, res) {
+    // TODO: clean this up to samller concentrated functions.
+    
     /*  this should be done on upload, but we have that only 2 routes working and multer problem thing...
      * 1. Delete folder and instance and other game stuff if id provided by client exists (should be function)
      * 2. create object in testArenaInstances as needed
@@ -225,72 +230,71 @@ function registerTestArenaRoutes(server, database) {
       cleanUp(id, function(err){
         if(err){
           logger.log("/newGame",err);
-          // TODO: actually send an appropriate HTTP error code/message
-          //res.json({"error":err});
         }
        // create a new object and folder with the id
-          var id = require('shortid').generate();
-          var gameExpireDateTime = new Date().addHours(2);
-          //var gameExpireDateTime = new Date().addSeconds(15);      
-          
-          var newInstance = { 
-            'gameProcess' : null,
-            'state' : 'stopped',
-            'gameExpireDateTime' : gameExpireDateTime,
-            'gameModule' : null,
-            'botsCompiled' : "compiling"
-          }; 
-          
-          database.queryListOfGameNames(function(err, nameList){
-            if(err){
-              console.log("There was an error getting the Game name list ", err.message);
-              // TODO: actually send an appropriate HTTP error code/message
-              res.json({"error":err});
-            }
-            else{
-              console.log(nameList);
-              // The assumption is there will only be one game, but has support for multiple games in the future
-              database.queryGameModule(nameList[0], function(err, gameModule){
-                if(err){
-                  console.log('Could not get game module in BotBattleApp ' + err.message)
-                  // TODO: actually send an appropriate HTTP error code/message
-                  res.json({"error":err});
-                }
-                else{
-                  newInstance.gameModule = gameModule;
-                  testArenaInstances[id] = newInstance;
-                  fileManager.createGameInstanceDirectory(id, function(err, result){
-                    if(err){
-                      console.log(err);
-                      // TODO: actually send an appropriate HTTP error code/message
-                      res.json({"error":err});
-                    }
-                    else{
-                      fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
-                        if(err){
-                          console.log(err);
-                          // TODO: actually send an appropriate HTTP error code/message
-                          res.json({"error":err});
-                        }
-                        else{
-                          fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
-                            if(err){
-                              console.log(err);
-                              // TODO: actually send an appropriate HTTP error code/message
-                              res.json({"error":err});
-                            }
-                            console.log("results", result);
-                            console.log("Current testArenaInstances\n",testArenaInstances);
-                            res.json({"id" : id});
-                          })
-                        }
-                      })
-                    }
-                  }); 
-                }
-              })
-            }
-          })
+        var id = require('shortid').generate();
+        var gameExpireDateTime = new Date().addHours(2);
+        //var gameExpireDateTime = new Date().addSeconds(15);      
+        
+        var newInstance = { 
+          'gameProcess' : null,
+          'gameState' : null,
+          'gameExpireDateTime' : gameExpireDateTime,
+          'gameModule' : null,
+          'bot1Path' : null,
+          'bot2Path' : null
+        }; 
+        
+        database.queryListOfGameNames(function(err, nameList){
+          if(err){
+            console.log("There was an error getting the Game name list ", err.message);
+            // TODO: actually send an appropriate HTTP error code/message
+            res.json({"error":err});
+          }
+          else{
+            console.log(nameList);
+            // The assumption is there will only be one game, but has support for multiple games in the future
+            database.queryGameModule(nameList[0], function(err, gameModule){
+              if(err){
+                console.log('Could not get game module in BotBattleApp ' + err.message)
+                // TODO: actually send an appropriate HTTP error code/message
+                res.json({"error":err});
+              }
+              else{
+                newInstance.gameModule = gameModule;
+                testArenaInstances[id] = newInstance;
+                fileManager.createGameInstanceDirectory(id, function(err, result){
+                  if(err){
+                    console.log(err);
+                    // TODO: actually send an appropriate HTTP error code/message
+                    res.json({"error":err});
+                  }
+                  else{
+                    fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
+                      if(err){
+                        console.log(err);
+                        // TODO: actually send an appropriate HTTP error code/message
+                        res.json({"error":err});
+                      }
+                      else{
+                        fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
+                          if(err){
+                            console.log(err);
+                            // TODO: actually send an appropriate HTTP error code/message
+                            res.json({"error":err});
+                          }
+                          console.log("results", result);
+                          console.log("Current testArenaInstances\n",testArenaInstances);
+                          res.json({"id" : id});
+                        })
+                      }
+                    })
+                  }
+                }); 
+              }
+            })
+          }
+        })
       });   
     }); 
   
@@ -370,14 +374,6 @@ function registerTestArenaRoutes(server, database) {
               limits : {
                         fieldNameSize : 100,
                         files: 2,
-                      // fields: 5
-                      // fieldNameSize - integer - Max field name size (Default: 100 bytes)
-                      // fieldSize - integer - Max field value size (Default: 1MB)
-                      // fields - integer - Max number of non-file fields (Default: Infinity)
-                      // fileSize - integer - For multipart forms, the max file size (in bytes) (Default: Infinity)
-                      // files - integer - For multipart forms, the max number of file fields (Default: Infinity)
-                      // parts - integer - For multipart forms, the max number of parts (fields + files) (Default: Infinity)
-                      // headerPairs - integer - For multipart forms, the max number of header key=>value pairs to parse Default: 2000 (same as node's http).
               },
               putSingleFilesInArray: true, // this needs done for future compat.
               rename :  function(fieldname, filename) {
@@ -385,7 +381,6 @@ function registerTestArenaRoutes(server, database) {
               },
               changeDest: function(dest, req, res) {
                             var id = req.body.tabId;
-                            //console.log("id",id);
                             var path = require('path');
                             var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
                             return directoryPath;                           
@@ -406,52 +401,19 @@ function registerTestArenaRoutes(server, database) {
                                                 + ' is a NOT .java/.cpp/.cxx file, this file will not be uploaded');
                                         // Returning false cancels the upload.
                                         res.json({"error" : "Illegal file type"});
-                                        testArenaInstances[req.body.tabId].botsCompiled = "wrongFileType";
                                         return false;
                                       }
                                     }
               },
               onFileUploadComplete : function(file, req, res) {
-                                      console.log(file.fieldname + ' uploaded to  ' + file.path);
-                                      var newBotDirectory;
-                                      var path = require('path');
-                                      var compiler = new (require(paths.custom_modules.BotBattleCompiler));
+                                      console.log(file.fieldname + ' uploaded to  ' + file.path);                                      
                                       if(file.fieldname === "player1_bot_upload"){
-                                        newBotDirectory = path.resolve(paths.local_storage.test_arena_tmp, req.body.tabId, "bot1", file.name);
-                                        fileManager.moveFile(file.path, newBotDirectory, function(err){
-                                          if(err) console.log(err);
-                                          console.log("Moved ",file.path, " to ", newBotDirectory);
-                                          compiler.compile(newBotDirectory,
-                                              function(err, compiledFilePath) {
-                                                if (err) {
-                                                  err.message += "Error compiling "+ compiledFilePath +" source file";
-                                                  console.log(err.message);
-                                                  testArenaInstances[req.body.tabId].botsCompiled = false;
-                                                } else{
-                                                  console.log("Compiled ", compiledFilePath);
-                                                  testArenaInstances[req.body.tabId].botsCompiled = true;
-                                                }
-                                              }); 
-                                        });
+                                        testArenaInstances[req.body.tabId].bot1Path = file.path;
                                       }
                                       if(file.fieldname === "player2_bot_upload"){
-                                        newBotDirectory = path.resolve(paths.local_storage.test_arena_tmp, req.body.tabId, "bot2", file.name);
-                                        fileManager.moveFile(file.path, newBotDirectory, function(err){
-                                          if(err) console.log(err);
-                                          console.log("Moved ",file.path, " to ", newBotDirectory);
-                                          compiler.compile(newBotDirectory,
-                                              function(err, compiledFilePath) {
-                                                if (err) {
-                                                  err.message += "Error compiling "+ compiledFilePath +" source file";
-                                                  console.log(err.message);
-                                                  testArenaInstances[req.body.tabId].botsCompiled = false;
-                                                } else{
-                                                  console.log("Compiled ", compiledFilePath);
-                                                  testArenaInstances[req.body.tabId].botsCompiled = true;
-                                                }
-                                              }); 
-                                        });
-                                      }                                                                       
+                                        testArenaInstances[req.body.tabId].bot2Path = file.path;
+                                      }
+                                                                                               
               },
               onError : function(error, next) {
                           console.log(error)
@@ -464,39 +426,60 @@ function registerTestArenaRoutes(server, database) {
               onFilesLimit : function() {
                                console.log('Crossed file limit!')
               },
-              onFieldsLimit : function() {
-                                console.log('Crossed fields limit!')
-              },
-              onPartsLimit : function() {
-                               console.log('Crossed parts limit!')
-              },
             }));
 
+  /**
+   * Requested by the "Upload Bot/s" Button on the test arena page
+   */
   server.addDynamicRoute('post', '/uploadBot',function(req, res){
-    function checkCompile() {
-      setTimeout(function () {
-        if(testArenaInstances[req.body.tabId].botsCompiled === "compiling"){
-          checkCompile();
+    var compiler = new (require(paths.custom_modules.BotBattleCompiler));
+    var humanOrBot = req.body.player1_bot_or_human;
+    if(humanOrBot === "human"){
+      compileBots(1, function(err){
+        if(err){
+          res.json({"error" : err.message + compile error."});
         }
         else{
-          if(testArenaInstances[req.body.tabId].botsCompiled === false){
-            res.json({"error" : "Bot compile error."});
-          }
-          else if(testArenaInstances[req.body.tabId].botsCompiled === "wrongFileType"){
-            return;
-          }
-          else if(testArenaInstances[req.body.tabId].botsCompiled === true){
-            res.json({"status" : "Uploaded!"});
-          }
-          else{
-            console.log("botsCompiled set to unknown value");
-            res.json({"error" : "unknown compile error"});
-          }
+          res.json({"status" : "Uploaded!"});
         }
-      }, 250); // 1 hour 3600000
+      });
     }
-
-    checkCompile();
+    else if(humanOrBot === "bot"){
+      compileBots(2, function(err){
+        if(err){
+          res.json({"error" : err.message + compile error."});
+        }
+        else{
+          res.json({"status" : "Uploaded!"});
+        }
+      });
+    }
+    else {
+      console.log("illegal radio button value uploaded");
+      res.json({'error' : "Bad form value"});
+    }
+  });
+  
+  function compileBots(botCount, callback){
+    if(botCount === 1){
+      compileBot(testArenaInstances[req.body.tabId].bot2Path, 1, callback);
+    }
+    else if(botCount === 2){
+      compileBot(testArenaInstances[req.body.tabId].bot1Path, 1, callback);
+      compileBot(testArenaInstances[req.body.tabId].bot2Path, 2, callback);
+    }    
+  });
+    
+  function compileBot(botPath, botNum, callback){
+    compiler.compile(botPath, function(err, compiledFilePath) {
+      if (err) {
+        err.message += " Error compiling "+ compiledFilePath +" source file";
+        console.log(err.message);
+        callback(new Error("Bot " + botNum + "comile error."))
+      } 
+      else{
+        console.log("Compiled ", compiledFilePath);
+      }
   });
   
   //1.125) Ensure two appropriate number of bots (players) are present in storage
@@ -519,35 +502,33 @@ function registerTestArenaRoutes(server, database) {
             if (!testArenaInstances[id].gameProcess){
                 if(testArenaInstances[id].gameModule.classFilePath){
                     var workingGamePath = path.resolve(paths.local_storage.test_arena_tmp, id);
-                    var file = testArenaInstances[id].gameModule.sourceFilePath;
                     var classPath = path.resolve(paths.local_storage.game_modules + "/" + testArenaInstances[id].gameModule.gameName);
+                    // TODO: this is asyn and concerns me about running this based on its existance...
                     testArenaInstances[id].gameProcess  = spawn('java', ["-classpath", classPath, "GameManager"], {cwd: workingGamePath});
                     console.log('java',"-classpath", classPath, "GameManager");
                     logger.log("Spawned new game. PID: " + testArenaInstances[req.body.tabId].gameProcess.pid);
-                    
-                    /*testArenaInstances[id].gameProcess.stdout.on('data', function(data)
-                    {
-                        //testArenaInstances[id].sock.emit('stdout', {'output': data.toString()});
-                      console.log('stdout', {'output': data.toString()});
-                    });*/
-                    
-                    testArenaInstances[id].gameProcess.stderr.on('data', function(data)
-                    {
-                        //testArenaInstances[id].sock.emit('stderr', {'output': data.toString()});
+                    if(testArenaInstances[id].gameProcess){
+                      testArenaInstances[id].state = "running";
+                      testArenaInstances[id].gameProcess.stdout.on('data', function(data){
+                        // make an array to store moves in
+                        console.log('stdout', {'output': data.toString()});
+                      });                      
+                      testArenaInstances[id].gameProcess.stderr.on('data', function(data){
+                        // make an array to store errors in
                         console.log('stderr', {'output': data.toString()});
-                    });
-                    
-                    /*testArenaInstances[id].gameProcess.on('close', function(code) 
-                    {
-                       //testArenaInstances[id].sock.emit('status', {'output': 'program closed with code ' + code});
-                       console.log('status', {'output': 'program closed with code ' + code});
-                    });*/
-                    
-                    testArenaInstances[id].gameProcess.on('exit', function(code) 
-                    {
-                       //testArenaInstances[id].sock.emit('status', {'output': 'program exited with code ' + code});
-                       logger.log("Exited :" + testArenaInstances[id].gameProcess.pid);
-                    });
+                      });                      
+                      testArenaInstances[id].gameProcess.on('close', function(code){
+                        testArenaInstances[id].state = "closed";
+                        console.log('status', {'output': 'program closed with code ' + code});
+                      });                      
+                      testArenaInstances[id].gameProcess.on('exit', function(code){
+                        testArenaInstances[id].state = "exited";
+                        logger.log("Exited :" + testArenaInstances[id].gameProcess.pid);
+                      });
+                    }
+                    else{
+                      console.log("Game was not spawned or there is an async problem");
+                    }
                     
                 }else{
                     logger.log("Can't run program.  Filepath is null.\n");
@@ -561,26 +542,16 @@ function registerTestArenaRoutes(server, database) {
         res.end(); 
   });
   
-  // TODO: add a route that will send info to game for echo test.  testArenaInstances[id].gameProcess.stdin(text)
-  //       get stdout and echo response to the client.
   /**
    * Requested by the "Echo Test" Button on the test arena page
    */
   server.addDynamicRoute('get', '/echoTest', function(req, res) {
     var id = req.query.id;
-    if(testArenaInstances[id] && testArenaInstances[id].gameProcess){
+    if(testArenaInstances[id] && testArenaInstances[id].gameProcess && testArenaInstances[id].state === "running"){
       testArenaInstances[id].gameProcess.stdin.write(req.query.echo_stdin + '\n');
-      testArenaInstances[id].gameProcess.stdout.on('data', function(data){
-        console.log('stdout', {'output': data.toString()});
-        res.write(data.toString());
-      });
-      testArenaInstances[id].gameProcess.on('close', function(code){
-         console.log('status', {'output': 'program closed with code ' + code});
-         res.end();
-      });
     }
     else{
-      res.json({'error' : "Game is not started"});
+      res.json({'error' : "Game is not running"});
     }
   });
   
