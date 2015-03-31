@@ -59,7 +59,7 @@
             <hr>
           </form>
         		
-        	<p>
+        	<p id="playGameParagraph" style="display:none">
             <input id="playGame" type="button" value="Play Game">
             // this should start the game server side and return confirmation that it started
             <p>
@@ -75,7 +75,7 @@
               <h4>Echo Test</h4>
               <textarea id="echo_stdin"></textarea> 
               <button id = "echo_send_move">Send Move</button> 
-              <div id="echo_status">asdfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasdfasfasdfasdf</div> 
+              <div id="echo_status"></div> 
             </div>
             
           <div><br><hr><br></div>
@@ -162,6 +162,7 @@
     	$('#submitForm').val( "Upload Bot");
     	$('#player1FileChoose').hide();
     	$('#humanInput').show();
+    	$('#playGameParagraph').hide();
     	//document.getElementById("uploadBotForm").reset();
     	resetForm('player2_bot_upload');
     	resetForm('player1_bot_upload');    	
@@ -172,7 +173,8 @@
 	$('#bot').click(function(){ 
     	$('#submitForm').val( "Upload Bots");
     	$('#player1FileChoose').show();
-    	$('#humanInput').hide();
+    	$('#humanInput').hide();    	
+    	$('#playGameParagraph').hide();
     	//document.getElementById("uploadBotForm").reset();
     	resetForm('player2_bot_upload');
     	resetForm('player1_bot_upload');
@@ -216,17 +218,20 @@
 		      oReq.open("POST", "uploadBot", true);
 			  oReq.onload = function(oEvent) {
 			    if (oReq.status == 200) {
-			    	oOutput.innerHTML = "Uploaded!";
 			    	response = JSON.parse(oReq.responseText);
-			    	console.log("Good response " + JSON.stringify(response));
+			    	console.log("Good status " + JSON.stringify(response));
 			    	if(response.error){
 			    		oOutput.innerHTML = response.error;
+			    		$('#playGameParagraph').hide();
 			    	}
-			    	// enable play game button
+			    	else{
+			    		oOutput.innerHTML = response.status;
+			    		$('#playGameParagraph').show();
+			    	}
 			    	// then should stay disabled until game is over or change to restart game button
 			    } else {
 			    	oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
-			    	console.log("Bad response " + JSON.stringify(response));
+			    	console.log("Bad status " + JSON.stringify(response));
 			    	if(response.error){
 			    		oOutput.innerHTML = response.error;
 			    	}

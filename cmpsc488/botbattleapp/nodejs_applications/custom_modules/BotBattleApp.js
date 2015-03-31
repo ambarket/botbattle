@@ -238,7 +238,7 @@ function registerTestArenaRoutes(server, database) {
             'state' : 'stopped',
             'gameExpireDateTime' : gameExpireDateTime,
             'gameModule' : null,
-            'botsCompiled' : false
+            'botsCompiled' : "compiling"
           }; 
           
           database.queryListOfGameNames(function(err, nameList){
@@ -294,24 +294,6 @@ function registerTestArenaRoutes(server, database) {
         }
       });   
     }); 
-  
-  /**
-   * Requested by the "Play Game" Button on the test arena page
-   */
-  server.addDynamicRoute('post', '/playNewGame', function(req, res) {
-    
-    // 1.125) Ensure two appropriate number of bots (players) are present in storage
-    // 3) Build the JSON object to send to the Game Manager
-    // 4) Spawn a new Game Manager and pass the JSON object as command line argument(s). 
-    //       We could maybe make it easier on the Game Manager side by splitting things up here
-    //       into multiple arguments instead of just sending one object
-    // 5) Somehow maintain a reference to that process object associated with the exact browser tab
-    //       that spawned it.
-    // 5.5) Hide the play game button and unhide the Send Move button  // client side crap
-    // 5.75) When user sends the move hide the Send Move button.  // client side crap
-    // 6) Wait for the initial game state to be sent by the Game Manager via stdout
-    // 7) Send this initial game state to the client via res.json()
-  });
   
   function cleanUp(id, callback){
   //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
@@ -483,14 +465,40 @@ function registerTestArenaRoutes(server, database) {
             }));
 
   server.addDynamicRoute('post', '/uploadBot',function(req, res){
-    if(testArenaInstances[req.body.tabId].botsCompiled === false){
-      res.json({"error" : "Bot compile error."});
+    function checkCompile() {
+      setTimeout(function () {
+        if(testArenaInstances[req.body.tabId].botsCompiled === "compiling"){
+          checkCompile();
+        }
+        else{
+          if(testArenaInstances[req.body.tabId].botsCompiled === false){
+            res.json({"error" : "Bot compile error."});
+          }
+          else if(testArenaInstances[req.body.tabId].botsCompiled === true){
+            res.json({"status" : "Uploaded!"});
+          }
+          else{
+            console.log("botsCompiled set to unknown value");
+            res.json({"error" : "unknown compile error"});
+          }
+        }
+      }, 250); // 1 hour 3600000
     }
-    else{
-      res.end();
-    }
+
+    checkCompile();
   });
   
+  //1.125) Ensure two appropriate number of bots (players) are present in storage
+  // 3) Build the JSON object to send to the Game Manager
+  // 4) Spawn a new Game Manager and pass the JSON object as command line argument(s). 
+  //       We could maybe make it easier on the Game Manager side by splitting things up here
+  //       into multiple arguments instead of just sending one object
+  // 5) Somehow maintain a reference to that process object associated with the exact browser tab
+  //       that spawned it.
+  // 5.5) Hide the play game button and unhide the Send Move button  // client side crap
+  // 5.75) When user sends the move hide the Send Move button.  // client side crap
+  // 6) Wait for the initial game state to be sent by the Game Manager via stdout
+  // 7) Send this initial game state to the client via res.json()
   server.addDynamicRoute('post', '/startGame',
       function(req, res) {
         var path = require('path');
@@ -548,24 +556,21 @@ function registerTestArenaRoutes(server, database) {
    * Requested by the "Echo Test" Button on the test arena page
    */
   server.addDynamicRoute('get', '/echoTest', function(req, res) {
-    //console.log(JSON.stringify(req.query));
     var id = req.query.id;
-    //console.log(req.query.echo_stdin);
-    testArenaInstances[id].gameProcess.stdin.write(req.query.echo_stdin + '\n');
-    //console.log(testArenaInstances[id].gameProcess.stdout);
-    //testArenaInstances[id].gameProcess.stdout.off('data');
-    testArenaInstances[id].gameProcess.stdout.on('data', function(data)
-        {
-          //testArenaInstances[id].sock.emit('stdout', {'output': data.toString()});
-          console.log('stdout', {'output': data.toString()});
-          res.write(data.toString());
-        });
-    testArenaInstances[id].gameProcess.on('close', function(code) 
-        {
-           //testArenaInstances[id].sock.emit('status', {'output': 'program closed with code ' + code});
-           console.log('status', {'output': 'program closed with code ' + code});
-           res.end();
-        });
+    if(testArenaInstances[id] && testArenaInstances[id].gameProcess){
+      testArenaInstances[id].gameProcess.stdin.write(req.query.echo_stdin + '\n');
+      testArenaInstances[id].gameProcess.stdout.on('data', function(data){
+        console.log('stdout', {'output': data.toString()});
+        res.write(data.toString());
+      });
+      testArenaInstances[id].gameProcess.on('close', function(code){
+         console.log('status', {'output': 'program closed with code ' + code});
+         res.end();
+      });
+    }
+    else{
+      res.json({'error' : "Game is not started"});
+    }
   });
   
   
