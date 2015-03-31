@@ -432,27 +432,43 @@ function registerTestArenaRoutes(server, database) {
    * Requested by the "Upload Bot/s" Button on the test arena page
    */
   server.addDynamicRoute('post', '/uploadBot',function(req, res){
-    var compiler = new (require(paths.custom_modules.BotBattleCompiler));
     var humanOrBot = req.body.player1_bot_or_human;
+    console.log("Radio button is " + humanOrBot);
     if(humanOrBot === "human"){
-      compileBots(1, function(err){
+      var botPaths = testArenaInstances[req.body.tabId].bot2Path;
+      compileBot(botPaths, 1, function(err){
         if(err){
-          res.json({"error" : err.message + compile error."});
+          console.log("Upload fail");
+          res.json({"error" : err.message});
         }
         else{
+          console.log("Upload success");
           res.json({"status" : "Uploaded!"});
         }
       });
     }
     else if(humanOrBot === "bot"){
-      compileBots(2, function(err){
-        if(err){
-          res.json({"error" : err.message + compile error."});
-        }
-        else{
-          res.json({"status" : "Uploaded!"});
-        }
-      });
+      var botPaths = [testArenaInstances[req.body.tabId].bot1Path,testArenaInstances[req.body.tabId].bot2Path];
+      sentStatus = false;
+      compileCount = 0;
+      for(var botNum = 0; botNum < botPaths.length; botNum++){
+        compileBot(botPaths[botNum], botNum + 1, function(err){
+          compileCount++;
+          if(err){
+            botNum = botPaths.length;
+            console.log("Upload fail");
+            if(!sentStatus){
+              res.json({"error" : err.message});
+              sentStatus = true;
+            }
+          }
+          else if(!sentStatus && compileCount === botPaths.length){
+            console.log("Upload success");
+            res.json({"status" : "Uploaded!"});
+            sentStatus = true;
+          }          
+        });
+      }
     }
     else {
       console.log("illegal radio button value uploaded");
@@ -460,27 +476,23 @@ function registerTestArenaRoutes(server, database) {
     }
   });
   
-  function compileBots(botCount, callback){
-    if(botCount === 1){
-      compileBot(testArenaInstances[req.body.tabId].bot2Path, 1, callback);
-    }
-    else if(botCount === 2){
-      compileBot(testArenaInstances[req.body.tabId].bot1Path, 1, callback);
-      compileBot(testArenaInstances[req.body.tabId].bot2Path, 2, callback);
-    }    
-  });
-    
+  /**
+   *   Takes an array of paths to compile
+   */
   function compileBot(botPath, botNum, callback){
+    var compiler = new (require(paths.custom_modules.BotBattleCompiler));
     compiler.compile(botPath, function(err, compiledFilePath) {
       if (err) {
         err.message += " Error compiling "+ compiledFilePath +" source file";
         console.log(err.message);
-        callback(new Error("Bot " + botNum + "comile error."))
+        callback(new Error("Bot " + botNum + " failed to compile."));
       } 
       else{
         console.log("Compiled ", compiledFilePath);
+        callback(null);        
       }
-  });
+    });
+  }
   
   //1.125) Ensure two appropriate number of bots (players) are present in storage
   // 3) Build the JSON object to send to the Game Manager

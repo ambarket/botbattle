@@ -187,9 +187,9 @@
 	  var req = new XMLHttpRequest();
 	  req.open("GET", "echoTest/?id=" + id +"&echo_stdin=" + document.getElementById("echo_stdin").value, true);
 	  req.onload = function(oEvent) {
-	  				var crap = req.responseText
+	  				var response = req.responseText
 			    	console.log(crap);
-			    	document.getElementById("echo_status").innerHTML = crap;
+			    	document.getElementById("echo_status").innerHTML = response;
 			  };
 	  req.send();	  
 	  ev.preventDefault();
