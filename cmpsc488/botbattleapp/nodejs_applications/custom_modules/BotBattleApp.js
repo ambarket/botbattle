@@ -448,27 +448,24 @@ function registerTestArenaRoutes(server, database) {
       });
     }
     else if(humanOrBot === "bot"){
-      var botPaths = [testArenaInstances[req.body.tabId].bot1Path,testArenaInstances[req.body.tabId].bot2Path];
-      sentStatus = false;
-      compileCount = 0;
-      for(var botNum = 0; botNum < botPaths.length; botNum++){
-        compileBot(botPaths[botNum], botNum + 1, function(err){
-          compileCount++;
-          if(err){
-            botNum = botPaths.length;
-            console.log("Upload fail");
-            if(!sentStatus){
+      compileBot(testArenaInstances[req.body.tabId].bot1Path, 1, function(err){
+        if(err){
+          console.log("Upload fail");
+            res.json({"error" : err.message});
+        }
+        else{
+          compileBot(testArenaInstances[req.body.tabId].bot2Path, 2, function(err){
+            if(err){
+              console.log("Upload fail");
               res.json({"error" : err.message});
-              sentStatus = true;
             }
-          }
-          else if(!sentStatus && compileCount === botPaths.length){
-            console.log("Upload success");
-            res.json({"status" : "Uploaded!"});
-            sentStatus = true;
-          }          
-        });
-      }
+            else{
+              console.log("Upload success");
+              res.json({"status" : "Uploaded!"});
+            }          
+          });
+        }          
+      });
     }
     else {
       console.log("illegal radio button value uploaded");
