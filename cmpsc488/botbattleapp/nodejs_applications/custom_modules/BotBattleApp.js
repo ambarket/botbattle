@@ -237,7 +237,8 @@ function registerTestArenaRoutes(server, database) {
             'gameProcess' : null,
             'state' : 'stopped',
             'gameExpireDateTime' : gameExpireDateTime,
-            'gameModule' : null
+            'gameModule' : null,
+            'botsCompiled' : false
           }; 
           
           database.queryListOfGameNames(function(err, nameList){
@@ -390,7 +391,7 @@ function registerTestArenaRoutes(server, database) {
                       // parts - integer - For multipart forms, the max number of parts (fields + files) (Default: Infinity)
                       // headerPairs - integer - For multipart forms, the max number of header key=>value pairs to parse Default: 2000 (same as node's http).
               },
-              //putSingleFilesInArray: true, // this needs done for future compat.
+              putSingleFilesInArray: true, // this needs done for future compat.
               rename :  function(fieldname, filename) {
                             return filename;                                 
               },
@@ -435,9 +436,10 @@ function registerTestArenaRoutes(server, database) {
                                                 if (err) {
                                                   err.message += "Error compiling "+ compiledFilePath +" source file";
                                                   console.log(err.message);
-                                                  //res.append("CompileError", err.message.toString()); //need to let the client know it failed
+                                                  testArenaInstances[req.body.tabId].botsCompiled = false;
                                                 } else{
                                                   console.log("Compiled ", compiledFilePath);
+                                                  testArenaInstances[req.body.tabId].botsCompiled = true;
                                                 }
                                               }); 
                                         });
@@ -452,9 +454,10 @@ function registerTestArenaRoutes(server, database) {
                                                 if (err) {
                                                   err.message += "Error compiling "+ compiledFilePath +" source file";
                                                   console.log(err.message);
-                                                  //res.append("CompileError", err.message.toString()); //need to let the client know it failed
+                                                  testArenaInstances[req.body.tabId].botsCompiled = false;
                                                 } else{
                                                   console.log("Compiled ", compiledFilePath);
+                                                  testArenaInstances[req.body.tabId].botsCompiled = true;
                                                 }
                                               }); 
                                         });
@@ -479,7 +482,16 @@ function registerTestArenaRoutes(server, database) {
               },
             }));
 
-  server.addDynamicRoute('post', '/uploadBot',
+  server.addDynamicRoute('post', '/uploadBot',function(req, res){
+    if(testArenaInstances[req.body.tabId].botsCompiled === false){
+      res.json({"error" : "Bot compile error."});
+    }
+    else{
+      res.end();
+    }
+  });
+  
+  server.addDynamicRoute('post', '/startGame',
       function(req, res) {
         var path = require('path');
         var id = req.body.tabId;
@@ -525,25 +537,9 @@ function registerTestArenaRoutes(server, database) {
                 logger.log("already running");
             }
         }else{
-          logger.log("/uploadBot","invalid id");
+          logger.log("/startGame","invalid id");
         }
         res.end(); 
-          /*var path = require('path');
-          var folderContent = fileManager.getfolderContentList(paths.local_storage.game_modules);
-          var folderName = folderContent[0];
-          console.log(folderName);
-          var directoryPath = path.resolve(paths.local_storage.game_modules, folderName, 'Game.class'); // need to get the game folder name
-          var compiler = new (require(paths.custom_modules.BotBattleCompiler));
-          compiler.compile(directoryPath,
-              function(err, compiledFilePath) {
-                if (err) {
-                  err.message += "Error compiling "+ compiledFilePath +" source file";
-                  console.log(err.message);
-                  res.append("CompileError", err.message.toString()); //need to let the client know it failed
-                } else{
-                  console.log("Compiled ", compiledFilePath);
-                }
-              });*/  //  Duhh game is compiled... we need to launch it now....
   });
   
   // TODO: add a route that will send info to game for echo test.  testArenaInstances[id].gameProcess.stdin(text)
