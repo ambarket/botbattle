@@ -1,5 +1,11 @@
-var paths = require('./BotBattlePaths');
-  
+var paths = require('../BotBattlePaths');
+var path = require('path');
+
+var BotBattleAppHelpers = require(paths.BotBattleApp_sub_modules.Helpers);
+var fileManager = new (require(paths.custom_modules.FileManager));
+var testArenaInstances = {};
+
+
 function BotBattleApp(server, database) {
 	var self = this;
 	
@@ -17,9 +23,15 @@ function BotBattleApp(server, database) {
       this.setSeconds(this.getSeconds()+s);
       return this;
     }
+
+
+	require(paths.BotBattleApp_sub_modules.Login).registerRoutes(server, database);
+	require(paths.BotBattleApp_sub_modules.StudentPortal).registerRoutes(server, database);
+	require(paths.BotBattleApp_sub_modules.AdminPortal).registerRoutes(server, database);
 	
+	require(paths.BotBattleApp_sub_modules.TestArenaBotUpload).registerRoutes(server, testArenaInstances);
+	   
 	registerTestArenaRoutes(server, database);
-	registerLoginRoutes(server, database);
 }
 
 
@@ -28,12 +40,6 @@ var util = require('util');
 util.inherits(BotBattleApp, EventEmitter);
 
 module.exports = BotBattleApp;
-
-
-var fileManager = new (require(paths.custom_modules.FileManager));
-var testArenaInstances = {};
-//var now = new Date();
-//var count = 0;
 
 function cleanTest_Arena_tmp() {
   var count = 0;
@@ -69,148 +75,16 @@ function cleanTest_Arena_tmp() {
     cleanTest_Arena_tmp();
   }, 3600000); // 1 hour 3600000
 }
-
 cleanTest_Arena_tmp();
 
-function registerLoginRoutes(server, database) {
-  var passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy;
-  
-  passport.use(new LocalStrategy(
-      function(username, password, done) {
-        database.queryAllUsers(username, function(err, user) {
-          if (err) { return done(err, false, 'An error occured during verification'); }
-          if (!user || !user.password === password) {
-            return done(null, false,  { 'type' : 'error', 'text' : 'Incorrect username or password' });
-          }
-          if (!user.password === password) {
-            return done(null, false, { 'type' : 'error', 'text' : 'Incorrect username or password' });
-          }
-          if (!user.group) {
-            return done(null, false, { 'type' : 'error', 'text' : 'Valid username and password but no group' });
-          }
-          
-          return done(null, user, { 'type' : 'success', 'text' : 'Login successful'});
-        });
-      }
-    ));
-  
-  passport.serializeUser(function(user, done) {
-    done(null, user.username);
-  });
-
-  passport.deserializeUser(function(username, done) {
-    database.queryAllUsers(username, function(err, user) {
-      done(err, user);
-    });
-  });
-  
-
-  server.addDynamicRoute('get', '/login', function(req, res) {
-    var locals = copyLocalsAndDeleteMessage(req.session);
-    res.render(paths.static_content.views + 'pages/login', { 'locals' : locals});
-  });
-
-  
-  server.addDynamicRoute('post', '/verify_login', function(req, res, next) {
-      passport.authenticate('local', function(err, user, info) {
-        req.session.locals.message = info;
-        if (err) { 
-          //return res.redirect('/login'); 
-          return next(err); 
-        }
-        if (!user) { 
-          return res.redirect('/login'); 
-        }
-        req.logIn(user, function(err) {
-          if (err) { 
-            return next(err); 
-          }
-          req.session.locals.username = req.user.username;
-          req.session.locals.group = req.user.group;
-          
-          if (user.group === 'admin') {
-            return res.redirect('/adminPortal');
-          }
-          if (user.group === 'student') {
-            return res.redirect('/studentPortal');
-          }
-          
-        });
-      })(req, res, next);
-  });
-  
-  server.addDynamicRoute('get', '/adminPortal', function(req, res) {
-    if (req.user) {
-      if (req.user.group == 'admin') {
-        var locals = copyLocalsAndDeleteMessage(req.session);
-        res.render(paths.static_content.views + 'pages/adminPortal', { 'locals' : locals});
-      }
-      else {
-        req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, you don't have permission to access the admin portal" };
-        res.redirect('/');
-      }
-      
-    }
-    else {
-      req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, you don't have permission to access the admin portal"};
-      res.redirect('/');
-    }
-  });
-  
-  server.addDynamicRoute('get', '/studentPortal', function(req, res) {
-    if (req.user) {
-      if (req.user.group == 'student') {
-        var locals = copyLocalsAndDeleteMessage(req.session);
-        res.render(paths.static_content.views + 'pages/studentPortal', { 'locals' : locals});
-      }
-      else {
-        req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, admins don't have a student portal"};
-        res.redirect('/');
-      }
-    }
-    else {
-      req.session.locals.message = { 'type' : 'error', 'text' : "Sorry, you don't have permission to access the student portal"};
-      res.redirect('/');
-    }
-  });
-  
-  server.addDynamicRoute('get', '/logout', function(req, res) {
-    req.logout();
-    
-    req.session.regenerate(function(err) {
-      req.session.locals = {};
-      req.session.locals.message = { 'type' : 'success', 'text' : 'Successfully logged out'};
-      res.redirect('/');
-    });
-  });
-  
-}
-
-/**
- * This is weird but its the only way I could find to unset the message while still sending it.
- * @param session
- * @returns {object} deep copy of session.locals
- */
-function copyLocalsAndDeleteMessage(session) {
-  var retval = {}
-  for (var key in session.locals) {
-    retval[key] = session.locals[key];
-  }
-  session.locals.message = null;
-  session.locals.id = null;
-  return retval;
-}
 
 // TODO: if we ever go into a branch on a route that has an error we must always res.end() or send() or the client hangs
 function registerTestArenaRoutes(server, database) {
-  var paths = require('./BotBattlePaths');
-  var path = require('path');
   var logger = require(paths.custom_modules.Logger).newInstance('console');
    
   server.addDynamicRoute('get', '/', function(req, res) {
     // TODO: Can support multiple game modules if pass a list along in future
-  	var locals = copyLocalsAndDeleteMessage(req.session);
+  	var locals = BotBattleAppHelpers.copyLocalsAndDeleteMessage(req.session);
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
@@ -363,136 +237,9 @@ function registerTestArenaRoutes(server, database) {
     });
   });
   
-  /**
-   * Requested by the "Upload Bot/s" Button on the test arena page
-   */
-  // TODO:  Test with many uploading at the same time.
-  var multer = require('multer');
-  server.addDynamicRoute('post', '/uploadBot',
-            multer({
-              dest: './local_storage/test_arena_tmp/',
-              limits : {
-                        fieldNameSize : 100,
-                        files: 2,
-              },
-              putSingleFilesInArray: true, // this needs done for future compat.
-              rename :  function(fieldname, filename) {
-                            return filename;                                 
-              },
-              changeDest: function(dest, req, res) {
-                            var id = req.body.tabId;
-                            var path = require('path');
-                            var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, id);
-                            return directoryPath;                           
-              },
-              onFileUploadStart : function(file, req, res) {
-                                    console.log(file.fieldname + ' is starting ...');
-                                    var javaRE = /.*\.java/;
-                                    var cppRE = /.*\.cpp/;
-                                    var cxxRE = /.*\.cxx/;
-                                    if (file.fieldname == 'player1_bot_upload' || file.fieldname == 'player2_bot_upload') {
-                                      if (file.name.match(javaRE) || file.name.match(cppRE) || file.name.match(cxxRE)) {
-                                        console.log(file.fieldname + ':' + file.name
-                                            + ' is a .java/.cpp/.cxx file, uploading will continue');
-                                      } else {
-                                        console.log(file.fieldname
-                                                + ':'
-                                                + file.name
-                                                + ' is a NOT .java/.cpp/.cxx file, this file will not be uploaded');
-                                        // Returning false cancels the upload.
-                                        res.json({"error" : "Illegal file type"});
-                                        return false;
-                                      }
-                                    }
-              },
-              onFileUploadComplete : function(file, req, res) {
-                                      console.log(file.fieldname + ' uploaded to  ' + file.path);                                      
-                                      if(file.fieldname === "player1_bot_upload"){
-                                        testArenaInstances[req.body.tabId].bot1Path = file.path;
-                                      }
-                                      if(file.fieldname === "player2_bot_upload"){
-                                        testArenaInstances[req.body.tabId].bot2Path = file.path;
-                                      }
-                                                                                               
-              },
-              onError : function(error, next) {
-                          console.log(error)
-                          next(error)
-              },
-              onFileSizeLimit : function(file) {
-                                  console.log('Failed: ', file.originalname)
-                                  fs.unlink('./' + file.path) // delete the partially written file
-              },
-              onFilesLimit : function() {
-                               console.log('Crossed file limit!')
-              },
-            }));
+ 
 
-  /**
-   * Requested by the "Upload Bot/s" Button on the test arena page
-   */
-  server.addDynamicRoute('post', '/uploadBot',function(req, res){
-    var humanOrBot = req.body.player1_bot_or_human;
-    console.log("Radio button is " + humanOrBot);
-    if(humanOrBot === "human"){
-      var botPaths = testArenaInstances[req.body.tabId].bot2Path;
-      compileBot(botPaths, 1, function(err){
-        if(err){
-          console.log("Upload fail");
-          res.json({"error" : err.message});
-        }
-        else{
-          console.log("Upload success");
-          res.json({"status" : "Uploaded!"});
-        }
-      });
-    }
-    else if(humanOrBot === "bot"){
-      var botPaths = [testArenaInstances[req.body.tabId].bot1Path,testArenaInstances[req.body.tabId].bot2Path];
-      sentStatus = false;
-      compileCount = 0;
-      for(var botNum = 0; botNum < botPaths.length; botNum++){
-        compileBot(botPaths[botNum], botNum + 1, function(err){
-          compileCount++;
-          if(err){
-            botNum = botPaths.length;
-            console.log("Upload fail");
-            if(!sentStatus){
-              res.json({"error" : err.message});
-              sentStatus = true;
-            }
-          }
-          else if(!sentStatus && compileCount === botPaths.length){
-            console.log("Upload success");
-            res.json({"status" : "Uploaded!"});
-            sentStatus = true;
-          }          
-        });
-      }
-    }
-    else {
-      console.log("illegal radio button value uploaded");
-      res.json({'error' : "Bad form value"});
-    }
-  });
-  
-  /**
-   *   Takes an array of paths to compile
-   */
-  function compileBot(botPath, botNum, callback){
-    var compiler = new (require(paths.custom_modules.BotBattleCompiler));
-    compiler.compile(botPath, function(err, compiledFilePath) {
-      if (err) {
-        err.message += " Error compiling "+ compiledFilePath +" source file";
-        console.log(err.message);
-        callback(new Error("Bot " + botNum + " failed to compile."));
-      } 
-      else{
-        console.log("Compiled ", compiledFilePath);
-        callback(null);        
-      }
-    });
-  }
+
   
   //1.125) Ensure two appropriate number of bots (players) are present in storage
   // 3) Build the JSON object to send to the Game Manager
