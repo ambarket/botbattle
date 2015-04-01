@@ -11,7 +11,7 @@ var categoryDestinations = {
     session : ['ignore'],
     fileManager : ['console'],
     initialConfig : ['console'],
-    httpsServer : ['console'].
+    httpsServer : ['console'],
     BotBattleCompiler : ['console'],
     BotBattleApp : ['console']
 }
