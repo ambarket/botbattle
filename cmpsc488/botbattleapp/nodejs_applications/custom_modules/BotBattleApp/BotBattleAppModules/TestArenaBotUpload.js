@@ -10,48 +10,59 @@ module.exports = {
      */
     // TODO:  Test with many uploading at the same time.
     var multer = require('multer');
+    
+    var successfullyUploaded = 0;
+    
     var multerForTestArenaBotUpload = 
       multer({
         dest: './local_storage/test_arena_tmp/unprocessedBotUploads',
         limits : {
                   fieldNameSize : 100,
                   files: 2,
+                  fileSize: 500000, // 500 KB
         },
         putSingleFilesInArray: true, // this needs done for future compat.
         onFileUploadStart : function(file, req, res) {
-                              console.log(file.fieldname + ' is starting ...');
-                              var javaRE = /.*\.java/;
-                              var cppRE = /.*\.cpp/;
-                              var cxxRE = /.*\.cxx/;
-                              if (file.fieldname == 'player1_bot_upload' || file.fieldname == 'player2_bot_upload') {
-                                if (file.originalname.match(javaRE) || file.originalname.match(cppRE) || file.originalname.match(cxxRE)) {
-                                  console.log(file.fieldname + 
-                                      '- tmp_name: ' + file.name + 
-                                      '- originalname: ' + file.originalname +
-                                      ' is a .java/.cpp/.cxx file, uploading will continue');
-                                } else {
-                                  console.log(file.fieldname + 
-                                      '- tmp_name: ' + file.name + 
-                                      '- originalname: ' + file.originalname +
-                                      ' is a NOT .java/.cpp/.cxx file, this file will not be uploaded');
-                                  // Returning false cancels the upload.
-                                  res.json({"error" : "Illegal file type"});
-                                  return false;
-                                }
-                              }
+          console.log(file.fieldname + ' is starting ...');
+          var javaRE = /.*\.java/;
+          var cppRE = /.*\.cpp/;
+          var cxxRE = /.*\.cxx/;
+          if (file.fieldname == 'player1_bot_upload' || file.fieldname == 'player2_bot_upload') {
+            if (file.originalname.match(javaRE) || file.originalname.match(cppRE) || file.originalname.match(cxxRE)) {
+              console.log(file.fieldname + 
+                  '- tmp_name: ' + file.name + 
+                  '- originalname: ' + file.originalname +
+                  ' is a .java/.cpp/.cxx file, uploading will continue');
+            } else {
+              console.log(file.fieldname + 
+                  '- tmp_name: ' + file.name + 
+                  '- originalname: ' + file.originalname +
+                  ' is a NOT .java/.cpp/.cxx file, this file will not be uploaded');
+              // Returning false cancels the upload.
+              res.json({"error" : "Illegal file type"});
+              return false;
+            }
+          }
         },
         onError : function(error, next) {
-                    console.log(error)
-                    next(error)
+          console.log(error)
+          next(error)
         },
         onFileSizeLimit : function(file) {
-                            console.log('Failed: ', file.originalname)
-                            // TODO: Pretty sure that's not where the file is? Do we need this?
-                            fs.unlink('./' + file.path) // delete the partially written file
+          console.log('Failed: ', file.originalname)
+          fileManager.removeFileOrFolder(file.path, function(err) {}); // delete the partially written file
         },
         onFilesLimit : function() {
-                         console.log('Crossed file limit!')
+          console.log('Crossed file limit!')
         },
+        onFileUploadComplete: function (file, req, res) {
+          if (req.numberOfFilesUploaded) {
+            req.numberOfFilesUploaded++; 
+          } else {
+            req.numberOfFilesUploaded = 1; 
+          }
+          console.log("Successfully uploaded file #" + req.numberOfFilesUploaded + " for tab " + req.body.tabId + ": " + file.fieldname + ' uploaded to  ' + file.path);
+        }
       });
     
     /**
@@ -59,8 +70,13 @@ module.exports = {
      */
     var processBotUpload = function (req, res) {
       console.log(req.files);
+
       var humanOrBot = req.body.player1_bot_or_human;
-      console.log("Radio button is " + humanOrBot + JSON.stringify(req.files.player2_bot_upload[0]));
+      if (!(humanOrBot === 'human' && req.numberOfFilesUploaded === 1) && !(humanOrBot === 'bot' && req.numberOfFilesUploaded === 2) ) {
+        return res.json({"error" : "Did not receive correct number of bots for the option selected, please reload and try again"});
+      }
+      
+      console.log("Radio button is " + humanOrBot);
       // TODO: It threw me off that human(one bot) has botNum of 2 and bot v bot has botNum of 1 but
       //  makes sense for the players. Would be nice to reconcile this weirdness, perhaps make the human 
       //  player be on the right of the board(player 2) like the original game was.
@@ -87,14 +103,14 @@ module.exports = {
               else {
                 // Both bots were moved and compiled successfully.
                 logger.log('BotBattleApp', 'Successfully moved and compiled 2 bots for', req.body.tabId); 
-                res.json({'status' : 'Successfully moved and compiled both bots'});
+                res.json({'status' : 'Successfully moved and compiled 2 bots'});
               }
             });
           }
           // There was only one bot and it was moved and compiled successfully.
           else {
             logger.log('BotBattleApp', 'Successfully moved and compiled 1 bot for', req.body.tabId); 
-            res.json({'status' : 'Successfully moved and compiled both bots'});
+            res.json({'status' : 'Successfully moved and compiled 1 bot'});
           }
         });
       }
