@@ -466,6 +466,27 @@ function registerTestArenaRoutes(server, database) {
           });
         }          
       });
+      /*var botPaths = [testArenaInstances[req.body.tabId].bot1Path,testArenaInstances[req.body.tabId].bot2Path];
+      sentStatus = false;
+      compileCount = 0;
+      for(var botNum = 0; botNum < botPaths.length; botNum++){
+        compileBot(botPaths[botNum], botNum + 1, function(err){
+          compileCount++;
+          if(err){
+            botNum = botPaths.length;
+            console.log("Upload fail");
+            if(!sentStatus){
+              res.json({"error" : err.message});
+              sentStatus = true;
+            }
+          }
+          else if(!sentStatus && compileCount === botPaths.length){
+            console.log("Upload success");
+            res.json({"status" : "Uploaded!"});
+            sentStatus = true;
+          }          
+        });
+      }*/
     }
     else {
       console.log("illegal radio button value uploaded");
