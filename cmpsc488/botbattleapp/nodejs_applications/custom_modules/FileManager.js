@@ -54,7 +54,7 @@ function FileManager(botBattleDatabase) {
     this.deleteLocalStorage = function(callback) {
       var async = require('async');
       var localStorageArray = Object.keys(paths.local_storage).map(function (key) {return paths.local_storage[key]});
-      async.each(localStorageArray, removeFileOrFolder, function(err) {
+      async.each(localStorageArray, self.removeFileOrFolder, function(err) {
         if (err) {
           err.message += " Failed to clear local storage folders";
           callback(err);
@@ -78,12 +78,12 @@ function FileManager(botBattleDatabase) {
           files[i] = path.resolve(paths.init_config_tmp, files[i])              
         }
         var async = require('async');
-        async.each(files, removeFileOrFolder, callback);
+        async.each(files, self.removeFileOrFolder, callback);
       })
     }
     
     this.deleteInitConfigTmp = function(callback) {
-      removeFileOrFolder(paths.init_config_tmp, callback);
+      self.removeFileOrFolder(paths.init_config_tmp, callback);
     }
     /*
     this.createDirectoryForGameModule = function(gameName, callback) {
@@ -300,7 +300,7 @@ function FileManager(botBattleDatabase) {
       }
       var path = require('path');
       var directoryPath = path.resolve(paths.local_storage.test_arena_tmp, gameId);
-      removeFileOrFolder(directoryPath, callback);
+      self.removeFileOrFolder(directoryPath, callback);
     }
     
     this.getfolderContentList = function(folder){
@@ -371,9 +371,9 @@ function FileManager(botBattleDatabase) {
       * @method createFolder
       * @param {String} folderPath - absolute path for folder to be created
       * @param {Function} callback(err)
-      * @private
+      * @public
       */
-     var removeFileOrFolder = function(folderPath, callback){
+     this.removeFileOrFolder = function(folderPath, callback){
         fse.remove(folderPath, function(err){
            if (err) {
              err.message += "Error deleting directory: " + folderPath + err.message;
