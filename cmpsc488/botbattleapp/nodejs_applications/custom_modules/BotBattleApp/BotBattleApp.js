@@ -88,8 +88,10 @@ function registerTestArenaRoutes(server, database) {
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
-  // all oter functions that require session need to be changed because the structure is now different
-  server.addDynamicRoute('get', '/newGame', function(req, res) {
+  // TODO: I'm not sure what this comment means : all oter functions that require session need to be changed because the structure is now different
+  //TODO: This is called by the uploadBot button before the call to the actual upload route.
+  //    Name this better to indicate that.
+  server.addDynamicRoute('get', '/newTestArenaInstance', function(req, res) {
     // TODO: clean this up to samller concentrated functions.
     
     /*  this should be done on upload, but we have that only 2 routes working and multer problem thing...

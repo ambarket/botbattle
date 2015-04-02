@@ -27,33 +27,28 @@
         	<div class="col_3">
         <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
         	<input id="tabId" style="display:none" name="tabId" value="tabId">
-             <div id="playerRadio" class="form-item">
-               <label for="player1_bot_or_human">
-                 Player 1 Type:
-                 <span class="form-required" title="This field is required."> * </span>
-               </label>
-               <input id="human" name="player1_bot_or_human" type="radio" value="human" checked="checked" required >Human</input>
-               <input id="bot" name="player1_bot_or_human" type="radio" value="bot" required >Bot</input>
-             </div>
-             <p>
-             <div style="display:none" id="player1FileChoose" class="form-item">
+
+             <div id="player1FileChoose" class="form-item">
                  <label for="player1_bot_upload">
                  Select your bot for player 1
                  <span class="form-required" title="This field is required."> * </span>
                </label>
-                <input id="player1_bot_upload" name="player1_bot_upload" type="file" ></input>
+                <input id="player1_bot_upload" name="player1_bot_upload" type="file" required ></input>
              </div>
-             <p>
-             <div id="player2FileChoose" class="form-item">
-                 <label for="player2_bot_upload">
-                 Select your bot for player 2
-                 <span class="form-required" title="This field is required."> * </span>
+             <br>
+             <div id="playerRadio" class="form-item">
+               <label for="player2_bot_or_human">
+                 Player 2 Type: <span class="form-required" title="This field is required."> * </span>
                </label>
-                <input id="player2_bot_upload" name="player2_bot_upload" type="file" required ></input>
+               <input id="human" name="player2_bot_or_human" type="radio" value="human" checked="checked" required >Human</input>
+               <input id="bot" name="player2_bot_or_human" type="radio" value="bot" required >Bot</input>
              </div>
-             <p>
-             <p>
-            <input id="submitForm" type="submit" value="Upload Bot">
+             <div style="display:none" id="player2FileChoose" class="form-item">
+                 <label for="player2_bot_upload"> Select your bot for player 2 </label>
+                <input id="player2_bot_upload" name="player2_bot_upload" type="file" ></input>
+             </div>
+            <br><br>
+            <input id="uploadBotButton" type="submit" value="Upload Bot">
             <p>
             <div id="status"></div>
             <hr>
@@ -89,22 +84,21 @@
         	<hr />
         	
         	<div class="col_4 ioPanels">
-        	<h4>Move List</h4>
-                <div id="moveList"></div>
+        	 <h4>Move List</h4>
+           <div id="moveList"></div>
         	</div>
         	
-        	<div class="col_8 ioPanels">
-        	 <h4>Debugging Info</h4>
-        	 <div class="col_4 ioPanels">
-        	   <h5>Standard Output</h5>
-        	   <div id="stdout"></div>
-        	 </div>
-           <div class="col_4 ioPanels">
-             <h5>Standard Error</h5>
-             <div id="stderr"></div>
-           </div>
+       	 
+       	 <div class="col_4 ioPanels">
+       	   <h5>Standard Output</h5>
+       	   <div id="stdout"></div>
+       	 </div>
+       	 
+          <div class="col_4 ioPanels">
+            <h5>Standard Error</h5>
+            <div id="stderr"></div>
+          </div>
         
-        	</div>
         </div>
         <!-- END GRID -->
     </main>
@@ -145,7 +139,7 @@
 		} );
 	} );
 
-	var resetForm = function(id) {
+	var resetValueAttrributeById = function(id) {
 		document.getElementById(id).value = "";
 	}
 	
@@ -159,27 +153,25 @@
 	
 	// Listen for radio checks
 	$('#human').click(function(){ 
-    	$('#submitForm').val( "Upload Bot");
-    	$('#player1FileChoose').hide();
-    	$('#humanInput').show();
-    	$('#playGameParagraph').hide();
-    	//document.getElementById("uploadBotForm").reset();
-    	resetForm('player2_bot_upload');
-    	resetForm('player1_bot_upload');    	
-    	document.getElementById("status").innerHTML = "";
-    	document.getElementById("player1_bot_upload").required = false;
+	     $('#uploadBotButton').val( "Upload Bot");
+	     $('#player2FileChoose').hide();
+	     $('#humanInput').show();
+	     $('#playGameParagraph').hide();
+	     resetValueAttrributeById('player2_bot_upload');
+	     resetValueAttrributeById('player1_bot_upload');     
+	     document.getElementById("status").innerHTML = "";
+	     document.getElementById("player2_bot_upload").required = false;
 	});
 	
 	$('#bot').click(function(){ 
-    	$('#submitForm').val( "Upload Bots");
-    	$('#player1FileChoose').show();
+    	$('#uploadBotButton').val( "Upload Bots");
+    	$('#player2FileChoose').show();
     	$('#humanInput').hide();    	
     	$('#playGameParagraph').hide();
-    	//document.getElementById("uploadBotForm").reset();
-    	resetForm('player2_bot_upload');
-    	resetForm('player1_bot_upload');
+      resetValueAttrributeById('player2_bot_upload');
+      resetValueAttrributeById('player1_bot_upload');   
     	document.getElementById("status").innerHTML = "";
-    	document.getElementById("player1_bot_upload").required = true;
+    	document.getElementById("player2_bot_upload").required = true;
 	});
 	
 	//TODO:  add a box and button to send text for echo test
@@ -200,7 +192,7 @@
 	form.addEventListener('submit', function(ev) {		
 	  var req1 = new XMLHttpRequest();
 	  // disable the upload button
-	  req1.open("GET", "newGame/?id=" + id, true);
+	  req1.open("GET", "newTestArenaInstance/?id=" + id, true);
 	  
 	  req1.onload = function(){	
 	      console.log("in onload");
@@ -215,7 +207,7 @@
 	          oOutput = document.getElementById("status"),
 	          oData = new FormData(document.forms.namedItem("uploadBotForm"));  	  
 		      var oReq = new XMLHttpRequest();
-		      oReq.open("POST", "uploadBot", true);
+		      oReq.open("POST", "processBotUploads", true);
 			  oReq.onload = function(oEvent) {
 			    if (oReq.status == 200) {
 			    	response = JSON.parse(oReq.responseText);
