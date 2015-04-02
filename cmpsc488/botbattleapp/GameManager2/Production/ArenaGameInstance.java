@@ -60,6 +60,7 @@ public class ArenaGameInstance {
 
     // This is just for testing. Can be removed later
     System.out.println("Game over");
+    scner.close();
   }
 
   @Override
