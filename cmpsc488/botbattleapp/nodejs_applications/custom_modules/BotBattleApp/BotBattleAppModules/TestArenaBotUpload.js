@@ -208,7 +208,7 @@ module.exports = {
                           res.json({"error" : "Failed to compile bot for player 2"});
                         }
                         else{
-                          logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 1, "Successfully compiled source file"));
+                          logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 2, "Successfully compiled source file"));
                           logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Successfully processed bot uploads"));
                           res.json({"status" : "Uploaded!", 'id' : req.newGameId}); 
                         }          

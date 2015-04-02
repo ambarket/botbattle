@@ -26,8 +26,6 @@
        <div class="col_12">
         	<div class="col_3">
         <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
-        	  <input id="gameId" style="display:none" name="tabId" value="defaultIdValue">
-
              <div id="player1FileChoose" class="form-item">
                  <label for="player1_bot_upload">
                  Select your bot for player 1
@@ -106,10 +104,8 @@
 </html>
 
 <script> 
-	//var id = "defaultIdValue";
-	document.getElementById("gameId").value = "defaultIdValue";
-	//console.log("setIdFirst",id);
-	console.log("TabIdFirst",document.getElementById("gameId"));
+	var id = "defaultIdValue";
+	console.log("InitialId: ",id);
 
 	function leave() {
 		return "Leaving the page will stop your program from running!";
@@ -193,7 +189,7 @@
 	  var output = document.getElementById("status");
 	  var data = new FormData(document.forms.namedItem("uploadBotForm"));
 	  var req = new XMLHttpRequest();
-	  req.open("POST", "processBotUploads/?oldId=" + document.getElementById("gameId").value, true);
+	  req.open("POST", "processBotUploads/?oldId=" + id, true);
 	  req.onload = function(oEvent) {
 	    if (req.status == 200) {
 	      response = JSON.parse(req.responseText);
@@ -203,13 +199,8 @@
 	        $('#playGameParagraph').hide();
 	      } else {
 	        output.innerHTML = response.status;
-	        if (response.id) {
-	         document.getElementById("gameId").value = response.id;
-	        }
-	        else {
-	          console.log("Error receiving new game id after upload");
-	        }
 	        $('#playGameParagraph').show();
+	        id = response.id;
 	      }
 	      // then should stay disabled until game is over or change to restart game button
 	    } else {
