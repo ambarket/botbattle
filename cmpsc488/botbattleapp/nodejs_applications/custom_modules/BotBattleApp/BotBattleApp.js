@@ -93,8 +93,14 @@ function registerTestArenaRoutes(server, database) {
   
   server.addDynamicRoute('get', '/startGame', function(req, res) {
     console.log(req.query.id + " in start game");
-    var success = testArenaInstances.startNewGameInstance(req.query.id);
-    res.end(); 
+    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
+    if (success) {
+      res.json({status: "Spawned a new game, this is when you should start listening for game states"});
+    }
+    else {
+      res.status(500).json({error: "Failed to start the game, please contact your administrator"});
+    }
+
   });
 
   
