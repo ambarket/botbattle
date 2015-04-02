@@ -10,98 +10,83 @@ module.exports = {
   'registerRoutes' : function(server, database, testArenaInstances) { 
     
     var getLogMessageAboutGame = function(gameId, message) {
-      return "Game " + gameId + " - " + message;
+      return gameId + " - " + message;
     }
     
     var getLogMessageAboutPlayer = function(gameId, playerNum, message) {
       return getLogMessageAboutGame(gameId, "Player " + playerNum + " : " + message);
     }
 
-    // TODO: I'm not sure what this comment means : all oter functions that require session need to be changed because the structure is now different
-    //TODO: This is called by the uploadBot button before the call to the actual upload route.
-    //    Name this better to indicate that.
-    server.addDynamicRoute('get', '/newTestArenaInstance', function(req, res) {
-      console.log("here");
-      // TODO: clean this up to samller concentrated functions.
-      /*
-       * 2. create object in testArenaInstances as needed
-       * 3. create files like before.
-       * 4. create game instance?
-       * 5. return the new id
-       */
-        var id = req.query.id;
-        // if client exists in the testArenaInstance then delete it and the instance object
-        BotBattleAppHelpers.cleanUpTestArenaInstance(testArenaInstances, id, function(err){
-          if(err){
-            logger.log("/newGame",err);
-          }
-         // create a new object and folder with the id
-          var id = require('shortid').generate();
-          var gameExpireDateTime = new Date().addHours(2);
-          //var gameExpireDateTime = new Date().addSeconds(15);      
-          
-          var newInstance = { 
-            'gameProcess' : null,
-            'gameState' : null,
-            'gameExpireDateTime' : gameExpireDateTime,
-            'gameModule' : null,
-            'bot1Path' : null,
-            'bot2Path' : null
-          }; 
-          
-          database.queryListOfGameNames(function(err, nameList){
+    var createNewTestArenaInstanceForClient = function(oldGameId, callback) {
+      // if client exists in the testArenaInstance then delete it and the instance object
+      // No need to wait for this to complete though
+      BotBattleAppHelpers.cleanUpTestArenaInstance(testArenaInstances, oldGameId, function(err){
+        if(err){
+          logger.log("TestArenaBotUpload", getLogMessageAboutGame(oldGameId, "Error cleaning up testArenaInstance"));
+        }
+        else {
+          logger.log("TestArenaBotUpload", getLogMessageAboutGame(oldGameId, "Successfully cleaned up testArenaInstance"));
+        }
+      });
+      
+      // Get SystemGameModule, create new gameId, create new testArenaInstance, create file structure for the instance, and 
+      //    finally pass the newGameId to the callback.
+      database.queryForSystemGameModule(function(err, gameModule) {
+        var newGameId = require('shortid').generate();
+        if (err) {
+          logger.log("TestArenaBotUpload", 
+              getLogMessageAboutGame(newGameId, "There was an error getting the system game module: ", err.message));
+        }
+        else {
+          testArenaInstances[newGameId] = { 
+              'gameProcess' : null,
+              'gameState' : null,
+              'gameExpireDateTime' : new Date().addHours(2),
+              'gameModule' : gameModule,
+              'bot1Path' : null,
+              'bot2Path' : null
+            };
+          fileManager.createGameInstanceDirectory(newGameId, function(err, result){
             if(err){
-              console.log("There was an error getting the Game name list ", err.message);
-              // TODO: actually send an appropriate HTTP error code/message
-              res.status(500).json({"error":err});
+              logger.log("TestArenaBotUpload", 
+                  getLogMessageAboutGame(newGameId, "There was an error creating directory for new instance: ", err.message));
             }
             else{
-              console.log(nameList);
-              // The assumption is there will only be one game, but has support for multiple games in the future
-              database.queryGameModule(nameList[0], function(err, gameModule){
+              fileManager.createBotFolderInGameInstanceDirectory(newGameId, "bot1", function(err, result){
                 if(err){
-                  console.log('Could not get game module in BotBattleApp ' + err.message)
-                  // TODO: actually send an appropriate HTTP error code/message
-                  res.json({"error":err});
+                  logger.log("TestArenaBotUpload", 
+                      getLogMessageAboutGame(newGameId, "There was an error creating directory for bot1 ", err.message));
                 }
                 else{
-                  newInstance.gameModule = gameModule;
-                  testArenaInstances[id] = newInstance;
-                  fileManager.createGameInstanceDirectory(id, function(err, result){
+                  fileManager.createBotFolderInGameInstanceDirectory(newGameId, "bot2", function(err, result){
                     if(err){
-                      console.log(err);
-                      // TODO: actually send an appropriate HTTP error code/message
-                      res.json({"error":err});
+                      logger.log("TestArenaBotUpload", 
+                          getLogMessageAboutGame(newGameId, "There was an error creating directory for bot2 "+ err.message));
                     }
-                    else{
-                      fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
-                        if(err){
-                          console.log(err);
-                          // TODO: actually send an appropriate HTTP error code/message
-                          res.json({"error":err});
-                        }
-                        else{
-                          fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
-                            if(err){
-                              console.log(err);
-                              // TODO: actually send an appropriate HTTP error code/message
-                              res.json({"error":err});
-                            }
-                            console.log("results", result);
-                            console.log("Current testArenaInstances\n",testArenaInstances);
-                            res.json({"id" : id});
-                          })
-                        }
-                      })
-                    }
-                  }); 
+                    logger.log("TestArenaBotUpload", 
+                        getLogMessageAboutGame(newGameId, "Successfully created new testArenaInstance"));
+                    callback(null, newGameId);
+                  });
                 }
-              })
+              });
             }
-          })
-        });   
-      }); 
+          }); 
+        }
+      });
+    }
     
+    
+    server.addDynamicRoute('get', '/newTestArenaInstance', function(req, res) {
+      createNewTestArenaInstanceForClient(req.query.id, function(err, newGameId) {
+        if (err) {
+          res.status(500).json({'error' : "An unexpected error occured while uploading your bots. Please try again or see your administrator"});
+        }
+        else {
+          res.json({'id' : newGameId});
+        }
+      });
+    });
+       
     var multerForBotUploads = require('multer')({
       dest: paths.local_storage.test_arena_tmp,
       limits : {
@@ -203,7 +188,7 @@ module.exports = {
               else{
                 logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 1, "Successfully compiled source file"));
                 if(humanOrBot !== "bot"){ 
-                    logger.log('TestArenaBotUpload', "Successfully processed bot uploads for game " + tabId);
+                    logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Successfully processed bot uploads"));
                     res.json({"status" : "Uploaded!"});
                 }
                 else { // Move and compile bot for player 2
@@ -222,7 +207,7 @@ module.exports = {
                         }
                         else{
                           logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 1, "Successfully compiled source file"));
-                          logger.log('TestArenaBotUpload', "Successfully processed bot uploads for game " + tabId);
+                          logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Successfully processed bot uploads"));
                           res.json({"status" : "Uploaded!"}); 
                         }          
                       });
