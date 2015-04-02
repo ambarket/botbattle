@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="Production"/>
 	<classpathentry kind="src" path="Bots"/>
 	<classpathentry kind="src" path="Tests"/>
+	<classpathentry kind="src" path="Games"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
