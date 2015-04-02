@@ -1,4 +1,4 @@
-package game.manger;
+
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
