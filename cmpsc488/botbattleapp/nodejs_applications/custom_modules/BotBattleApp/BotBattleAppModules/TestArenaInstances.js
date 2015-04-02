@@ -133,6 +133,53 @@ module.exports = new (function() {
       }
     }); 
   }
+  
+  // Synchronous
+  this.startNewGameInstance = function(id) {
+    console.log("here");
+      var spawn = require('child_process').spawn;
+      if (testArenaInstances[id]){
+          if (!testArenaInstances[id].gameProcess){
+              if(testArenaInstances[id].gameModule.classFilePath){
+                  var workingGamePath = path.resolve(paths.local_storage.test_arena_tmp, id);
+                  var classPath = path.resolve(paths.local_storage.game_modules + "/" + testArenaInstances[id].gameModule.gameName);
+                  // TODO: this is asyn and concerns me about running this based on its existance...
+                  testArenaInstances[id].gameProcess  = spawn('java', ["-classpath", classPath, "GameManager"], {cwd: workingGamePath});
+                  console.log('java',"-classpath", classPath, "GameManager");
+                  logger.log("Spawned new game. PID: " + testArenaInstances[id].gameProcess.pid);
+                  if(testArenaInstances[id].gameProcess){
+                    testArenaInstances[id].state = "running";
+                    testArenaInstances[id].gameProcess.stdout.on('data', function(data){
+                      // make an array to store moves in
+                      console.log('stdout', {'output': data.toString()});
+                    });                      
+                    testArenaInstances[id].gameProcess.stderr.on('data', function(data){
+                      // make an array to store errors in
+                      console.log('stderr', {'output': data.toString()});
+                    });                      
+                    testArenaInstances[id].gameProcess.on('close', function(code){
+                      testArenaInstances[id].state = "closed";
+                      console.log('status', {'output': 'program closed with code ' + code});
+                    });                      
+                    testArenaInstances[id].gameProcess.on('exit', function(code){
+                      testArenaInstances[id].state = "exited";
+                      logger.log("Exited :" + testArenaInstances[id].gameProcess.pid);
+                    });
+                  }
+                  else{
+                    console.log("Game was not spawned or there is an async problem");
+                  }
+                  
+              }else{
+                  logger.log("Can't run program.  Filepath is null.\n");
+              }
+          }else{
+              logger.log("already running");
+          }
+      }else{
+        logger.log("/startGame","invalid id");
+      }
+  }
  
 })(); // Immedietly execute and create the module
 
