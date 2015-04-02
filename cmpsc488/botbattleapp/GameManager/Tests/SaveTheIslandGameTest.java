@@ -1,6 +1,7 @@
 
+
 import static org.junit.Assert.*;
-import game.manger.SaveTheIslandGame.Board;
+
 
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class SaveTheIslandGameTest {
   @Test
   public void testIsValidMove() {
     String board = stiGame.getStartingBoard();
-    String tiles = Board.getPlayersTiles(1, board);
+    String tiles = SaveTheIslandGame.Board.getPlayersTiles(1, board);
     String move = "attack;" + tiles.substring(0, 1);
 
     assertFalse(stiGame.isValidMove(move, board, 1));
@@ -39,7 +40,7 @@ public class SaveTheIslandGameTest {
   @Test
   public void testIsValidMoveWithBadType() {
     String board = stiGame.getStartingBoard();
-    String tiles = Board.getPlayersTiles(1, board);
+    String tiles = SaveTheIslandGame.Board.getPlayersTiles(1, board);
     String move = "ammack;" + tiles.substring(0, 1);
 
     assertFalse(stiGame.isValidMove(move, board, 1));
@@ -48,7 +49,7 @@ public class SaveTheIslandGameTest {
   @Test
   public void testIsValidMoveWithBadTile() {
     String board = stiGame.getStartingBoard();
-    String tiles = Board.getPlayersTiles(1, board);
+    String tiles = SaveTheIslandGame.Board.getPlayersTiles(1, board);
     String move = "attack;6";
 
     assertFalse(stiGame.isValidMove(move, board, 1));
@@ -57,7 +58,7 @@ public class SaveTheIslandGameTest {
   @Test
   public void testIsValidMoveWithBadNumberOfTiles() {
     String board = stiGame.getStartingBoard();
-    String tiles = Board.getPlayersTiles(1, board);
+    String tiles = SaveTheIslandGame.Board.getPlayersTiles(1, board);
     String move =
         "attack;" + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1)
             + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1);

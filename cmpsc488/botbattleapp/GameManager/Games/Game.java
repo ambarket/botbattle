@@ -134,7 +134,7 @@ public class Game implements GameInterface {
   }
 
 
-  public static String getJSONstringFromGameResults(GameResults results) {
+  public String getJSONstringFromGameResults(GameResults results) {
     Object[] player1Moves = results.getPlayer1Moves().toArray();
     Object[] player2Moves = results.getPlayer2Moves().toArray();
     List<String> boards = results.getBoards();

@@ -1,7 +1,7 @@
 
 
 import java.io.IOException;
-import java.util.Scanner;
+
 /**
  * @author Randall Hudson
  *
@@ -9,29 +9,20 @@ import java.util.Scanner;
 public class GameManager {
   
   //You will need to change this path
-  public static  String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\TestBotAndJudge\\bin";
+  public static  String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\GameManager2\\bin";
 
   // TODO create simple save the island bot
   // TODO test save the island game with simple bot
   // TODO write unit tests for rounds
-  // TODO write unit tests for tournaments
+  // TODO write unit tests for tournaments 
   // TODO write unit tests for Competitor Data
   // TODO write unit tests for game instance
   // TODO look into integration testing
-  // TODO clean up players construcotrs, could combine most of that work.
+  // TODO clean up players constructors, could combine most of that work.
 
   public static void main(String[] args) throws IOException, InterruptedException {
-    // Just testing echoing input
-    Scanner sc = new Scanner(System.in);
-    String input = sc.next();
-    while(!input.equals("Quit")){
-        System.out.println(input);
-        input = sc.next();
-    }
-    
-    //commented out while testing test arena
-    
-    //TournamentTest();
+
+    TournamentTest();
     //humanPlayersTest();
   }
   

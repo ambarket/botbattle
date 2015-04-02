@@ -254,7 +254,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initGameModuleTask1_CreateDirectoryFromGameName(tmpData, callback) {
     var path = require('path');
     var pathToDirectory = path.resolve(paths.local_storage.game_modules, tmpData.gameName);
-    fileManager.copyFileOrFolder(paths.gameEnvironment, pathToDirectory, function(err) {
+    fileManager.copyFileOrFolder(paths.gameManagerSource, pathToDirectory, function(err) {
           if (err) {
             err.message += "&nbsp&nbsp Error creating directory for game module";
             callback(err);
