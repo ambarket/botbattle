@@ -18,12 +18,12 @@ public class GameManager {
   // TODO write unit tests for Competitor Data
   // TODO write unit tests for game instance
   // TODO look into integration testing
-  // TODO clean up players construcotrs, could combine most of that work.
+  // TODO clean up players constructors, could combine most of that work.
 
   public static void main(String[] args) throws IOException, InterruptedException {
 
-    //TournamentTest();
-    humanPlayersTest();
+    TournamentTest();
+    //humanPlayersTest();
   }
   
   public static void humanPlayersTest() throws IOException, InterruptedException {
