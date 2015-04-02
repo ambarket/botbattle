@@ -26,7 +26,7 @@
        <div class="col_12">
         	<div class="col_3">
         <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
-        	<input id="tabId" style="display:none" name="tabId" value="tabId">
+        	  <input id="tabId" style="display:none" name="tabId" value="tabId">
 
              <div id="player1FileChoose" class="form-item">
                  <label for="player1_bot_upload">
@@ -190,54 +190,56 @@
 	var form = document.forms.namedItem("uploadBotForm");
 	
 	form.addEventListener('submit', function(ev) {		
-	  var req1 = new XMLHttpRequest();
+	  //var req1 = new XMLHttpRequest();
 	  // disable the upload button
-	  req1.open("GET", "newTestArenaInstance/?id=" + id, true);
 	  
-	  req1.onload = function(){	
-	      console.log("in onload");
-	      var response = JSON.parse(req1.response);
-	      console.log("request",response); 
-	      if(response.id){   	
-	      	  id = response.id;
-	      	  document.getElementById("tabId").value = id;
-	      	  console.log("server response",id);
-		      console.log("tabId",document.getElementById("tabId"));
-	          var
-	          oOutput = document.getElementById("status"),
-	          oData = new FormData(document.forms.namedItem("uploadBotForm"));  	  
-		      var oReq = new XMLHttpRequest();
-		      oReq.open("POST", "processBotUploads", true);
-			  oReq.onload = function(oEvent) {
-			    if (oReq.status == 200) {
-			    	response = JSON.parse(oReq.responseText);
-			    	console.log("Good status " + JSON.stringify(response));
-			    	if(response.error){
-			    		oOutput.innerHTML = response.error;
-			    		$('#playGameParagraph').hide();
-			    	}
-			    	else{
-			    		oOutput.innerHTML = response.status;
-			    		$('#playGameParagraph').show();
-			    	}
-			    	// then should stay disabled until game is over or change to restart game button
-			    } else {
-			    	oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
-			    	console.log("Bad status " + JSON.stringify(response));
-			    	if(response.error){
-			    		oOutput.innerHTML = response.error;
-			    	}
-			    	//disable play game button
-			    }
-			    // enable upload button in each case
-			  };
-			  oReq.send(oData);
-		      ev.preventDefault();
-	      } else {
-	      	console.log("Server did not send id, instead : " + JSON.stringify(response));
-	      }		     
-	  };
-	  req1.send();	  
-	  ev.preventDefault();
-	}, false);
+	 /*
+        req1.open("GET", "newTestArenaInstance/?id=" + id, true);
+        req1.onload = function() {
+          console.log("in onload");
+          var response = JSON.parse(req1.response);
+          console.log("request", response);
+          if (response.id) {
+            id = response.id;
+            document.getElementById("tabId").value = id;
+            console.log("server response", id);
+            console.log("tabId", document.getElementById("tabId"));
+
+
+            
+            */
+            var oOutput = document.getElementById("status");
+            var oData = new FormData(document.forms.namedItem("uploadBotForm"));
+            var oReq = new XMLHttpRequest();
+            oReq.open("POST", "processBotUploads/?oldId=" + id, true);
+            oReq.onload = function(oEvent) {
+              if (oReq.status == 200) {
+                response = JSON.parse(oReq.responseText);
+                console.log("Good status " + JSON.stringify(response));
+                if (response.error) {
+                  oOutput.innerHTML = response.error;
+                  $('#playGameParagraph').hide();
+                } else {
+                  oOutput.innerHTML = response.status;
+                  $('#playGameParagraph').show();
+                  id = response.id;
+                  document.getElementById("tabId").value = id;
+                  console.log("tabId", document.getElementById("tabId"));
+                }
+                // then should stay disabled until game is over or change to restart game button
+              } else {
+                oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
+                console.log("Bad status " + JSON.stringify(response));
+                if (response.error) {
+                  oOutput.innerHTML = response.error;
+                }
+                //disable play game button
+              }
+              // enable upload button in each case
+         
+            };
+            oReq.send(oData);
+            ev.preventDefault();
+
+      }, false);
 </script>

@@ -29,8 +29,8 @@ module.exports = {
         }
       });
       
-      // Get SystemGameModule, create new gameId, create new testArenaInstance, create file structure for the instance, and 
-      //    finally pass the newGameId to the callback.
+      // Get SystemGameModule, create new gameId, create new testArenaInstance, 
+      // create file structure for the instance, and finally pass the newGameId to the callback.
       database.queryForSystemGameModule(function(err, gameModule) {
         var newGameId = require('shortid').generate();
         if (err) {
@@ -76,16 +76,18 @@ module.exports = {
     }
     
     
-    server.addDynamicRoute('get', '/newTestArenaInstance', function(req, res) {
-      createNewTestArenaInstanceForClient(req.query.id, function(err, newGameId) {
+    var newTestArenaInstanceRoute = function(req, res, next) {
+      createNewTestArenaInstanceForClient(req.query.oldId, function(err, newGameId) {
         if (err) {
           res.status(500).json({'error' : "An unexpected error occured while uploading your bots. Please try again or see your administrator"});
         }
         else {
-          res.json({'id' : newGameId});
+          // Set the game id in request object so multer and moveAndCompile can access it.
+          req.newGameId = newGameId 
+          next();
         }
       });
-    });
+    }
        
     var multerForBotUploads = require('multer')({
       dest: paths.local_storage.test_arena_tmp,
@@ -96,10 +98,10 @@ module.exports = {
       },
       putSingleFilesInArray: true, // this needs done for future compat.
       changeDest: function(dest, req, res) {
-        return path.resolve(dest, req.body.tabId);
+        return path.resolve(dest, req.newGameId);
       },
       onFileUploadStart : function(file, req, res) {
-        var logPrefix = getLogMessageAboutGame(req.body.tabId, file.fieldname + " : " + file.originalname);
+        var logPrefix = getLogMessageAboutGame(req.newGameId, file.fieldname + " : " + file.originalname);
         if (file.fieldname == 'player1_bot_upload' || file.fieldname == 'player2_bot_upload') {
           if (file.extension.match(/cxx|cpp|java/)) {
             logger.log('TestArenaBotUpload', logPrefix, 'is a .java/.cpp/.cxx file, uploading will continue');
@@ -129,51 +131,51 @@ module.exports = {
         next()
       }, 
       onFileUploadComplete : function(file, req, res) {
-        var logPrefix = getLogMessageAboutGame(req.body.tabId, file.fieldname + " : " + file.originalname);
+        var logPrefix = getLogMessageAboutGame(req.newGameId, file.fieldname + " : " + file.originalname);
         if (file.exceededSizeLimit === true) {
           logger.log('TestArenaBotUpload', logPrefix, 'exceeded 100 KB file size limit');
         }
         else {
           logger.log('TestArenaBotUpload', logPrefix, 'uploaded to', file.path);         
-          if (testArenaInstances[req.body.tabId].numberOfBots) {
-            testArenaInstances[req.body.tabId].numberOfBots++;
+          if (testArenaInstances[req.newGameId].numberOfBots) {
+            testArenaInstances[req.newGameId].numberOfBots++;
           }
           else {
-            testArenaInstances[req.body.tabId].numberOfBots = 1;
+            testArenaInstances[req.newGameId].numberOfBots = 1;
           }
           if(file.fieldname === "player1_bot_upload"){
-            testArenaInstances[req.body.tabId].bot1Name = file.originalname;
-            testArenaInstances[req.body.tabId].bot1Path = file.path;
+            testArenaInstances[req.newGameId].bot1Name = file.originalname;
+            testArenaInstances[req.newGameId].bot1Path = file.path;
           }
           if(file.fieldname === "player2_bot_upload"){
-            testArenaInstances[req.body.tabId].bot2Name = file.originalname;
-            testArenaInstances[req.body.tabId].bot2Path = file.path;
+            testArenaInstances[req.newGameId].bot2Name = file.originalname;
+            testArenaInstances[req.newGameId].bot2Path = file.path;
           }
         }
       }
     });
     
     var moveAndCompileBots = function(req, res){
-      var tabId = req.body.tabId;
+      var tabId = req.newGameId;
       var humanOrBot = req.body.player2_bot_or_human;
       logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Radio button is " + humanOrBot));
       if(humanOrBot !== "human" && humanOrBot !== "bot"){
         logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Illegal radio button value uploaded"));
         res.json({'error' : "Bad form value"});
       }
-      else if(humanOrBot === "human" && testArenaInstances[req.body.tabId].numberOfBots !== 1) {
+      else if(humanOrBot === "human" && testArenaInstances[req.newGameId].numberOfBots !== 1) {
         logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Attempt to run human v bot game with wrong number of bots"));
         res.json({'error' : "Bad form value"});
       }
-      else if(humanOrBot === "bot" && testArenaInstances[req.body.tabId].numberOfBots !== 2) {
+      else if(humanOrBot === "bot" && testArenaInstances[req.newGameId].numberOfBots !== 2) {
         logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Attempt to run bot v bot game with wrong number of bots"));
         res.json({'error' : "Bad form value"}); 
       }
       else {
         var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, tabId);
         // Move and compile bot for player 1
-        var newBot1Path = path.resolve(gameFolder, "bot1", testArenaInstances[req.body.tabId].bot1Name);
-        fileManager.moveFile(testArenaInstances[req.body.tabId].bot1Path, newBot1Path, function(err){
+        var newBot1Path = path.resolve(gameFolder, "bot1", testArenaInstances[req.newGameId].bot1Name);
+        fileManager.moveFile(testArenaInstances[req.newGameId].bot1Path, newBot1Path, function(err){
           if (err) {
             logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 1, "Failed to move source file"));
             res.json({"error" : "Failed to upload bot for player 1"});
@@ -189,11 +191,11 @@ module.exports = {
                 logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 1, "Successfully compiled source file"));
                 if(humanOrBot !== "bot"){ 
                     logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Successfully processed bot uploads"));
-                    res.json({"status" : "Uploaded!"});
+                    res.json({"status" : "Uploaded!", 'id' : req.newGameId}); 
                 }
                 else { // Move and compile bot for player 2
-                  var newBot2Path = path.resolve(gameFolder, "bot2", testArenaInstances[req.body.tabId].bot2Name);
-                  fileManager.moveFile(testArenaInstances[req.body.tabId].bot2Path, newBot2Path, function(err){
+                  var newBot2Path = path.resolve(gameFolder, "bot2", testArenaInstances[req.newGameId].bot2Name);
+                  fileManager.moveFile(testArenaInstances[req.newGameId].bot2Path, newBot2Path, function(err){
                     if (err) {
                       logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 2, "Failed to move source file"));
                       res.json({"error" : "Failed to upload bot for player 2"});
@@ -208,7 +210,7 @@ module.exports = {
                         else{
                           logger.log('TestArenaBotUpload', getLogMessageAboutPlayer(tabId, 1, "Successfully compiled source file"));
                           logger.log('TestArenaBotUpload', getLogMessageAboutGame(tabId, "Successfully processed bot uploads"));
-                          res.json({"status" : "Uploaded!"}); 
+                          res.json({"status" : "Uploaded!", 'id' : req.newGameId}); 
                         }          
                       });
                     }
@@ -224,6 +226,6 @@ module.exports = {
     /**
      * Requested by the "Upload Bot/s" Button on the test arena page, immediately after newTestArenaInstance route is processed
      */
-    server.addDynamicRoute('post', '/processBotUploads', [multerForBotUploads, moveAndCompileBots]);
+    server.addDynamicRoute('post', '/processBotUploads', [newTestArenaInstanceRoute, multerForBotUploads, moveAndCompileBots]);
   }
 }

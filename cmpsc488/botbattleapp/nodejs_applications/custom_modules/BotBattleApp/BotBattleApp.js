@@ -98,7 +98,7 @@ function registerTestArenaRoutes(server, database) {
   server.addDynamicRoute('get', '/killGame', function(req, res) {
     var id = req.query.id;
     console.log("Killing ", id);
-    cleanUp(id, function(err){
+    BotBattleAppHelpers.cleanUpTestArenaInstance(testArenaInstances, id, function(err){
        if(err){
          logger.log(err);
          res.json({"error":err});
