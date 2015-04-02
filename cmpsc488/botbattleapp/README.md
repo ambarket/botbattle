@@ -1,3 +1,6 @@
+#To send HTTP status codes use 
+res.status(500).json({...}) // or .send(), .render() etc. Can use any HTTP status code as number.
+
 #Reccommended Practice for sending your own error messages to callbacks
 Done use the second argument to send a message related to an error, that should only be used for valid data.
 Instead either append to or overwrite the 'message' field of the err object. 
