@@ -58,7 +58,7 @@ module.exports = new (function() {
         'gameModule' : gameModule,
         'bot1Path' : null,
         'bot2Path' : null,
-        'stdoutQueue' : [],
+        'gameStateQueue' : [],
         'stderrQueue' : []
       };
     fileManager.createGameInstanceDirectory(newGameId, function(err, result){
@@ -128,9 +128,9 @@ module.exports = new (function() {
 
           testArenaInstances[id].gameProcess.stdout.on('data', function(data) {
             // make an array to store moves in
-            testArenaInstances[id].stdoutQueue.push(data.toString());
+            testArenaInstances[id].gameStateQueue.push(data.toString());
             logger.log("TestArenaInstances", 
-                helpers.getLogMessageAboutGame(id, "stdoutQueue: " + testArenaInstances[id].stdoutQueue));
+                helpers.getLogMessageAboutGame(id, "gameStateQueue: " + testArenaInstances[id].gameStateQueue));
           });
 
           testArenaInstances[id].gameProcess.stderr.on('data', function(data) {
@@ -171,52 +171,58 @@ module.exports = new (function() {
   this.removeGame = function(id, callback) {
     // TODO: Look up why delete isn't recommended // sometimes something can be
     // null in the delete call
-      // TODO: With this and others that rely on id we should check that
-      // req.query.id exists or delete finds the value
-      // incase the user tries to change the value or it becomes corrupted.
-        if (testArenaInstances[id]){
-            if (testArenaInstances[id].gameProcess){
-                var pid = testArenaInstances[id].gameProcess.pid;
-                logger.log("TestArenaInstances", "End Child: " + pid);
-                
-                testArenaInstances[id].gameProcess.on('close', function(code) {
-                  delete testArenaInstances[id];
-                  fileManager.deleteGameInstanceDirectory(id, function(err){
-                    if(err){
-                      logger.log("TestArenaInstances", err);
-                      callback("Server file manage error"); 
-                    }
-                  })
-                  logger.log("TestArenaInstances", "Child ", pid, "exited with code", code);
-                  logger.log("TestArenaInstances", "After Kill testArenaInstances is:\n", testArenaInstances);
-                  callback(null);
-                });
-                
-                testArenaInstances[id].gameProcess.stdin.end();
-                testArenaInstances[id].gameProcess.kill(); 
+    // TODO: With this and others that rely on id we should check that
+    // req.query.id exists or delete finds the value
+    // incase the user tries to change the value or it becomes corrupted.
+    if (testArenaInstances[id]) {
+      if (testArenaInstances[id].gameProcess) {
+        var pid = testArenaInstances[id].gameProcess.pid;
+        logger.log("TestArenaInstances", "End Child: " + pid);
+
+        testArenaInstances[id].gameProcess.on('close', function(code) {
+          delete testArenaInstances[id];
+          fileManager.deleteGameInstanceDirectory(id, function(err) {
+            if (err) {
+              logger.log("TestArenaInstances", err);
+              callback("Server file manage error");
             }
-            else{
-              logger.log("TestArenaInstances", "No child for id");
-                delete testArenaInstances[id];
-                fileManager.deleteGameInstanceDirectory(id, function(err){
-                  if(err){
-                    logger.log("TestArenaInstances", err);
-                    callback("Server file manage error"); 
-                  }
-                })
-                callback(null);
-            }
-        }
-        else{
-          if(id !== "defaultIdValue"){
-            logger.log("TestArenaInstances", "cleanup","invalid id:", id);
-            callback("invalid id: " + id);
+          })
+          logger.log("TestArenaInstances", "Child ", pid, "exited with code", code);
+          logger.log("TestArenaInstances", "After Kill testArenaInstances is:\n", testArenaInstances);
+          callback(null);
+        });
+
+        testArenaInstances[id].gameProcess.stdin.end();
+        testArenaInstances[id].gameProcess.kill();
+      } else {
+        logger.log("TestArenaInstances", "No child for id");
+        delete testArenaInstances[id];
+        fileManager.deleteGameInstanceDirectory(id, function(err) {
+          if (err) {
+            logger.log("TestArenaInstances", err);
+            callback("Server file manage error");
           }
-          else{
-            callback(null);
-          }
-        }
+        })
+        callback(null);
+      }
+    } else {
+      if (id !== "defaultIdValue") {
+        logger.log("TestArenaInstances", "cleanup", "invalid id:", id);
+        callback("invalid id: " + id);
+      } else {
+        callback(null);
+      }
     }
+  }
+  
+  this.popAllFromGameStateQueue = function(id) {
+    if (testArenaInstances[id]) {
+      return testArenaInstances[id].gameStateQueue.slice(0, testArenaInstances[id].gameStateQueue.length);
+    }
+    else {
+      return null;
+    }
+  }
  
 })(); // Immedietly execute and create the module
 

@@ -119,6 +119,16 @@ function registerTestArenaRoutes(server, database) {
   });
   
   
+  server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
+    var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
+    if (latestGameStateArray) {
+      res.json({'gamestates' : latestGameStateArray});
+    }
+    else {
+      res.status(500).json({'error' : "Cannot get gameStates due to invalid Id please refresh the page"});
+    }
+  });
+  
   /**
    * Requested by the "Send Move" Button on the test arena page
    */
