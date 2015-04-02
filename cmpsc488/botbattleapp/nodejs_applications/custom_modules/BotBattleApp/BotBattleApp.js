@@ -29,7 +29,7 @@ function BotBattleApp(server, database) {
 	require(paths.BotBattleApp_sub_modules.StudentPortal).registerRoutes(server, database);
 	require(paths.BotBattleApp_sub_modules.AdminPortal).registerRoutes(server, database);
 	
-	require(paths.BotBattleApp_sub_modules.TestArenaBotUpload).registerRoutes(server, testArenaInstances);
+	require(paths.BotBattleApp_sub_modules.TestArenaBotUpload).registerRoutes(server, database, testArenaInstances);
 	   
 	registerTestArenaRoutes(server, database);
 }
@@ -88,139 +88,9 @@ function registerTestArenaRoutes(server, database) {
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
-  // TODO: I'm not sure what this comment means : all oter functions that require session need to be changed because the structure is now different
-  //TODO: This is called by the uploadBot button before the call to the actual upload route.
-  //    Name this better to indicate that.
-  server.addDynamicRoute('get', '/newTestArenaInstance', function(req, res) {
-    // TODO: clean this up to samller concentrated functions.
-    
-    /*  this should be done on upload, but we have that only 2 routes working and multer problem thing...
-     * 1. Delete folder and instance and other game stuff if id provided by client exists (should be function)
-     * 2. create object in testArenaInstances as needed
-     * 3. create files like before.
-     * 4. create game instance?
-     * 5. return the new id
-     */
-      var id = req.query.id;
-      // if client exists in the testArenaInstance then delete it and the instance object
-      cleanUp(id, function(err){
-        if(err){
-          logger.log("/newGame",err);
-        }
-       // create a new object and folder with the id
-        var id = require('shortid').generate();
-        var gameExpireDateTime = new Date().addHours(2);
-        //var gameExpireDateTime = new Date().addSeconds(15);      
-        
-        var newInstance = { 
-          'gameProcess' : null,
-          'gameState' : null,
-          'gameExpireDateTime' : gameExpireDateTime,
-          'gameModule' : null,
-          'bot1Path' : null,
-          'bot2Path' : null
-        }; 
-        
-        database.queryListOfGameNames(function(err, nameList){
-          if(err){
-            console.log("There was an error getting the Game name list ", err.message);
-            // TODO: actually send an appropriate HTTP error code/message
-            res.json({"error":err});
-          }
-          else{
-            console.log(nameList);
-            // The assumption is there will only be one game, but has support for multiple games in the future
-            database.queryGameModule(nameList[0], function(err, gameModule){
-              if(err){
-                console.log('Could not get game module in BotBattleApp ' + err.message)
-                // TODO: actually send an appropriate HTTP error code/message
-                res.json({"error":err});
-              }
-              else{
-                newInstance.gameModule = gameModule;
-                testArenaInstances[id] = newInstance;
-                fileManager.createGameInstanceDirectory(id, function(err, result){
-                  if(err){
-                    console.log(err);
-                    // TODO: actually send an appropriate HTTP error code/message
-                    res.json({"error":err});
-                  }
-                  else{
-                    fileManager.createBotFolderInGameInstanceDirectory(id, "bot1", function(err, result){
-                      if(err){
-                        console.log(err);
-                        // TODO: actually send an appropriate HTTP error code/message
-                        res.json({"error":err});
-                      }
-                      else{
-                        fileManager.createBotFolderInGameInstanceDirectory(id, "bot2", function(err, result){
-                          if(err){
-                            console.log(err);
-                            // TODO: actually send an appropriate HTTP error code/message
-                            res.json({"error":err});
-                          }
-                          console.log("results", result);
-                          console.log("Current testArenaInstances\n",testArenaInstances);
-                          res.json({"id" : id});
-                        })
-                      }
-                    })
-                  }
-                }); 
-              }
-            })
-          }
-        })
-      });   
-    }); 
+
   
-  function cleanUp(id, callback){
-  //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
-    //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
-    //      incase the user tries to change the value or it becomes corrupted.
-      if (testArenaInstances[id]){
-          if (testArenaInstances[id].gameProcess){
-              var pid = testArenaInstances[id].gameProcess.pid;
-              logger.log("End Child: " + pid);
-              
-              testArenaInstances[id].gameProcess.on('close', function(code) {
-                delete testArenaInstances[id];
-                fileManager.deleteGameInstanceDirectory(id, function(err){
-                  if(err){
-                    console.log(err);
-                    callback("Server file manage error"); 
-                  }
-                })
-                console.log("Child ", pid, "exited with code", code);
-                console.log("After Kill testArenaInstances is:\n", testArenaInstances);
-                callback(null);
-              });
-              
-              testArenaInstances[id].gameProcess.stdin.end();
-              testArenaInstances[id].gameProcess.kill(); 
-          }
-          else{
-              logger.log("No child for id");
-              delete testArenaInstances[id];
-              fileManager.deleteGameInstanceDirectory(id, function(err){
-                if(err){
-                  console.log(err);
-                  callback("Server file manage error"); 
-                }
-              })
-              callback(null);
-          }
-      }
-      else{
-        if(id !== "defaultIdValue"){
-          logger.log("cleanup","invalid id:", id);
-          callback("invalid id: " + id);
-        }
-        else{
-          callback(null);
-        }
-      }
-  }
+  
   /**
    * Requested the test arena page is refreshed or a link is followed out
    * i.e. when the page is reloaded.
