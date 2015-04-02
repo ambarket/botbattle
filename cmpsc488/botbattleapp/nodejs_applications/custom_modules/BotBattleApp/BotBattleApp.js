@@ -105,6 +105,7 @@ function registerTestArenaRoutes(server, database) {
     var id = req.query.id;
     if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running"){
       testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.echo_stdin + '\n');
+      res.json({'status' : "Sent to stdin"});
     }
     else{
       res.json({'error' : "Game is not running"});

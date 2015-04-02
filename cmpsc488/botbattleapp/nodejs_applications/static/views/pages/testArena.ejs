@@ -175,9 +175,18 @@
 	  var req = new XMLHttpRequest();
 	  req.open("GET", "echoTest/?id=" + id +"&echo_stdin=" + document.getElementById("echo_stdin").value, true);
 	  req.onload = function(oEvent) {
-	  				var response = req.responseText
-			    	document.getElementById("echo_status").innerHTML = response;
-			  };
+	    var response = JSON.parse(req.responseText);
+	    if (response.error) {
+	      document.getElementById("echo_status").innerHTML = response.error;
+	    }
+	    else if (response.status) {
+	       document.getElementById("echo_status").innerHTML = response.status;
+	    }
+	    else {
+	      // Something else
+	      document.getElementById("echo_status").innerHTML = response;
+	    }
+		};
 	  req.send();	  
 	  ev.preventDefault();
 	}, false);
