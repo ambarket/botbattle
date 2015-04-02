@@ -176,12 +176,22 @@
 	  req.open("GET", "echoTest/?id=" + id +"&echo_stdin=" + document.getElementById("echo_stdin").value, true);
 	  req.onload = function(oEvent) {
 	  				var response = req.responseText
-			    	console.log(crap);
 			    	document.getElementById("echo_status").innerHTML = response;
 			  };
 	  req.send();	  
 	  ev.preventDefault();
 	}, false);
+	
+	 document.getElementById("playGame").addEventListener('click', function(ev) {    
+	    var req = new XMLHttpRequest();
+	    req.open("GET", "startGame/?id=" + id, true);
+	    req.onload = function(oEvent) {
+	      var response = JSON.parse(req.responseText);
+        document.getElementById("playGameParagraph").innerHTML = response.status;
+      };
+	    req.send();   
+	    ev.preventDefault();
+	  }, false);
 	
 	var form = document.forms.namedItem("uploadBotForm");
 	

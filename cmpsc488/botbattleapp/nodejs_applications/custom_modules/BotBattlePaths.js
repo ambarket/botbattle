@@ -54,6 +54,7 @@ module.exports.BotBattleApp_sub_modules = {
     'Login' : BotBattleApp_sub_modules_directory + 'Login',
     'StudentPortal' : BotBattleApp_sub_modules_directory + 'StudentPortal',
     'AdminPortal' : BotBattleApp_sub_modules_directory + 'AdminPortal',
+    'TestArenaInstances' :  BotBattleApp_sub_modules_directory + 'TestArenaInstances',
 }
 
 var static_content_directory = path.join(module.exports.app_root, '/static/');

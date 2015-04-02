@@ -22,52 +22,13 @@ module.exports = {
       session.locals.id = null;
       return retval;
     },
+    
+    getLogMessageAboutGame : function(gameId, message) {
+      return gameId + " - " + message;
+    },
+    
+    getLogMessageAboutPlayer : function(gameId, playerNum, message) {
+      return this.getLogMessageAboutGame(gameId, "Player " + playerNum + " : " + message);
+    }
 
-    cleanUpTestArenaInstance : function(testArenaInstances, id, callback){
-      //TODO: Look up why delete isn't recommended // sometimes something can be null in the delete call
-        //TODO: With this and others that rely on id we should check that req.query.id exists or delete finds the value
-        //      incase the user tries to change the value or it becomes corrupted.
-          if (testArenaInstances[id]){
-              if (testArenaInstances[id].gameProcess){
-                  var pid = testArenaInstances[id].gameProcess.pid;
-                  logger.log("End Child: " + pid);
-                  
-                  testArenaInstances[id].gameProcess.on('close', function(code) {
-                    delete testArenaInstances[id];
-                    fileManager.deleteGameInstanceDirectory(id, function(err){
-                      if(err){
-                        console.log(err);
-                        callback("Server file manage error"); 
-                      }
-                    })
-                    console.log("Child ", pid, "exited with code", code);
-                    console.log("After Kill testArenaInstances is:\n", testArenaInstances);
-                    callback(null);
-                  });
-                  
-                  testArenaInstances[id].gameProcess.stdin.end();
-                  testArenaInstances[id].gameProcess.kill(); 
-              }
-              else{
-                  logger.log("No child for id");
-                  delete testArenaInstances[id];
-                  fileManager.deleteGameInstanceDirectory(id, function(err){
-                    if(err){
-                      console.log(err);
-                      callback("Server file manage error"); 
-                    }
-                  })
-                  callback(null);
-              }
-          }
-          else{
-            if(id !== "defaultIdValue"){
-              logger.log("cleanup","invalid id:", id);
-              callback("invalid id: " + id);
-            }
-            else{
-              callback(null);
-            }
-          }
-      }
 }

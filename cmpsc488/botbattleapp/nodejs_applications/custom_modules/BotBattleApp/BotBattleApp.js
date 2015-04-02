@@ -2,9 +2,9 @@ var paths = require('../BotBattlePaths');
 var path = require('path');
 
 var BotBattleAppHelpers = require(paths.BotBattleApp_sub_modules.Helpers);
-var fileManager = new (require(paths.custom_modules.FileManager));
-var testArenaInstances = {};
+var fileManager = require(paths.custom_modules.FileManager).newInstance();
 
+var testArenaInstances = require(paths.BotBattleApp_sub_modules.TestArenaInstances);
 
 function BotBattleApp(server, database) {
 	var self = this;
@@ -29,7 +29,7 @@ function BotBattleApp(server, database) {
 	require(paths.BotBattleApp_sub_modules.StudentPortal).registerRoutes(server, database);
 	require(paths.BotBattleApp_sub_modules.AdminPortal).registerRoutes(server, database);
 	
-	require(paths.BotBattleApp_sub_modules.TestArenaBotUpload).registerRoutes(server, database, testArenaInstances);
+	require(paths.BotBattleApp_sub_modules.TestArenaBotUpload).registerRoutes(server, database);
 	   
 	registerTestArenaRoutes(server, database);
 }
@@ -41,41 +41,7 @@ util.inherits(BotBattleApp, EventEmitter);
 
 module.exports = BotBattleApp;
 
-function cleanTest_Arena_tmp() {
-  var count = 0;
-  var instance;
-  var now = Date.now();
-  setTimeout(function () {
-    console.log("Cleaning");
-    for(instance in testArenaInstances){
-      console.log("instance", instance)
-      now = Date.now();
-      console.log("now", now);
-      console.log("Delete at", testArenaInstances[instance].gameExpireDateTime)
-      if(now > testArenaInstances[instance].gameExpireDateTime){
-        // kill spawned game here too and anything created during a game
-        if (testArenaInstances[id].gameProcess){
-          var pid = testArenaInstances[id].gameProcess.pid;
-          logger.log("End Child: " + pid);          
-          testArenaInstances[id].gameProcess.stdin.end();
-          testArenaInstances[id].gameProcess.kill(); 
-        }
-        delete testArenaInstances[instance];
-        count++;
-        fileManager.deleteGameInstanceDirectory(instance, function(err){
-          if(err){
-            console.log(err);
-            // TODO: actually send an appropriate HTTP error code/message
-            res.json({"error":err});
-          }
-        });
-      }
-    }
-    console.log("Cleaned :", count, " instances.");
-    cleanTest_Arena_tmp();
-  }, 3600000); // 1 hour 3600000
-}
-cleanTest_Arena_tmp();
+
 
 
 // TODO: if we ever go into a branch on a route that has an error we must always res.end() or send() or the client hangs
@@ -98,7 +64,7 @@ function registerTestArenaRoutes(server, database) {
   server.addDynamicRoute('get', '/killGame', function(req, res) {
     var id = req.query.id;
     console.log("Killing ", id);
-    BotBattleAppHelpers.cleanUpTestArenaInstance(testArenaInstances, id, function(err){
+    testArenaInstances.removeGame(id, function(err){
        if(err){
          logger.log(err);
          res.json({"error":err});
@@ -124,7 +90,12 @@ function registerTestArenaRoutes(server, database) {
   // 5.75) When user sends the move hide the Send Move button.  // client side crap
   // 6) Wait for the initial game state to be sent by the Game Manager via stdout
   // 7) Send this initial game state to the client via res.json()
-  server.addDynamicRoute('post', '/startGame',
+  
+  server.addDynamicRoute('post', '/startGame', function(req, res) {
+    console.log(req.query.id + " in start game");
+  
+  });
+  /*
       function(req, res) {
         var path = require('path');
         var id = req.body.tabId;
@@ -172,14 +143,15 @@ function registerTestArenaRoutes(server, database) {
         }
         res.end(); 
   });
+  */
   
   /**
    * Requested by the "Echo Test" Button on the test arena page
    */
   server.addDynamicRoute('get', '/echoTest', function(req, res) {
     var id = req.query.id;
-    if(testArenaInstances[id] && testArenaInstances[id].gameProcess && testArenaInstances[id].state === "running"){
-      testArenaInstances[id].gameProcess.stdin.write(req.query.echo_stdin + '\n');
+    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running"){
+      testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.echo_stdin + '\n');
     }
     else{
       res.json({'error' : "Game is not running"});
