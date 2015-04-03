@@ -1,10 +1,8 @@
 //Wrap everything in a function, so local variables dont become globals
 (function() {
-
-
-  
-  var id = "defaultIdValue";
-  console.log("InitialId: ", id);
+  TEST_ARENA.myId = "defaultIdValue";
+  //var id = "defaultIdValue";
+  console.log("InitialId: ", TEST_ARENA.myId);
 
   function leave() {
     return "Leaving the page will stop your program from running!";
@@ -16,7 +14,7 @@
     $.ajax({
       async : false,
       data : {
-        id : id
+        id : TEST_ARENAARENA.myId
       },
       error : function() {
         alert('Close notification error');
@@ -73,7 +71,7 @@
   //TODO:  add a box and button to send text for echo test
   document.getElementById("echo_send_move").addEventListener('click', function(ev) {
     var req = new XMLHttpRequest();
-    req.open("GET", "echoTest/?id=" + id + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
+    req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
     req.onload = function(event) {
       var response = JSON.parse(req.responseText);
       if (response.error) {
@@ -92,7 +90,7 @@
   document.getElementById("startNewGame").addEventListener('click', function(ev) {
     var req = new XMLHttpRequest();
     var output = document.getElementById("gameControlStatus");
-    req.open("GET", "startGame/?id=" + id, true);
+    req.open("GET", "startGame/?id=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
       if (req.status == 200) {
         var response = JSON.parse(req.responseText);
@@ -132,7 +130,7 @@
     console.log("here");
     var output = document.getElementById("stdout");
     var req = new XMLHttpRequest();
-    req.open("GET", "getLatestGameStates/?id=" + id, true);
+    req.open("GET", "getLatestGameStates/?id=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
       if (req.status == 200) {
         response = JSON.parse(req.responseText);
@@ -179,7 +177,7 @@
     var output = document.getElementById("uploadBotStatus");
     var data = new FormData(document.forms.namedItem("uploadBotForm"));
     var req = new XMLHttpRequest();
-    req.open("POST", "processBotUploads/?oldId=" + id, true);
+    req.open("POST", "processBotUploads/?oldId=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
       if (req.status == 200) {
         response = JSON.parse(req.responseText);
@@ -192,7 +190,7 @@
           flashStatusOrErrorMessage('status', response.status);
           //output.innerHTML = response.status;
           setGameControlDiv("playGame");
-          id = response.id;
+          TEST_ARENA.myId = response.id;
         }
         else {
           console.log("Neither status or error found in response to uploadBotForm");
@@ -286,7 +284,7 @@
       var req = new XMLHttpRequest();
       req.open("POST", "testArenaUpdate", true);
       try {
-        req.send(TEST_ARENA.myId); // my.Id is not used.
+        req.send(TEST_ARENA.myId); 
         //TODO I think onReadyStateChange may allow us to detect if the request failed to post,
         //  need to do something about this because otherwise button just remains disabled.
         // Test by shutting down server then clicking it.
