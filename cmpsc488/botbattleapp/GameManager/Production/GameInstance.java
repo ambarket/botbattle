@@ -1,4 +1,4 @@
-package game.manger;
+
 
 public class GameInstance implements Runnable {
 
@@ -83,7 +83,7 @@ public class GameInstance implements Runnable {
   }
 
   public String getJSONStringOfResults() {
-    return Game.getJSONstringFromGameResults(results);
+    return game.getJSONstringFromGameResults(results);
   }
 
   @Override
