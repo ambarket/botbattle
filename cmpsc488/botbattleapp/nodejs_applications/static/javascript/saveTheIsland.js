@@ -179,7 +179,7 @@ function Drawer() {
       //console.log(p1Grid, p2Grid);
       var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
       
-      TEST_ARENA.context.font= GAME.gameboardfontSize + 'px Arial';
+      TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
       TEST_ARENA.context.fillStyle="black";
       
       // TODO  fix this like above mentions
@@ -219,10 +219,7 @@ function Drawer() {
         'fillStyle' : '#FFFFD1',
     }
     
-    // TODO  in this and every other function that has a * scale we should set objects properties in the resize function so
-    //       we do not have to do the math every time.  This way it is figured out once per resize.
-    function drawTileArray(tileArray, startingX) {
-      
+    function drawTileArray(tileArray, startingX) { 
       // TODO overhaul this.  Essentially, a groupd of drawable images should be made that are static and
       //      the numbers should be changed like they are changed in the draw numbers fuction so there is not
       //      a new drawableRectangle made each time and just the .draw function can be called and we can even
@@ -231,15 +228,15 @@ function Drawer() {
         var currentX = (startingX + (50* i));
         
         (new drawableRectangle({ 
-          x: currentX * TEST_ARENA.scale, 
-          y: tileParameters.y * TEST_ARENA.scale,
-          width: tileParameters.width * TEST_ARENA.scale,
-          height: tileParameters.height * TEST_ARENA.scale,
+          x: currentX, 
+          y: tileParameters.y,
+          width: tileParameters.width,
+          height: tileParameters.height,
           fillStyle: tileParameters.fillStyle,
         })).draw(TEST_ARENA.context);
         
         // TODO: Make drawableText object instead of copying this everywhere
-        TEST_ARENA.context.font= GAME.gameboard.fontSize + 'px Arial';
+        TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
         TEST_ARENA.context.fillStyle="black";
         TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
       }
@@ -268,11 +265,11 @@ var GameBoard = function() {
   this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
   this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png';
  
-  this.backGroundWidth = 1050; // hardscaled
-  this.backGroundHeight = 650; // hardscaled
-  this.islandWidth = 870; // hardscaled
-  this.islandStart = 80; // Changed from 83 // hardscaled
-  this.islandCenterHeight = 468; // hardscaled
+  this.backGroundWidth = 1050;
+  this.backGroundHeight = 650;
+  this.islandWidth = 870;
+  this.islandStart = 80; // Changed from 83
+  this.islandCenterHeight = 468;
   this.robotWidth = 43;
   this.robotHeight = 79;
   this.numberOfGrids = 25;
@@ -292,10 +289,9 @@ var GameBoard = function() {
   this.player2PositionX = self.player2StartX;
   this.player2PositionY = self.player2StartY;
   
-  this.fontSize = 30;  // hardscaled
-  context.font= self.fontSize + 'px Arial';
+  context.font= 30  * TEST_ARENA.scale + 'px Arial';
   context.fillStyle="black";
-  context.fillText("Loading...", self.backGroundWidth/2, self.backGroundWidth/2); // hardscaled
+  context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale); // hardscaled
   
   this.loadResources = function(callback) {
     // can get the image width property automatically

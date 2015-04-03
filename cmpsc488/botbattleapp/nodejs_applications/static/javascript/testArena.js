@@ -281,7 +281,6 @@
   //    and all object back to default so another game could be played
   (function resetTestArena() {
     TEST_ARENA.canvas = document.getElementById("GameCanvas");
-    TEST_ARENA.prevCanvas = TEST_ARENA.canvas;
     TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
     TEST_ARENA.resetGameStateQueue();
     registerClickListeners();

@@ -2,46 +2,13 @@
 TEST_ARENA = {
     'myId' : null, // will probably be used (not currently used)
     'canvas' : null, // Set in testArena.js after page has loaded
-    'prevWidth' : null, // Set in testArena.js after page has loaded
     'context' : null, // Set in testArena.js after page is loaded
     'scale' : 1, // set by resizeCanvas     CHANGE in size from ORIGINAL size of canvas
-    'scaleFactor' : 1, // set by resizeCanvas   CHANGE in size from PREVIOUS size of canvas since last resize was called 
     'resizeCanvas' : function(){
-      this.prevWidth = this.canvas.width;
-      console.log(this.prevCanvas);
       this.canvas.width = Math.min(this.canvas.parentNode.getBoundingClientRect().width, 1050);
       this.canvas.height = this.canvas.width * 0.619047619;  // 650/1050 = 0.619047619
       this.scale = document.getElementById("GameCanvas").width / 1050;
-      
-      this.scaleFactor = this.canvas.width / this.prevWidth;
-      console.log(this.scaleFactor, this.scale);
-      // Anything that uses scale needs to be updated here.
-      for (object in GAME.gameboard.drawableObjects) {
-        GAME.gameboard.drawableObjects[object].scale(this.scaleFactor);
-      }
-      for (list in GAME.gameboard.backgroundElements){
-          for(object in GAME.gameboard.backgroundElements[list]){
-              GAME.gameboard.backgroundElements[list][object].scale(this.scaleFactor);
-          }
-      }
-      GAME.gameboard.backGroundWidth *= this.scaleFactor;
-      GAME.gameboard.backGroundHeight *= this.scaleFactor;
-      GAME.gameboard.islandWidth *= this.scaleFactor;
-      GAME.gameboard.islandStart *= this.scaleFactor;
-      GAME.gameboard.islandCenterHeight *= this.scaleFactor;
-      GAME.gameboard.fontSize *= this.scaleFactor;
-      GAME.gameboard.gridWidth = GAME.gameboard.islandWidth/25;
-      GAME.gameboard.gridCenter = GAME.gameboard.gridWidth/2;
-      //console.log(self.gridCenter);
-      GAME.gameboard.player1StartX = (0 * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;// - (self.robotWidth/2) + self.gridCenter;
-      GAME.gameboard.player2StartX = (24 * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;// - (self.robotWidth/2) + self.gridCenter;
-      GAME.gameboard.player1StartY = GAME.gameboard.islandCenterHeight - GAME.gameboard.robotHeight;
-      GAME.gameboard.player2StartY = GAME.gameboard.islandCenterHeight - GAME.gameboard.robotHeight;  
-      GAME.gameboard.player1PositionX = GAME.gameboard.player1StartX;
-      GAME.gameboard.player1PositionY = GAME.gameboard.player1StartY;
-      GAME.gameboard.player2PositionX = GAME.gameboard.player2StartX;
-      GAME.gameboard.player2PositionY = GAME.gameboard.player2StartY;
-    },
+   },
     'gameStateQueue' : null //Set by resetGameStateQueue
 }
 
@@ -98,27 +65,6 @@ drawableObject.prototype.draw = function(context) {
   context.fillRect(this.x,this.y, this.width, this.height);
 };
 
-
-drawableObject.prototype.scale = function(scale) {
-  this.x = this.x * scale;
-  this.y = this.y * scale;
-  this.width = this.width * scale;
-  this.height = this.height * scale;
-  //console.log('Called scale on', this);
-};
-
-var ScaleTest = function(scale) {
-  
-  for (object in GAME.gameboard.drawableObjects) {
-    GAME.gameboard.drawableObjects[object].scale(scale);
-  }
-  for (list in GAME.gameboard.backgroundElements){
-      for(object in GAME.gameboard.backgroundElements[list]){
-          GAME.gameboard.backgroundElements[list][object].scale(scale);
-      }
-  }
-}
-
 /** options
  *  {
  *      x: Number
@@ -140,15 +86,13 @@ drawableRectangle.prototype = Object.create(drawableObject.prototype);
 drawableRectangle.prototype.constructor = drawableRectangle;
 drawableRectangle.prototype.draw = function(context) {
   context.beginPath();
-  context.rect(this.x, this.y, this.width, this.height);
+  context.rect(this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale, this.height * TEST_ARENA.scale);
   context.fillStyle = this.fillStyle;
   context.fill();
   context.lineWidth = this.borderWidth;
   context.strokeStyle = this.strokeStyle;
   context.stroke();
 };
-
-drawableRectangle.prototype.scale = drawableObject.prototype.scale;
 
 /**
  * options : {
@@ -198,11 +142,9 @@ drawableImage.prototype.constructor = drawableImage;
 drawableImage.prototype.draw = function(context) {
 	if(this.visible){
 	  context.drawImage(this.img, this.sourceX, this.sourceY, this.sourceWidth, this.sourceHeight, 
-	      this.x, this.y, this.width,  this.height); 
+	      this.x * TEST_ARENA.scale, this.y * TEST_ARENA.scale, this.width * TEST_ARENA.scale,  this.height * TEST_ARENA.scale); 
 	}
 };
-
-drawableImage.prototype.scale = drawableObject.prototype.scale;
 
 /**
  * options : {
@@ -274,10 +216,10 @@ drawableSprite.prototype.draw = function(context) {  // TODO According to the pr
                           this.sourceY, 
                           this.sourceWidth / this.numberOfFrames, // image width / frames
                           this.sourceHeight, 
-                          this.x,   // destination positionx
-                          this.y,   // destination positiony
-                          this.width,    // width you want it to be in the end
-                          this.height);  // height you want it to be in the end
+                          this.x * TEST_ARENA.scale,   // destination positionx
+                          this.y * TEST_ARENA.scale,   // destination positiony
+                          this.width * TEST_ARENA.scale,    // width you want it to be in the end
+                          this.height * TEST_ARENA.scale);  // height you want it to be in the end
     }
     else{  
         context.drawImage(this.img, 
@@ -285,10 +227,10 @@ drawableSprite.prototype.draw = function(context) {  // TODO According to the pr
                           this.sourceY, 
                           this.sourceWidth, 
                           this.sourceHeight, 
-                          this.x, 
-                          this.y, 
-                          this.width, 
-                          this.height);
+                          this.x * TEST_ARENA.scale, 
+                          this.y * TEST_ARENA.scale, 
+                          this.width * TEST_ARENA.scale, 
+                          this.height * TEST_ARENA.scale);
     }
   }
 }
