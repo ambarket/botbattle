@@ -132,6 +132,7 @@ module.exports = new (function() {
             // make an array to store moves in
             //console.log(data.toString());
             var array = data.toString().split(/\n/);
+            console.log("Split array:", array)
             for (var i = 0; i < array.length; i++) {
               try {
                 testArenaInstances[id].gameStateQueue.push(JSON.parse(array[i]));
