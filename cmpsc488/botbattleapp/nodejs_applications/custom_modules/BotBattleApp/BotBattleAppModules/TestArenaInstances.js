@@ -21,6 +21,8 @@ module.exports = new (function() {
         logger.log("TestArenaInstances", "Delete at", testArenaInstances[instance].gameExpireDateTime)
         if(now > testArenaInstances[instance].gameExpireDateTime){
           // kill spawned game here too and anything created during a game
+          // TODO: if game exists as reference, but not running will calling kill() or stdin.end() crash the server
+          //       could test by running, then calling killCurrentGame and seeing if this crashes.  (set time to 40 seconds or so)
           if (testArenaInstances[id].gameProcess){
             var pid = testArenaInstances[id].gameProcess.pid;
             logger.log("TestArenaInstances", "End Child: " + pid);          
