@@ -198,6 +198,7 @@
   document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
     var req = new XMLHttpRequest();
     //stopGameStateListener();
+    clearTimeout(gameStateListener);
    // var output = document.getElementById("gameControlStatus");
     req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
@@ -234,9 +235,9 @@
   }, false);
   
 //----------------------------------GameState Listener/Requester or whatever------------------------------------
-  /*var gameStateListener = null;
+  var gameStateListener = null;
   
-  function startGameStateListener() {
+  /*function startGameStateListener() {
     if(!gameStateListener){
       gameStateListener = "started";
       gameStateListener = setInterval(requestLatestGameStates, 1000);
@@ -265,7 +266,7 @@
                                                                              // addNewGameState expects a move list not test
         }
         else{
-          setTimeout(requestLatestGameStates, 1000);
+          gameStateListener = setTimeout(requestLatestGameStates, 1000);
         }
       } 
       else {

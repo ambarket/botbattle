@@ -127,7 +127,8 @@ function registerTestArenaRoutes(server, database) {
     var id = req.query.id;
     if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running"){
       setTimeout(function(){ 
-        testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.echo_stdin + '\n'); 
+        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running")
+          testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.echo_stdin + '\n'); 
         }, 3000);
       
       res.json({'status' : "Sent to stdin"});
