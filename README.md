@@ -27,3 +27,6 @@ Express
 <a href="http://expressjs.com/api.html#req"> app.req </a>
         
 <a href="http://expressjs.com/api.html#res.sendStatus"> res.sendStatus </a>
+
+# Compilation requirements
+java 1.8 for GameManager

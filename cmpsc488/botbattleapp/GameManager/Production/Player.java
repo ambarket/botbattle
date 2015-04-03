@@ -1,4 +1,4 @@
-package game.manger;
+
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -51,7 +51,7 @@ public class Player implements Runnable {
     this.botFilePath = botFilePath;
     this.usersName = usersName;
 
-    ProcessBuilder builder = new ProcessBuilder("java", botFilePath + "\\" + usersName);
+    ProcessBuilder builder = new ProcessBuilder("java", usersName);
     //ProcessBuilder builder = new ProcessBuilder("java", usersName); 
     
     builder.directory(new File(botFilePath));

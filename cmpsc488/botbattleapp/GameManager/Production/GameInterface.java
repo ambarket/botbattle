@@ -19,4 +19,6 @@ public interface GameInterface {
 
   String getHTMLForBoard(String board);
 
+  String getJSONstringFromGameResults(GameResults results);
+
 }
