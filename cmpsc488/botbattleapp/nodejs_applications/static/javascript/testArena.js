@@ -1,5 +1,8 @@
 //Wrap everything in a function, so local variables dont become globals
 (function() {
+
+
+  
   var id = "defaultIdValue";
   console.log("InitialId: ", id);
 
@@ -147,42 +150,33 @@
     req.send();
   }
   
-  // First arg must be start, kill, or hide. status is a string
-  //    to display in the gameControlStatus paragraph
-  function setGameControlDiv(start_kill_or_hide, status) {
-    if (startOrKill === "start") {
+  function setGameControlDiv(playGame_or_killGame_or_hide) {
+    if (playGame_or_killGame_or_hide === "playGame") {
+      $('#gameControlDiv').show();
+      $('#startNewGame').show();
+      $('#killCurrentGame').hide();
+      $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
+    }
+    else if (playGame_or_killGame_or_hide === "killGame") {
       $('#gameControlDiv').show();
       $('#startNewGame').hide();
       $('#killCurrentGame').show();
+      $('#gameControlStatus').html("The game is running");
     }
-    else if (startOrKill === "kill") {
-      $('#gameControlDiv').show();
-      $('#startNewGame').hide();
-      $('#killCurrentGame').show();
-    }
-    else if (startOrKill === "hide") {
+    else if (playGame_or_killGame_or_hide === "hide") {
       $('#gameControlDiv').hide();
       $('#startNewGame').hide();
       $('#killCurrentGame').hide();
+      $('#gameControlStatus').html("");
     }
     else {
-      // Probably set this to hide after we ensure this works properly
-      $('#gameControlDiv').show();
-      status = "Invalid Argument to setGameControlDiv";
-      console.log("Invalid Argument to setGameControlDiv", status);
-    }
-    // Always set the status
-    if (status) {
-    $('#gameControlStatus').html(status);
-    }
-    else {
-      $('#gameControlStatus').html("No status to display");
+      console.log("Invalid Argument to setGameControlDiv");
     }
   }
   
   var uploadBotsform = document.forms.namedItem("uploadBotForm");
   uploadBotsform.addEventListener('submit', function(ev) {
-    var output = document.getElementById("status");
+    var output = document.getElementById("uploadBotStatus");
     var data = new FormData(document.forms.namedItem("uploadBotForm"));
     var req = new XMLHttpRequest();
     req.open("POST", "processBotUploads/?oldId=" + id, true);
@@ -192,15 +186,22 @@
         console.log("Good status " + JSON.stringify(response));
         if (response.error) {
           output.innerHTML = response.error;
-          $('#gameControlDiv').hide();
-        } else {
-          output.innerHTML = response.status;
-          $('#gameControlDiv').show();
+          setGameControlDiv("hide");
+        } 
+        else if (response.status) {
+          flashStatusOrErrorMessage('status', response.status);
+          //output.innerHTML = response.status;
+          setGameControlDiv("playGame");
           id = response.id;
         }
-        // then should stay disabled until game is over or change to restart game button
-      } else {
-        output.innerHTML = "Error " + req.status + " occurred uploading your file.<br \/>";
+        else {
+          console.log("Neither status or error found in response to uploadBotForm");
+        }
+      } 
+      else {
+        setGameControlDiv("hide");
+        $('#uploadBotStatus').html("Error " + req.status + " occurred");
+        output.innerHTML = 
         console.log("Bad status " + JSON.stringify(response));
         if (response.error) {
           output.innerHTML = response.error;

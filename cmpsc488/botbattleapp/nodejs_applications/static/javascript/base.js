@@ -1,19 +1,19 @@
   function flashStatusOrErrorMessage(type, message) {
+
     if (type === 'status') {
-      $('message').html('<p style="color:green>"' + message);
+      $('.message').html("<p style='color:green'>" +  message + "</p>");
+      //$('message').html();
     }
     else if (type === 'error') {
-      
-      $('message').html('<p style="color:red>"' + message);
-      console.log(type, message, $('message').html());
+      $('.message').html("<p style='color:red'>" +  message + "</p>");
     }
     else {
-      $('message').html(message);
+      $('.message').html("<p>" +  message + "</p>");
     }
-    $('message').slideDown(function() {
 
+    $('.message').slideDown(function() {
       setTimeout(function() {
-          $('message').slideUp();
+          $('.message').slideUp();
       }, 2000);
     });
   }

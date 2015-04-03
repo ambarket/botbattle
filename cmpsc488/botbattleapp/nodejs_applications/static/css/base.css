@@ -24,13 +24,7 @@ body {
 	color: red;
 }
 
-#message{
-	 font-size: 15px;
-	 height:300px;
-	 width:autopx;
-	 /*border:1px solid;*/
-	 overflow:auto
-}
+
 /* This corresponds to the message from the previous actiont hat is flashed to the user */
 .message{
 	color: grey;
