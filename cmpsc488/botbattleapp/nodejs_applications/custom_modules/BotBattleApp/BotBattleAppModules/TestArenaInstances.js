@@ -128,12 +128,31 @@ module.exports = new (function() {
           logger.log("TestArenaInstances", 
               helpers.getLogMessageAboutGame(id, "Spawned new game. PID: " + testArenaInstances[id].gameProcess.pid));
 
+          var stdoutBuffer = "";
           testArenaInstances[id].gameProcess.stdout.on('data', function(data) {
             // make an array to store moves in
-            testArenaInstances[id].gameStateQueue.push(data.toString());
-            logger.log("TestArenaInstances", 
-                helpers.getLogMessageAboutGame(id, "gameStateQueue: " + testArenaInstances[id].gameStateQueue));
+            console.log(data.toString());
+            var array = data.toString().split(/\n/);
+            if (array.length === 1) {
+              stdoutBuffer += data.toString();
+            }
+            else if (array.length > 1){
+              console.log("Number of new lines: " + array.length);
+              for (var i = 0; i < array.length; i++) {
+                stdoutBuffer += array[0];
+                try {
+                  testArenaInstances[id].gameStateQueue.push(JSON.parse(stdoutBuffer));
+                  logger.log("TestArenaInstances", 
+                      helpers.getLogMessageAboutGame(id, "gameStateQueue: " + testArenaInstances[id].gameStateQueue));
+                }
+                catch(e) {
+                  console.log("Invalid JSON sent", stdoutBuffer, e);
+                }
+                stdoutBuffer = "";
+              }
+            }
           });
+          
 
           testArenaInstances[id].gameProcess.stderr.on('data', function(data) {
             // make an array to store errors in
