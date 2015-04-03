@@ -131,7 +131,7 @@ module.exports = new (function() {
           var stdoutBuffer = "";
           testArenaInstances[id].gameProcess.stdout.on('data', function(data) {
             // make an array to store moves in
-            console.log(data.toString());
+            //console.log(data.toString());
             var array = data.toString().split(/\n/);
             if (array.length === 1) {
               stdoutBuffer += data.toString();

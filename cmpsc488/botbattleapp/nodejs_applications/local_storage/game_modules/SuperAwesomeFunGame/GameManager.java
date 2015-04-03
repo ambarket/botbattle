@@ -74,25 +74,25 @@ public class GameManager {
 	  switch(stateNum) {
 	  	case 0:
   			return "{"			 
-			+ "			'animatableEvents': [    "
+			+ "			'animatableEvents': ["
 			+ "      		{"
 			+ "        			'event': 'move',"
 			+ "       			'data': { "
 			+ "         			'objectName' : 'player1',"
 			+ "         			'finalPosition' : 9 "
-			+ "       			} "
+			+ "       			}"
 			+ "     		},"
 			+ "  		],"
 			+ "   		'gameData' : {"
-			+ "      		'player1Tiles' : [1, 3, 5, 5, 3],    // The tiles after this turn"
+			+ "      		'player1Tiles' : [1, 3, 5, 5, 3],"
 			+ "      		'player2Tiles' : [2, 4, 3, 5, 1],"
-			+ "      		'turnDescription' : 'Player 2 used a 3 tile to move to position 11.',  // May not be necessary but would be nice."
+			+ "      		'turnDescription' : 'Player 2 used a 3 tile to move to position 11.',"
 			+ "    		},"
 			+ "    		'debugData' : { // Only used in the test arena display"
 			+ "             'stderr' : [ 'An array', 'of lines output by the bot', 'stderr on this turn.' ],"
 			+ "				'stdout' : [ 'An array', 'of lines output by the bot', 'stdout on this turn.' ]"
 			+ "			},"
-			+ "		} ";
+			+ "		}";
 	  	case 1:
 			return  "{"
 			+ "			'animatableEvents': "
@@ -103,7 +103,7 @@ public class GameManager {
 			+ "                 { "
 			+ "                 	'attacker' : 'player2',"
 			+ "                     'defender' : 'player1',"
-			+ "                     'attackerStartingPosition' : 24,  // After a defend the attacker should move back to their original position"
+			+ "                     'attackerStartingPosition' : 24,"
 			+ "                     'attackerAttackPosition' : 11"
 			+ "                 } "
 			+ "             },  "
@@ -119,9 +119,8 @@ public class GameManager {
 			+ "         },"
 			+ "		},";
 	  	case 2:
-	  		return  "           // Turn 3"
-			+ "           {"
-			+ "             'animatableEvents': [     // Each animatableEvent must have an event name and data object"
+	  		return "{"
+			+ "             'animatableEvents': ["
 			+ "                {"
 			+ "                  'event': 'move',"
 			+ "                  'data': { "
@@ -131,15 +130,15 @@ public class GameManager {
 			+ "                },"
 			+ "             ],"
 			+ "             'gameData' : {"
-			+ "               'player1Tiles' : [1, 3, 5, 5, 3],    // The tiles after this turn"
+			+ "               'player1Tiles' : [1, 3, 5, 5, 3],"
 			+ "               'player2Tiles' : [2, 4, 3, 5, 1],"
-			+ "               'turnDescription' : 'Player 2 used a 3 tile to move to position 11.',  // May not be necessary but would be nice."
+			+ "               'turnDescription' : 'Player 2 used a 3 tile to move to position 11.',"
 			+ "             },"
 			+ "             'debugData' : {"
 			+ "               'stderr' : [ 'An array', 'of lines output by the bot', 'stderr on this turn.' ],"
 			+ "               'stdout' : [ 'An array', 'of lines output by the bot', 'stdout on this turn.' ]"
-			+ "             }," 
-			+ "           } ";
+			+ "             },"
+			+ "           }";
 	  }
 	  return "";
 	}
