@@ -1,387 +1,378 @@
 //Wrap everything in a function, so local variables dont become globals
-(function() {
-  TEST_ARENA.myId = "defaultIdValue";
-  //var id = "defaultIdValue";
-  console.log("InitialId: ", TEST_ARENA.myId);
-
-//----------------------------------Page Unload Handling------------------------------------
-  function leave() {
-    return "Leaving the page will stop your program from running!";
-  }
-
-  // TODO: guess this doesn't work sometimes
-  // https://xhr.spec.whatwg.org/
-  var unloadHandler = function() {
-    $.ajax({
-      async : false,
-      data : {
-        id : TEST_ARENAARENA.myId
-      },
-      error : function() {
-        alert('Close notification error');
-      },
-      url : '/killGame'
-    });
-  }
-
-  $(function() {
-    $(window).unload(function() {
-      unloadHandler();
-    });
-    $('a.outlink').click(function() {
-      unloadHandler = function() {
-      };
-    });
-  });
-
-//----------------------------------Helper Stuff------------------------------------
-  var resetValueAttrributeById = function(id) {
-    document.getElementById(id).value = "";
-  }
-
-  $('#player1_bot_upload').click(function() {
-    document.getElementById("uploadBotStatus").innerHTML = "";
-  });
-
-  $('#player2_bot_upload').click(function() {
-    document.getElementById("uploadBotStatus").innerHTML = "";
-  });
-  
-  function setGameControlDiv(startGame_or_killGame_or_hide) {
-    if (startGame_or_killGame_or_hide === "startGame") {
-      $('#gameControlDiv').show();
-      $('#startNewGame').show();
-      $('#killCurrentGame').hide();
-      $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
-    }
-    else if (startGame_or_killGame_or_hide === "killGame") {
-      console.log("killGame");
-      $('#gameControlDiv').show();
-      $('#startNewGame').hide();
-      $('#killCurrentGame').show();
-      $('#gameControlStatus').html("The game is running");
-    }
-    else if (startGame_or_killGame_or_hide === "hide") {
-      $('#gameControlDiv').hide();
-      $('#startNewGame').hide();
-      $('#killCurrentGame').hide();
-      $('#gameControlStatus').html("");
-    }
-    else {
-      console.log("Invalid Argument to setGameControlDiv");
-    }
-  }
-  
-  //TODO:  add a box and button to send text for echo test
-  document.getElementById("echo_send_move").addEventListener('click', function(ev) {
-    var req = new XMLHttpRequest();
-    req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
-    req.onload = function(event) {
-      var response = JSON.parse(req.responseText);
-      if (response.error) {
-        document.getElementById("echo_status").innerHTML = response.error;
-      } else if (response.status) {
-        document.getElementById("echo_status").innerHTML = response.status;
-        //startGameStateListener();
-        requestLatestGameStates();
-      } else {
-        // Something else
-        document.getElementById("echo_status").innerHTML = response;
-      }
-    };
-    req.send();
-    ev.preventDefault();
-  }, false);
-
-//----------------------------------Upload Bots Form------------------------------------
-  // Listen for radio checks
-  $('#human').click(function() {
-    $('#uploadBotButton').val("Upload Bot");
-    $('#player2FileChoose').hide();
-    $('#humanInput').show();
-    $('#gameControlDiv').hide();
-    resetValueAttrributeById('player2_bot_upload');
-    resetValueAttrributeById('player1_bot_upload');
-    document.getElementById("uploadBotStatus").innerHTML = "";
-    document.getElementById("player2_bot_upload").required = false;
-  });
-
-  $('#bot').click(function() {
-    $('#uploadBotButton').val("Upload Bots");
-    $('#player2FileChoose').show();
-    $('#humanInput').hide();
-    $('#gameControlDiv').hide();
-    resetValueAttrributeById('player2_bot_upload');
-    resetValueAttrributeById('player1_bot_upload');
-    document.getElementById("uploadBotStatus").innerHTML = "";
-    document.getElementById("player2_bot_upload").required = true;
-  });
-  
-  var uploadBotsform = document.forms.namedItem("uploadBotForm");
-  uploadBotsform.addEventListener('submit', function(ev) {
-    var output = document.getElementById("uploadBotStatus");
-    var data = new FormData(document.forms.namedItem("uploadBotForm"));
-    var req = new XMLHttpRequest();
-    req.open("POST", "processBotUploads/?oldId=" + TEST_ARENA.myId, true);
-    req.onload = function(event) {
-      if (req.status == 200) {
-        response = JSON.parse(req.responseText);
-        console.log("Good status " + JSON.stringify(response));
-        if (response.status) {
-          flashStatusOrErrorMessage('status', response.status);
-          setGameControlDiv("startGame");
-          TEST_ARENA.myId = response.id;
-        }
-        // On the server side we should probably send errors with a different status code
-        else if (response.error) {
-          flashStatusOrErrorMessage('error', response.error);
-          setGameControlDiv("hide");
-        } 
-        else {
-          console.log("Neither status or error found in response to uploadBotForm");
-        }
-
-      } 
-      else {
-        //$('#uploadBotStatus').html("Error " + req.status + " occurred");
-        console.log("Bad status " + JSON.stringify(response));
-        if (response.error) {
-          flashStatusOrErrorMessage('error', response.error);
-        }
-        //disable play game button
-        setGameControlDiv("hide");
-      }
-      // enable upload button in each case
-    };
-    req.send(data);
-    ev.preventDefault();
-  }, false);
-  
-  
-//----------------------------------Start and Kill Game------------------------------------
-
-  document.getElementById("startNewGame").addEventListener('click', function(ev) {
-    var req = new XMLHttpRequest();
-    req.open("GET", "startGame/?id=" + TEST_ARENA.myId, true);
-    req.onload = function(event) {
-      var response = JSON.parse(req.responseText);
-      if (req.status == 200) {
-        console.log("Good status " + JSON.stringify(response));
-        if (response.status) {
-          flashStatusOrErrorMessage('status', response.status);
-        } 
-        else if (response.error) {
-          flashStatusOrErrorMessage('error', response.error);
-        }
-        else {
-          console.log("Valid response to startNewGame but no status to display");
-        }
-        setGameControlDiv('killGame');
-        //startGameStateListener();
-      } 
-      else {
-        console.log("Bad status " + JSON.stringify(response));
-        if (response.error) {
-          flashStatusOrErrorMessage('error', response.error);
-        } 
-        else {
-          flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
-        }
-        setGameControlDiv('startGame');
-        //stopGameStateListener();
-      }
-    }
-    req.send();
-    ev.preventDefault();
-  }, false);
-  
-  document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
-    var req = new XMLHttpRequest();
-    //stopGameStateListener();
-    clearTimeout(gameStateListener);
-   // var output = document.getElementById("gameControlStatus");
-    req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
-    req.onload = function(event) {
-      var response = JSON.parse(req.responseText);
-      if (req.status == 200) {
-        console.log("Good status " + JSON.stringify(response));
-        if (response.status) {
-          flashStatusOrErrorMessage('status', response.status);
-        } 
-        else if (response.error){
-          flashStatusOrErrorMessage('error', response.error);
-        }
-        else {
-          console.log("Valid response to killCurrentGame but no status to display");
-        }
-        setGameControlDiv('startGame');
-      } 
-      else {
-        console.log("Bad status " + JSON.stringify(response));
-        if (response.error) {
-          //output.innerHTML = response.error;
-          flashStatusOrErrorMessage('error', response.error);
-        } 
-        else {
-          //output.innerHTML = "Error " + req.status + " occured";
-          flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
-        }
-        // Not really sure what to do at this point.
-        setGameControlDiv('killGame');
-      }
-    }
-    req.send();
-    ev.preventDefault();
-  }, false);
-  
-//----------------------------------GameState Listener/Requester or whatever------------------------------------
-  var gameStateListener = null;
-  
-  /*function startGameStateListener() {
-    if(!gameStateListener){
-      gameStateListener = "started";
-      gameStateListener = setInterval(requestLatestGameStates, 1000);
-    }
-  }
-  
-  function stopGameStateListener() {
-    if (gameStateListener) {
-      clearInterval(gameStateListener);
-      gameStateListener = null;
-    }
-  }*/
-
-  function requestLatestGameStates() {
-    console.log("here");
-    var output = document.getElementById("stdout");
-    var req = new XMLHttpRequest();
-    req.open("GET", "getLatestGameStates/?id=" + TEST_ARENA.myId, true);
-    req.onload = function(event) {
-      if (req.status == 200) {
-        response = JSON.parse(req.responseText);
-        console.log(response);
-        if(response.gamestates.length){
-            console.log("gamestaess has length",response.gamestates);
-            //TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates); this will not work with echo because
-                                                                             // addNewGameState expects a move list not test
-        }
-        else{
-          gameStateListener = setTimeout(requestLatestGameStates, 1000);
-        }
-      } 
-      else {
-        output.innerHTML = "Error " + req.status + " occurred getting latest game states.<br \/>";
-        console.log("Bad status " + JSON.stringify(response));
-        //stopGameStateListener();
-      }
-    };
-    req.send();
-  }
-  
-
-  
-//----------------------------------Old stuff------------------------------------
-
-  window.requestAnimFrame = (function(callback) {
-    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
-        || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
-          window.setTimeout(callback, 1000 / 60);
-        };
-  })();
-
-  // TODO: Maybe extend this into a button that when clicked would reset the entire canvas
-  //    and all object back to default so another game could be played
-  (function resetTestArena() {
-    TEST_ARENA.canvas = document.getElementById("GameCanvas");
-    TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
-    TEST_ARENA.resetGameStateQueue();
-    registerClickListeners();
-
-    GAME.resetGameboard(function(err) {
-
-      TEST_ARENA.resizeCanvas();
-
-      window.onresize = function() {
-        TEST_ARENA.resizeCanvas();
-      }
-
-      function draw() {
-        GAME.drawer.drawBoard();
-        requestAnimFrame(draw);
-      }
-      ;
-
-      draw();
-
-    })
-  })();
-
-  function registerClickListeners() {
-
-    // add click listener to canvas to get distances between two clicked points
-    (function() {
-      var x1, x2, y1, y2;
-      var clickCount = 0;
-      var rect;
-      TEST_ARENA.canvas.addEventListener('click', function(event) {
-        console.log("Someone Clicked");
-        if (event.ctrlKey) {
-          rect = TEST_ARENA.canvas.getBoundingClientRect();
-          clickCount++;
-          if (clickCount % 2 === 1) {
-            x1 = event.clientX - Math.floor(rect.left);
-            y1 = event.clientY - Math.floor(rect.top);
-          } else {
-            x2 = event.clientX - Math.floor(rect.left);
-            y2 = event.clientY - Math.floor(rect.top);
-          }
-          if (x1 && x2) {
-            document.getElementById("distance").innerHTML = "X dist = " + Math.abs(x1 - x2) + "  Y dist = "
-                + Math.abs(y1 - y2) + "<hr> point1 = X: " + x1 + " Y: " + y1 + "<hr> point2 = X: " + x2 + " Y: " + y2;
-            x1 = x2 = y1 = y2 = null;
-          }
-        } else {
-
-          sendMoveOverAjax(event);
-        }
-      });
-    })();
-
-    function sendMoveOverAjax(ev) {
-      console.log("here");
-      document.getElementById("send_move").disabled = true;
-      var req = new XMLHttpRequest();
-      req.open("POST", "testArenaUpdate", true);
-      try {
-        req.send(TEST_ARENA.myId); 
-        //TODO I think onReadyStateChange may allow us to detect if the request failed to post,
-        //  need to do something about this because otherwise button just remains disabled.
-        // Test by shutting down server then clicking it.
-        req.onload = function(event) {
-          if (req.status === 200) {
-            TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "GameState received");
-            console.log(req.responseText);
-
-            // Parse into JSON
-            var response = JSON.parse(req.responseText);
-            // Just use each turn object as a gamestate.
-            // Each gamestate must have an animatableEvents array, gameData object, and debugData object
-            for ( var turnIndex in response) {
-              TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
-            }
-          } else {
-            TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "Failed to get GameState");
-          }
-          document.getElementById("send_move").disabled = false;
-        };
-      } catch (err) {
-        TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', err.message);
-        document.getElementById("send_move").disabled = false;
-      }
-
-      ev.preventDefault();
-    }
-
-    document.getElementById("send_move").addEventListener('click', sendMoveOverAjax, false);
-  }
-})();
+ (function() {
+   TEST_ARENA.myId = "defaultIdValue";
+   //var id = "defaultIdValue";
+   console.log("InitialId: ", TEST_ARENA.myId);
+ 
+ //----------------------------------Page Unload Handling------------------------------------
+   function leave() {
+     return "Leaving the page will stop your program from running!";
+   }
+ 
+   // TODO: guess this doesn't work sometimes
+   // https://xhr.spec.whatwg.org/
+   var unloadHandler = function() {
+     $.ajax({
+       async : false,
+       data : {
+         id : TEST_ARENAARENA.myId
+       },
+       error : function() {
+         alert('Close notification error');
+       },
+       url : '/killGame'
+     });
+   }
+ 
+   $(function() {
+     $(window).unload(function() {
+       unloadHandler();
+     });
+     $('a.outlink').click(function() {
+       unloadHandler = function() {
+       };
+     });
+   });
+ 
+ //----------------------------------Helper Stuff------------------------------------
+   var resetValueAttrributeById = function(id) {
+     document.getElementById(id).value = "";
+   }
+ 
+   $('#player1_bot_upload').click(function() {
+     document.getElementById("uploadBotStatus").innerHTML = "";
+   });
+ 
+   $('#player2_bot_upload').click(function() {
+     document.getElementById("uploadBotStatus").innerHTML = "";
+   });
+   
+   function setGameControlDiv(startGame_or_killGame_or_hide) {
+     if (startGame_or_killGame_or_hide === "startGame") {
+       $('#gameControlDiv').show();
+       $('#startNewGame').show();
+       $('#killCurrentGame').hide();
+       $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
+     }
+     else if (startGame_or_killGame_or_hide === "killGame") {
+       console.log("killGame");
+       $('#gameControlDiv').show();
+       $('#startNewGame').hide();
+       $('#killCurrentGame').show();
+       $('#gameControlStatus').html("The game is running");
+     }
+     else if (startGame_or_killGame_or_hide === "hide") {
+       $('#gameControlDiv').hide();
+       $('#startNewGame').hide();
+       $('#killCurrentGame').hide();
+       $('#gameControlStatus').html("");
+     }
+     else {
+       console.log("Invalid Argument to setGameControlDiv");
+     }
+   }
+   
+   //TODO:  add a box and button to send text for echo test
+   document.getElementById("echo_send_move").addEventListener('click', function(ev) {
+     var req = new XMLHttpRequest();
+     req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
+     req.onload = function(event) {
+       var response = JSON.parse(req.responseText);
+       if (response.error) {
+         document.getElementById("echo_status").innerHTML = response.error;
+       } else if (response.status) {
+         document.getElementById("echo_status").innerHTML = response.status;
+       } else {
+         // Something else
+         document.getElementById("echo_status").innerHTML = response;
+       }
+     };
+     req.send();
+     ev.preventDefault();
+   }, false);
+ 
+ //----------------------------------Upload Bots Form------------------------------------
+   // Listen for radio checks
+   $('#human').click(function() {
+     $('#uploadBotButton').val("Upload Bot");
+     $('#player2FileChoose').hide();
+     $('#humanInput').show();
+     $('#gameControlDiv').hide();
+     resetValueAttrributeById('player2_bot_upload');
+     resetValueAttrributeById('player1_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player2_bot_upload").required = false;
+   });
+ 
+   $('#bot').click(function() {
+     $('#uploadBotButton').val("Upload Bots");
+     $('#player2FileChoose').show();
+     $('#humanInput').hide();
+     $('#gameControlDiv').hide();
+     resetValueAttrributeById('player2_bot_upload');
+     resetValueAttrributeById('player1_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player2_bot_upload").required = true;
+   });
+   
+   var uploadBotsform = document.forms.namedItem("uploadBotForm");
+   uploadBotsform.addEventListener('submit', function(ev) {
+     var output = document.getElementById("uploadBotStatus");
+     var data = new FormData(document.forms.namedItem("uploadBotForm"));
+     var req = new XMLHttpRequest();
+     req.open("POST", "processBotUploads/?oldId=" + TEST_ARENA.myId, true);
+     req.onload = function(event) {
+       if (req.status == 200) {
+         response = JSON.parse(req.responseText);
+         console.log("Good status " + JSON.stringify(response));
+         if (response.status) {
+           flashStatusOrErrorMessage('status', response.status);
+           setGameControlDiv("startGame");
+           TEST_ARENA.myId = response.id;
+         }
+         // On the server side we should probably send errors with a different status code
+         else if (response.error) {
+           flashStatusOrErrorMessage('error', response.error);
+           setGameControlDiv("hide");
+         } 
+         else {
+           console.log("Neither status or error found in response to uploadBotForm");
+         }
+ 
+       } 
+       else {
+         //$('#uploadBotStatus').html("Error " + req.status + " occurred");
+         console.log("Bad status " + JSON.stringify(response));
+         if (response.error) {
+           flashStatusOrErrorMessage('error', response.error);
+         }
+         //disable play game button
+         setGameControlDiv("hide");
+       }
+       // enable upload button in each case
+     };
+     req.send(data);
+     ev.preventDefault();
+   }, false);
+   
+   
+ //----------------------------------Start and Kill Game------------------------------------
+ 
+   document.getElementById("startNewGame").addEventListener('click', function(ev) {
+     var req = new XMLHttpRequest();
+     req.open("GET", "startGame/?id=" + TEST_ARENA.myId, true);
+     req.onload = function(event) {
+       var response = JSON.parse(req.responseText);
+       if (req.status == 200) {
+         console.log("Good status " + JSON.stringify(response));
+         if (response.status) {
+           flashStatusOrErrorMessage('status', response.status);
+         } 
+         else if (response.error) {
+           flashStatusOrErrorMessage('error', response.error);
+         }
+         else {
+           console.log("Valid response to startNewGame but no status to display");
+         }
+         setGameControlDiv('killGame');
+         startGameStateListener();
+       } 
+       else {
+         console.log("Bad status " + JSON.stringify(response));
+         if (response.error) {
+           flashStatusOrErrorMessage('error', response.error);
+         } 
+         else {
+           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
+         }
+         setGameControlDiv('startGame');
+         stopGameStateListener();
+       }
+     }
+     req.send();
+     ev.preventDefault();
+   }, false);
+   
+   document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
+     var req = new XMLHttpRequest();
+     stopGameStateListener();
+    // var output = document.getElementById("gameControlStatus");
+     req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
+     req.onload = function(event) {
+       var response = JSON.parse(req.responseText);
+       if (req.status == 200) {
+         console.log("Good status " + JSON.stringify(response));
+         if (response.status) {
+           flashStatusOrErrorMessage('status', response.status);
+         } 
+         else if (response.error){
+           flashStatusOrErrorMessage('error', response.error);
+         }
+         else {
+           console.log("Valid response to killCurrentGame but no status to display");
+         }
+         setGameControlDiv('startGame');
+       } 
+       else {
+         console.log("Bad status " + JSON.stringify(response));
+         if (response.error) {
+           //output.innerHTML = response.error;
+           flashStatusOrErrorMessage('error', response.error);
+         } 
+         else {
+           //output.innerHTML = "Error " + req.status + " occured";
+           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
+         }
+         // Not really sure what to do at this point.
+         setGameControlDiv('killGame');
+       }
+     }
+     req.send();
+     ev.preventDefault();
+   }, false);
+   
+ //----------------------------------GameState Listener/Requester or whatever------------------------------------
+   var gameStateListener = null;
+   function startGameStateListener() {
+     gameStateListener = setInterval(requestLatestGameStates, 1000);
+   }
+   
+   function stopGameStateListener() {
+     if (gameStateListener) {
+       clearInterval(gameStateListener);
+       gameStateListener = null;
+     }
+   }
+ 
+   function requestLatestGameStates() {
+     console.log("here");
+     var output = document.getElementById("stdout");
+     var req = new XMLHttpRequest();
+     req.open("GET", "getLatestGameStates/?id=" + TEST_ARENA.myId, true);
+     req.onload = function(event) {
+       if (req.status == 200) {
+         response = JSON.parse(req.responseText);
+         console.log("response", response);
+         if(response.gamestates){
+           for ( var turnIndex in response.gamestates) {
+             console.log("gameState /n",response.gamestates[turnIndex]);
+             TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates[turnIndex]);
+           }
+         }
+       } 
+       else {
+         output.innerHTML = "Error " + req.status + " occurred getting latest game states.<br \/>";
+         console.log("Bad status " + JSON.stringify(response));
+         stopGameStateListener();
+       }
+     };
+     req.send();
+   }
+   
+ 
+   
+ //----------------------------------Old stuff------------------------------------
+ 
+   window.requestAnimFrame = (function(callback) {
+     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
+         || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
+           window.setTimeout(callback, 1000 / 60);
+         };
+   })();
+ 
+   // TODO: Maybe extend this into a button that when clicked would reset the entire canvas
+   //    and all object back to default so another game could be played
+   (function resetTestArena() {
+     TEST_ARENA.canvas = document.getElementById("GameCanvas");
+     TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
+     TEST_ARENA.resetGameStateQueue();
+     registerClickListeners();
+ 
+     GAME.resetGameboard(function(err) {
+ 
+       TEST_ARENA.resizeCanvas();
+ 
+       window.onresize = function() {
+         TEST_ARENA.resizeCanvas();
+       }
+ 
+       function draw() {
+         GAME.drawer.drawBoard();
+         requestAnimFrame(draw);
+       }
+       ;
+ 
+       draw();
+ 
+     })
+   })();
+ 
+   function registerClickListeners() {
+ 
+     // add click listener to canvas to get distances between two clicked points
+     (function() {
+       var x1, x2, y1, y2;
+       var clickCount = 0;
+       var rect;
+       TEST_ARENA.canvas.addEventListener('click', function(event) {
+         console.log("Someone Clicked");
+         if (event.ctrlKey) {
+           rect = TEST_ARENA.canvas.getBoundingClientRect();
+           clickCount++;
+           if (clickCount % 2 === 1) {
+             x1 = event.clientX - Math.floor(rect.left);
+             y1 = event.clientY - Math.floor(rect.top);
+           } else {
+             x2 = event.clientX - Math.floor(rect.left);
+             y2 = event.clientY - Math.floor(rect.top);
+           }
+           if (x1 && x2) {
+             document.getElementById("distance").innerHTML = "X dist = " + Math.abs(x1 - x2) + "  Y dist = "
+                 + Math.abs(y1 - y2) + "<hr> point1 = X: " + x1 + " Y: " + y1 + "<hr> point2 = X: " + x2 + " Y: " + y2;
+             x1 = x2 = y1 = y2 = null;
+           }
+         } else {
+ 
+           sendMoveOverAjax(event);
+         }
+       });
+     })();
+ 
+     function sendMoveOverAjax(ev) {
+       console.log("here");
+       document.getElementById("send_move").disabled = true;
+       var req = new XMLHttpRequest();
+       req.open("POST", "testArenaUpdate", true);
+       try {
+         req.send(TEST_ARENA.myId); 
+         //TODO I think onReadyStateChange may allow us to detect if the request failed to post,
+         //  need to do something about this because otherwise button just remains disabled.
+         // Test by shutting down server then clicking it.
+         req.onload = function(event) {
+           if (req.status === 200) {
+             TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "GameState received");
+             console.log(req.responseText);
+ 
+             // Parse into JSON
+             var response = JSON.parse(req.responseText);
+             // Just use each turn object as a gamestate.
+             // Each gamestate must have an animatableEvents array, gameData object, and debugData object
+             for ( var turnIndex in response) {
+               TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
+             }
+           } else {
+             TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "Failed to get GameState");
+           }
+           document.getElementById("send_move").disabled = false;
+         };
+       } catch (err) {
+         TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', err.message);
+         document.getElementById("send_move").disabled = false;
+       }
+ 
+       ev.preventDefault();
+     }
+ 
+     document.getElementById("send_move").addEventListener('click', sendMoveOverAjax, false);
+   }
+ })();
