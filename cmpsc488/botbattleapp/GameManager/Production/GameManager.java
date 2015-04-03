@@ -88,7 +88,7 @@ public class GameManager {
 			+ "      		'player2Tiles' : [2, 4, 3, 5, 1],"
 			+ "      		'turnDescription' : 'Player 2 used a 3 tile to move to position 11.',"
 			+ "    		},"
-			+ "    		'debugData' : { // Only used in the test arena display"
+			+ "    		'debugData' : {"
 			+ "             'stderr' : [ 'An array', 'of lines output by the bot', 'stderr on this turn.' ],"
 			+ "				'stdout' : [ 'An array', 'of lines output by the bot', 'stdout on this turn.' ]"
 			+ "			},"
