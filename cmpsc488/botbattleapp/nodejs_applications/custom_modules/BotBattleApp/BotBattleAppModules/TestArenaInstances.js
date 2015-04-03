@@ -211,6 +211,8 @@ module.exports = new (function() {
     }
   }
   
+  // TODO: now that we use this in many places we should make a killSpawnedGame(id, callback) and a 
+  //       deleteTestArenaInstance(id, callback) because all removals and cleanups are a combination of the two.
   this.killGameManager = function(id, callback) {
     if (testArenaInstances[id]) {
       if (testArenaInstances[id].gameProcess) {
