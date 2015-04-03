@@ -37,11 +37,11 @@
   }
 
   $('#player1_bot_upload').click(function() {
-    document.getElementById("status").innerHTML = "";
+    document.getElementById("uploadBotStatus").innerHTML = "";
   });
 
   $('#player2_bot_upload').click(function() {
-    document.getElementById("status").innerHTML = "";
+    document.getElementById("uploadBotStatus").innerHTML = "";
   });
 
   // Listen for radio checks
@@ -49,10 +49,10 @@
     $('#uploadBotButton').val("Upload Bot");
     $('#player2FileChoose').hide();
     $('#humanInput').show();
-    $('#playGameDiv').hide();
+    $('#gameControlDiv').hide();
     resetValueAttrributeById('player2_bot_upload');
     resetValueAttrributeById('player1_bot_upload');
-    document.getElementById("status").innerHTML = "";
+    document.getElementById("uploadBotStatus").innerHTML = "";
     document.getElementById("player2_bot_upload").required = false;
   });
 
@@ -60,10 +60,10 @@
     $('#uploadBotButton').val("Upload Bots");
     $('#player2FileChoose').show();
     $('#humanInput').hide();
-    $('#playGameDiv').hide();
+    $('#gameControlDiv').hide();
     resetValueAttrributeById('player2_bot_upload');
     resetValueAttrributeById('player1_bot_upload');
-    document.getElementById("status").innerHTML = "";
+    document.getElementById("uploadBotStatus").innerHTML = "";
     document.getElementById("player2_bot_upload").required = true;
   });
 
@@ -86,9 +86,9 @@
     ev.preventDefault();
   }, false);
 
-  document.getElementById("playGame").addEventListener('click', function(ev) {
+  document.getElementById("startNewGame").addEventListener('click', function(ev) {
     var req = new XMLHttpRequest();
-    var output = document.getElementById("playGameStatus");
+    var output = document.getElementById("gameControlStatus");
     req.open("GET", "startGame/?id=" + id, true);
     req.onload = function(event) {
       if (req.status == 200) {
@@ -147,6 +147,39 @@
     req.send();
   }
   
+  // First arg must be start, kill, or hide. status is a string
+  //    to display in the gameControlStatus paragraph
+  function setGameControlDiv(start_kill_or_hide, status) {
+    if (startOrKill === "start") {
+      $('#gameControlDiv').show();
+      $('#startNewGame').hide();
+      $('#killCurrentGame').show();
+    }
+    else if (startOrKill === "kill") {
+      $('#gameControlDiv').show();
+      $('#startNewGame').hide();
+      $('#killCurrentGame').show();
+    }
+    else if (startOrKill === "hide") {
+      $('#gameControlDiv').hide();
+      $('#startNewGame').hide();
+      $('#killCurrentGame').hide();
+    }
+    else {
+      // Probably set this to hide after we ensure this works properly
+      $('#gameControlDiv').show();
+      status = "Invalid Argument to setGameControlDiv";
+      console.log("Invalid Argument to setGameControlDiv", status);
+    }
+    // Always set the status
+    if (status) {
+    $('#gameControlStatus').html(status);
+    }
+    else {
+      $('#gameControlStatus').html("No status to display");
+    }
+  }
+  
   var uploadBotsform = document.forms.namedItem("uploadBotForm");
   uploadBotsform.addEventListener('submit', function(ev) {
     var output = document.getElementById("status");
@@ -159,10 +192,10 @@
         console.log("Good status " + JSON.stringify(response));
         if (response.error) {
           output.innerHTML = response.error;
-          $('#playGameDiv').hide();
+          $('#gameControlDiv').hide();
         } else {
           output.innerHTML = response.status;
-          $('#playGameDiv').show();
+          $('#gameControlDiv').show();
           id = response.id;
         }
         // then should stay disabled until game is over or change to restart game button

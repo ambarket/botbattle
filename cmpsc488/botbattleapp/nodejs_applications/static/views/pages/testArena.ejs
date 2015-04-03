@@ -2,107 +2,107 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <% include ../partials/head %>
+<head><% include ../partials/head %>
 </head>
 <body onbeforeunload="return leave()" class="container">
 
-    <header>
-        <% include ../partials/header %>
-        
-       <link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />  
-         
-        <script type="text/javascript" src="/static/javascript/classes.js"></script>
-        <script type="text/javascript" src="/static/javascript/saveTheIsland.js"></script>
-        <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
-        <script type="text/javascript" src="/static/javascript/async.js"></script>
-        <!-- script type="text/javascript" src="/socket.io/socket.io.js"></script -->
+  <header>
+    <% include ../partials/header %>
 
-    </header>
+    <link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />
 
-    <% include ../partials/message %>
-    
-    <main >	
-       <div class="col_12">
-        	<div class="col_3">
-        <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
-             <div id="player1FileChoose" class="form-item">
-                 <label for="player1_bot_upload">
-                 Select your bot for player 1
-                 <span class="form-required" title="This field is required."> * </span>
-               </label>
-                <input id="player1_bot_upload" name="player1_bot_upload" type="file" required ></input>
-             </div>
-             <br>
-             <div id="playerRadio" class="form-item">
-               <label for="player2_bot_or_human">
-                 Player 2 Type: <span class="form-required" title="This field is required."> * </span>
-               </label>
-               <input id="human" name="player2_bot_or_human" type="radio" value="human" checked="checked" required >Human</input>
-               <input id="bot" name="player2_bot_or_human" type="radio" value="bot" required >Bot</input>
-             </div>
-             <div style="display:none" id="player2FileChoose" class="form-item">
-                 <label for="player2_bot_upload"> Select your bot for player 2 </label>
-                <input id="player2_bot_upload" name="player2_bot_upload" type="file" ></input>
-             </div>
-            <br><br>
-            <input id="uploadBotButton" type="submit" value="Upload Bot">
-            <p>
-            <div id="status"></div>
-            <hr>
-          </form>
-        		
-        	<div id="playGameDiv" style="display:none">
-            <input id="playGame" type="button" value="Play Game">
-            <p id = "playGameStatus"> this should start the game server side and return confirmation that it started 
-          </div>
-            
-        	<div id="humanInput" class="form-item">
-              <h4>Human Input</h4>
-              <textarea id="stdin"></textarea> 
-              <button id = "send_move">Send Move</button> 
-              <div id = "send_move_message"></div> 
-            </div>
-            
-            <div id="echoTest" class="form-item">
-              <h4>Echo Test</h4>
-              <textarea id="echo_stdin"></textarea> 
-              <button id = "echo_send_move">Send Move</button> 
-              <div id="echo_status"></div> 
-            </div>
-            
-          <div><br><hr><br></div>
-          <div id="distance">CRTL + Mouse twice for coordinate info</div>
-            
-        	</div>
-        	<div class="col_9">
-        		<canvas style="border:1px solid" id="GameCanvas" width="1050" height="650"></canvas>
-        	</div>
-        	
-        	<hr />
-        	
-        	<div class="col_4 ioPanels">
-        	 <h4>Move List</h4>
-           <div id="moveList"></div>
-        	</div>
-        	
-       	 
-       	 <div class="col_4 ioPanels">
-       	   <h5>Standard Output</h5>
-       	   <div id="stdout"></div>
-       	 </div>
-       	 
-          <div class="col_4 ioPanels">
-            <h5>Standard Error</h5>
-            <div id="stderr"></div>
-          </div>
-        
+    <script type="text/javascript" src="/static/javascript/classes.js"></script>
+    <script type="text/javascript" src="/static/javascript/saveTheIsland.js"></script>
+    <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
+    <script type="text/javascript" src="/static/javascript/async.js"></script>
+    <!-- script type="text/javascript" src="/socket.io/socket.io.js"></script -->
+
+  </header>
+
+  <% include ../partials/message %>
+
+  <main>
+  <div class="col_12">
+    <div class="col_3">
+      <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
+        <div id="player1FileChoose" class="form-item">
+          <label for="player1_bot_upload"> Select your bot for player 1 <span class="form-required"
+            title="This field is required."
+          > * </span>
+          </label> <input id="player1_bot_upload" name="player1_bot_upload" type="file" required></input>
         </div>
-        <!-- END GRID -->
-    </main>
-  </body>
+        <br>
+        <div id="playerRadio" class="form-item">
+          <label for="player2_bot_or_human"> Player 2 Type: 
+            <span class="form-required" title="This field is required."> * </span>
+          </label> 
+          <input id="human" name="player2_bot_or_human" type="radio" value="human" checked="checked" required>Human</input>
+          <input id="bot" name="player2_bot_or_human" type="radio" value="bot" required>Bot</input>
+        </div>
+        <div style="display: none" id="player2FileChoose" class="form-item">
+          <label for="player2_bot_upload"> Select your bot for player 2 </label> 
+          <input id="player2_bot_upload"name="player2_bot_upload" type="file"></input>
+        </div>
+        <br>
+        <br> 
+        <input id="uploadBotButton" type="submit" value="Upload Bot">
+        <br>
+        <div id="uploadBotStatus"></div>
+      </form>
+      
+      <hr>
+      
+      <div id="gameControlDiv" style="display: none">
+        <input id="startNewGame" type="button" value="Start Game" style="display: none">
+        <input id="killCurrentGame" type="button" value="Kill Game" style="display: none">
+        <p id="gameControlStatus"> Press Play Game to start a new game.
+      </div>
+
+      <div id="humanInput" class="form-item">
+        <h4>Human Input</h4>
+        <textarea id="stdin"></textarea>
+        <button id="send_move">Send Move</button>
+        <div id="send_move_message"></div>
+      </div>
+
+      <div id="echoTest" class="form-item">
+        <h4>Echo Test</h4>
+        <textarea id="echo_stdin"></textarea>
+        <button id="echo_send_move">Send Move</button>
+        <div id="echo_status"></div>
+      </div>
+
+      <div>
+        <br>
+        <hr>
+        <br>
+      </div>
+      <div id="distance">CRTL + Mouse twice for coordinate info</div>
+
+    </div>
+    <div class="col_9">
+      <canvas style="border: 1px solid" id="GameCanvas" width="1050" height="650"></canvas>
+    </div>
+
+    <hr />
+
+    <div class="col_4 ioPanels">
+      <h4>Move List</h4>
+      <div id="moveList"></div>
+    </div>
+
+
+    <div class="col_4 ioPanels">
+      <h5>Standard Output</h5>
+      <div id="stdout"></div>
+    </div>
+
+    <div class="col_4 ioPanels">
+      <h5>Standard Error</h5>
+      <div id="stderr"></div>
+    </div>
+
+  </div>
+  <!-- END GRID --> </main>
+</body>
 </html>
-
-<script> 
-
-</script>
