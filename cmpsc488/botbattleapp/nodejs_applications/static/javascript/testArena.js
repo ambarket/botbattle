@@ -254,7 +254,8 @@
         response = JSON.parse(req.responseText);
         console.log(response);
         for ( var turnIndex in response) {
-          TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
+          console.log(response[turnIndex]);
+          TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex].gamestates);
         }
       } 
       else {
