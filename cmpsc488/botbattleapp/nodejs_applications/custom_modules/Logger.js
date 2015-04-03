@@ -45,13 +45,7 @@ function Logger(destination) {
     }
     
     for (var i = 1; i < arguments.length; i++) {
-
-      if (arguments[i].toString() === '[object Object]') {
-        message += " " + JSON.stringify(arguments[i]);
-      }
-      else {
-        message += " " + arguments[i];
-      }
+      message += " " + arguments[i]; 
     }
     
     if (destination === 'console') {
