@@ -13,7 +13,9 @@ var categoryDestinations = {
     initialConfig : ['console'],
     httpsServer : ['console'],
     BotBattleCompiler : ['console'],
-    BotBattleApp : ['console']
+    BotBattleApp : ['console'],
+    TestArenaBotUpload : ['console'],
+    TestArenaInstances : ['console']
 }
   
 function Logger(destination) {

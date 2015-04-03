@@ -241,7 +241,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     /**
      * Queries for specified gameName into the GameModules collection of the DB.
      * @param {String} gameName:  The name of the game module to query for
-     * @param {Function} callback: Function to call after insertion. Will be passed any error that occurs as first argument. 
+     * @param {Function} callback: Function to call after query. Will be passed any error that occurs as first argument. 
      * Second argument will be the document found to match the key. If multiple documents were found an error will be returned
      * and the second argument will be null. If no documents were found, both the first and second arguments will be null.
      * @method queryGameModule
@@ -254,24 +254,45 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     }
     
     /**
+     * Queries for the only game module in a SingleTournamentSystem. 
+     * WARNING: This only makes sense in the context of a single tournament system, after extending to support
+     *  multiple tournaments, this function should be removed.
+     * @param {Function} callback: Function to call after query. Will be passed any error that occurs as first argument. 
+     * Second argument will be the system game module object.
+     * @method queryGameModule
+     * @public
+     */
+    this.queryForSystemGameModule = function(callback) {
+      self.queryListOfGameNames(function(err, nameList){
+        if(err){
+          callback(new Error("There was an error getting the Game name list ", err.message));
+        }
+        else{
+          // The assumption is there will only be one game, but has support for multiple games in the future
+          self.queryGameModule(nameList[0], callback);
+        }
+      });
+    }
+    
+    /**
      * Queries for a list of gameNames in the GameModules collection of the DB.
      * @param {Function} callback: (err, ListOfGameNames)
      * @method queryListOfGameNames
      * @public
      */
     this.queryListOfGameNames = function(callback) {
-      queryCollectionAttributeList("GameModules", objectFactory.GameModule.keyFieldName, callback);
+      queryForArrayOfKeyFieldValuesInCollection("GameModules", objectFactory.GameModule.keyFieldName, callback);
     }
     
     /**
      * Queries for a list of values from an attribute (field) from a specified collection
      * @param {String} collection: The name of the collection to query
-     * @param {String} field: The name of the field to query values of in the collection
+     * @param {String} field: The name of the field to get values of in the collection
      * @param {Function} callback: callback(err, listOfFieldValues)
-     * @method queryCollectionAttributeList
+     * @method queryForArrayOfFieldValuesInCollection
      * @private
      */
-    function queryCollectionAttributeList(collectionName, field, callback) {
+    function queryForArrayOfKeyFieldValuesInCollection(collectionName, field, callback) {
       // get all of the objects in the collection then loop through it and create a list of values of the field
       queryForAllDocumentsInCollection(collectionName, function(err, collectionItems){
         if(err){

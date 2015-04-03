@@ -148,19 +148,6 @@ function BotBattleCompiler() {
           callback(null, compiledFilePath)
         }
       })
-      .on('exit', function (code, signal) 
-      {
-          if (code !== 0) {
-            //self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-            //callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
-          }
-          else
-          {
-            // close is fired right after this
-            //self.emit('complete', 'Exit Compilation of ' + sourceFilePath + ' successful!');
-            //callback(null, compiledFilePath)
-          }
-      })
       .on('error', function (err) 
       {
         logger.log('Compiler error, killing the process.');

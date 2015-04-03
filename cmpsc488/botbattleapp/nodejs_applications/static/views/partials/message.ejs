@@ -11,7 +11,19 @@
           <!-- Not necessarily good or bad -->
           <p><%= locals.message.text %></p>
         <% } %>
+        <script>
+          $('.message').slideDown(function() {
+              setTimeout(function() {
+                  $('.message').slideUp();
+              }, 3000);
+          });
+        </script>
     <% } else{ %>
       <!-- No Messages -->
     <% } %>
 </div>
+
+
+
+
+
