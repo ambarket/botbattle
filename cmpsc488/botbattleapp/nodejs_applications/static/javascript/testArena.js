@@ -47,21 +47,21 @@
     document.getElementById("uploadBotStatus").innerHTML = "";
   });
   
-  function setGameControlDiv(playGame_or_killGame_or_hide) {
-    if (playGame_or_killGame_or_hide === "playGame") {
+  function setGameControlDiv(startGame_or_killGame_or_hide) {
+    if (startGame_or_killGame_or_hide === "startGame") {
       $('#gameControlDiv').show();
       $('#startNewGame').show();
       $('#killCurrentGame').hide();
       $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
     }
-    else if (playGame_or_killGame_or_hide === "killGame") {
+    else if (startGame_or_killGame_or_hide === "killGame") {
       console.log("killGame");
       $('#gameControlDiv').show();
       $('#startNewGame').hide();
       $('#killCurrentGame').show();
       $('#gameControlStatus').html("The game is running");
     }
-    else if (playGame_or_killGame_or_hide === "hide") {
+    else if (startGame_or_killGame_or_hide === "hide") {
       $('#gameControlDiv').hide();
       $('#startNewGame').hide();
       $('#killCurrentGame').hide();
@@ -132,7 +132,7 @@
         } 
         else if (response.status) {
           flashStatusOrErrorMessage('status', response.status);
-          setGameControlDiv("playGame");
+          setGameControlDiv("startGame");
           TEST_ARENA.myId = response.id;
         }
         else {
@@ -204,12 +204,13 @@
       if (req.status == 200) {
         console.log("Good status " + JSON.stringify(response));
         if (response.status) {
-          //output.innerHTML = response.status;
           flashStatusOrErrorMessage('status', response.status);
         } 
+        else if (response.error){
+          flashStatusOrErrorMessage('error', response.error);
+        }
         else {
-          console.log("Valid response to startNewGame but no status to display");
-          flashStatusOrErrorMessage('status', response.status);
+          console.log("Valid response to killCurrentGame but no status to display");
         }
         setGameControlDiv('startGame');
       } 
@@ -223,22 +224,22 @@
           //output.innerHTML = "Error " + req.status + " occured";
           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
         }
-        setGameControlDiv('startGame');
-        stopGameStateListener();
+        // Not really sure what to do at this point.
+        setGameControlDiv('killGame');
       }
     }
     req.send();
     ev.preventDefault();
   }, false);
   
+//----------------------------------GameState Listener/Requester or whatever------------------------------------
   var gameStateListener = null;
   function startGameStateListener() {
-    gameStateListener = setInterval(requestLatestGameStates, 200);
+    gameStateListener = setInterval(requestLatestGameStates, 1000);
   }
   
   function stopGameStateListener() {
     if (gameStateListener) {
-      console.log("Trying to stop listener");
       clearInterval(gameStateListener);
       gameStateListener = null;
     }
@@ -268,7 +269,7 @@
   
 
   
-
+//----------------------------------Old stuff------------------------------------
 
   window.requestAnimFrame = (function(callback) {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
@@ -279,7 +280,7 @@
 
   // TODO: Maybe extend this into a button that when clicked would reset the entire canvas
   //    and all object back to default so another game could be played
-  /*(*/function resetTestArena() {
+  (function resetTestArena() {
     TEST_ARENA.canvas = document.getElementById("GameCanvas");
     TEST_ARENA.prevCanvas = TEST_ARENA.canvas;
     TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
@@ -303,7 +304,7 @@
       draw();
 
     })
-  }//)();
+  })();
 
   function registerClickListeners() {
 

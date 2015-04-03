@@ -87,7 +87,7 @@ function registerTestArenaRoutes(server, database) {
          res.json({"error":err});
        }
        else{
-         res.json({"error":"Killed"});
+         res.json({"status":"Killed"});
        }
     });
   });

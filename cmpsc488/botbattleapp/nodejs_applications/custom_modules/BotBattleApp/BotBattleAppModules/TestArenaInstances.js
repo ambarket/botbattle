@@ -238,7 +238,7 @@ module.exports = new (function() {
   
   this.popAllFromGameStateQueue = function(id) {
     if (testArenaInstances[id]) {
-      return testArenaInstances[id].gameStateQueue.slice(0, testArenaInstances[id].gameStateQueue.length);
+      return testArenaInstances[id].gameStateQueue.splice(0, testArenaInstances[id].gameStateQueue.length);
     }
     else {
       return null;
