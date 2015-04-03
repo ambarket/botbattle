@@ -291,7 +291,7 @@ var GameBoard = function() {
   
   context.font= 30  * TEST_ARENA.scale + 'px Arial';
   context.fillStyle="black";
-  context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale); // hardscaled
+  context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale); 
   
   this.loadResources = function(callback) {
     // can get the image width property automatically
