@@ -82,6 +82,8 @@
         document.getElementById("echo_status").innerHTML = response.error;
       } else if (response.status) {
         document.getElementById("echo_status").innerHTML = response.status;
+        //startGameStateListener();
+        requestLatestGameStates();
       } else {
         // Something else
         document.getElementById("echo_status").innerHTML = response;
@@ -175,7 +177,7 @@
           console.log("Valid response to startNewGame but no status to display");
         }
         setGameControlDiv('killGame');
-        startGameStateListener();
+        //startGameStateListener();
       } 
       else {
         console.log("Bad status " + JSON.stringify(response));
@@ -186,7 +188,7 @@
           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
         }
         setGameControlDiv('startGame');
-        stopGameStateListener();
+        //stopGameStateListener();
       }
     }
     req.send();
@@ -195,7 +197,7 @@
   
   document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
     var req = new XMLHttpRequest();
-    stopGameStateListener();
+    //stopGameStateListener();
    // var output = document.getElementById("gameControlStatus");
     req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
@@ -232,9 +234,13 @@
   }, false);
   
 //----------------------------------GameState Listener/Requester or whatever------------------------------------
-  var gameStateListener = null;
+  /*var gameStateListener = null;
+  
   function startGameStateListener() {
-    gameStateListener = setInterval(requestLatestGameStates, 1000);
+    if(!gameStateListener){
+      gameStateListener = "started";
+      gameStateListener = setInterval(requestLatestGameStates, 1000);
+    }
   }
   
   function stopGameStateListener() {
@@ -242,7 +248,7 @@
       clearInterval(gameStateListener);
       gameStateListener = null;
     }
-  }
+  }*/
 
   function requestLatestGameStates() {
     console.log("here");
@@ -253,15 +259,19 @@
       if (req.status == 200) {
         response = JSON.parse(req.responseText);
         console.log(response);
-        for ( var turnIndex in response) {
-          console.log(response[turnIndex]);
-          TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex].gamestates);
+        if(response.gamestates.length){
+            console.log("gamestaess has length",response.gamestates);
+            //TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates); this will not work with echo because
+                                                                             // addNewGameState expects a move list not test
+        }
+        else{
+          setTimeout(requestLatestGameStates, 1000);
         }
       } 
       else {
         output.innerHTML = "Error " + req.status + " occurred getting latest game states.<br \/>";
         console.log("Bad status " + JSON.stringify(response));
-        stopGameStateListener();
+        //stopGameStateListener();
       }
     };
     req.send();
