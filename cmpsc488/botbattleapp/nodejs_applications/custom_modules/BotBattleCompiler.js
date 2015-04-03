@@ -1,3 +1,5 @@
+// TODO: Eliminate the evert emitter stuff, overly complicates this for no reason.
+//  Also replace all emits and console.log statmenets with logger.log('BotBattleCompiler', message)
 
 
 /**
@@ -134,27 +136,17 @@ function BotBattleCompiler() {
       .on('close', function (code, signal) 
       {
         if (code !== 0) {
-          self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-          callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
+          var errMessage = 'Compilation of ' + sourceFilePath + ' failed with error code ' + code;
+          logger.log('BotBattleCompiler', errMessage);
+          self.emit('failed', errMessage);
+          callback(new Error(errMessage));
         }
         else
         {
           self.emit('complete', 'Compilation of ' + sourceFilePath + ' successful!');
+          logger.log('BotBattleCompiler', 'Compilation of ' + sourceFilePath + ' successful!');
           callback(null, compiledFilePath)
         }
-      })
-      .on('exit', function (code, signal) 
-      {
-          if (code !== 0) {
-            //self.emit('failed', 'Compilation of ' + sourceFilePath + ' failed with error code ' + code);
-            //callback(new Error('Compilation of ' + sourceFilePath + ' failed with error code ' + code));
-          }
-          else
-          {
-            // close is fired right after this
-            //self.emit('complete', 'Exit Compilation of ' + sourceFilePath + ' successful!');
-            //callback(null, compiledFilePath)
-          }
       })
       .on('error', function (err) 
       {

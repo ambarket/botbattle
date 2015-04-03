@@ -30,9 +30,10 @@ module.exports.https_cert  = {
 }
 
 var custom_modules_directory = path.join(module.exports.app_root, '/custom_modules/');
+var BotBattleApp_directory = path.join(custom_modules_directory, 'BotBattleApp/');
 module.exports.custom_modules = {
     'directory' : custom_modules_directory,
-    'BotBattleApp' : custom_modules_directory + 'BotBattleApp',
+    'BotBattleApp' : BotBattleApp_directory + 'BotBattleApp',
     'BotBattleDatabase' : custom_modules_directory + 'BotBattleDatabase',
     'BotBattleServer' : custom_modules_directory + 'BotBattleServer',
     'FileManager' : custom_modules_directory + 'FileManager',
@@ -44,6 +45,15 @@ module.exports.custom_modules = {
     'Logger' : custom_modules_directory + 'Logger',
     'InputValidator' : custom_modules_directory + 'InputValidator',
     'MulticlientPrototype' : custom_modules_directory + 'MulticlientPrototype',
+}
+
+var BotBattleApp_sub_modules_directory = path.join(BotBattleApp_directory, 'BotBattleAppModules/');
+module.exports.BotBattleApp_sub_modules = {
+    'Helpers' : BotBattleApp_sub_modules_directory + 'Helpers',
+    'TestArenaBotUpload' : BotBattleApp_sub_modules_directory + 'TestArenaBotUpload',
+    'Login' : BotBattleApp_sub_modules_directory + 'Login',
+    'StudentPortal' : BotBattleApp_sub_modules_directory + 'StudentPortal',
+    'AdminPortal' : BotBattleApp_sub_modules_directory + 'AdminPortal',
 }
 
 var static_content_directory = path.join(module.exports.app_root, '/static/');
@@ -70,6 +80,6 @@ module.exports.local_storage = {
 module.exports.init_config_tmp =  path.join(module.exports.app_root,'init_config_tmp');
 module.exports.configuration_file = path.join(module.exports.app_root,'savedConfiguration.txt');
 
-module.exports.gameEnvironment = path.resolve(module.exports.app_root,'../GameManager/src/Production/');
+module.exports.gameManagerSource = path.resolve(module.exports.app_root,'../GameManager/Production/');
 
 
