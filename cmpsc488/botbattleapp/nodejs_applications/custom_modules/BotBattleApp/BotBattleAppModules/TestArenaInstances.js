@@ -167,13 +167,7 @@ module.exports = new (function() {
     }
   }
   
-  // TODO: Needs cleaned up and nicer logging.
   this.removeGame = function(id, callback) {
-    // TODO: Look up why delete isn't recommended // sometimes something can be
-    // null in the delete call
-    // TODO: With this and others that rely on id we should check that
-    // req.query.id exists or delete finds the value
-    // incase the user tries to change the value or it becomes corrupted.
     if (testArenaInstances[id]) {
       if (testArenaInstances[id].gameProcess) {
         var pid = testArenaInstances[id].gameProcess.pid;
@@ -209,6 +203,33 @@ module.exports = new (function() {
       if (id !== "defaultIdValue") {
         logger.log("TestArenaInstances", "cleanup", "invalid id:", id);
         callback("invalid id: " + id);
+      } else {
+        callback(null);
+      }
+    }
+  }
+  
+  this.killGameManager = function(id, callback) {
+    if (testArenaInstances[id]) {
+      if (testArenaInstances[id].gameProcess) {
+        var pid = testArenaInstances[id].gameProcess.pid;
+        logger.log("TestArenaInstances", "End Child: " + pid);
+
+        testArenaInstances[id].gameProcess.on('close', function(code) {
+          logger.log("TestArenaInstances", "Child ", pid, "exited with code", code);
+          logger.log("TestArenaInstances", "After Kill testArenaInstances is:\n", testArenaInstances);
+          callback(null);
+        });
+        testArenaInstances[id].gameProcess.stdin.end();
+        testArenaInstances[id].gameProcess.kill();
+      } 
+      else {
+        callback(null);
+      }
+    } else {
+      if (id !== "defaultIdValue") {
+        logger.log("TestArenaInstances", "killGameManager", "invalid id:", id);
+        callback(new Error("Invalid id: " + id));
       } else {
         callback(null);
       }

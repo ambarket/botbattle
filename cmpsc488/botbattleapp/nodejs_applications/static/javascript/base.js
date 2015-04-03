@@ -14,6 +14,6 @@
     $('.message').slideDown(function() {
       setTimeout(function() {
           $('.message').slideUp();
-      }, 2000);
+      }, 3000);
     });
   }

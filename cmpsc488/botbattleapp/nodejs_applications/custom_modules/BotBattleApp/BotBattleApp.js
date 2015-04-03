@@ -75,6 +75,22 @@ function registerTestArenaRoutes(server, database) {
     });
   });
   
+  /**
+   * Requested the test arena client clicks Kill Game
+   */
+  server.addDynamicRoute('get', '/killCurrentGame', function(req, res) {
+    var id = req.query.id;
+    console.log("Killing ", id);
+    testArenaInstances.killGameManager(id, function(err){
+       if(err){
+         logger.log(err);
+         res.json({"error":err});
+       }
+       else{
+         res.json({"error":"Killed"});
+       }
+    });
+  });
  
 
 

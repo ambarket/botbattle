@@ -4,6 +4,7 @@
   //var id = "defaultIdValue";
   console.log("InitialId: ", TEST_ARENA.myId);
 
+//----------------------------------Page Unload Handling------------------------------------
   function leave() {
     return "Leaving the page will stop your program from running!";
   }
@@ -33,6 +34,7 @@
     });
   });
 
+//----------------------------------Helper Stuff------------------------------------
   var resetValueAttrributeById = function(id) {
     document.getElementById(id).value = "";
   }
@@ -44,7 +46,52 @@
   $('#player2_bot_upload').click(function() {
     document.getElementById("uploadBotStatus").innerHTML = "";
   });
+  
+  function setGameControlDiv(playGame_or_killGame_or_hide) {
+    if (playGame_or_killGame_or_hide === "playGame") {
+      $('#gameControlDiv').show();
+      $('#startNewGame').show();
+      $('#killCurrentGame').hide();
+      $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
+    }
+    else if (playGame_or_killGame_or_hide === "killGame") {
+      console.log("killGame");
+      $('#gameControlDiv').show();
+      $('#startNewGame').hide();
+      $('#killCurrentGame').show();
+      $('#gameControlStatus').html("The game is running");
+    }
+    else if (playGame_or_killGame_or_hide === "hide") {
+      $('#gameControlDiv').hide();
+      $('#startNewGame').hide();
+      $('#killCurrentGame').hide();
+      $('#gameControlStatus').html("");
+    }
+    else {
+      console.log("Invalid Argument to setGameControlDiv");
+    }
+  }
+  
+  //TODO:  add a box and button to send text for echo test
+  document.getElementById("echo_send_move").addEventListener('click', function(ev) {
+    var req = new XMLHttpRequest();
+    req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
+    req.onload = function(event) {
+      var response = JSON.parse(req.responseText);
+      if (response.error) {
+        document.getElementById("echo_status").innerHTML = response.error;
+      } else if (response.status) {
+        document.getElementById("echo_status").innerHTML = response.status;
+      } else {
+        // Something else
+        document.getElementById("echo_status").innerHTML = response;
+      }
+    };
+    req.send();
+    ev.preventDefault();
+  }, false);
 
+//----------------------------------Upload Bots Form------------------------------------
   // Listen for radio checks
   $('#human').click(function() {
     $('#uploadBotButton').val("Upload Bot");
@@ -67,47 +114,117 @@
     document.getElementById("uploadBotStatus").innerHTML = "";
     document.getElementById("player2_bot_upload").required = true;
   });
-
-  //TODO:  add a box and button to send text for echo test
-  document.getElementById("echo_send_move").addEventListener('click', function(ev) {
+  
+  var uploadBotsform = document.forms.namedItem("uploadBotForm");
+  uploadBotsform.addEventListener('submit', function(ev) {
+    var output = document.getElementById("uploadBotStatus");
+    var data = new FormData(document.forms.namedItem("uploadBotForm"));
     var req = new XMLHttpRequest();
-    req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
+    req.open("POST", "processBotUploads/?oldId=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
-      var response = JSON.parse(req.responseText);
-      if (response.error) {
-        document.getElementById("echo_status").innerHTML = response.error;
-      } else if (response.status) {
-        document.getElementById("echo_status").innerHTML = response.status;
-      } else {
-        // Something else
-        document.getElementById("echo_status").innerHTML = response;
+      if (req.status == 200) {
+        response = JSON.parse(req.responseText);
+        console.log("Good status " + JSON.stringify(response));
+        if (response.error) {
+          flashStatusOrErrorMessage('error', response.error);
+          //disable play game button
+          setGameControlDiv("hide");
+        } 
+        else if (response.status) {
+          flashStatusOrErrorMessage('status', response.status);
+          setGameControlDiv("playGame");
+          TEST_ARENA.myId = response.id;
+        }
+        else {
+          console.log("Neither status or error found in response to uploadBotForm");
+        }
+      } 
+      else {
+        //$('#uploadBotStatus').html("Error " + req.status + " occurred");
+        console.log("Bad status " + JSON.stringify(response));
+        if (response.error) {
+          flashStatusOrErrorMessage('error', response.error);
+        }
+        //disable play game button
+        setGameControlDiv("hide");
       }
+      // enable upload button in each case
     };
-    req.send();
+    req.send(data);
     ev.preventDefault();
   }, false);
+  
+  
+//----------------------------------Start and Kill Game------------------------------------
 
   document.getElementById("startNewGame").addEventListener('click', function(ev) {
     var req = new XMLHttpRequest();
-    var output = document.getElementById("gameControlStatus");
+   // var output = document.getElementById("gameControlStatus");
     req.open("GET", "startGame/?id=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
+      var response = JSON.parse(req.responseText);
       if (req.status == 200) {
-        var response = JSON.parse(req.responseText);
         console.log("Good status " + JSON.stringify(response));
         if (response.status) {
-          output.innerHTML = response.status;
-        } else {
-          output.innerHTML = "Valid response but no status to display";
+          //output.innerHTML = response.status;
+          flashStatusOrErrorMessage('status', response.status);
+        } 
+        else {
+          console.log("Valid response to startNewGame but no status to display");
+          flashStatusOrErrorMessage('status', response.status);
         }
+        setGameControlDiv('killGame');
         startGameStateListener();
-      } else {
+      } 
+      else {
         console.log("Bad status " + JSON.stringify(response));
         if (response.error) {
-          output.innerHTML = response.error;
-        } else {
-          output.innerHTML = "Error " + req.status + " occured";
+          //output.innerHTML = response.error;
+          flashStatusOrErrorMessage('error', response.error);
+        } 
+        else {
+          //output.innerHTML = "Error " + req.status + " occured";
+          flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
         }
+        setGameControlDiv('startGame');
+        stopGameStateListener();
+      }
+    }
+    req.send();
+    ev.preventDefault();
+  }, false);
+  
+  document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
+    var req = new XMLHttpRequest();
+    stopGameStateListener();
+   // var output = document.getElementById("gameControlStatus");
+    req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
+    req.onload = function(event) {
+      var response = JSON.parse(req.responseText);
+      if (req.status == 200) {
+        console.log("Good status " + JSON.stringify(response));
+        if (response.status) {
+          //output.innerHTML = response.status;
+          flashStatusOrErrorMessage('status', response.status);
+        } 
+        else {
+          console.log("Valid response to startNewGame but no status to display");
+          flashStatusOrErrorMessage('status', response.status);
+        }
+        setGameControlDiv('startGame');
+      } 
+      else {
+        console.log("Bad status " + JSON.stringify(response));
+        if (response.error) {
+          //output.innerHTML = response.error;
+          flashStatusOrErrorMessage('error', response.error);
+        } 
+        else {
+          //output.innerHTML = "Error " + req.status + " occured";
+          flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
+        }
+        setGameControlDiv('startGame');
+        stopGameStateListener();
       }
     }
     req.send();
@@ -121,6 +238,7 @@
   
   function stopGameStateListener() {
     if (gameStateListener) {
+      console.log("Trying to stop listener");
       clearInterval(gameStateListener);
       gameStateListener = null;
     }
@@ -148,69 +266,9 @@
     req.send();
   }
   
-  function setGameControlDiv(playGame_or_killGame_or_hide) {
-    if (playGame_or_killGame_or_hide === "playGame") {
-      $('#gameControlDiv').show();
-      $('#startNewGame').show();
-      $('#killCurrentGame').hide();
-      $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
-    }
-    else if (playGame_or_killGame_or_hide === "killGame") {
-      $('#gameControlDiv').show();
-      $('#startNewGame').hide();
-      $('#killCurrentGame').show();
-      $('#gameControlStatus').html("The game is running");
-    }
-    else if (playGame_or_killGame_or_hide === "hide") {
-      $('#gameControlDiv').hide();
-      $('#startNewGame').hide();
-      $('#killCurrentGame').hide();
-      $('#gameControlStatus').html("");
-    }
-    else {
-      console.log("Invalid Argument to setGameControlDiv");
-    }
-  }
+
   
-  var uploadBotsform = document.forms.namedItem("uploadBotForm");
-  uploadBotsform.addEventListener('submit', function(ev) {
-    var output = document.getElementById("uploadBotStatus");
-    var data = new FormData(document.forms.namedItem("uploadBotForm"));
-    var req = new XMLHttpRequest();
-    req.open("POST", "processBotUploads/?oldId=" + TEST_ARENA.myId, true);
-    req.onload = function(event) {
-      if (req.status == 200) {
-        response = JSON.parse(req.responseText);
-        console.log("Good status " + JSON.stringify(response));
-        if (response.error) {
-          output.innerHTML = response.error;
-          setGameControlDiv("hide");
-        } 
-        else if (response.status) {
-          flashStatusOrErrorMessage('status', response.status);
-          //output.innerHTML = response.status;
-          setGameControlDiv("playGame");
-          TEST_ARENA.myId = response.id;
-        }
-        else {
-          console.log("Neither status or error found in response to uploadBotForm");
-        }
-      } 
-      else {
-        setGameControlDiv("hide");
-        $('#uploadBotStatus').html("Error " + req.status + " occurred");
-        output.innerHTML = 
-        console.log("Bad status " + JSON.stringify(response));
-        if (response.error) {
-          output.innerHTML = response.error;
-        }
-        //disable play game button
-      }
-      // enable upload button in each case
-    };
-    req.send(data);
-    ev.preventDefault();
-  }, false);
+
 
   window.requestAnimFrame = (function(callback) {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
