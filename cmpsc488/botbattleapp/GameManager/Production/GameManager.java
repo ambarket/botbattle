@@ -25,10 +25,10 @@ public class GameManager {
 	    String input = sc.next();
 	    while(!input.equals("Quit")){
 	       // System.out.println(input);
-	        input = sc.next();
 	        System.out.println(getHardCodedGameState(0));
 	        System.out.println(getHardCodedGameState(1));
 	        System.out.println(getHardCodedGameState(2));
+	        input = sc.next();
 	    }
     //TournamentTest();
     //humanPlayersTest();

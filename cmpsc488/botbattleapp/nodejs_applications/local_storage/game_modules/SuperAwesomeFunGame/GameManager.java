@@ -25,10 +25,10 @@ public class GameManager {
 	    String input = sc.next();
 	    while(!input.equals("Quit")){
 	       // System.out.println(input);
-	        input = sc.next();
 	        System.out.println(getHardCodedGameState(0));
 	        System.out.println(getHardCodedGameState(1));
 	        System.out.println(getHardCodedGameState(2));
+	        input = sc.next();
 	    }
     //TournamentTest();
     //humanPlayersTest();
@@ -71,6 +71,14 @@ public class GameManager {
 	  //  gameData : an arbitrary game specific object containing necessary information"
 	  //  debugData : an arbitrary game specific object containing necessary information"
 	  // Each animatableEvent must have an event name and data object"
+    
+      /* Lessons about JSON
+       * No single quotes anywhere. You must use escpaed double quotes as down below
+       * No extraneous commas anywhere!
+       * e.g. Commas should be only between two elements in an array or object, not after the last element in that object.
+       * VALID:  { "data" : "move", "data2" : "move2" } 
+       * INVALID { "data" : "move", "data2" : "move2", }  <==PROBLEM is the extra comma after "move2"
+       */
 	  switch(stateNum) {
 	  	case 0:
   			return "{"			 
