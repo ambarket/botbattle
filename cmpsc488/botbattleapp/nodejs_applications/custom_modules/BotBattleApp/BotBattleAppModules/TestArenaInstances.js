@@ -15,7 +15,7 @@ module.exports = new (function() {
     setTimeout(function () {
       logger.log("TestArenaInstances", "Cleaning");
       for(instance in testArenaInstances){
-        logger.log("TestArenaInstances", "instance", instance)
+        logger.log("TestArenaInstances", "instance", instance);
         now = Date.now();
         logger.log("TestArenaInstances", "now", now);
         logger.log("TestArenaInstances", "Delete at", testArenaInstances[instance].gameExpireDateTime)
