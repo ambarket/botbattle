@@ -125,19 +125,20 @@
       if (req.status == 200) {
         response = JSON.parse(req.responseText);
         console.log("Good status " + JSON.stringify(response));
-        if (response.error) {
-          flashStatusOrErrorMessage('error', response.error);
-          //disable play game button
-          setGameControlDiv("hide");
-        } 
-        else if (response.status) {
+        if (response.status) {
           flashStatusOrErrorMessage('status', response.status);
           setGameControlDiv("startGame");
           TEST_ARENA.myId = response.id;
         }
+        // On the server side we should probably send errors with a different status code
+        else if (response.error) {
+          flashStatusOrErrorMessage('error', response.error);
+          setGameControlDiv("hide");
+        } 
         else {
           console.log("Neither status or error found in response to uploadBotForm");
         }
+
       } 
       else {
         //$('#uploadBotStatus').html("Error " + req.status + " occurred");
@@ -159,19 +160,19 @@
 
   document.getElementById("startNewGame").addEventListener('click', function(ev) {
     var req = new XMLHttpRequest();
-   // var output = document.getElementById("gameControlStatus");
     req.open("GET", "startGame/?id=" + TEST_ARENA.myId, true);
     req.onload = function(event) {
       var response = JSON.parse(req.responseText);
       if (req.status == 200) {
         console.log("Good status " + JSON.stringify(response));
         if (response.status) {
-          //output.innerHTML = response.status;
           flashStatusOrErrorMessage('status', response.status);
         } 
+        else if (response.error) {
+          flashStatusOrErrorMessage('error', response.error);
+        }
         else {
           console.log("Valid response to startNewGame but no status to display");
-          flashStatusOrErrorMessage('status', response.status);
         }
         setGameControlDiv('killGame');
         startGameStateListener();
@@ -179,11 +180,9 @@
       else {
         console.log("Bad status " + JSON.stringify(response));
         if (response.error) {
-          //output.innerHTML = response.error;
           flashStatusOrErrorMessage('error', response.error);
         } 
         else {
-          //output.innerHTML = "Error " + req.status + " occured";
           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
         }
         setGameControlDiv('startGame');

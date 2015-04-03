@@ -104,7 +104,7 @@ module.exports = new (function() {
       return false;
     } 
     else {
-      if (testArenaInstances[id].gameProcess) {
+      if (testArenaInstances[id].gameProcess && testArenaInstances[id].state === 'running') {
         logger.log("TestArenaInstances", 
             helpers.getLogMessageAboutGame(id, "Game Manager already running"));
         return false;
