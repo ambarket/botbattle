@@ -18,11 +18,11 @@ public class ArenaGameInstance {
     int i = 0;
     Scanner scner = new Scanner(System.in);
     // Add starting board
-    String move = "";
+    String move = " ; ";
     String board = game.getStartingBoard();
 
     //Send starting board to the test arena
-    System.out.println(game.getHTMLForBoard(board));
+    System.out.println(game.getJSONStringForThisTurn(board, move, 0));
     
     while (!game.isGameOver(board)) {
 
@@ -44,13 +44,14 @@ public class ArenaGameInstance {
         board = game.updateBoard(move, board, player);
         
         //Sent to stdout for Arena to see
-        System.out.println(game.getHTMLForBoard(board));
+        System.out.println(game.getJSONStringForThisTurn(board, move, player));
         
         if (game.isGameWon(board)) {
           System.out.println("Game Won by player" + player);
           break;
         }
       } else {
+        System.out.println(game.getJSONStringForThisTurn(board, move, player));
         System.out.println("Invalid move made");
         break;
       }
