@@ -23,11 +23,12 @@ module.exports = new (function() {
           // kill spawned game here too and anything created during a game
           // TODO: if game exists as reference, but not running will calling kill() or stdin.end() crash the server
           //       could test by running, then calling killCurrentGame and seeing if this crashes.  (set time to 40 seconds or so)
-          if (testArenaInstances[id].gameProcess){
-            var pid = testArenaInstances[id].gameProcess.pid;
+          // TODO: test this again
+          if (testArenaInstances[instance].gameProcess && testArenaInstances[instance].gameState === "running"){
+            var pid = testArenaInstances[instance].gameProcess.pid;
             logger.log("TestArenaInstances", "End Child: " + pid);          
-            testArenaInstances[id].gameProcess.stdin.end();
-            testArenaInstances[id].gameProcess.kill(); 
+            testArenaInstances[instance].gameProcess.stdin.end();
+            testArenaInstances[instance].gameProcess.kill(); 
           }
           delete testArenaInstances[instance];
           count++;
@@ -90,14 +91,7 @@ module.exports = new (function() {
     }); 
   }
   
-  // TODO: this is asyn and concerns me about running this based on its existance...
-  // TODO: So I believe the reson this is not a problem is because nod eis single threaded. Basically this spawn
-  //    just throws the function on the vent queue and that function is guarenteed not to run until this current function
-  //    complete. (ANd all others that have been enqueued before it).
-  //    As a result this entire function becomes synchronous and we cannot claim to know wheter the process will 
-  //    spawn properly or not until after this function completes. We'll handle this by setting the callbacks to
-  //    set meaningful states in the testAreneInstance
-  //    --Feel free to delete this after you read it.
+  
   this.spawnNewGameInstance = function(id) {
     var spawn = require('child_process').spawn;
     if (!testArenaInstances[id]) {
@@ -106,7 +100,7 @@ module.exports = new (function() {
       return false;
     } 
     else {
-      if (testArenaInstances[id].gameProcess && testArenaInstances[id].state === 'running') {
+      if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         logger.log("TestArenaInstances", 
             helpers.getLogMessageAboutGame(id, "Game Manager already running"));
         return false;
@@ -123,7 +117,7 @@ module.exports = new (function() {
               + testArenaInstances[id].gameModule.gameName);
 
           testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager" ], {cwd : workingGamePath});
-          testArenaInstances[id].state = "running";
+          testArenaInstances[id].gameState = "running";
 
           logger.log("TestArenaInstances", 
               helpers.getLogMessageAboutGame(id, "Spawned new game. PID: " + testArenaInstances[id].gameProcess.pid));
@@ -155,7 +149,7 @@ module.exports = new (function() {
 
           // Not sure we need both of these or what the difference is.
           testArenaInstances[id].gameProcess.on('close', function(code) {
-            testArenaInstances[id].state = "closed";
+            testArenaInstances[id].gameState = "closed";
             logger.log("TestArenaInstances", 'status', {
               'output' : 'program closed with code ' + code
             });
@@ -164,13 +158,13 @@ module.exports = new (function() {
           });
 
           testArenaInstances[id].gameProcess.on('exit', function(code) {
-            testArenaInstances[id].state = "exited";
+            testArenaInstances[id].gameState = "exited";
             logger.log("TestArenaInstances", 
                 helpers.getLogMessageAboutGame(id, "PID: " + testArenaInstances[id].gameProcess.pid + " exited with code " + code));
           });
 
           testArenaInstances[id].gameProcess.on('error', function(err) {
-            testArenaInstances[id].state = "error";
+            testArenaInstances[id].gameState = "error";
             logger.log("TestArenaInstances", 
                 helpers.getLogMessageAboutGame(id, "PID: " + testArenaInstances[id].gameProcess.pid + " error " + err.message));
           });
@@ -224,6 +218,8 @@ module.exports = new (function() {
   
   // TODO: now that we use this in many places we should make a killSpawnedGame(id, callback) and a 
   //       deleteTestArenaInstance(id, callback) because all removals and cleanups are a combination of the two.
+  // TODO:  This shouldn't happen, but if the folder for an id is deleted before the game is then a call to this will just hang.
+  //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
   this.killGameManager = function(id, callback) {
     if (testArenaInstances[id]) {
       if (testArenaInstances[id].gameProcess) {
