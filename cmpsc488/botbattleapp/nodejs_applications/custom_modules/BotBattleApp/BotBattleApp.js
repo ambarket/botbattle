@@ -125,9 +125,9 @@ function registerTestArenaRoutes(server, database) {
    */
   server.addDynamicRoute('get', '/echoTest', function(req, res) {
     var id = req.query.id;
-    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running"){
+    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running"){
       setTimeout(function(){ 
-        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running")
+        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running")
           testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.echo_stdin + '\n'); 
         }, 2000);
       
