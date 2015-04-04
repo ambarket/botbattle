@@ -123,8 +123,6 @@ module.exports = new (function() {
               helpers.getLogMessageAboutGame(id, "Spawned new game. PID: " + testArenaInstances[id].gameProcess.pid));
 
           testArenaInstances[id].gameProcess.stdout.on('data', function(data) {
-            // make an array to store moves in
-            //console.log(data.toString());
             var array = data.toString().split(/\n/);
             console.log("Split array:", array)
             for (var i = 0; i < array.length; i++) {
@@ -141,7 +139,6 @@ module.exports = new (function() {
           
 
           testArenaInstances[id].gameProcess.stderr.on('data', function(data) {
-            // make an array to store errors in
             testArenaInstances[id].stderrQueue.push(data.toString());
             logger.log("TestArenaInstances", 
                 helpers.getLogMessageAboutGame(id, "stderrQueue: " + testArenaInstances[id].stderrQueue));
@@ -176,7 +173,7 @@ module.exports = new (function() {
   
   this.removeGame = function(id, callback) {
     if (testArenaInstances[id]) {
-      if (testArenaInstances[id].gameProcess) {
+      if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         var pid = testArenaInstances[id].gameProcess.pid;
         logger.log("TestArenaInstances", "End Child: " + pid);
 
@@ -222,7 +219,7 @@ module.exports = new (function() {
   //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
   this.killGameManager = function(id, callback) {
     if (testArenaInstances[id]) {
-      if (testArenaInstances[id].gameProcess) {
+      if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         var pid = testArenaInstances[id].gameProcess.pid;
         logger.log("TestArenaInstances", "End Child: " + pid);
 
