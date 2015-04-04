@@ -3,14 +3,13 @@
 import java.util.List;
 
 //TIC-TAC-TOE 
-public class TicTacToeGame {
-
-  public static String getStartingBoard() {
+public class TicTacToeGame implements GameInterface {
+  public String getStartingBoard() {
     return "000000000";
   }
 
 
-  public static String updateBoard(String move, String board, int player){
+  public String updateBoard(String move, String board, int player){
     // 0123456
     // 1, 1, X
     // Move will be of the form: row, col, value
@@ -25,7 +24,7 @@ public class TicTacToeGame {
   }
 
   // Player value is not used in tic-tac-toe
-  public static boolean isValidMove(String move, String board, int player) {
+  public boolean isValidMove(String move, String board, int player) {
 
     if (move == null) {
       return false;
@@ -39,7 +38,7 @@ public class TicTacToeGame {
       row = Integer.parseInt(move.substring(0, 1));
       col = Integer.parseInt(move.substring(3, 4));
       character = move.substring(6);
-    } catch (NumberFormatException e) {
+    } catch (Exception e) {
       System.out.println("Invalid move: " + move);
       return false;
     }
@@ -60,7 +59,7 @@ public class TicTacToeGame {
   }
 
 
-  public static boolean isGameOver(String board) {
+  public boolean isGameOver(String board) {
 
     if (isGameWon(board)) {
       return true;
@@ -76,7 +75,7 @@ public class TicTacToeGame {
   }
 
 
-  public static String getHTMLForBoard(String board) {
+  public String getHTMLForBoard(String board) {
     // TODO implement getHTMLForBoard for ticTacToe game
     return null;
   }
@@ -87,12 +86,7 @@ public class TicTacToeGame {
   }
 
 
-  public static String getName() {
-    return "TicTacToe";
-  }
-
-
-  public static boolean isGameWon(String board) {
+  public boolean isGameWon(String board) {
 
     for (int i = 0; i < 3; i++) {
       int index = 3 * i;
@@ -128,7 +122,12 @@ public class TicTacToeGame {
     return false;
   }
 
-  public static String getJSONstringFromGameResults(GameResults results) {
+  public static String getName() {
+    return "TicTacToe";
+  }
+
+
+  public String getJSONstringFromGameResults(GameResults results) {
     Object[] player1Moves = results.getPlayer1Moves().toArray();
     Object[] player2Moves = results.getPlayer2Moves().toArray();
     List<String> boards = results.getBoards();
@@ -158,5 +157,12 @@ public class TicTacToeGame {
     jsonString += "\n}";
 
     return jsonString;
+  }
+
+
+  @Override
+  public String getJSONStringForThisTurn(String board, String move, int player) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
