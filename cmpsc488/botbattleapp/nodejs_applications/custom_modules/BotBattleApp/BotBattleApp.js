@@ -81,7 +81,7 @@ function registerTestArenaRoutes(server, database) {
   server.addDynamicRoute('get', '/killCurrentGame', function(req, res) {
     var id = req.query.id;
     console.log("Killing ", id);
-    testArenaInstances.killGameManager(id, function(err){
+    testArenaInstances.killSpawnedGameForId(id, function(err){
        if(err){
          logger.log(err);
          res.json({"error":err});

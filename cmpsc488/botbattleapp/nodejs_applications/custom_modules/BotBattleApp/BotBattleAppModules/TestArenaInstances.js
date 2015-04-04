@@ -217,7 +217,7 @@ module.exports = new (function() {
   //       deleteTestArenaInstance(id, callback) because all removals and cleanups are a combination of the two.
   // TODO:  This shouldn't happen, but if the folder for an id is deleted before the game is then a call to this will just hang.
   //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
-  this.killGameManager = function(id, callback) {
+  this.killSpawnedGameForId = function(id, callback) {
     if (testArenaInstances[id]) {
       if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         var pid = testArenaInstances[id].gameProcess.pid;
@@ -236,7 +236,7 @@ module.exports = new (function() {
       }
     } else {
       if (id !== "defaultIdValue") {
-        logger.log("TestArenaInstances", "killGameManager", "invalid id:", id);
+        logger.log("TestArenaInstances", "killSpawnedGameForId", "invalid id:", id);
         callback(new Error("Invalid id: " + id));
       } else {
         callback(null);
