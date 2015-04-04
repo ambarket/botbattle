@@ -1,8 +1,58 @@
-//Wrap everything in a function, so local variables dont become globals
+//Wrap everything in a function, so local variables don't become globals
  (function() {
-   TEST_ARENA.myId = "defaultIdValue";
-   //var id = "defaultIdValue";
-   console.log("InitialId: ", TEST_ARENA.myId);
+   // Define global TEST_ARENA namespace to be shared throughout client side code
+   TEST_ARENA = {
+       'myId' : "defaultIdValue", 
+       'canvas' : null, // Set in testArena.js after page has loaded
+       'context' : null, // Set in testArena.js after page is loaded
+       'scale' : 1, // set by resizeCanvas
+       'resizeCanvas' : function(){
+         this.canvas.width = Math.min(this.canvas.parentNode.getBoundingClientRect().width, 1050);
+         this.canvas.height = this.canvas.width * 0.619047619;  // 650/1050 = 0.619047619
+         this.scale = document.getElementById("GameCanvas").width / 1050;
+      },
+       'gameStateQueue' : null //Set by resetGameStateQueue
+   }
+
+   TEST_ARENA.resetGameStateQueue = function() {
+     // Stop it if its running since were about to lose reference to it.
+     if (TEST_ARENA.gameStateQueue) {TEST_ARENA.gameStateQueue.stop()}
+     TEST_ARENA.gameStateQueue = new (function(){
+       var self = this;
+       var gameStateQueue = [];
+       var imRunning = false;
+       
+       this.addNewGameState = function(gamestate) {
+         gameStateQueue.push(gamestate);
+     
+         if (!imRunning) {
+           imRunning = true;
+           processNextGameState();
+         }
+       }
+       
+       this.stop = function() {
+         imRunning = false;
+       }
+     
+       var processNextGameState = function() {
+         var nextGameState = gameStateQueue.splice(0, 1)[0];
+     
+         if (!nextGameState) {
+           imRunning = false;
+         } else {
+           // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
+           async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
+             GAME.processGameData(nextGameState.gameData, function(err) {
+               GAME.processDebugData(nextGameState.debugData, function(err) {
+                 processNextGameState();
+               });        
+             });
+           });
+         }
+       }
+     })();
+   }
  
  //----------------------------------Page Unload Handling------------------------------------
    function leave() {
@@ -39,6 +89,32 @@
      document.getElementById(id).value = "";
    }
  
+   TEST_ARENA.appendArrayOfDivsToHtmlElementById = function(id, contentArray) {
+     for (var i = 0; i < contentArray.length; i++) {
+       TEST_ARENA.appendDivToHtmlElementById(id, contentArray[i]);
+     }
+   }
+
+   TEST_ARENA.appendDivToHtmlElementById = function(id, content) {
+     //Add debugging data to the page
+     var element =  document.getElementById(id);
+     var html = [];
+     html.push(element.innerHTML);
+     html.push('<div>' + content + '</div>');
+     element.innerHTML = html.join('');
+     element.scrollTop = element.scrollHeight;
+   }
+   
+   TEST_ARENA.coinFlip = function(weight){
+     var coin = Math.random();
+     if(weight){
+         return (coin + weight <= .50);
+     }
+     else{
+         return (coin <= .50);
+     }
+   }
+   
    $('#player1_bot_upload').click(function() {
      document.getElementById("uploadBotStatus").innerHTML = "";
    });
@@ -72,7 +148,6 @@
      }
    }
    
-   //TODO:  add a box and button to send text for echo test
    document.getElementById("echo_send_move").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
      req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
@@ -269,8 +344,6 @@
      req.send();
    }
    
- 
-   
  //----------------------------------Old stuff------------------------------------
  
    window.requestAnimFrame = (function(callback) {
@@ -299,8 +372,7 @@
        function draw() {
          GAME.drawer.drawBoard();
          requestAnimFrame(draw);
-       }
-       ;
+       };
  
        draw();
  
@@ -350,7 +422,7 @@
          // Test by shutting down server then clicking it.
          req.onload = function(event) {
            if (req.status === 200) {
-             TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "GameState received");
+             TEST_ARENA.appendDivToHtmlElementById('send_move_message', "GameState received");
              console.log(req.responseText);
  
              // Parse into JSON
@@ -361,12 +433,12 @@
                TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
              }
            } else {
-             TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', "Failed to get GameState");
+             TEST_ARENA.appendDivToHtmlElementById('send_move_message', "Failed to get GameState");
            }
            document.getElementById("send_move").disabled = false;
          };
        } catch (err) {
-         TEST_ARENA.helpers.appendDivToHtmlElementById('send_move_message', err.message);
+         TEST_ARENA.appendDivToHtmlElementById('send_move_message', err.message);
          document.getElementById("send_move").disabled = false;
        }
  

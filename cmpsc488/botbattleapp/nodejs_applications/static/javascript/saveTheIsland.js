@@ -3,7 +3,7 @@
 GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
-      TEST_ARENA.helpers.appendDivToHtmlElementById('moveList', gameData.turnDescription);
+      TEST_ARENA.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
       //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
@@ -12,8 +12,8 @@ GAME = {
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
-      TEST_ARENA.helpers.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
-      TEST_ARENA.helpers.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
+      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
     
@@ -54,6 +54,63 @@ GAME = {
       });
     }
 }
+
+  /**
+   * Move the animated object along x at speed pixels/second from its current position towards
+   * drawableObject.endpos
+   * 
+   * @param {Object} drawableObject Must extend drawableObject class 
+   * @param {Number} lastUpdateTime The time of the last frame update of this object
+   * @param {Number} speed The speed in pixels/second to move the object
+   */
+  var updateXPositionLinearlyWithTime = function(drawableObject, endingX, lastUpdateTime, speed) {
+      var time = (new Date()).getTime();
+      var timeDiff = time - lastUpdateTime;
+      var backwards = endingX - drawableObject.x < 0;
+      
+      // pixels / second
+      var linearSpeedX = (backwards) ? -1 * speed : speed;
+      var linearDistEachFrameX = linearSpeedX * timeDiff / 1000;
+      drawableObject.x += linearDistEachFrameX;
+  
+      if (backwards && drawableObject.x <= endingX) {
+        drawableObject.x = endingX;
+      } else if (!backwards && drawableObject.x >= endingX) {
+        drawableObject.x = endingX;
+      }
+  
+      return time;
+    }
+  
+  /**
+   * Move the animated object along y at speed pixels/second from its current position towards
+   * drawableObject.endpos
+   * 
+   * @param {Object} drawableObject Must extend drawableObject class 
+   * @param {Number} lastUpdateTime The time of the last frame update of this object
+   * @param {Number} speed The speed in pixels/second to move the object
+   */
+  /* TODO: Refactor as done with the X one above
+  var updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
+      var time = (new Date()).getTime();
+      var timeDiff = time - lastUpdateTime;
+      var up = moveEvent.endingY - drawableObject.y < 0;
+      
+      // pixels / second
+      var linearSpeedY = (up) ? -1 * speed : speed;
+      var linearDistEachFrameY = linearSpeedY * timeDiff / 1000;
+      drawableObject.y += linearDistEachFrameY;
+  
+      if (up && drawableObject.y <= moveEvent.endingY) {
+        drawableObject.Y = moveEvent.endingY;
+      } else if (!up && drawableObject.y >= moveEvent.endingY) {
+        drawableObject.y = moveEvent.endingY;
+      }
+  
+      return time;
+    }
+    */
+
   var animations = {
       move : function(eventData, processAnimatableEventCallback) {
         // Setup any variables needed for the animation
@@ -67,7 +124,7 @@ GAME = {
         
         // Immediately invoke this loop that will run until the animation is complete, then call the callback
         (function moveLoop(lastUpdateTime) {
-          var currentTime = TEST_ARENA.helpers.updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
+          var currentTime = updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
           
           var done = player.current.x === finalPosition;
            
@@ -170,7 +227,7 @@ function Drawer() {
       var player2PositionX = GAME.gameboard.playerAnimations["player2"].current.x;
       //var player2PositionY = GAME.gameboard.playerAnimations["player2"].current.y;
       
-      //  TODO wanted to update so its based on grid position, but can't becuase it's constant update
+      //  TODO wanted to update so its based on grid position, but can't becuase it's constant update.
       //  could save lots of computations if only update when player is done moving and based on 
       //  player position that is stored in player.  This wouldn't look as cool, but is way less error prone
       //  and less processing.  Also this Math.floor is causeing problems here and below.

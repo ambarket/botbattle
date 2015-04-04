@@ -64,9 +64,7 @@ public class GameManager {
   
  
   public static String getHardCodedGameState(int stateNum) {
-	  // Instead of named objects called turns, just use an array of objects, on our end were calling these gamestates"
-	  // and they will be processed in the order that they are defined in this array"
-	  // Each gaem state has three properties"
+	  // Each gameState has three properties"
 	  //  animatableEvents : an array of animatableEvent objects"
 	  //  gameData : an arbitrary game specific object containing necessary information"
 	  //  debugData : an arbitrary game specific object containing necessary information"
