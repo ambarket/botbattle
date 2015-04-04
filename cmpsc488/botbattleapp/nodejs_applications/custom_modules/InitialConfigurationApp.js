@@ -620,6 +620,10 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Invalid database host');
       var valid = false;
     }
+    if (!inputValidator.isCorrectGameName(sanitizedFormData.gameSource.name)) {
+      self.emit('config_error', 'Game Module Source must be named Game.java');
+      var valid = false;
+    }
     if (!inputValidator.isPortNumber(sanitizedFormData.databasePort)) {
       self.emit('config_error', 'Invalid database port');
       var valid = false;

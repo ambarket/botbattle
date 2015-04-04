@@ -4,7 +4,8 @@ function InputValidator() {
   var passwordRegex = /^(?=.*\d).{4,16}$/; // 4 to 16 characters with atleast one numeric digit
   var alphanumericRegex = /^([0-9A-Za-z]{4,35})$/;
   var moveTimeoutRegex = /^(\d|[1-9]\d|[1-2]\d\d|[3][0][0])$/; // 0 - 300
-  var portNumberRegex = /^(\d|[1-9]\d|[1-9]\d\d|[1-9]\d\d\d|[1-5]\d\d\d\d|[6][0-5][0-5][0-3][0-6])$/ //0 - 65536
+  var portNumberRegex = /^(\d|[1-9]\d|[1-9]\d\d|[1-9]\d\d\d|[1-5]\d\d\d\d|[6][0-5][0-5][0-3][0-6])$/; //0 - 65536
+  var gameModuleSourceRegex = "Game.java";
   
   var fourToThirtyFiveCharRegex = /^(.{4,35})$/
     
@@ -14,6 +15,10 @@ function InputValidator() {
   
   this.isPortNumber = function(string) {
     return (string.match(portNumberRegex));
+  }
+  
+  this.isCorrectGameName = function(string){
+    return (string.match(gameModuleSourceRegex));
   }
   
   //TODO Make this use a better password regex. Kept it as alphanumeric so it works with the database password we've been using
