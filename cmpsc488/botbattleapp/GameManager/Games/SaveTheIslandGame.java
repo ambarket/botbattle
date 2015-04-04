@@ -2,7 +2,7 @@
 
 import java.util.Random;
 
-public class SaveTheIslandGame {
+public class SaveTheIslandGame implements GameInterface {
   public String getStartingBoard() {
     Random rng = new Random();
     String board = "";
@@ -106,12 +106,6 @@ public class SaveTheIslandGame {
     return true;
   }
 
-
-  public String getHTMLForBoard(String board) {
-    // TODO implement getHTML for save the island
-    return null;
-  }
-
   public static int getBotTimeoutInMilliseconds() {
     return 3000;
   }
@@ -131,20 +125,23 @@ public class SaveTheIslandGame {
   }
 
   protected static String animatedEventJSON(String event, String objctName, int finalPosition) {
-    String output = "\'animatableEvents\' : [\n{\n";
-    output += "\t\'event\': \'" + event + "\',\n";
-    output += "\t\'data\': {\n ";
-    output += "\t\t\'objectName\' : \'" + objctName + "\',\n";
-    output += "\t\t\'finalPosition\' : " + finalPosition + "\n\t\t}\n}]\n";
+    String output = 
+        "\"animatableEvents\" : [" +
+          "{"+
+               "\"event\": \"" + event + "\"," +
+               "\"data\": { " +
+                    "\"objectName\" : \"" + objctName + "\"," +
+                    "\"finalPosition\" : " + finalPosition + "}}]";
 
     return output;
   }
 
   protected static String gameDataJSON(String player1Tiles, String player2Tiles, String description) {
-    String output = "\'gameData' : {\n";
-    output += "\t\'player1Tiles\' : " + tilesToArray(player1Tiles) + ",\n";
-    output += "\t\'player2Tiles\' : " + tilesToArray(player2Tiles) + ",\n";
-    output += "\t\'turnDescription\' : \"" + description + "\"\n}\n";
+    String output = 
+        "\"gameData\" : {" +
+            "\"player1Tiles\" : " + tilesToArray(player1Tiles) + "," +
+            "\"player2Tiles\" : " + tilesToArray(player2Tiles) + "," +
+            "\"turnDescription\" : \"" + description + "\"}";
 
     return output;
   }
@@ -183,10 +180,22 @@ public class SaveTheIslandGame {
 
     return output;
   }
+  
+  public String getJSONStringFromBoardAndMove(String board, String move, int player) {
+    String jsonString = "{";
+    
+    int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
+    jsonString += animatedEventJSON(move.split(";")[0], "Player" + player, finalPos) + ",";
+    jsonString +=
+        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+            prettyPrintMove(move, player)) + "},";
+    jsonString += "\"debugData\" : {\"stderr\" : [],\"stdout\" : [\"" + move + "\"]}};";
+    return jsonString;
+  }
 
   // TODO: remove new lines and tabs once this gets approved
   //TODO this seems like its mostly done except for the animation stuff and testing
-  public static String getJSONstringFromGameResults(GameResults results) {
+  public String getJSONstringFromGameResults(GameResults results) {
     Object[] p1Moves = results.getPlayer1Moves().toArray();
     Object[] p2Moves = results.getPlayer2Moves().toArray();
     String board = results.getBoards().get(0);
