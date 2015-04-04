@@ -181,7 +181,7 @@ public class SaveTheIslandGame implements GameInterface {
     return output;
   }
   
-  public String getJSONStringFromBoardAndMove(String board, String move, int player) {
+  public String getJSONStringForThisTurn(String board, String move, int player) {
     String jsonString = "{";
     
     int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
