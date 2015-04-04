@@ -17,8 +17,6 @@ public interface GameInterface {
 
   boolean isGameWon(String board);
 
-  String getHTMLForBoard(String board);
-
   String getJSONstringFromGameResults(GameResults results);
 
 }
