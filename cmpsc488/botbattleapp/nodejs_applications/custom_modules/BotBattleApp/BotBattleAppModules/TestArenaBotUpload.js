@@ -14,7 +14,7 @@ module.exports = {
       // if client exists in the testArenaInstance then delete it and the instance object
       // No need to wait for this to complete though
       var oldGameId = req.query.oldId;
-      testArenaInstances.removeGame(oldGameId, function(err){
+      testArenaInstances.deleteTestArenaInstanceAndGameForId(oldGameId, function(err){
         if(err){
           logger.log("TestArenaBotUpload", helpers.getLogMessageAboutGame(oldGameId, "Error cleaning up testArenaInstance"));
         }
@@ -187,7 +187,7 @@ module.exports = {
     }
     
     function removeIncompleteGameAfterFailure(id) {
-      testArenaInstances.removeGame(id, function(err){
+      testArenaInstances.deleteTestArenaInstanceAndGameForId(id, function(err){
         if (err) {
           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(id, err.message));
         }
