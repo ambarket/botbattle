@@ -171,7 +171,7 @@ module.exports = new (function() {
     }
   }
   
-  this.removeGame = function(id, callback) {
+  this.deleteTestArenaInstanceAndGameForId = function(id, callback) {
     if (testArenaInstances[id]) {
       if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         var pid = testArenaInstances[id].gameProcess.pid;
