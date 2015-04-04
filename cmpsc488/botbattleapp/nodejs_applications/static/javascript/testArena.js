@@ -216,7 +216,6 @@
  
        } 
        else {
-         //$('#uploadBotStatus').html("Error " + req.status + " occurred");
          console.log("Bad status " + JSON.stringify(response));
          if (response.error) {
            flashStatusOrErrorMessage('error', response.error);
@@ -271,7 +270,6 @@
    document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
      stopGameStateListener();
-    // var output = document.getElementById("gameControlStatus");
      req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
      req.onload = function(event) {
        var response = JSON.parse(req.responseText);
@@ -291,11 +289,9 @@
        else {
          console.log("Bad status " + JSON.stringify(response));
          if (response.error) {
-           //output.innerHTML = response.error;
            flashStatusOrErrorMessage('error', response.error);
          } 
          else {
-           //output.innerHTML = "Error " + req.status + " occured";
            flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
          }
          // Not really sure what to do at this point.
@@ -379,7 +375,7 @@
      })
    })();
  
-   function registerClickListeners() {
+   /*function registerClickListeners() {
  
      // add click listener to canvas to get distances between two clicked points
      (function() {
@@ -405,13 +401,12 @@
            }
          } else {
  
-           sendMoveOverAjax(event);
+           //sendMoveOverAjax(event);
          }
        });
      })();
  
      function sendMoveOverAjax(ev) {
-       console.log("here");
        document.getElementById("send_move").disabled = true;
        var req = new XMLHttpRequest();
        req.open("POST", "testArenaUpdate", true);
@@ -446,5 +441,5 @@
      }
  
      document.getElementById("send_move").addEventListener('click', sendMoveOverAjax, false);
-   }
+   }*/
  })();

@@ -152,7 +152,7 @@ function registerTestArenaRoutes(server, database) {
   /**
    * Requested by the "Send Move" Button on the test arena page
    */
-  server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
+ /* server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
     // Here it should be asserted that this current session has 
     
     setTimeout(function() {
@@ -233,7 +233,7 @@ function registerTestArenaRoutes(server, database) {
     );
     }, 500); 
 
-  }); 
+  }); */
   
 }
 
