@@ -19,7 +19,8 @@ public class TicTacToeGameTest {
 	@Test
 	public void testGetBoard() {
 		String s = "000000000";
-		assertEquals("Initial Game board set incorrectly.", s, TicTacToeGame.getStartingBoard());
+		TicTacToeGame ttg = new TicTacToeGame();
+		assertEquals("Initial Game board set incorrectly.", s, ttg.getStartingBoard());
 	}
 
 	/**
@@ -27,11 +28,12 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testUpdateBoard() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		String move = "1, 1, X";
 		String newBoard = "X00000000";
 		
-		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board, 1));
+		assertEquals("Update board failed for first move.", newBoard, ttg.updateBoard(move, board, 1));
 	}
 
 	/**
@@ -39,11 +41,12 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testUpdateBoardForEndMove() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		String move = "3, 3, X";
 		String newBoard = "00000000X";
 		
-		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board, 1));
+		assertEquals("Update board failed for first move.", newBoard, ttg.updateBoard(move, board, 1));
 	}
 	
 	/**
@@ -51,11 +54,12 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testUpdateBoardForMiddleMove() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		String move = "2, 2, X";
 		String newBoard = "0000X0000";
 		
-		assertEquals("Update board failed for first move.", newBoard, TicTacToeGame.updateBoard(move, board, 1));
+		assertEquals("Update board failed for first move.", newBoard, ttg.updateBoard(move, board, 1));
 	}
 	
 	/**
@@ -63,14 +67,15 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testUpdateBoardForAllMove() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		
 		for(int i = 1; i < 4; i++)
 		{
 			for(int j = 1; j < 4; j++)
 			{
 				String move = i + ", " + j + ", X";
-				board = TicTacToeGame.updateBoard(move, board, 1);
+				board = ttg.updateBoard(move, board, 1);
 			}
 		}
 		
@@ -84,10 +89,11 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testIsValidMoveForZeroes() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		String move = "0, 0, X";
 		
-		assertFalse(TicTacToeGame.isValidMove(move, board, 1));
+		assertFalse(ttg.isValidMove(move, board, 1));
 	}
 	
 	/**
@@ -95,10 +101,11 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testIsValidMoveForBiggerNumers() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		String move = "11, 22, X";
 		
-		assertFalse(TicTacToeGame.isValidMove(move, board, 1));
+		assertFalse(ttg.isValidMove(move, board, 1));
 	}
 
 	/**
@@ -106,19 +113,21 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testIsValidMoveForNotXOrO() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		String move = "2, 2, A";
 		
-		assertFalse(TicTacToeGame.isValidMove(move, board, 1));
+		assertFalse(ttg.isValidMove(move, board, 1));
 	}
 	/**
 	 * Test method for {@link game.manger.TicTacToeGame#isGameOver()}.
 	 */
 	@Test
 	public void testIsGameOverWithInitialBoard() {
-		String board = TicTacToeGame.getStartingBoard();
+	  TicTacToeGame ttg = new TicTacToeGame();
+		String board = ttg.getStartingBoard();
 		
-		assertFalse(TicTacToeGame.isGameOver(board));
+		assertFalse(ttg.isGameOver(board));
 	}
 
 	/**
@@ -126,16 +135,18 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testIsGameOverWithAlmostWin() {
+	  TicTacToeGame ttg = new TicTacToeGame();
 		String board = "XXO0OXXOX";
 		
-		assertFalse(TicTacToeGame.isGameOver(board));
+		assertFalse(ttg.isGameOver(board));
 	}
 	
 	@Test
 	public void testIsGameWonWithAlmostWin() {
+	  TicTacToeGame ttg = new TicTacToeGame();
 		String board = "XXOOOXXOX";
 		
-		assertFalse(TicTacToeGame.isGameWon(board));
+		assertFalse(ttg.isGameWon(board));
 	}
 	
 	/**
@@ -143,9 +154,10 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testIsGameOverWithRowWin() {
+	  TicTacToeGame ttg = new TicTacToeGame();
 		String board = "XXX000000";
 		
-		assertTrue(TicTacToeGame.isGameOver(board));
+		assertTrue(ttg.isGameOver(board));
 	}
 	
 	/**
@@ -153,9 +165,10 @@ public class TicTacToeGameTest {
 	 */
 	@Test
 	public void testIsGameOverWithDiagonalWin() {
+	  TicTacToeGame ttg = new TicTacToeGame();
 		String board = "X000X000X";
 		
-		assertTrue(TicTacToeGame.isGameOver(board));
+		assertTrue(ttg.isGameOver(board));
 	}
 	/**
 	 * Test method for {@link game.manger.TicTacToeGame#getHTMLForBoard()}.

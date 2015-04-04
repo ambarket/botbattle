@@ -41,16 +41,16 @@ public class PlayerTest {
 	@Test
 	public void testGetMove() throws IOException, InterruptedException {
 		Player p1 = new Player(path, "TicTacToeBot1");
-		
-		String move = p1.getMove(TicTacToeGame.getStartingBoard());
+		TicTacToeGame ttg = new TicTacToeGame();
+		String move = p1.getMove(ttg.getStartingBoard());
 		assertNotNull(move);
 	}
 
 	@Test
 	public void testRun() throws IOException {
 		Player p1 = new Player(path, "TicTacToeBot1");
-
-		p1.writer.write(TicTacToeGame.getStartingBoard() + "\n");
+		TicTacToeGame ttg = new TicTacToeGame();
+		p1.writer.write(ttg.getStartingBoard() + "\n");
 		p1.writer.flush();
 		p1.run();
 		
@@ -60,8 +60,8 @@ public class PlayerTest {
 	@Test
 	public void testGetMoveTimeout() throws IOException, InterruptedException {
 		Player p1 = new Player(path, "BadTicTacToeBot1");
-		
-		String move = p1.getMove(TicTacToeGame.getStartingBoard());
+		TicTacToeGame ttg = new TicTacToeGame();
+		String move = p1.getMove(ttg.getStartingBoard());
 		
 		assertEquals("Bot Timed Out", move);
 	}
