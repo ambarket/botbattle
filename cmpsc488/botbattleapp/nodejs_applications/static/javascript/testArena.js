@@ -87,12 +87,12 @@
      $.ajax({
        async : false,
        data : {
-         id : TEST_ARENAARENA.myId
+         id : TEST_ARENA.myId
        },
        error : function() {
          alert('Close notification error');
        },
-       url : '/killGame'
+       url : '/deleteTestArenaInstance'
      });
    }
  
@@ -192,6 +192,9 @@
          response = req.responseText;
          console.log("Response to startGame was not valid json " + response)
        }
+       if (response.millisecondsUntilExpiration) {
+         flashStatusOrErrorMessage('warning', "Your game session will expire in " + response.millisecondsUntilExpiration / 1000 + " seconds.");
+       }
        if (req.status == 200) {
          console.log("Good status " + JSON.stringify(response));
          if (response.status) {
@@ -229,6 +232,9 @@
      req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput_stdin").value, true);
      req.onload = function(event) {
        var response = JSON.parse(req.responseText);
+       if (response.millisecondsUntilExpiration) {
+         flashStatusOrErrorMessage('warning', "Your game session will expire in " + response.millisecondsUntilExpiration / 1000 + " seconds.");
+       }
        if (response.error) {
          document.getElementById("humanInput_status").innerHTML = response.error;
        } else if (response.status) {
@@ -308,6 +314,9 @@
        catch (e) {
          response = req.responseText;
          console.log("Response to requestLatestGameStates was not valid json " + response)
+       }
+       if (response.millisecondsUntilExpiration) {
+         flashStatusOrErrorMessage('warning', "Your game session will expire in " + response.millisecondsUntilExpiration / 1000 + " seconds.");
        }
        if (req.status == 200) {
          console.log("Good status " + JSON.stringify(response));
@@ -461,6 +470,7 @@
          $('#startNewGame').show();
          $('#killCurrentGame').hide();
          $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
+         flashStatusOrErrorMessage('status', "Press Start Game to play a new game with the uploaded bots");
        }
        else if (startGame_or_killGame_or_hide === "killGame") {
          console.log("killGame");
@@ -468,6 +478,7 @@
          $('#startNewGame').hide();
          $('#killCurrentGame').show();
          $('#gameControlStatus').html("The game is running");
+         flashStatusOrErrorMessage('status', "The game is running");
        }
        else if (startGame_or_killGame_or_hide === "hide") {
          $('#gameControlDiv').hide();

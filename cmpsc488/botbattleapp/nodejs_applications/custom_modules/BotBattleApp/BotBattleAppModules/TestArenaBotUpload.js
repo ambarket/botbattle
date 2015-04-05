@@ -154,7 +154,11 @@ module.exports = {
                 logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Successfully compiled source file"));
                 if(humanOrBot !== "bot"){ 
                     logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully processed bot uploads"));
-                    res.json({"status" : "Uploaded!", 'id' : req.newGameId}); 
+                    res.json(
+                        { "status" : "Your bot has been uploaded! Press Start Game to continue.", 
+                          'id' : req.newGameId, 
+                          'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.newGameId)
+                    }); 
                 }
                 else { // Move and compile bot for player 2
                   var newBot2Path = path.resolve(gameFolder, "bot2", testArenaInstances.getGame(req.newGameId).bot2Name);
@@ -175,7 +179,11 @@ module.exports = {
                         else{
                           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Successfully compiled source file"));
                           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully processed bot uploads"));
-                          res.json({"status" : "Uploaded!", 'id' : req.newGameId}); 
+                          res.json(
+                              { "status" : "Your bots have been uploaded! Press Start Game to continue.", 
+                                'id' : req.newGameId, 
+                                'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.newGameId)
+                          }); 
                         }          
                       });
                     }

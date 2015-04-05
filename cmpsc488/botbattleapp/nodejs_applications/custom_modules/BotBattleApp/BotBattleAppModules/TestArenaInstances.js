@@ -5,8 +5,9 @@ var helpers = require(paths.BotBattleApp_sub_modules.Helpers);
 var fileManager = new (require(paths.custom_modules.FileManager));
 var logger = require(paths.custom_modules.Logger).newInstance('console');
 module.exports = new (function() {
+  var self = this;
   var testArenaInstances = {};
-
+  
   // Start cleanup routine
   (function cleanTest_Arena_tmp() {
     var count = 0;
@@ -44,13 +45,36 @@ module.exports = new (function() {
       }
       logger.log("TestArenaInstances", "Cleaned :", count, " instances.");
       cleanTest_Arena_tmp();
-    }, 3600000); // 1 hour 3600000
+    }, 10000/*3600000*/); // 1 hour 3600000
   })();
   
-  
   this.getGame = function(id) { return testArenaInstances[id] }
+  
   this.getAllInstances  =  function() { return testArenaInstances };
   
+  this.getMillisecondsBeforeInstanceExpires = function(id) {
+    if (testArenaInstances[id]) {
+      return Math.max(0, testArenaInstances[id].gameExpireDateTime - (new Date()));
+    }
+    else {
+      return 0;
+    }
+  }
+  
+  // Just a boolean version of getMillisecondsBeforeInstanceExpires
+  this.hasInstanceExpired = function(id) {
+    return this.getMillisecondsBeforeInstanceExpires(id) === 0;
+  }
+  
+  this.popAllFromGameStateQueue = function(id) {
+    if (!self.hasInstanceExpired(id)) {
+      return testArenaInstances[id].gameStateQueue.splice(0, testArenaInstances[id].gameStateQueue.length);
+    }
+    else {
+      return null;
+    }
+  }
+
   // Pass the gameModule object of the game to play
   this.createNewGame = function(gameModule, callback) {
     // create new gameId, create new testArenaInstance, create file structure for the instance, and finally pass the newGameId to the callback.
@@ -64,9 +88,9 @@ module.exports = new (function() {
         'bot2Path' : null,
         'gameStateQueue' : [],
         'resetExpirationTime' : function() {
-          this.gameExpireDateTime = new Date().addHours(2);
-          //this.gameExpireDateTime = new Date().addSeconds(10);
-        }
+          //this.gameExpireDateTime = new Date().addHours(2);
+          this.gameExpireDateTime = new Date().addSeconds(30);
+        },   
       };
     testArenaInstances[newGameId].resetExpirationTime();
     fileManager.createGameInstanceDirectory(newGameId, function(err, result){
@@ -102,7 +126,7 @@ module.exports = new (function() {
   
   this.spawnNewGameInstance = function(id) {
     var spawn = require('child_process').spawn;
-    if (!testArenaInstances[id]) {
+    if (self.hasInstanceExpired(id)) {
       logger.log("TestArenaInstances", 
           helpers.getLogMessageAboutGame(id, "Invalid ID, cannot spawn game manager"));
       return false;
@@ -140,7 +164,7 @@ module.exports = new (function() {
           testArenaInstances[id].gameProcess.stdout.on('data', function(data) {
             var array = data.toString().split(/\n/);
             console.log("Split array:", array)
-            if (testArenaInstances[id]) {
+            if(!self.hasInstanceExpired(id)) {
               testArenaInstances[id].resetExpirationTime();
               
               for (var i = 0; i < array.length; i++) {
@@ -154,6 +178,10 @@ module.exports = new (function() {
                 }
               }
             }
+            else {
+              logger.log("TestArenaInstances", 
+                  helpers.getLogMessageAboutGame(id, "Recevied data on stdout after instance expired:" + data.toString()));
+            }
           });
           
           testArenaInstances[id].gameProcess.stderr.on('data', function(data) {
@@ -163,7 +191,7 @@ module.exports = new (function() {
 
           // Not sure we need both of these or what the difference is.
           testArenaInstances[id].gameProcess.on('close', function(code) {
-            if (testArenaInstances[id]) {
+            if (!self.hasInstanceExpired(id)) {
               testArenaInstances[id].gameState = "closed";
             }
             
@@ -171,14 +199,14 @@ module.exports = new (function() {
           });
 
           testArenaInstances[id].gameProcess.on('exit', function(code) {
-            if (testArenaInstances[id]) {
+            if (!self.hasInstanceExpired(id)) {
               testArenaInstances[id].gameState = "exited";
             }
             logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager exited with code " + code));
           });
 
           testArenaInstances[id].gameProcess.on('error', function(err) {
-            if (testArenaInstances[id]) {
+            if (!self.hasInstanceExpired(id)) {
               testArenaInstances[id].gameState = "error";
             }
             logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager threw the following error "  + err.message));
@@ -191,7 +219,7 @@ module.exports = new (function() {
   
   // Synchronous
   this.sendMoveToGameInstanceById = function(id, move) {
-    if(testArenaInstances[id] && testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "running"){
+    if(!self.hasInstanceExpired(id) && testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "running"){
       testArenaInstances[id].resetExpirationTime();
       testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
       logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
@@ -204,22 +232,22 @@ module.exports = new (function() {
   }
   
   this.deleteTestArenaInstanceAndGameForId = function(id, callback) {
-    if (testArenaInstances[id]) {
+    if (!self.hasInstanceExpired(id)) {
       if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         var pid = testArenaInstances[id].gameProcess.pid;
-        logger.log("TestArenaInstances", "End Child: " + pid);
-
+        
         testArenaInstances[id].gameProcess.on('close', function(code) {
+          logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager " +  pid + " exited with code " + code));
           delete testArenaInstances[id];
+          logger.log("TestArenaInstances", "After deletion testArenaInstances is:\n", JSON.stringify(testArenaInstances));
           fileManager.deleteGameInstanceDirectory(id, function(err) {
             if (err) {
-              logger.log("TestArenaInstances", err);
-              callback("Server file manage error");
+              callback(new Error("Failed to delete gameInstanceDirectory " + err.message));
+            }
+            else {
+              callback(null);
             }
           })
-          logger.log("TestArenaInstances", "Child ", pid, "exited with code", code);
-          logger.log("TestArenaInstances", "After Kill testArenaInstances is:\n", testArenaInstances);
-          callback(null);
         });
 
         testArenaInstances[id].gameProcess.stdin.end();
@@ -250,7 +278,7 @@ module.exports = new (function() {
   // TODO:  This shouldn't happen, but if the folder for an id is deleted before the game is then a call to this will just hang.
   //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
   this.killSpawnedGameForId = function(id, callback) {
-    if (testArenaInstances[id]) {
+    if (!self.hasInstanceExpired(id)) {
       if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         var pid = testArenaInstances[id].gameProcess.pid;
         logger.log("TestArenaInstances", "End Child: " + pid);
@@ -266,22 +294,15 @@ module.exports = new (function() {
       else {
         callback(null);
       }
-    } else {
+    } 
+    else {
       if (id !== "defaultIdValue") {
-        logger.log("TestArenaInstances", "killSpawnedGameForId", "invalid id:", id);
+        logger.log("TestArenaInstances", "killSpawnedGameForId invalid id: " +  id);
         callback(new Error("Invalid id: " + id));
-      } else {
+      } 
+      else {
         callback(null);
       }
-    }
-  }
-  
-  this.popAllFromGameStateQueue = function(id) {
-    if (testArenaInstances[id]) {
-      return testArenaInstances[id].gameStateQueue.splice(0, testArenaInstances[id].gameStateQueue.length);
-    }
-    else {
-      return null;
     }
   }
  

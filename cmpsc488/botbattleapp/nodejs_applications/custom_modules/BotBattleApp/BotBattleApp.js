@@ -1,7 +1,7 @@
 var paths = require('../BotBattlePaths');
 var path = require('path');
 
-var BotBattleAppHelpers = require(paths.BotBattleApp_sub_modules.Helpers);
+var helpers = require(paths.BotBattleApp_sub_modules.Helpers);
 var fileManager = require(paths.custom_modules.FileManager).newInstance();
 
 var testArenaInstances = require(paths.BotBattleApp_sub_modules.TestArenaInstances);
@@ -50,7 +50,7 @@ function registerTestArenaRoutes(server, database) {
    
   server.addDynamicRoute('get', '/', function(req, res) {
     // TODO: Can support multiple game modules if pass a list along in future
-  	var locals = BotBattleAppHelpers.copyLocalsAndDeleteMessage(req.session);
+  	var locals = helpers.copyLocalsAndDeleteMessage(req.session);
   	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
   });
   
@@ -59,33 +59,54 @@ function registerTestArenaRoutes(server, database) {
     console.log(req.query.id + " in start game");
     var success = testArenaInstances.spawnNewGameInstance(req.query.id);
     if (success) {
-      res.json({status: "Spawned a new game, this is when you should start listening for game states"});
+      res.json(
+          { 'status' : "The game is loading, please wait.", 
+            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+          });
     }
     else {
-      res.status(500).json({error: "Failed to start the game, please contact your administrator"});
+      res.status(500).json(
+          { 'error' : "The record associated with your id has expired. Please upload new bots to continue.",               
+          });
     }
 
   });
   
   server.addDynamicRoute('get', '/sendMove', function(req, res) {
-    setTimeout(function(){ 
-      var success = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
-      if (success) {
-        res.json({'status' : "Sent to stdin"});
-      }
-      else {
-        res.json({'error' : "Game is not running"});
-      }
-    }, 2000);
+    if(testArenaInstances.hasInstanceExpired(req.query.id)) {
+      res.status(500).json(
+          { 'error' : "The record associated with your id has expired. Please upload new bots to continue.",
+          });
+    }
+    else {
+      setTimeout(function(){ 
+        var success = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
+        if (success) {
+          res.json(
+              { 'status' : "Your move has been submitted.", 
+                'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+              });
+        }
+        else {
+          res.json(
+              { 'error' : "The game is not running, press Start Game or upload new bots to continue." , 
+                'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+              });
+        }
+      }, 2000);
+    }
   });
   
   server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
     var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
     if (latestGameStateArray) {
-      res.json({'gamestates' : latestGameStateArray});
+      res.json(
+          { 'gamestates' : latestGameStateArray,
+            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+          });
     }
     else {
-      res.status(500).json({'error' : "Cannot get gameStates due to invalid Id please refresh the page"});
+      res.status(500).json({'error' : "The record associated with your id has expired. Please upload new bots to continue."});
     }
   });
   
@@ -93,18 +114,24 @@ function registerTestArenaRoutes(server, database) {
    * Requested the test arena page is refreshed or a link is followed out
    * i.e. when the page is reloaded.
    */
-  server.addDynamicRoute('get', '/killGame', function(req, res) {
+  server.addDynamicRoute('get', '/deleteTestArenaInstance', function(req, res) {
     var id = req.query.id;
-    console.log("Killing ", id);
-    testArenaInstances.deleteTestArenaInstanceAndGameForId(id, function(err){
-       if(err){
-         logger.log(err);
-         res.json({"error":err});
-       }
-       else{
-         res.json({"error":"Killed"});
-       }
-    });
+    res.end(); // This is only called after navigating away from the page. No point in sending anything.
+    if(testArenaInstances.hasInstanceExpired(id)) {
+      logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "The record associated with " + id + 
+          " has already expired, no further action needed in deleteTestArenaInstance"));
+    }
+    else {
+      logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Deleting all files and references to testArenaInstance"));
+      testArenaInstances.deleteTestArenaInstanceAndGameForId(id, function(err){
+         if(err){
+           logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Error in deleteTestArenaInstance " + err.message));
+         }
+         else{
+           logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Successfully deleted all files and references"));
+         }
+      });
+    }
   });
   
   /**
