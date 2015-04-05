@@ -226,7 +226,7 @@
    //TODO: Make this more robust like the other ajax calls are.
    document.getElementById("send_move").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
-     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput").value, true);
+     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput_stdin").value, true);
      req.onload = function(event) {
        var response = JSON.parse(req.responseText);
        if (response.error) {
