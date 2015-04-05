@@ -9,10 +9,72 @@
        'resizeCanvas' : function(){
          this.canvas.width = Math.min(this.canvas.parentNode.getBoundingClientRect().width, 1050);
          this.canvas.height = this.canvas.width * 0.619047619;  // 650/1050 = 0.619047619
-         this.scale = document.getElementById("GameCanvas").width / 1050;
-      },
-       'gameStateQueue' : null //Set by resetGameStateQueue
+         this.scale = document.getElementById("GameCanvas").width / 1050;         
+         this.drawCanvasMessage();
+       },
+       'canvasMessage' : null,
+       'drawCanvasMessage' : function() {
+         if (TEST_ARENA.canvasMessage) {
+           TEST_ARENA.context.clearRect ( 0 , 0 , TEST_ARENA.canvas.width, TEST_ARENA.canvas.height );
+           TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
+           TEST_ARENA.context.fillStyle="black";
+           TEST_ARENA.context.fillText(TEST_ARENA.canvasMessage, 1050/2 * TEST_ARENA.scale - 100, 650/2 * TEST_ARENA.scale); 
+         }
+       },
+       'gameStateQueue' : null, //Set by resetGameStateQueue
+       'state' : 'pageLoaded',
+
    }
+   
+   //----------------------------------TEST_ARENA State Transitions------------------------------------   
+   TEST_ARENA.transitionPageToState = function(state) {
+     if (state === 'initialPageLoad') {
+       window.requestAnimFrame = (function(callback) {
+         return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
+             || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
+               window.setTimeout(callback, 1000 / 60);
+             };
+       })();
+       window.onresize = function() {
+         TEST_ARENA.resizeCanvas();
+       }
+       TEST_ARENA.canvas = document.getElementById("GameCanvas");
+       TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
+       TEST_ARENA.canvasMessage = "Upload Bots to Continue...";
+       TEST_ARENA.resizeCanvas();
+       setGameControlDiv("hide");
+       TEST_ARENA.state = 'pageLoaded';
+     }
+     else if (state === 'uploaded') {
+       TEST_ARENA.canvasMessage = "Press Start Game to continue...";
+       TEST_ARENA.drawCanvasMessage();
+       setGameControlDiv("startGame");
+       TEST_ARENA.state = 'uploaded';
+
+       stopGameStateRequester();
+     }
+     else if (state === 'loadingGame') {
+       TEST_ARENA.resetGameStateQueue();
+       TEST_ARENA.canvasMessage = "Loading...";
+       TEST_ARENA.drawCanvasMessage();
+       TEST_ARENA.state = 'loading';
+       
+       setGameControlDiv('killGame');
+       startGameStateRequester();
+     }
+     else if (state === 'gameStarted') {
+       // Currently not necessary but may be (this is after the initial game state is received.
+       TEST_ARENA.state = 'gameStarted';
+     }
+     else if (state === 'gameFinished') {
+       stopGameStateRequester();
+       TEST_ARENA.state = 'gameFinished';
+     }
+   }
+   
+   TEST_ARENA.transitionPageToState('initialPageLoad');
+   
+   //----------------------------------GameState Queue------------------------------------
 
    TEST_ARENA.resetGameStateQueue = function() {
      // Stop it if its running since were about to lose reference to it.
@@ -54,14 +116,12 @@
          } 
          else {
            if (nextGameState.type === 'initial') {
-             setGameControlDiv('killGame');
-             console.log("initial");
+             TEST_ARENA.transitionPageToState('gameStarted');
              flashStatusOrErrorMessage('status', "We got the initial game state");
              GAME.resetGameboard(function(err) {
-               TEST_ARENA.state = 'playing';
                var draw = function() {
                  GAME.drawer.drawBoard();
-                 if (TEST_ARENA.state === 'playing') {
+                 if (TEST_ARENA.state === 'gameStarted') {
                    requestAnimFrame(draw);
                  }
                };
@@ -74,10 +134,9 @@
              passGameStateToGAME(nextGameState);
            }
            else if (nextGameState.type === 'final') {
+             TEST_ARENA.transitionPageToState('gameFinished');
              flashStatusOrErrorMessage('status', "We got the final game state");
              passGameStateToGAME(nextGameState);
-             TEST_ARENA.state = 'ended';
-             setGameControlDiv('startGame');
            }
            else {
              console.log("Invalid gameState type: " + nextGameState.type + " not sure how to process this");
@@ -183,6 +242,7 @@
      }
    }
    
+   /*
    document.getElementById("echo_send_move").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
      req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
@@ -200,6 +260,26 @@
      req.send();
      ev.preventDefault();
    }, false);
+   */
+   
+   document.getElementById("send_move").addEventListener('click', function(ev) {
+     var req = new XMLHttpRequest();
+     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput").value, true);
+     req.onload = function(event) {
+       var response = JSON.parse(req.responseText);
+       if (response.error) {
+         document.getElementById("humanInput_status").innerHTML = response.error;
+       } else if (response.status) {
+         document.getElementById("humanInput_status").innerHTML = response.status;
+       } else {
+         // Something else
+         document.getElementById("humanInput_status").innerHTML = response;
+       }
+     };
+     req.send();
+     ev.preventDefault();
+   }, false);
+  
  
  //----------------------------------Upload Bots Form------------------------------------
    // Listen for radio checks
@@ -244,8 +324,6 @@
          console.log("Good status " + JSON.stringify(response));
          if (response.status) {
            flashStatusOrErrorMessage('status', response.status);
-           setGameControlDiv("startGame");
-           TEST_ARENA.myId = response.id;
          }
          // On the server side we should probably send errors with a different status code
          else if (response.error) {
@@ -255,6 +333,8 @@
          else {
            console.log("Valid response to processBotUploads but no status to display");
          }
+         TEST_ARENA.myId = response.id;
+         TEST_ARENA.transitionPageToState('uploaded');
        } 
        else {
          console.log("Bad status " + JSON.stringify(response));
@@ -264,8 +344,7 @@
          else {
            flashStatusOrErrorMessage('error', "Error " + req.status + " occured while uploading your bots.");
          }
-         //disable play game button
-         setGameControlDiv("hide");
+         TEST_ARENA.transitionPageToState('initialPageLoad');
        }
        // enable upload button in each case
      };
@@ -299,8 +378,9 @@
          else {
            console.log("Valid response to startNewGame but no status to display");
          }
-         setGameControlDiv('killGame');
-         startGameStateListener();
+
+         TEST_ARENA.transitionPageToState('loadingGame');
+
        } 
        else {
          console.log("Bad status " + JSON.stringify(response));
@@ -310,8 +390,7 @@
          else {
            flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
          }
-         setGameControlDiv('startGame');
-         stopGameStateListener();
+         TEST_ARENA.transitionPageToState('uploaded');
        }
      }
      req.send();
@@ -321,7 +400,7 @@
    document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
      var response = null;
-     stopGameStateListener();
+
      req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
      req.onload = function(event) {
        try {
@@ -342,7 +421,7 @@
          else {
            console.log("Valid response to killCurrentGame but no status to display");
          }
-         setGameControlDiv('startGame');
+         TEST_ARENA.transitionPageToState('uploaded');
        } 
        else {
          console.log("Bad status " + JSON.stringify(response));
@@ -350,52 +429,26 @@
            flashStatusOrErrorMessage('error', response.error);
          } 
          else {
-           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to start the game");
+           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to kill the game");
          }
-         // Not really sure what to do at this point.
-         setGameControlDiv('killGame');
+         TEST_ARENA.transitionPageToState('loadingGame');
        }
      }
      req.send();
      ev.preventDefault();
    }, false);
    
- //----------------------------------GameState Listener/Requester or whatever------------------------------------
-   var gameStateListener = null;
-   function startGameStateListener() {
-     gameStateListener = setInterval(requestLatestGameStates, 1000);
+ //----------------------------------GameState Requester------------------------------------
+   var GameStateRequester = null;
+   function startGameStateRequester() {
+     GameStateRequester = setInterval(requestLatestGameStates, 1000);
    }
    
-   function stopGameStateListener() {
-     if (gameStateListener) {
-       clearInterval(gameStateListener);
-       gameStateListener = null;
+   function stopGameStateRequester() {
+     if (GameStateRequester) {
+       clearInterval(GameStateRequester);
+       GameStateRequester = null;
      }
-   }
- 
-   function requestLatestGameStates() {
-     console.log("here");
-     var output = document.getElementById("stdout");
-     var req = new XMLHttpRequest();
-     req.open("GET", "getLatestGameStates/?id=" + TEST_ARENA.myId, true);
-     req.onload = function(event) {
-       if (req.status == 200) {
-         response = JSON.parse(req.responseText);
-         console.log("response", response);
-         if(response.gamestates){
-           for ( var turnIndex in response.gamestates) {
-             console.log("gameState /n",response.gamestates[turnIndex]);
-             TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates[turnIndex]);
-           }
-         }
-       } 
-       else {
-         output.innerHTML = "Error " + req.status + " occurred getting latest game states.<br \/>";
-         console.log("Bad status " + JSON.stringify(response));
-         stopGameStateListener();
-       }
-     };
-     req.send();
    }
    
    function requestLatestGameStates() {
@@ -437,7 +490,7 @@
          else {
            flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to get latest game states");
          }
-         stopGameStateListener();
+         TEST_ARENA.transitionPageToState('uploaded');
        }
      }
      req.send();
@@ -445,41 +498,7 @@
    
  //----------------------------------Old stuff------------------------------------
  
-   window.requestAnimFrame = (function(callback) {
-     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame
-         || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
-           window.setTimeout(callback, 1000 / 60);
-         };
-   })();
- 
-   // TODO: Maybe extend this into a button that when clicked would reset the entire canvas
-   //    and all object back to default so another game could be played
-   (function resetTestArena() {
-     TEST_ARENA.canvas = document.getElementById("GameCanvas");
-     TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
-     TEST_ARENA.resetGameStateQueue();
-     //registerClickListeners();
- 
-     GAME.resetGameboard(function(err) {
- 
-       TEST_ARENA.resizeCanvas();
- 
-       window.onresize = function() {
-         TEST_ARENA.resizeCanvas();
-       }
- 
-       function draw() {
-         GAME.drawer.drawBoard();
-         requestAnimFrame(draw);
-       };
- 
-       draw();
- 
-     })
-   })();
- 
    /*function registerClickListeners() {
- 
      // add click listener to canvas to get distances between two clicked points
      (function() {
        var x1, x2, y1, y2;
@@ -508,41 +527,5 @@
          }
        });
      })();
- 
-     function sendMoveOverAjax(ev) {
-       document.getElementById("send_move").disabled = true;
-       var req = new XMLHttpRequest();
-       req.open("POST", "testArenaUpdate", true);
-       try {
-         req.send(TEST_ARENA.myId); 
-         //TODO I think onReadyStateChange may allow us to detect if the request failed to post,
-         //  need to do something about this because otherwise button just remains disabled.
-         // Test by shutting down server then clicking it.
-         req.onload = function(event) {
-           if (req.status === 200) {
-             TEST_ARENA.appendDivToHtmlElementById('send_move_message', "GameState received");
-             console.log(req.responseText);
- 
-             // Parse into JSON
-             var response = JSON.parse(req.responseText);
-             // Just use each turn object as a gamestate.
-             // Each gamestate must have an animatableEvents array, gameData object, and debugData object
-             for ( var turnIndex in response) {
-               TEST_ARENA.gameStateQueue.addNewGameState(response[turnIndex]);
-             }
-           } else {
-             TEST_ARENA.appendDivToHtmlElementById('send_move_message', "Failed to get GameState");
-           }
-           document.getElementById("send_move").disabled = false;
-         };
-       } catch (err) {
-         TEST_ARENA.appendDivToHtmlElementById('send_move_message', err.message);
-         document.getElementById("send_move").disabled = false;
-       }
- 
-       ev.preventDefault();
-     }
- 
-     document.getElementById("send_move").addEventListener('click', sendMoveOverAjax, false);
    }*/
  })();

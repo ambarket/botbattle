@@ -36,9 +36,14 @@ var flashQueue = new (function(){
       
       $('.message').slideDown(function() {
         setTimeout(function() {
+          if (flashQueue.length === 0) {
             $('.message').slideUp(function() {
               processNextMessage();
             });
+          }
+          else {
+            processNextMessage();
+          }
         }, 1500);
       });
     }

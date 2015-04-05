@@ -55,7 +55,42 @@ function registerTestArenaRoutes(server, database) {
   });
   
 
+  server.addDynamicRoute('get', '/startGame', function(req, res) {
+    console.log(req.query.id + " in start game");
+    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
+    if (success) {
+      res.json({status: "Spawned a new game, this is when you should start listening for game states"});
+    }
+    else {
+      res.status(500).json({error: "Failed to start the game, please contact your administrator"});
+    }
+
+  });
   
+  server.addDynamicRoute('get', '/sendMove', function(req, res) {
+    var id = req.query.id;
+    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running"){
+      setTimeout(function(){ 
+        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running")
+          testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.move + '\n'); 
+        }, 2000);
+      
+      res.json({'status' : "Sent to stdin"});
+    }
+    else{
+      res.json({'error' : "Game is not running"});
+    }
+  });
+  
+  server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
+    var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
+    if (latestGameStateArray) {
+      res.json({'gamestates' : latestGameStateArray});
+    }
+    else {
+      res.status(500).json({'error' : "Cannot get gameStates due to invalid Id please refresh the page"});
+    }
+  });
   
   /**
    * Requested the test arena page is refreshed or a link is followed out
@@ -95,34 +130,13 @@ function registerTestArenaRoutes(server, database) {
 
 
   
-  //1.125) Ensure two appropriate number of bots (players) are present in storage
-  // 3) Build the JSON object to send to the Game Manager
-  // 4) Spawn a new Game Manager and pass the JSON object as command line argument(s). 
-  //       We could maybe make it easier on the Game Manager side by splitting things up here
-  //       into multiple arguments instead of just sending one object
-  // 5) Somehow maintain a reference to that process object associated with the exact browser tab
-  //       that spawned it.
-  // 5.5) Hide the play game button and unhide the Send Move button  // client side crap
-  // 5.75) When user sends the move hide the Send Move button.  // client side crap
-  // 6) Wait for the initial game state to be sent by the Game Manager via stdout
-  // 7) Send this initial game state to the client via res.json()
-  
-  server.addDynamicRoute('get', '/startGame', function(req, res) {
-    console.log(req.query.id + " in start game");
-    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
-    if (success) {
-      res.json({status: "Spawned a new game, this is when you should start listening for game states"});
-    }
-    else {
-      res.status(500).json({error: "Failed to start the game, please contact your administrator"});
-    }
 
-  });
 
   
   /**
    * Requested by the "Echo Test" Button on the test arena page
    */
+  /*
   server.addDynamicRoute('get', '/echoTest', function(req, res) {
     var id = req.query.id;
     if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running"){
@@ -137,17 +151,10 @@ function registerTestArenaRoutes(server, database) {
       res.json({'error' : "Game is not running"});
     }
   });
+  */
   
   
-  server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
-    var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
-    if (latestGameStateArray) {
-      res.json({'gamestates' : latestGameStateArray});
-    }
-    else {
-      res.status(500).json({'error' : "Cannot get gameStates due to invalid Id please refresh the page"});
-    }
-  });
+
   
   /**
    * Requested by the "Send Move" Button on the test arena page

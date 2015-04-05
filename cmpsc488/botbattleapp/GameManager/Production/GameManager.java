@@ -23,16 +23,15 @@ public class GameManager {
   public static void main(String[] args) throws IOException, InterruptedException {
     // Testing the client code.
     Scanner sc = new Scanner(System.in);
-	String input = sc.next();
+    System.out.println(getHardCodedGameState(0)); // Send initialGameState immediately
+	String input = sc.next();  // Get first trun from the human
 	while(!input.equals("Quit")){
-	  // System.out.println(input);
-	  System.out.println(getHardCodedGameState(0));
 	  System.out.println(getHardCodedGameState(1));
 	  System.out.println(getHardCodedGameState(2));
-	  input = sc.next();   
+	  input = sc.next();   // Get second turn from the human
 	  if (!input.equals("Quit")) {
     	  System.out.println(getHardCodedGameState(3));
-    	  System.out.println(getHardCodedGameState(4));
+    	  System.out.println(getHardCodedGameState(4));    // Send finalGame state (includes the last turn)
 	  }
 	  input = sc.next();
 	}
