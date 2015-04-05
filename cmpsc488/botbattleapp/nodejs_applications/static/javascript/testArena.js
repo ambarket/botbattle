@@ -35,22 +35,57 @@
          imRunning = false;
        }
      
+       var passGameStateToGAME = function(nextGameState) {
+         // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
+         GAME.processGameData(nextGameState.gameData, function(err) {
+           GAME.processDebugData(nextGameState.debugData, function(err) {
+             async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
+               processNextGameState();
+             });        
+           });
+         });
+       }
+       
        var processNextGameState = function() {
          var nextGameState = gameStateQueue.splice(0, 1)[0];
      
          if (!nextGameState) {
            imRunning = false;
-         } else {
-           // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
-           async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
-             GAME.processGameData(nextGameState.gameData, function(err) {
-               GAME.processDebugData(nextGameState.debugData, function(err) {
-                 processNextGameState();
-               });        
+         } 
+         else {
+           if (nextGameState.type === 'initial') {
+             setGameControlDiv('killGame');
+             console.log("initial");
+             flashStatusOrErrorMessage('status', "We got the initial game state");
+             GAME.resetGameboard(function(err) {
+               TEST_ARENA.state = 'playing';
+               var draw = function() {
+                 GAME.drawer.drawBoard();
+                 if (TEST_ARENA.state === 'playing') {
+                   requestAnimFrame(draw);
+                 }
+               };
+               draw();
+               passGameStateToGAME(nextGameState);
              });
-           });
+           }
+           else if (nextGameState.type === 'midGame') {
+             flashStatusOrErrorMessage('status', "We got a midGame game state");
+             passGameStateToGAME(nextGameState);
+           }
+           else if (nextGameState.type === 'final') {
+             flashStatusOrErrorMessage('status', "We got the final game state");
+             passGameStateToGAME(nextGameState);
+             TEST_ARENA.state = 'ended';
+             setGameControlDiv('startGame');
+           }
+           else {
+             console.log("Invalid gameState type: " + nextGameState.type + " not sure how to process this");
+           }
+          
          }
        }
+       
      })();
    }
  
