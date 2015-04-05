@@ -339,7 +339,7 @@ var GameBoard = function() {
   this.islandStart = 80; // Changed from 83
   this.islandCenterHeight = 468;
   this.robotWidth = 74;
-  this.robotHeight = 79;
+  this.robotHeight = 101;
   this.numberOfGrids = 25;
   this.gridWidth = self.islandWidth/25;
   this.gridCenter = self.gridWidth/2;
@@ -390,7 +390,7 @@ var GameBoard = function() {
     var player1StandingSpriteOptions = {
       'imageSrc' : 'static/images/StandingRight.png',
       'sourceX' : 0,
-      'sourceY' : 22,
+      'sourceY' : 0,
       'sourceWidth' : 296,
       'x' : self.player1PositionX,
       'y' : self.player1PositionY,
@@ -406,7 +406,7 @@ var GameBoard = function() {
     var player2StandingSpriteOptions = {
         'imageSrc' : 'static/images/StandingLeft.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 296,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
@@ -422,7 +422,7 @@ var GameBoard = function() {
     var player1RunningSpriteOptions = {
         'imageSrc' : 'static/images/RunningRight.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 592,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
@@ -438,7 +438,7 @@ var GameBoard = function() {
     var player2RunningSpriteOptions = {
         'imageSrc' : 'static/images/RunningLeft.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 592,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
@@ -454,7 +454,7 @@ var GameBoard = function() {
     var player1BlockingSpriteOptions = {
         'imageSrc' : 'static/images/BlockingRight.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 518,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
@@ -470,7 +470,7 @@ var GameBoard = function() {
     var player2BlockingSpriteOptions = {
         'imageSrc' : 'static/images/BlockingLeft.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 518,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
@@ -486,7 +486,7 @@ var GameBoard = function() {
     var player1AttackingSpriteOptions = {
         'imageSrc' : 'static/images/ShootingRight.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 360,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
@@ -502,7 +502,7 @@ var GameBoard = function() {
     var player2AttackingSpriteOptions = {
         'imageSrc' : 'static/images/ShootingLeft.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 360,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
@@ -518,7 +518,7 @@ var GameBoard = function() {
     var player1FallingSpriteOptions = {
         'imageSrc' : 'static/images/FallingRight.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 74,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
@@ -534,7 +534,7 @@ var GameBoard = function() {
     var player2FallingSpriteOptions = {
         'imageSrc' : 'static/images/FallingLeft.png',
         'sourceX' : 0,
-        'sourceY' : 22,
+        'sourceY' : 0,
         'sourceWidth' : 74,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
