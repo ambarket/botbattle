@@ -387,18 +387,6 @@ var GameBoard = function() {
          'loadedCallback' : imageLoadedCallback
     }
     
-    // drawable image
-    /*  imageSrc,   //required
-     *  sourceX, 
-     *  sourceY, 
-     *  sourceWidth, 
-     *  sourceHeight, 
-     *  x,          //required
-     *  y,           //required
-     *  width,      //required
-     *  height,         //required
-     *  loadedCallback
-     */
     var player1StandingSpriteOptions = {
       'imageSrc' : 'static/images/StandingRight.png',
       'sourceX' : 0,
@@ -408,7 +396,7 @@ var GameBoard = function() {
       'y' : self.player1PositionY,
       'width' : self.robotWidth, 
       'height' : self.robotHeight,
-      'ticksPerFrame' : 24, 
+      'ticksPerFrame' : 60, 
       'numberOfFrames' : 4,
       'loop' : true, 
       'visible' : true,
@@ -424,7 +412,7 @@ var GameBoard = function() {
         'y' : self.player2PositionY,
         'width' : self.robotWidth,
         'height' : self.robotHeight,
-        'ticksPerFrame' : 24, 
+        'ticksPerFrame' : 60, 
         'numberOfFrames' : 4,
         'loop' : true, 
         'visible' : true,
