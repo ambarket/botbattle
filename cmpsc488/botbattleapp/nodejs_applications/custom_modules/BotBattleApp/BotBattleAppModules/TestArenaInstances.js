@@ -193,7 +193,7 @@ module.exports = new (function() {
         testArenaInstances[id].gameProcess.stdin.end();
         testArenaInstances[id].gameProcess.kill();
       } else {
-        logger.log("TestArenaInstances", "No child for id");
+        logger.log("TestArenaInstances", "No child for id", id);
         delete testArenaInstances[id];
         fileManager.deleteGameInstanceDirectory(id, function(err) {
           if (err) {
