@@ -154,7 +154,7 @@ drawableSprite.prototype = Object.create(drawableImage.prototype);
 drawableSprite.prototype.constructor = drawableSprite;
 drawableSprite.prototype.draw = function(context) {  // TODO According to the profiler this is 10% cpu
     if(this.visible){
-      if(this.numberOfFrames !== 1){
+      if(this.numberOfFrames > 1){
         this.update();
         context.drawImage(this.img, 
                           this.frameIndex * this.sourceWidth / this.numberOfFrames, // must use total image width not sprite width
