@@ -73,80 +73,6 @@
    }
    
    TEST_ARENA.transitionPageToState('initialPageLoad');
-   
-   //----------------------------------GameState Queue------------------------------------
-
-   TEST_ARENA.resetGameStateQueue = function() {
-     // Stop it if its running since were about to lose reference to it.
-     if (TEST_ARENA.gameStateQueue) {TEST_ARENA.gameStateQueue.stop()}
-     TEST_ARENA.gameStateQueue = new (function(){
-       var self = this;
-       var gameStateQueue = [];
-       var imRunning = false;
-       
-       this.addNewGameState = function(gamestate) {
-         gameStateQueue.push(gamestate);
-     
-         if (!imRunning) {
-           imRunning = true;
-           processNextGameState();
-         }
-       }
-       
-       this.stop = function() {
-         imRunning = false;
-       }
-     
-       var passGameStateToGAME = function(nextGameState) {
-         // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
-         GAME.processGameData(nextGameState.gameData, function(err) {
-           GAME.processDebugData(nextGameState.debugData, function(err) {
-             async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
-               processNextGameState();
-             });        
-           });
-         });
-       }
-       
-       var processNextGameState = function() {
-         var nextGameState = gameStateQueue.splice(0, 1)[0];
-     
-         if (!nextGameState) {
-           imRunning = false;
-         } 
-         else {
-           if (nextGameState.type === 'initial') {
-             TEST_ARENA.transitionPageToState('gameStarted');
-             flashStatusOrErrorMessage('status', "We got the initial game state");
-             GAME.resetGameboard(function(err) {
-               var draw = function() {
-                 GAME.drawer.drawBoard();
-                 if (TEST_ARENA.state === 'gameStarted') {
-                   requestAnimFrame(draw);
-                 }
-               };
-               draw();
-               passGameStateToGAME(nextGameState);
-             });
-           }
-           else if (nextGameState.type === 'midGame') {
-             flashStatusOrErrorMessage('status', "We got a midGame game state");
-             passGameStateToGAME(nextGameState);
-           }
-           else if (nextGameState.type === 'final') {
-             TEST_ARENA.transitionPageToState('gameFinished');
-             flashStatusOrErrorMessage('status', "We got the final game state");
-             passGameStateToGAME(nextGameState);
-           }
-           else {
-             console.log("Invalid gameState type: " + nextGameState.type + " not sure how to process this");
-           }
-          
-         }
-       }
-       
-     })();
-   }
  
  //----------------------------------Page Unload Handling------------------------------------
    function leave() {
@@ -177,109 +103,6 @@
        };
      });
    });
- 
- //----------------------------------Helper Stuff------------------------------------
-   var resetValueAttrributeById = function(id) {
-     document.getElementById(id).value = "";
-   }
- 
-   TEST_ARENA.appendArrayOfDivsToHtmlElementById = function(id, contentArray) {
-     for (var i = 0; i < contentArray.length; i++) {
-       TEST_ARENA.appendDivToHtmlElementById(id, contentArray[i]);
-     }
-   }
-
-   TEST_ARENA.appendDivToHtmlElementById = function(id, content) {
-     //Add debugging data to the page
-     var element =  document.getElementById(id);
-     var html = [];
-     html.push(element.innerHTML);
-     html.push('<div>' + content + '</div>');
-     element.innerHTML = html.join('');
-     element.scrollTop = element.scrollHeight;
-   }
-   
-   TEST_ARENA.coinFlip = function(weight){
-     var coin = Math.random();
-     if(weight){
-         return (coin + weight <= .50);
-     }
-     else{
-         return (coin <= .50);
-     }
-   }
-   
-   $('#player1_bot_upload').click(function() {
-     document.getElementById("uploadBotStatus").innerHTML = "";
-   });
- 
-   $('#player2_bot_upload').click(function() {
-     document.getElementById("uploadBotStatus").innerHTML = "";
-   });
-   
-   function setGameControlDiv(startGame_or_killGame_or_hide) {
-     if (startGame_or_killGame_or_hide === "startGame") {
-       $('#gameControlDiv').show();
-       $('#startNewGame').show();
-       $('#killCurrentGame').hide();
-       $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
-     }
-     else if (startGame_or_killGame_or_hide === "killGame") {
-       console.log("killGame");
-       $('#gameControlDiv').show();
-       $('#startNewGame').hide();
-       $('#killCurrentGame').show();
-       $('#gameControlStatus').html("The game is running");
-     }
-     else if (startGame_or_killGame_or_hide === "hide") {
-       $('#gameControlDiv').hide();
-       $('#startNewGame').hide();
-       $('#killCurrentGame').hide();
-       $('#gameControlStatus').html("");
-     }
-     else {
-       console.log("Invalid Argument to setGameControlDiv");
-     }
-   }
-   
-   /*
-   document.getElementById("echo_send_move").addEventListener('click', function(ev) {
-     var req = new XMLHttpRequest();
-     req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
-     req.onload = function(event) {
-       var response = JSON.parse(req.responseText);
-       if (response.error) {
-         document.getElementById("echo_status").innerHTML = response.error;
-       } else if (response.status) {
-         document.getElementById("echo_status").innerHTML = response.status;
-       } else {
-         // Something else
-         document.getElementById("echo_status").innerHTML = response;
-       }
-     };
-     req.send();
-     ev.preventDefault();
-   }, false);
-   */
-   
-   document.getElementById("send_move").addEventListener('click', function(ev) {
-     var req = new XMLHttpRequest();
-     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput").value, true);
-     req.onload = function(event) {
-       var response = JSON.parse(req.responseText);
-       if (response.error) {
-         document.getElementById("humanInput_status").innerHTML = response.error;
-       } else if (response.status) {
-         document.getElementById("humanInput_status").innerHTML = response.status;
-       } else {
-         // Something else
-         document.getElementById("humanInput_status").innerHTML = response;
-       }
-     };
-     req.send();
-     ev.preventDefault();
-   }, false);
-  
  
  //----------------------------------Upload Bots Form------------------------------------
    // Listen for radio checks
@@ -353,7 +176,7 @@
    }, false);
    
    
- //----------------------------------Start and Kill Game------------------------------------
+ //----------------------------------Start Game------------------------------------
  
    document.getElementById("startNewGame").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
@@ -397,6 +220,27 @@
      ev.preventDefault();
    }, false);
    
+   //----------------------------------Send Move------------------------------------
+   //TODO: Make this more robust like the other ajax calls are.
+   document.getElementById("send_move").addEventListener('click', function(ev) {
+     var req = new XMLHttpRequest();
+     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput").value, true);
+     req.onload = function(event) {
+       var response = JSON.parse(req.responseText);
+       if (response.error) {
+         document.getElementById("humanInput_status").innerHTML = response.error;
+       } else if (response.status) {
+         document.getElementById("humanInput_status").innerHTML = response.status;
+       } else {
+         // Something else
+         document.getElementById("humanInput_status").innerHTML = response;
+       }
+     };
+     req.send();
+     ev.preventDefault();
+   }, false);
+   
+   //----------------------------------Kill Game------------------------------------
    document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
      var response = null;
@@ -495,6 +339,165 @@
      }
      req.send();
    };
+   
+   //----------------------------------GameState Queue------------------------------------
+
+   TEST_ARENA.resetGameStateQueue = function() {
+     // Stop it if its running since were about to lose reference to it.
+     if (TEST_ARENA.gameStateQueue) {TEST_ARENA.gameStateQueue.stop()}
+     TEST_ARENA.gameStateQueue = new (function(){
+       var self = this;
+       var gameStateQueue = [];
+       var imRunning = false;
+       
+       this.addNewGameState = function(gamestate) {
+         gameStateQueue.push(gamestate);
+     
+         if (!imRunning) {
+           imRunning = true;
+           processNextGameState();
+         }
+       }
+       
+       this.stop = function() {
+         imRunning = false;
+       }
+     
+       var passGameStateToGAME = function(nextGameState) {
+         // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
+         GAME.processGameData(nextGameState.gameData, function(err) {
+           GAME.processDebugData(nextGameState.debugData, function(err) {
+             async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
+               processNextGameState();
+             });        
+           });
+         });
+       }
+       
+       var processNextGameState = function() {
+         var nextGameState = gameStateQueue.splice(0, 1)[0];
+     
+         if (!nextGameState) {
+           imRunning = false;
+         } 
+         else {
+           if (nextGameState.type === 'initial') {
+             TEST_ARENA.transitionPageToState('gameStarted');
+             flashStatusOrErrorMessage('status', "We got the initial game state");
+             GAME.resetGameboard(function(err) {
+               var draw = function() {
+                 GAME.drawer.drawBoard();
+                 if (TEST_ARENA.state === 'gameStarted') {
+                   requestAnimFrame(draw);
+                 }
+               };
+               draw();
+               passGameStateToGAME(nextGameState);
+             });
+           }
+           else if (nextGameState.type === 'midGame') {
+             flashStatusOrErrorMessage('status', "We got a midGame game state");
+             passGameStateToGAME(nextGameState);
+           }
+           else if (nextGameState.type === 'final') {
+             TEST_ARENA.transitionPageToState('gameFinished');
+             flashStatusOrErrorMessage('status', "We got the final game state");
+             passGameStateToGAME(nextGameState);
+           }
+           else {
+             console.log("Invalid gameState type: " + nextGameState.type + " not sure how to process this");
+           }
+          
+         }
+       }
+       
+     })();
+   }
+   
+   //----------------------------------Helper Stuff------------------------------------
+     var resetValueAttrributeById = function(id) {
+       document.getElementById(id).value = "";
+     }
+   
+     TEST_ARENA.appendArrayOfDivsToHtmlElementById = function(id, contentArray) {
+       for (var i = 0; i < contentArray.length; i++) {
+         TEST_ARENA.appendDivToHtmlElementById(id, contentArray[i]);
+       }
+     }
+
+     TEST_ARENA.appendDivToHtmlElementById = function(id, content) {
+       //Add debugging data to the page
+       var element =  document.getElementById(id);
+       var html = [];
+       html.push(element.innerHTML);
+       html.push('<div>' + content + '</div>');
+       element.innerHTML = html.join('');
+       element.scrollTop = element.scrollHeight;
+     }
+     
+     TEST_ARENA.coinFlip = function(weight){
+       var coin = Math.random();
+       if(weight){
+           return (coin + weight <= .50);
+       }
+       else{
+           return (coin <= .50);
+       }
+     }
+     
+     $('#player1_bot_upload').click(function() {
+       document.getElementById("uploadBotStatus").innerHTML = "";
+     });
+   
+     $('#player2_bot_upload').click(function() {
+       document.getElementById("uploadBotStatus").innerHTML = "";
+     });
+     
+     function setGameControlDiv(startGame_or_killGame_or_hide) {
+       if (startGame_or_killGame_or_hide === "startGame") {
+         $('#gameControlDiv').show();
+         $('#startNewGame').show();
+         $('#killCurrentGame').hide();
+         $('#gameControlStatus').html("Press Start Game to play a new game with the uploaded bots");
+       }
+       else if (startGame_or_killGame_or_hide === "killGame") {
+         console.log("killGame");
+         $('#gameControlDiv').show();
+         $('#startNewGame').hide();
+         $('#killCurrentGame').show();
+         $('#gameControlStatus').html("The game is running");
+       }
+       else if (startGame_or_killGame_or_hide === "hide") {
+         $('#gameControlDiv').hide();
+         $('#startNewGame').hide();
+         $('#killCurrentGame').hide();
+         $('#gameControlStatus').html("");
+       }
+       else {
+         console.log("Invalid Argument to setGameControlDiv");
+       }
+     }
+     
+     /*
+     document.getElementById("echo_send_move").addEventListener('click', function(ev) {
+       var req = new XMLHttpRequest();
+       req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
+       req.onload = function(event) {
+         var response = JSON.parse(req.responseText);
+         if (response.error) {
+           document.getElementById("echo_status").innerHTML = response.error;
+         } else if (response.status) {
+           document.getElementById("echo_status").innerHTML = response.status;
+         } else {
+           // Something else
+           document.getElementById("echo_status").innerHTML = response;
+         }
+       };
+       req.send();
+       ev.preventDefault();
+     }, false);
+     */
+
    
  //----------------------------------Old stuff------------------------------------
  
