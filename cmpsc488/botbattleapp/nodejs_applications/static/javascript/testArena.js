@@ -195,10 +195,17 @@
      var output = document.getElementById("uploadBotStatus");
      var data = new FormData(document.forms.namedItem("uploadBotForm"));
      var req = new XMLHttpRequest();
+     var response = null;
      req.open("POST", "processBotUploads/?oldId=" + TEST_ARENA.myId, true);
      req.onload = function(event) {
-       if (req.status == 200) {
+       try {
          response = JSON.parse(req.responseText);
+       }
+       catch (e) {
+         response = req.responseText;
+         console.log("Response to processBotUploads was not valid json " + response)
+       }
+       if (req.status == 200) {
          console.log("Good status " + JSON.stringify(response));
          if (response.status) {
            flashStatusOrErrorMessage('status', response.status);
@@ -211,14 +218,16 @@
            setGameControlDiv("hide");
          } 
          else {
-           console.log("Neither status or error found in response to uploadBotForm");
+           console.log("Valid response to processBotUploads but no status to display");
          }
- 
        } 
        else {
          console.log("Bad status " + JSON.stringify(response));
          if (response.error) {
            flashStatusOrErrorMessage('error', response.error);
+         }
+         else {
+           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while uploading your bots.");
          }
          //disable play game button
          setGameControlDiv("hide");
@@ -234,9 +243,16 @@
  
    document.getElementById("startNewGame").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
+     var response = null;
      req.open("GET", "startGame/?id=" + TEST_ARENA.myId, true);
      req.onload = function(event) {
-       var response = JSON.parse(req.responseText);
+       try {
+         response = JSON.parse(req.responseText);
+       }
+       catch (e) {
+         response = req.responseText;
+         console.log("Response to startGame was not valid json " + response)
+       }
        if (req.status == 200) {
          console.log("Good status " + JSON.stringify(response));
          if (response.status) {
@@ -269,10 +285,17 @@
    
    document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
      var req = new XMLHttpRequest();
+     var response = null;
      stopGameStateListener();
      req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
      req.onload = function(event) {
-       var response = JSON.parse(req.responseText);
+       try {
+         response = JSON.parse(req.responseText);
+       }
+       catch (e) {
+         response = req.responseText;
+         console.log("Response to killCurrentGame was not valid json " + response)
+       }
        if (req.status == 200) {
          console.log("Good status " + JSON.stringify(response));
          if (response.status) {
@@ -339,6 +362,52 @@
      };
      req.send();
    }
+   
+   function requestLatestGameStates() {
+     var req = new XMLHttpRequest();
+     var response = null;
+     req.open("GET", "getLatestGameStates/?id=" + TEST_ARENA.myId, true);
+     req.onload = function(event) {
+       try {
+         response = JSON.parse(req.responseText);
+       }
+       catch (e) {
+         response = req.responseText;
+         console.log("Response to requestLatestGameStates was not valid json " + response)
+       }
+       if (req.status == 200) {
+         console.log("Good status " + JSON.stringify(response));
+         if(response.gamestates){
+           for ( var turnIndex in response.gamestates) {
+             console.log("gameState /n",response.gamestates[turnIndex]);
+             TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates[turnIndex]);
+           }
+         }
+         
+         if (response.status) {
+           flashStatusOrErrorMessage('status', response.status);
+         } 
+         else if (response.error){
+           flashStatusOrErrorMessage('error', response.error);
+         }
+         else {
+           console.log("Valid response to getLatestGameStates but no status to display");
+         }
+         setGameControlDiv('startGame');
+       } 
+       else {
+         console.log("Bad status " + JSON.stringify(response));
+         if (response.error) {
+           flashStatusOrErrorMessage('error', response.error);
+         } 
+         else {
+           flashStatusOrErrorMessage('error', "Error " + req.status + " occured while attempting to get latest game states");
+         }
+         stopGameStateListener();
+       }
+     }
+     req.send();
+   };
    
  //----------------------------------Old stuff------------------------------------
  
