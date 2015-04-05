@@ -9,7 +9,7 @@
   <header>
     <% include ../partials/header %>
 
-    <link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />
+    <!--<link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />-->
 
     <script type="text/javascript" src="/static/javascript/drawable.js"></script>
     <script type="text/javascript" src="/static/javascript/game.js"></script>
@@ -21,9 +21,8 @@
 
   <% include ../partials/message %>
 
-  <main>
-  <div class="col_12">
-    <div class="col_3">
+  <div class="row">
+    <div class="col-sm-4">
       <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
         <div id="player1FileChoose" class="form-item">
           <label for="player1_bot_upload"> Select your bot for player 1 <span class="form-required"
@@ -80,29 +79,31 @@
       <div id="distance">CRTL + Mouse twice for coordinate info</div>
 
     </div>
-    <div class="col_9">
+    
+    <div class="col-sm-8">
       <canvas style="border: 1px solid" id="GameCanvas" width="1050" height="650"></canvas>
     </div>
-
-    <hr />
-
-    <div class="col_4 ioPanels">
+  </div> <!-- End Row -->
+  
+  <hr />
+  <div class="row">
+    <div class="col-sm-4 ioPanels">
       <h4>Move List</h4>
       <div id="moveList"></div>
     </div>
 
 
-    <div class="col_4 ioPanels">
-      <h5>Standard Output</h5>
+    <div class="col-sm-4 ioPanels">
+      <h4>Standard Output</h5>
       <div id="stdout"></div>
     </div>
 
-    <div class="col_4 ioPanels">
-      <h5>Standard Error</h5>
+    <div class="col-sm-4 ioPanels">
+      <h4>Standard Error</h5>
       <div id="stderr"></div>
     </div>
 
   </div>
-  <!-- END GRID --> </main>
+
 </body>
 </html>

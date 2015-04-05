@@ -393,7 +393,6 @@
          else {
            console.log("Valid response to getLatestGameStates but no status to display");
          }
-         setGameControlDiv('startGame');
        } 
        else {
          console.log("Bad status " + JSON.stringify(response));
