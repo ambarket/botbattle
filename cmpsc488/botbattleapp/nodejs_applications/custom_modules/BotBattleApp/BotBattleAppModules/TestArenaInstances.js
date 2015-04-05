@@ -44,7 +44,7 @@ module.exports = new (function() {
       }
       logger.log("TestArenaInstances", "Cleaned :", count, " instances.");
       cleanTest_Arena_tmp();
-    }, 5000); // 1 hour 3600000
+    }, 3600000); // 1 hour 3600000
   })();
   
   
@@ -64,8 +64,8 @@ module.exports = new (function() {
         'bot2Path' : null,
         'gameStateQueue' : [],
         'resetExpirationTime' : function() {
-          //this.gameExpireDateTime = new Date().addHours(2);
-          this.gameExpireDateTime = new Date().addSeconds(10);
+          this.gameExpireDateTime = new Date().addHours(2);
+          //this.gameExpireDateTime = new Date().addSeconds(10);
         }
       };
     testArenaInstances[newGameId].resetExpirationTime();
@@ -131,7 +131,7 @@ module.exports = new (function() {
           var classPath = path.resolve(paths.local_storage.game_modules + "/"
               + testArenaInstances[id].gameModule.gameName);
 
-          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager" ], {cwd : workingGamePath});
+          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
           testArenaInstances[id].gameState = "running";
 
           logger.log("TestArenaInstances", 
