@@ -255,14 +255,14 @@ function Drawer() {
       TEST_ARENA.context.fillStyle="black";
       
       // TODO  fix this like above mentions
-      if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
+      if((p1Grid >= 0 && p1Grid <= GAME.gameboard.numberOfGrids - 1) && (p2Grid >= 0 && p2Grid <= GAME.gameboard.numberOfGrids - 1)){
         TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
       else{
           if(p1Grid < 0){
             TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
-          if(p2Grid > 24){
+          if(p2Grid > GAME.gameboard.numberOfGrids - 1){
             TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
       }
@@ -335,16 +335,16 @@ var GameBoard = function() {
   
   this.backGroundWidth = 1050;
   this.backGroundHeight = 650;
-  this.islandWidth = 870;
-  this.islandStart = 80; // Changed from 83
+  this.islandWidth = self.backGroundWidth;
+  this.islandStart = 0; 
   this.islandCenterHeight = 468;
-  this.robotWidth = 74;
-  this.robotHeight = 101;
-  this.numberOfGrids = 25;
-  this.gridWidth = self.islandWidth/25;
+  this.robotHeight = 90;
+  this.numberOfGrids = 15;
+  this.gridWidth = self.islandWidth/self.numberOfGrids;
+  this.robotWidth = self.gridWidth;
   this.gridCenter = self.gridWidth/2;
-  this.player1StartX = (0 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
-  this.player2StartX = (24 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+  this.player1StartX = (0 * self.gridWidth);// + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+  this.player2StartX = ((self.numberOfGrids - 1) * self.gridWidth);// + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
   this.player1StartY = self.islandCenterHeight - self.robotHeight;
   this.player2StartY = self.islandCenterHeight - self.robotHeight;  
   this.player1PositionX = self.player1StartX;
@@ -391,6 +391,7 @@ var GameBoard = function() {
       'imageSrc' : 'static/images/StandingRight.png',
       'sourceX' : 0,
       'sourceY' : 0,
+      'sourceHeight' : 101,
       'sourceWidth' : 296,
       'x' : self.player1PositionX,
       'y' : self.player1PositionY,
@@ -407,6 +408,7 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/StandingLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 296,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
@@ -423,6 +425,7 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/RunningRight.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 592,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
@@ -439,6 +442,7 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/RunningLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 592,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
@@ -455,6 +459,7 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/BlockingRight.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 518,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
@@ -471,6 +476,7 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/BlockingLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 518,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
@@ -487,10 +493,11 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/ShootingRight.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 360,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
-        'width' : 90,
+        'width' : self.robotWidth,
         'height' : self.robotHeight,
         'ticksPerFrame' : 12, 
         'numberOfFrames' : 4,
@@ -503,10 +510,11 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/ShootingLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 360,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
-        'width' : 90,
+        'width' : self.robotWidth,
         'height' : self.robotHeight,
         'ticksPerFrame' : 12, 
         'numberOfFrames' : 4,
@@ -519,6 +527,7 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/FallingRight.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 74,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
@@ -535,6 +544,7 @@ var GameBoard = function() {
         'imageSrc' : 'static/images/FallingLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 74,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
