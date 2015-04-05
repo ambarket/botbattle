@@ -25,16 +25,13 @@ public class GameManager {
     Scanner sc = new Scanner(System.in);
     System.out.println(getHardCodedGameState(0)); // Send initialGameState immediately
 	String input = sc.next();  // Get first trun from the human
-	while(!input.equals("Quit")){
-	  System.out.println(getHardCodedGameState(1));
-	  System.out.println(getHardCodedGameState(2));
-	  input = sc.next();   // Get second turn from the human
-	  if (!input.equals("Quit")) {
-    	  System.out.println(getHardCodedGameState(3));
-    	  System.out.println(getHardCodedGameState(4));    // Send finalGame state (includes the last turn)
-	  }
-	  input = sc.next();
-	}
+	System.out.println(getHardCodedGameState(1));
+	System.out.println(getHardCodedGameState(2));
+	input = sc.next();   // Get second turn from the human
+	System.out.println(getHardCodedGameState(3));
+	System.out.println(getHardCodedGameState(4));    // Send finalGame state (includes the last turn)
+	
+	// Exit because we sent the final gameState and are done.
 	
     //TournamentTest();
     //humanPlayersTest();

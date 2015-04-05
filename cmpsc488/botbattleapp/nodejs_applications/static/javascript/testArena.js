@@ -68,6 +68,8 @@
      }
      else if (state === 'gameFinished') {
        stopGameStateRequester();
+       setGameControlDiv("startGame");
+       TEST_ARENA.canvasMessage = "The game has ended, press start game to play again, or upload to try new bots...";
        TEST_ARENA.state = 'gameFinished';
      }
    }
