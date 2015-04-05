@@ -68,18 +68,15 @@ function registerTestArenaRoutes(server, database) {
   });
   
   server.addDynamicRoute('get', '/sendMove', function(req, res) {
-    var id = req.query.id;
-    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running"){
-      setTimeout(function(){ 
-        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running")
-          testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.move + '\n'); 
-        }, 2000);
-      
-      res.json({'status' : "Sent to stdin"});
-    }
-    else{
-      res.json({'error' : "Game is not running"});
-    }
+    setTimeout(function(){ 
+      var success = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
+      if (success) {
+        res.json({'status' : "Sent to stdin"});
+      }
+      else {
+        res.json({'error' : "Game is not running"});
+      }
+    }, 2000);
   });
   
   server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {

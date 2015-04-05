@@ -16,9 +16,10 @@ module.exports = new (function() {
       logger.log("TestArenaInstances", "Cleaning");
       for(instance in testArenaInstances){
         logger.log("TestArenaInstances", "instance", instance);
-        now = Date.now();
+        now = new Date(); //Date.now(); 
         logger.log("TestArenaInstances", "now", now);
-        logger.log("TestArenaInstances", "Delete at", testArenaInstances[instance].gameExpireDateTime)
+        logger.log("TestArenaInstances", "Delete at", testArenaInstances[instance].gameExpireDateTime);
+        logger.log("TestArenaInstances", "Delete in", (testArenaInstances[instance].gameExpireDateTime - now) / 1000, "seconds"); 
         if(now > testArenaInstances[instance].gameExpireDateTime){
           // kill spawned game here too and anything created during a game
           // TODO: if game exists as reference, but not running will calling kill() or stdin.end() crash the server
@@ -43,7 +44,7 @@ module.exports = new (function() {
       }
       logger.log("TestArenaInstances", "Cleaned :", count, " instances.");
       cleanTest_Arena_tmp();
-    }, 3600000); // 1 hour 3600000
+    }, 5000); // 1 hour 3600000
   })();
   
   
@@ -57,29 +58,36 @@ module.exports = new (function() {
     testArenaInstances[newGameId] = { 
         'gameProcess' : null,
         'gameState' : null,
-        'gameExpireDateTime' : new Date().addHours(2),
+        'gameExpireDateTime' : null,
         'gameModule' : gameModule,
         'bot1Path' : null,
         'bot2Path' : null,
         'gameStateQueue' : [],
-        'stderrQueue' : []
+        'resetExpirationTime' : function() {
+          //this.gameExpireDateTime = new Date().addHours(2);
+          this.gameExpireDateTime = new Date().addSeconds(10);
+        }
       };
+    testArenaInstances[newGameId].resetExpirationTime();
     fileManager.createGameInstanceDirectory(newGameId, function(err, result){
       if(err){
         logger.log("TestArenaInstances", 
             helpers.getLogMessageAboutGame(newGameId, "There was an error creating directory for new instance: ", err.message));
+        callback(err);
       }
       else{
         fileManager.createBotFolderInGameInstanceDirectory(newGameId, "bot1", function(err, result){
           if(err){
             logger.log("TestArenaInstances", 
                 helpers.getLogMessageAboutGame(newGameId, "There was an error creating directory for bot1 ", err.message));
+            callback(err);
           }
           else{
             fileManager.createBotFolderInGameInstanceDirectory(newGameId, "bot2", function(err, result){
               if(err){
                 logger.log("TestArenaInstances", 
                     helpers.getLogMessageAboutGame(newGameId, "There was an error creating directory for bot2 "+ err.message));
+                callback(err);
               }
               logger.log("TestArenaInstances", 
                   helpers.getLogMessageAboutGame(newGameId, "Successfully created new testArenaInstance"));
@@ -112,7 +120,14 @@ module.exports = new (function() {
           return false;
         } 
         else {
+          // Update expiration time after each action on this instance.
+          testArenaInstances[id].resetExpirationTime();
           var workingGamePath = path.resolve(paths.local_storage.test_arena_tmp, id);
+          // TODO: This should be using gameModule.classFilePath. Currently gameModule.classFilePath is being set to the list of source files.
+          //    This is bad since the regular compile for a single file that we used for bots returns the actual compiled file. 
+          //    Instead of using the classpath argument it should probably just use the full absolute path to the GameManager class file.
+          //    Which should be returned by the callback in BotBattleCompiler.compileDIrectory method.
+          //    By default I believe it will search for the other class files in the same directory.
           var classPath = path.resolve(paths.local_storage.game_modules + "/"
               + testArenaInstances[id].gameModule.gameName);
 
@@ -120,54 +135,71 @@ module.exports = new (function() {
           testArenaInstances[id].gameState = "running";
 
           logger.log("TestArenaInstances", 
-              helpers.getLogMessageAboutGame(id, "Spawned new game. PID: " + testArenaInstances[id].gameProcess.pid));
+              helpers.getLogMessageAboutGame(id, "Spawned new GameManager. PID: " + testArenaInstances[id].gameProcess.pid));
 
           testArenaInstances[id].gameProcess.stdout.on('data', function(data) {
             var array = data.toString().split(/\n/);
             console.log("Split array:", array)
-            for (var i = 0; i < array.length; i++) {
-              try {
-                testArenaInstances[id].gameStateQueue.push(JSON.parse(array[i]));
-                logger.log("TestArenaInstances", 
-                    helpers.getLogMessageAboutGame(id, "gameStateQueue: " + testArenaInstances[id].gameStateQueue));
-              }
-              catch(e) {
-                console.log("Invalid JSON sent", array[i], e);
+            if (testArenaInstances[id]) {
+              testArenaInstances[id].resetExpirationTime();
+              
+              for (var i = 0; i < array.length; i++) {
+                try {
+                  testArenaInstances[id].gameStateQueue.push(JSON.parse(array[i]));
+                  logger.log("TestArenaInstances", 
+                      helpers.getLogMessageAboutGame(id, "gameStateQueue: " + testArenaInstances[id].gameStateQueue));
+                }
+                catch(e) {
+                  console.log("Invalid JSON sent", array[i], e);
+                }
               }
             }
           });
           
-
           testArenaInstances[id].gameProcess.stderr.on('data', function(data) {
-            testArenaInstances[id].stderrQueue.push(data.toString());
             logger.log("TestArenaInstances", 
-                helpers.getLogMessageAboutGame(id, "stderrQueue: " + testArenaInstances[id].stderrQueue));
+                helpers.getLogMessageAboutGame(id, "Message on GameManager.stderr: " + data.toString()));
           });
 
           // Not sure we need both of these or what the difference is.
           testArenaInstances[id].gameProcess.on('close', function(code) {
-            testArenaInstances[id].gameState = "closed";
-            logger.log("TestArenaInstances", 'status', {
-              'output' : 'program closed with code ' + code
-            });
-            logger.log("TestArenaInstances", 
-                helpers.getLogMessageAboutGame(id, "PID: " + testArenaInstances[id].gameProcess.pid + " closed with code " + code));
+            if (testArenaInstances[id]) {
+              testArenaInstances[id].gameState = "closed";
+            }
+            
+            logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager closed with code " + code));
           });
 
           testArenaInstances[id].gameProcess.on('exit', function(code) {
-            testArenaInstances[id].gameState = "exited";
-            logger.log("TestArenaInstances", 
-                helpers.getLogMessageAboutGame(id, "PID: " + testArenaInstances[id].gameProcess.pid + " exited with code " + code));
+            if (testArenaInstances[id]) {
+              testArenaInstances[id].gameState = "exited";
+            }
+            logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager exited with code " + code));
           });
 
           testArenaInstances[id].gameProcess.on('error', function(err) {
-            testArenaInstances[id].gameState = "error";
-            logger.log("TestArenaInstances", 
-                helpers.getLogMessageAboutGame(id, "PID: " + testArenaInstances[id].gameProcess.pid + " error " + err.message));
+            if (testArenaInstances[id]) {
+              testArenaInstances[id].gameState = "error";
+            }
+            logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager threw the following error "  + err.message));
           });
           return true;
         }
       }
+    }
+  }
+  
+  // Synchronous
+  this.sendMoveToGameInstanceById = function(id, move) {
+    if(testArenaInstances[id] && testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "running"){
+      testArenaInstances[id].resetExpirationTime();
+      testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
+      logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
+      return true;
+    }
+    else {
+      logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager isn't running, can't send move", move));
+      return false;
     }
   }
   
