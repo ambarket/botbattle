@@ -11,28 +11,28 @@ public class PlayerTest {
 	
 	@Test
 	public void testPlayer() throws IOException {
-		Player p1 = new Player(path, "TicTacToeBot1");
+		Player p1 = new Player(path, "TicTacToeBot1", Language.JAVA);
 		
 		assertNotNull(p1);
 	}
 	
 	@Test
 	public void testPlayerBotProcessNotNull() throws IOException {
-		Player p1 = new Player(path, "TicTacToeBot1");
+		Player p1 = new Player(path, "TicTacToeBot1", Language.JAVA);
 		
 		assertNotNull(p1.botProcess);
 	}
 	
 	@Test
 	public void testPlayerReadStreamNotNull() throws IOException {
-		Player p1 = new Player(path, "TicTacToeBot1");
+		Player p1 = new Player(path, "TicTacToeBot1", Language.JAVA);
 		
 		assertNotNull(p1.reader);
 	}
 	
 	@Test
 	public void testPlayerWriteStreamNotNull() throws IOException {
-		Player p1 = new Player(path, "TicTacToeBot1");
+		Player p1 = new Player(path, "TicTacToeBot1", Language.JAVA);
 		
 		assertNotNull(p1.writer);
 	}
@@ -40,7 +40,7 @@ public class PlayerTest {
 	
 	@Test
 	public void testGetMove() throws IOException, InterruptedException {
-		Player p1 = new Player(path, "TicTacToeBot1");
+		Player p1 = new Player(path, "TicTacToeBot1", Language.JAVA);
 		TicTacToeGame ttg = new TicTacToeGame();
 		String move = p1.getMove(ttg.getStartingBoard());
 		assertNotNull(move);
@@ -48,7 +48,7 @@ public class PlayerTest {
 
 	@Test
 	public void testRun() throws IOException {
-		Player p1 = new Player(path, "TicTacToeBot1");
+		Player p1 = new Player(path, "TicTacToeBot1", Language.JAVA);
 		TicTacToeGame ttg = new TicTacToeGame();
 		p1.writer.write(ttg.getStartingBoard() + "\n");
 		p1.writer.flush();
@@ -59,7 +59,7 @@ public class PlayerTest {
 	
 	@Test
 	public void testGetMoveTimeout() throws IOException, InterruptedException {
-		Player p1 = new Player(path, "BadTicTacToeBot1");
+		Player p1 = new Player(path, "BadTicTacToeBot1", Language.JAVA);
 		TicTacToeGame ttg = new TicTacToeGame();
 		String move = p1.getMove(ttg.getStartingBoard());
 		

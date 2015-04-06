@@ -28,9 +28,9 @@ public class GameManager {
   
   public static void humanPlayersTest() throws IOException, InterruptedException {
     System.out.flush();
-    Player p1 = new Player(path);
+    Player p1 = new Player();
     System.out.flush();
-    Player p2 = new Player(path, "rvh5220");
+    Player p2 = new Player(path, "rvh5220", Language.JAVA);
     
     GameInstance game = new GameInstance(p1, p2);
     Thread runningGame = new Thread(game);
