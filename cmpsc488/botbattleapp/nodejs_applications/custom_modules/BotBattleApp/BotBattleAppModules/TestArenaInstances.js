@@ -219,15 +219,53 @@ module.exports = new (function() {
   
   // Synchronous
   this.sendMoveToGameInstanceById = function(id, move) {
-    if(!self.hasInstanceExpired(id) && testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "running"){
+    if (!self.hasInstanceExpired(id)) {
       testArenaInstances[id].resetExpirationTime();
-      testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
-      logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
-      return true;
+      if(testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "running"){
+        testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
+        logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
+        return 'success';
+      }
+      else {
+        logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager isn't running, can't send move", move));
+        return 'noGameRunning';
+      }
     }
     else {
-      logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager isn't running, can't send move", move));
-      return false;
+      return 'expiredID';
+    }
+  }
+  
+  // TODO: now that we use this in many places we should make a killSpawnedGame(id, callback) and a 
+  //       deleteTestArenaInstance(id, callback) because all removals and cleanups are a combination of the two.
+  // TODO:  This shouldn't happen, but if the folder for an id is deleted before the game is then a call to this will just hang.
+  //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
+  this.killSpawnedGameForId = function(id, callback) {
+    if (!self.hasInstanceExpired(id)) {
+      if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
+        var pid = testArenaInstances[id].gameProcess.pid;
+        logger.log("TestArenaInstances", "End Child: " + pid);
+
+        testArenaInstances[id].gameProcess.on('close', function(code) {
+          logger.log("TestArenaInstances", "Child ", pid, "exited with code", code);
+          logger.log("TestArenaInstances", "After Kill testArenaInstances is:\n", testArenaInstances);
+          callback(null);
+        });
+        testArenaInstances[id].gameProcess.stdin.end();
+        testArenaInstances[id].gameProcess.kill();
+      } 
+      else {
+        callback(null);
+      }
+    } 
+    else {
+      if (id !== "defaultIdValue") {
+        logger.log("TestArenaInstances", "killSpawnedGameForId invalid id: " +  id);
+        callback(new Error("Invalid id: " + id));
+      } 
+      else {
+        callback(null);
+      }
     }
   }
   
@@ -273,38 +311,7 @@ module.exports = new (function() {
     }
   }
   
-  // TODO: now that we use this in many places we should make a killSpawnedGame(id, callback) and a 
-  //       deleteTestArenaInstance(id, callback) because all removals and cleanups are a combination of the two.
-  // TODO:  This shouldn't happen, but if the folder for an id is deleted before the game is then a call to this will just hang.
-  //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
-  this.killSpawnedGameForId = function(id, callback) {
-    if (!self.hasInstanceExpired(id)) {
-      if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
-        var pid = testArenaInstances[id].gameProcess.pid;
-        logger.log("TestArenaInstances", "End Child: " + pid);
 
-        testArenaInstances[id].gameProcess.on('close', function(code) {
-          logger.log("TestArenaInstances", "Child ", pid, "exited with code", code);
-          logger.log("TestArenaInstances", "After Kill testArenaInstances is:\n", testArenaInstances);
-          callback(null);
-        });
-        testArenaInstances[id].gameProcess.stdin.end();
-        testArenaInstances[id].gameProcess.kill();
-      } 
-      else {
-        callback(null);
-      }
-    } 
-    else {
-      if (id !== "defaultIdValue") {
-        logger.log("TestArenaInstances", "killSpawnedGameForId invalid id: " +  id);
-        callback(new Error("Invalid id: " + id));
-      } 
-      else {
-        callback(null);
-      }
-    }
-  }
  
 })(); // Immedietly execute and create the module
 

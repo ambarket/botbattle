@@ -48,67 +48,6 @@ module.exports = BotBattleApp;
 function registerTestArenaRoutes(server, database) {
   var logger = require(paths.custom_modules.Logger).newInstance('console');
    
-  server.addDynamicRoute('get', '/', function(req, res) {
-    // TODO: Can support multiple game modules if pass a list along in future
-  	var locals = helpers.copyLocalsAndDeleteMessage(req.session);
-  	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
-  });
-  
-
-  server.addDynamicRoute('get', '/startGame', function(req, res) {
-    console.log(req.query.id + " in start game");
-    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
-    if (success) {
-      res.json(
-          { 'status' : "The game is loading, please wait.", 
-            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
-          });
-    }
-    else {
-      res.status(500).json(
-          { 'error' : "The record associated with your id has expired. Please upload new bots to continue.",               
-          });
-    }
-
-  });
-  
-  server.addDynamicRoute('get', '/sendMove', function(req, res) {
-    if(testArenaInstances.hasInstanceExpired(req.query.id)) {
-      res.status(500).json(
-          { 'error' : "The record associated with your id has expired. Please upload new bots to continue.",
-          });
-    }
-    else {
-      setTimeout(function(){ 
-        var success = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
-        if (success) {
-          res.json(
-              { 'status' : "Your move has been submitted.", 
-                'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
-              });
-        }
-        else {
-          res.json(
-              { 'error' : "The game is not running, press Start Game or upload new bots to continue." , 
-                'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
-              });
-        }
-      }, 2000);
-    }
-  });
-  
-  server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
-    var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
-    if (latestGameStateArray) {
-      res.json(
-          { 'gamestates' : latestGameStateArray,
-            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
-          });
-    }
-    else {
-      res.status(500).json({'error' : "The record associated with your id has expired. Please upload new bots to continue."});
-    }
-  });
   
   /**
    * Requested the test arena page is refreshed or a link is followed out
@@ -135,23 +74,84 @@ function registerTestArenaRoutes(server, database) {
   });
   
   /**
+   * Requested the test arena page is requested
+   */
+  server.addDynamicRoute('get', '/', function(req, res) {
+    // TODO: Can support multiple game modules if pass a list along in future
+  	var locals = helpers.copyLocalsAndDeleteMessage(req.session);
+  	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
+  });
+
+
+  server.addDynamicRoute('get', '/startGame', function(req, res) {
+    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
+    if (success) {
+      res.json(
+          { 'event' : 'success', 
+            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+          });
+    }
+    else {
+      res.json({ 'event' : 'expiredID'});
+    }
+
+  });
+  
+  server.addDynamicRoute('get', '/sendMove', function(req, res) {
+    setTimeout(function(){ 
+      var event = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
+      if (event === 'success') {
+        res.json({ 'event' : 'success' });
+      }
+      else if (event === 'noGameRunning') {
+        res.json({ 'event' : 'noGameRunning' });
+      }
+      else if (event === 'expiredID') {
+        res.json({ 'event' : 'expiredID'});
+      }
+      else {
+        logger.log("BotBattleApp", "Invalid event in sendMove", event);
+        res.send("Invalid event");
+      }
+    }, 2000);
+  });
+  
+  /**
    * Requested the test arena client clicks Kill Game
    */
+  // Currently the only reason this would return an error is an invalidID
+  // TODO: It seems like killSpawnedGameForID still has some TODOs
+  //    If anything changes there may have to change this too.
   server.addDynamicRoute('get', '/killCurrentGame', function(req, res) {
     var id = req.query.id;
-    console.log("Killing ", id);
     testArenaInstances.killSpawnedGameForId(id, function(err){
        if(err){
-         logger.log(err);
-         res.json({"error":err});
+         logger.log("BotBattleApp", "Error in killCurrentGame", err.message);
+         res.json({ 'event' : 'expiredID' });
        }
        else{
-         res.json({"status":"Killed"});
+         res.json(
+           { 'event' : 'success' , 
+             'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+           });
        }
     });
   });
  
-
+  
+  server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
+    var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
+    if (latestGameStateArray) {
+      res.json(
+          { 'event' : 'success',
+            'gamestates' : latestGameStateArray,
+            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+          });
+    }
+    else {
+      res.json({ 'event' : 'expiredID' });
+    }
+  });
 
   
 
