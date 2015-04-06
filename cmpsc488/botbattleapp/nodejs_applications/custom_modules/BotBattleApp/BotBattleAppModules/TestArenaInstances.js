@@ -66,6 +66,10 @@ module.exports = new (function() {
     return this.getMillisecondsBeforeInstanceExpires(id) === 0;
   }
   
+  this.isGameManagerRunning = function(id) {
+    return testArenaInstances[id].gameState === 'running';
+  }
+  
   this.popAllFromGameStateQueue = function(id) {
     if (!self.hasInstanceExpired(id)) {
       return testArenaInstances[id].gameStateQueue.splice(0, testArenaInstances[id].gameStateQueue.length);
@@ -155,7 +159,8 @@ module.exports = new (function() {
           var classPath = path.resolve(paths.local_storage.game_modules + "/"
               + testArenaInstances[id].gameModule.gameName);
 
-          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
+          //testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
+          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "ArenaGameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
           testArenaInstances[id].gameState = "running";
 
           logger.log("TestArenaInstances", 

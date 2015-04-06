@@ -140,6 +140,13 @@ function registerTestArenaRoutes(server, database) {
  
   
   server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
+    if (testArenaInstances.hasInstanceExpired(req.query.id)) {
+      return res.json({ 'event' : 'expiredID' });
+    }
+    if (!testArenaInstances.isGameManagerRunning(req.query.id)) {
+      return res.json({ 'event' : 'noGameRunning' });
+    }
+    
     var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
     if (latestGameStateArray) {
       res.json(

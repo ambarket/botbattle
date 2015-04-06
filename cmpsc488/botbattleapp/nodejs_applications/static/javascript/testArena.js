@@ -330,7 +330,12 @@
                console.log("Expected gamestates on successful response to getLatestGameStates",
                    "but received this reponse intead: " + response);
              }
-           } 
+           }
+           else if (response.event === 'noGameRunning') {
+             //flashStatusOrErrorMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
+             flashStatusOrErrorMessage('error', "The game has stopped unexpectedly, if this problem persists see your administrator");
+             TEST_ARENA.transitionPageToState('uploaded');
+           }
            else if (response.event === 'expiredID') {
              handleExpiredID();
            }
