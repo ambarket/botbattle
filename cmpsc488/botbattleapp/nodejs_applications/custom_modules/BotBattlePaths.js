@@ -81,6 +81,7 @@ module.exports.local_storage = {
 module.exports.init_config_tmp =  path.join(module.exports.app_root,'init_config_tmp');
 module.exports.configuration_file = path.join(module.exports.app_root,'savedConfiguration.txt');
 
+module.exports.gameManagerJars = path.resolve(module.exports.app_root,'../GameManager/Jars/json-simple-1.1.1.jar');
 module.exports.gameManagerSource = path.resolve(module.exports.app_root,'../GameManager/Production/');
 
 

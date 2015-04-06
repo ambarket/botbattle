@@ -3,7 +3,7 @@
 GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
-      TEST_ARENA.helpers.appendDivToHtmlElementById('moveList', gameData.turnDescription);
+      TEST_ARENA.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
       //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
@@ -12,8 +12,8 @@ GAME = {
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
-      TEST_ARENA.helpers.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
-      TEST_ARENA.helpers.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
+      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
     
@@ -54,6 +54,63 @@ GAME = {
       });
     }
 }
+
+  /**
+   * Move the animated object along x at speed pixels/second from its current position towards
+   * drawableObject.endpos
+   * 
+   * @param {Object} drawableObject Must extend drawableObject class 
+   * @param {Number} lastUpdateTime The time of the last frame update of this object
+   * @param {Number} speed The speed in pixels/second to move the object
+   */
+  var updateXPositionLinearlyWithTime = function(drawableObject, endingX, lastUpdateTime, speed) {
+      var time = (new Date()).getTime();
+      var timeDiff = time - lastUpdateTime;
+      var backwards = endingX - drawableObject.x < 0;
+      
+      // pixels / second
+      var linearSpeedX = (backwards) ? -1 * speed : speed;
+      var linearDistEachFrameX = linearSpeedX * timeDiff / 1000;
+      drawableObject.x += linearDistEachFrameX;
+  
+      if (backwards && drawableObject.x <= endingX) {
+        drawableObject.x = endingX;
+      } else if (!backwards && drawableObject.x >= endingX) {
+        drawableObject.x = endingX;
+      }
+  
+      return time;
+    }
+  
+  /**
+   * Move the animated object along y at speed pixels/second from its current position towards
+   * drawableObject.endpos
+   * 
+   * @param {Object} drawableObject Must extend drawableObject class 
+   * @param {Number} lastUpdateTime The time of the last frame update of this object
+   * @param {Number} speed The speed in pixels/second to move the object
+   */
+  /* TODO: Refactor as done with the X one above
+  var updateYPositionLinearlyWithTime = function(drawableObject, moveEvent, lastUpdateTime, speed) {
+      var time = (new Date()).getTime();
+      var timeDiff = time - lastUpdateTime;
+      var up = moveEvent.endingY - drawableObject.y < 0;
+      
+      // pixels / second
+      var linearSpeedY = (up) ? -1 * speed : speed;
+      var linearDistEachFrameY = linearSpeedY * timeDiff / 1000;
+      drawableObject.y += linearDistEachFrameY;
+  
+      if (up && drawableObject.y <= moveEvent.endingY) {
+        drawableObject.Y = moveEvent.endingY;
+      } else if (!up && drawableObject.y >= moveEvent.endingY) {
+        drawableObject.y = moveEvent.endingY;
+      }
+  
+      return time;
+    }
+    */
+
   var animations = {
       move : function(eventData, processAnimatableEventCallback) {
         // Setup any variables needed for the animation
@@ -61,13 +118,21 @@ GAME = {
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
         var player = GAME.gameboard.playerAnimations[eventData.objectName];
         player.standing.visible = false;
-        player.move.visible = true;
-        player.current = player.move;
+        if(eventData.animation){
+          eventData.animation.visible = true;
+          player.current = eventData.animation;
+          player.current.x = player.standing.x;
+          player.current.y = player.standing.y;
+        }
+        else{
+          player.move.visible = true;
+          player.current = player.move;
+        }
         var startTime = (new Date()).getTime();
         
         // Immediately invoke this loop that will run until the animation is complete, then call the callback
         (function moveLoop(lastUpdateTime) {
-          var currentTime = TEST_ARENA.helpers.updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
+          var currentTime = updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
           
           var done = player.current.x === finalPosition;
            
@@ -77,11 +142,18 @@ GAME = {
             });
           } 
           else {   // maybe make just current instead of changing visible...
-            player.move.visible = false;
-            player.standing.visible = true;
             player.current = player.standing;
-            player.current.x = player.move.x;
-            player.current.y = player.move.y;
+            if(eventData.animation){
+              eventData.animation.visible = false;
+              player.current.x = eventData.animation.x;
+              player.current.y = eventData.animation.y;
+            }
+            else{
+              player.move.visible = false;
+              player.current.x = player.move.x;
+              player.current.y = player.move.y;
+            }
+            player.standing.visible = true;
             processAnimatableEventCallback();
           }
         })(startTime);
@@ -130,7 +202,7 @@ GAME = {
               attackingPlayer.standing.visible = true;
               
               // Now move the attacker back to where they started, pass along the callback to finally be called after the move is done
-              animations.move({'objectName' : eventData.attacker, 'finalPosition' : eventData.attackerStartingPosition}, processAnimatableEventCallback);
+              animations.move({'objectName' : eventData.attacker, 'finalPosition' : eventData.attackerStartingPosition, 'animation' : attackingPlayer.fallingBack}, processAnimatableEventCallback);
             }
           })();
         });
@@ -170,7 +242,7 @@ function Drawer() {
       var player2PositionX = GAME.gameboard.playerAnimations["player2"].current.x;
       //var player2PositionY = GAME.gameboard.playerAnimations["player2"].current.y;
       
-      //  TODO wanted to update so its based on grid position, but can't becuase it's constant update
+      //  TODO wanted to update so its based on grid position, but can't becuase it's constant update.
       //  could save lots of computations if only update when player is done moving and based on 
       //  player position that is stored in player.  This wouldn't look as cool, but is way less error prone
       //  and less processing.  Also this Math.floor is causeing problems here and below.
@@ -183,14 +255,14 @@ function Drawer() {
       TEST_ARENA.context.fillStyle="black";
       
       // TODO  fix this like above mentions
-      if((p1Grid >= 0 && p1Grid <= 24) && (p2Grid >= 0 && p2Grid <= 24)){
+      if((p1Grid >= 0 && p1Grid <= GAME.gameboard.numberOfGrids - 1) && (p2Grid >= 0 && p2Grid <= GAME.gameboard.numberOfGrids - 1)){
         TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
       else{
           if(p1Grid < 0){
             TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
-          if(p2Grid > 24){
+          if(p2Grid > GAME.gameboard.numberOfGrids - 1){
             TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
           }
       }
@@ -261,29 +333,20 @@ var GameBoard = function() {
   
   var self = this;
   
-  //  TODO   do away with this when making standing image sheet
-  this.player1SpriteSheet = 'static/images/FullSpriteSheetRight.png';
-  this.player2SpriteSheet = 'static/images/FullSpriteSheetLeft.png';
- 
   this.backGroundWidth = 1050;
   this.backGroundHeight = 650;
-  this.islandWidth = 870;
-  this.islandStart = 80; // Changed from 83
+  this.islandWidth = self.backGroundWidth;
+  this.islandStart = 0; 
   this.islandCenterHeight = 468;
-  this.robotWidth = 43;
-  this.robotHeight = 79;
-  this.numberOfGrids = 25;
-  this.gridWidth = self.islandWidth/25;
+  this.robotHeight = 101;
+  this.numberOfGrids = 15;
+  this.gridWidth = self.islandWidth/self.numberOfGrids;
+  this.robotWidth = self.gridWidth;
   this.gridCenter = self.gridWidth/2;
-  //console.log(self.gridCenter);
-  this.player1StartX = (0 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
-  this.player2StartX = (24 * self.gridWidth) + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+  this.player1StartX = (0 * self.gridWidth);// + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
+  this.player2StartX = ((self.numberOfGrids - 1) * self.gridWidth);// + self.islandStart;// - (self.robotWidth/2) + self.gridCenter;
   this.player1StartY = self.islandCenterHeight - self.robotHeight;
   this.player2StartY = self.islandCenterHeight - self.robotHeight;  
-  this.player1StandingSpriteSheetX = 2107;
-  this.player1StandingSpriteSheetY = 22;
-  this.player2StandingSpriteSheetY = 22;
-  this.player2StandingSpriteSheetX = 687;
   this.player1PositionX = self.player1StartX;
   this.player1PositionY = self.player1StartY;
   this.player2PositionX = self.player2StartX;
@@ -325,35 +388,48 @@ var GameBoard = function() {
     }
     
     var player1StandingSpriteOptions = {
-      'imageSrc' : self.player1SpriteSheet,
-      'sourceX' : self.player1StandingSpriteSheetX,
-      'sourceY' : self.player1StandingSpriteSheetY,
+      'imageSrc' : 'static/images/StandingRight.png',
+      'sourceX' : 0,
+      'sourceY' : 0,
+      'sourceHeight' : 101,
+      'sourceWidth' : 296,
       'x' : self.player1PositionX,
       'y' : self.player1PositionY,
-      'width' : self.robotWidth, // Changed to 43 but that is the same as robotWidth
+      'width' : self.robotWidth, 
       'height' : self.robotHeight,
+      'ticksPerFrame' : 60, 
+      'numberOfFrames' : 4,
+      'loop' : true, 
+      'visible' : true,
       'loadedCallback' : imageLoadedCallback
     }
 
     var player2StandingSpriteOptions = {
-        'imageSrc' : self.player2SpriteSheet,
-        'sourceX' : self.player2StandingSpriteSheetX,
-        'sourceY' : self.player2StandingSpriteSheetY,
+        'imageSrc' : 'static/images/StandingLeft.png',
+        'sourceX' : 0,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
+        'sourceWidth' : 296,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
         'width' : self.robotWidth,
         'height' : self.robotHeight,
+        'ticksPerFrame' : 60, 
+        'numberOfFrames' : 4,
+        'loop' : true, 
+        'visible' : true,
         'loadedCallback' : imageLoadedCallback
       }
     
     var player1RunningSpriteOptions = {
         'imageSrc' : 'static/images/RunningRight.png',
         'sourceX' : 0,
-        'sourceY' : self.player1StandingSpriteSheetY,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 592,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
-        'width' : 74,
+        'width' : self.robotWidth, 
         'height' : self.robotHeight,
         'ticksPerFrame' : 8, 
         'numberOfFrames' : 8,
@@ -365,11 +441,12 @@ var GameBoard = function() {
     var player2RunningSpriteOptions = {
         'imageSrc' : 'static/images/RunningLeft.png',
         'sourceX' : 0,
-        'sourceY' : self.player2StandingSpriteSheetY,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 592,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
-        'width' : 74,
+        'width' : self.robotWidth, 
         'height' : self.robotHeight,
         'ticksPerFrame' : 8, 
         'numberOfFrames' : 8,
@@ -381,11 +458,12 @@ var GameBoard = function() {
     var player1BlockingSpriteOptions = {
         'imageSrc' : 'static/images/BlockingRight.png',
         'sourceX' : 0,
-        'sourceY' : self.player1StandingSpriteSheetY,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 518,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
-        'width' : 74,
+        'width' : self.robotWidth, 
         'height' : self.robotHeight,
         'ticksPerFrame' : 8, 
         'numberOfFrames' : 7,
@@ -397,11 +475,12 @@ var GameBoard = function() {
     var player2BlockingSpriteOptions = {
         'imageSrc' : 'static/images/BlockingLeft.png',
         'sourceX' : 0,
-        'sourceY' : self.player2StandingSpriteSheetY,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 518,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
-        'width' : 74,
+        'width' : self.robotWidth, 
         'height' : self.robotHeight,
         'ticksPerFrame' : 8, 
         'numberOfFrames' : 7,
@@ -413,11 +492,12 @@ var GameBoard = function() {
     var player1AttackingSpriteOptions = {
         'imageSrc' : 'static/images/ShootingRight.png',
         'sourceX' : 0,
-        'sourceY' : self.player1StandingSpriteSheetY,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 360,
         'x' : self.player1PositionX,
         'y' : self.player1PositionY,
-        'width' : 90,
+        'width' : self.robotWidth,
         'height' : self.robotHeight,
         'ticksPerFrame' : 12, 
         'numberOfFrames' : 4,
@@ -429,11 +509,12 @@ var GameBoard = function() {
     var player2AttackingSpriteOptions = {
         'imageSrc' : 'static/images/ShootingLeft.png',
         'sourceX' : 0,
-        'sourceY' : self.player2StandingSpriteSheetY,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
         'sourceWidth' : 360,
         'x' : self.player2PositionX,
         'y' : self.player2PositionY,
-        'width' : 90,
+        'width' : self.robotWidth,
         'height' : self.robotHeight,
         'ticksPerFrame' : 12, 
         'numberOfFrames' : 4,
@@ -442,6 +523,39 @@ var GameBoard = function() {
         'loadedCallback' : imageLoadedCallback
       }
     
+    var player1FallingSpriteOptions = {
+        'imageSrc' : 'static/images/FallingRight.png',
+        'sourceX' : 0,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
+        'sourceWidth' : 74,
+        'x' : self.player1PositionX,
+        'y' : self.player1PositionY,
+        'width' : self.robotWidth, 
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 1, 
+        'numberOfFrames' : 1,
+        'loop' : false, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
+    
+    var player2FallingSpriteOptions = {
+        'imageSrc' : 'static/images/FallingLeft.png',
+        'sourceX' : 0,
+        'sourceY' : 0,
+        'sourceHeight' : 101,
+        'sourceWidth' : 74,
+        'x' : self.player1PositionX,
+        'y' : self.player1PositionY,
+        'width' : self.robotWidth, 
+        'height' : self.robotHeight,
+        'ticksPerFrame' : 1, 
+        'numberOfFrames' : 1,
+        'loop' : false, 
+        'visible' : false,
+        'loadedCallback' : imageLoadedCallback
+      }
     
     this.drawableObjects = {
       backgroundImg : new drawableImage(backgroundImgOptions),
@@ -453,6 +567,8 @@ var GameBoard = function() {
       player2Blocking : new drawableSprite(player2BlockingSpriteOptions),
       player1Attacking : new drawableSprite(player1AttackingSpriteOptions),
       player2Attacking : new drawableSprite(player2AttackingSpriteOptions),
+      player1Falling : new drawableSprite(player1FallingSpriteOptions),
+      player2Falling : new drawableSprite(player2FallingSpriteOptions)
     }
     
     this.player1Tiles = [0,0,0,0,0];
@@ -465,7 +581,7 @@ var GameBoard = function() {
             move : self.drawableObjects.player1Running,
             attack : self.drawableObjects.player1Attacking,
             defend : self.drawableObjects.player1Blocking,
-            //hit : "player1Falling",
+            fallingBack : self.drawableObjects.player1Falling
             //lose : "player1Lost"
         },
         player2 : {
@@ -474,7 +590,7 @@ var GameBoard = function() {
             move : self.drawableObjects.player2Running,
             attack : self.drawableObjects.player2Attacking,
             defend : self.drawableObjects.player2Blocking,
-            //hit : "player2Falling",
+            fallingBack : self.drawableObjects.player2Falling
             //lose : "player2Lost"
         }
   }
@@ -508,7 +624,7 @@ var GameBoard = function() {
         }
       }
       
-      var imagesLoaded= 0, expectedImagesLoaded=12;
+      var imagesLoaded= 0, expectedImagesLoaded=16;
       function imageLoadedCallback() {
         imagesLoaded++;
         if (imagesLoaded == expectedImagesLoaded) {

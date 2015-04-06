@@ -9,10 +9,10 @@
   <header>
     <% include ../partials/header %>
 
-    <link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />
+    <!--<link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />-->
 
-    <script type="text/javascript" src="/static/javascript/classes.js"></script>
-    <script type="text/javascript" src="/static/javascript/saveTheIsland.js"></script>
+    <script type="text/javascript" src="/static/javascript/drawable.js"></script>
+    <script type="text/javascript" src="/static/javascript/game.js"></script>
     <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
     <script type="text/javascript" src="/static/javascript/async.js"></script>
     <!-- script type="text/javascript" src="/socket.io/socket.io.js"></script -->
@@ -21,9 +21,8 @@
 
   <% include ../partials/message %>
 
-  <main>
-  <div class="col_12">
-    <div class="col_3">
+  <div class="row">
+    <div class="col-sm-4">
       <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
         <div id="player1FileChoose" class="form-item">
           <label for="player1_bot_upload"> Select your bot for player 1 <span class="form-required"
@@ -55,54 +54,39 @@
       <div id="gameControlDiv" style="display: none">
         <input id="startNewGame" type="button" value="Start Game" style="display: none">
         <input id="killCurrentGame" type="button" value="Kill Game" style="display: none">
-        <p id="gameControlStatus"> Press Play Game to start a new game.
+        <div id="humanInput" class="form-item">
+          <h4>Human Input</h4>
+          <textarea id="humanInput_stdin"></textarea>
+          <button id="send_move">Send Move</button>
+        </div>
       </div>
-
-      <div id="humanInput" class="form-item">
-        <h4>Human Input</h4>
-        <textarea id="stdin"></textarea>
-        <button id="send_move">Send Move</button>
-        <div id="send_move_message"></div>
-      </div>
-
-      <div id="echoTest" class="form-item">
-        <h4>Echo Test</h4>
-        <textarea id="echo_stdin"></textarea>
-        <button id="echo_send_move">Send Move</button>
-        <div id="echo_status"></div>
-      </div>
-
-      <div>
-        <br>
-        <hr>
-        <br>
-      </div>
-      <div id="distance">CRTL + Mouse twice for coordinate info</div>
 
     </div>
-    <div class="col_9">
+    
+    <div class="col-sm-8">
       <canvas style="border: 1px solid" id="GameCanvas" width="1050" height="650"></canvas>
     </div>
-
-    <hr />
-
-    <div class="col_4 ioPanels">
+  </div> <!-- End Row -->
+  
+  <hr />
+  <div class="row">
+    <div class="col-sm-4 ioPanels">
       <h4>Move List</h4>
-      <div id="moveList"></div>
+      <div id="moveList" class="scrollableBox"></div>
     </div>
 
 
-    <div class="col_4 ioPanels">
-      <h5>Standard Output</h5>
-      <div id="stdout"></div>
+    <div class="col-sm-4 ioPanels">
+      <h4>Standard Output</h5>
+      <div id="stdout" class="scrollableBox"></div>
     </div>
 
-    <div class="col_4 ioPanels">
-      <h5>Standard Error</h5>
-      <div id="stderr"></div>
+    <div class="col-sm-4 ioPanels">
+      <h4>Standard Error</h5>
+      <div id="stderr" class="scrollableBox"></div>
     </div>
 
   </div>
-  <!-- END GRID --> </main>
+
 </body>
 </html>

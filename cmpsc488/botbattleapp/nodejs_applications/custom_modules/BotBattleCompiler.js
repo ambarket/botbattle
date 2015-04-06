@@ -36,6 +36,8 @@ function BotBattleCompiler() {
     }
     var compilationProcess = undefined;
     directoryPath = path.resolve(folder, folderContentList[item]);
+    // TODO: THis is terrible coding.
+    sourceFiles.unshift("-classpath", paths.gameManagerJars);
     console.log("Compiling", sourceFiles);
     compilationProcess = spawn('javac', sourceFiles);
     compilationProcess

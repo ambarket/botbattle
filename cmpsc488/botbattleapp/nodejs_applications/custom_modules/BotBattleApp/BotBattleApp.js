@@ -1,7 +1,7 @@
 var paths = require('../BotBattlePaths');
 var path = require('path');
 
-var BotBattleAppHelpers = require(paths.BotBattleApp_sub_modules.Helpers);
+var helpers = require(paths.BotBattleApp_sub_modules.Helpers);
 var fileManager = require(paths.custom_modules.FileManager).newInstance();
 
 var testArenaInstances = require(paths.BotBattleApp_sub_modules.TestArenaInstances);
@@ -48,86 +48,128 @@ module.exports = BotBattleApp;
 function registerTestArenaRoutes(server, database) {
   var logger = require(paths.custom_modules.Logger).newInstance('console');
    
-  server.addDynamicRoute('get', '/', function(req, res) {
-    // TODO: Can support multiple game modules if pass a list along in future
-  	var locals = BotBattleAppHelpers.copyLocalsAndDeleteMessage(req.session);
-  	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
-  });
-  
-
-  
   
   /**
    * Requested the test arena page is refreshed or a link is followed out
    * i.e. when the page is reloaded.
    */
-  server.addDynamicRoute('get', '/killGame', function(req, res) {
+  server.addDynamicRoute('get', '/deleteTestArenaInstance', function(req, res) {
     var id = req.query.id;
-    console.log("Killing ", id);
-    testArenaInstances.removeGame(id, function(err){
-       if(err){
-         logger.log(err);
-         res.json({"error":err});
-       }
-       else{
-         res.json({"error":"Killed"});
-       }
-    });
+    res.end(); // This is only called after navigating away from the page. No point in sending anything.
+    if(testArenaInstances.hasInstanceExpired(id)) {
+      logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "The record associated with " + id + 
+          " has already expired, no further action needed in deleteTestArenaInstance"));
+    }
+    else {
+      logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Deleting all files and references to testArenaInstance"));
+      testArenaInstances.deleteTestArenaInstanceAndGameForId(id, function(err){
+         if(err){
+           logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Error in deleteTestArenaInstance " + err.message));
+         }
+         else{
+           logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Successfully deleted all files and references"));
+         }
+      });
+    }
+  });
+  
+  /**
+   * Requested the test arena page is requested
+   */
+  server.addDynamicRoute('get', '/', function(req, res) {
+    // TODO: Can support multiple game modules if pass a list along in future
+  	var locals = helpers.copyLocalsAndDeleteMessage(req.session);
+  	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
+  });
+
+
+  server.addDynamicRoute('get', '/startGame', function(req, res) {
+    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
+    if (success) {
+      res.json({ 'event' : 'success' });
+    }
+    else {
+      res.json({ 'event' : 'expiredID'});
+    }
+
+  });
+  
+  server.addDynamicRoute('get', '/sendMove', function(req, res) {
+    setTimeout(function(){ 
+      var event = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
+      if (event === 'success') {
+        res.json({ 'event' : 'success' });
+      }
+      else if (event === 'noGameRunning') {
+        res.json({ 'event' : 'noGameRunning' });
+      }
+      else if (event === 'expiredID') {
+        res.json({ 'event' : 'expiredID'});
+      }
+      else {
+        logger.log("BotBattleApp", "Invalid event in sendMove", event);
+        res.send("Invalid event");
+      }
+    }, 2000);
   });
   
   /**
    * Requested the test arena client clicks Kill Game
    */
+  // Currently the only reason this would return an error is an invalidID
+  // TODO: It seems like killSpawnedGameForID still has some TODOs
+  //    If anything changes there may have to change this too.
   server.addDynamicRoute('get', '/killCurrentGame', function(req, res) {
     var id = req.query.id;
-    console.log("Killing ", id);
-    testArenaInstances.killGameManager(id, function(err){
+    testArenaInstances.killSpawnedGameForId(id, function(err){
        if(err){
-         logger.log(err);
-         res.json({"error":err});
+         logger.log("BotBattleApp", "Error in killCurrentGame", err.message);
+         res.json({ 'event' : 'expiredID' });
        }
        else{
-         res.json({"status":"Killed"});
+         res.json(
+           { 'event' : 'success' });
        }
     });
   });
  
-
-
   
-  //1.125) Ensure two appropriate number of bots (players) are present in storage
-  // 3) Build the JSON object to send to the Game Manager
-  // 4) Spawn a new Game Manager and pass the JSON object as command line argument(s). 
-  //       We could maybe make it easier on the Game Manager side by splitting things up here
-  //       into multiple arguments instead of just sending one object
-  // 5) Somehow maintain a reference to that process object associated with the exact browser tab
-  //       that spawned it.
-  // 5.5) Hide the play game button and unhide the Send Move button  // client side crap
-  // 5.75) When user sends the move hide the Send Move button.  // client side crap
-  // 6) Wait for the initial game state to be sent by the Game Manager via stdout
-  // 7) Send this initial game state to the client via res.json()
-  
-  server.addDynamicRoute('get', '/startGame', function(req, res) {
-    console.log(req.query.id + " in start game");
-    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
-    if (success) {
-      res.json({status: "Spawned a new game, this is when you should start listening for game states"});
+  server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
+    if (testArenaInstances.hasInstanceExpired(req.query.id)) {
+      return res.json({ 'event' : 'expiredID' });
+    }
+    
+    var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
+    if (latestGameStateArray) {
+      if (testArenaInstances.isGameManagerRunning(req.query.id) || latestGameStateArray.length > 0) {
+        res.json(
+            { 'event' : 'success',
+              'gamestates' : latestGameStateArray,
+              'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+            });
+      }
+      else {
+        return res.json({ 'event' : 'noStatesRemaining' });
+      }
     }
     else {
-      res.status(500).json({error: "Failed to start the game, please contact your administrator"});
+      res.json({ 'event' : 'expiredID' });
     }
-
   });
+
+  
+
 
   
   /**
    * Requested by the "Echo Test" Button on the test arena page
    */
+  /*
   server.addDynamicRoute('get', '/echoTest', function(req, res) {
     var id = req.query.id;
-    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running"){
+    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running"){
       setTimeout(function(){ 
-        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).state === "running")
+        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running")
           testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.echo_stdin + '\n'); 
         }, 2000);
       
@@ -137,22 +179,15 @@ function registerTestArenaRoutes(server, database) {
       res.json({'error' : "Game is not running"});
     }
   });
+  */
   
   
-  server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
-    var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
-    if (latestGameStateArray) {
-      res.json({'gamestates' : latestGameStateArray});
-    }
-    else {
-      res.status(500).json({'error' : "Cannot get gameStates due to invalid Id please refresh the page"});
-    }
-  });
+
   
   /**
    * Requested by the "Send Move" Button on the test arena page
    */
-  server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
+ /* server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
     // Here it should be asserted that this current session has 
     
     setTimeout(function() {
@@ -233,7 +268,7 @@ function registerTestArenaRoutes(server, database) {
     );
     }, 500); 
 
-  }); 
+  }); */
   
 }
 

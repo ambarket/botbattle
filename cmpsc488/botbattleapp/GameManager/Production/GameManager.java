@@ -21,16 +21,8 @@ public class GameManager {
   // TODO clean up players constructors, could combine most of that work.
 
   public static void main(String[] args) throws IOException, InterruptedException {
-	    Scanner sc = new Scanner(System.in);
-	    String input = sc.next();
-	    while(!input.equals("Quit")){
-	       // System.out.println(input);
-	        System.out.println(getHardCodedGameState(0));
-	        System.out.println(getHardCodedGameState(1));
-	        System.out.println(getHardCodedGameState(2));
-	        input = sc.next();
-	    }
-    //TournamentTest();
+	
+    TournamentTest();
     //humanPlayersTest();
   }
   
@@ -61,91 +53,5 @@ public class GameManager {
       e.printStackTrace();
     }
   }
-  
- 
-  public static String getHardCodedGameState(int stateNum) {
-	  // Each gameState has three properties"
-	  //  animatableEvents : an array of animatableEvent objects"
-	  //  gameData : an arbitrary game specific object containing necessary information"
-	  //  debugData : an arbitrary game specific object containing necessary information"
-	  // Each animatableEvent must have an event name and data object"
-    
-      /* Lessons about JSON
-       * No single quotes anywhere. You must use escpaed double quotes as down below
-       * No extraneous commas anywhere!
-       * e.g. Commas should be only between two elements in an array or object, not after the last element in that object.
-       * VALID:  { "data" : "move", "data2" : "move2" } 
-       * INVALID { "data" : "move", "data2" : "move2", }  <==PROBLEM is the extra comma after "move2"
-       */
-	  switch(stateNum) {
-	  	case 0:
-  			return "{"			 
-			+ 			"\"animatableEvents\": ["
-			+       		"{"
-			+         			"\"event\": \"move\","
-			+        			"\"data\": { "
-			+          			   "\"objectName\" : \"player1\","
-			+          			   "\"finalPosition\" : 9 "
-			+        	       "}"
-			+      		    "}"
-			+   		"],"
-			+   		"\"gameData\" : {"
-			+       		"\"player1Tiles\" : [1, 3, 5, 5, 3],"
-			+       		"\"player2Tiles\" : [2, 4, 3, 5, 1],"
-			+       		"\"turnDescription\" : \"Player 2 used a 3 tile to move to position 11.\""
-			+    		"},"
-			+     		"\"debugData\" : {"
-			+               "\"stderr\" : [ \"An array\", \"of lines output by the bot\", \"stderr on this turn.\" ],"
-			+ 			    "\"stdout\" : [ \"An array\", \"of lines output by the bot\", \"stdout on this turn.\" ]"
-			+ 			"}"
-			+ 		"}";
-	  	case 1:
-			return  "{"
-			+ 			"\"animatableEvents\": "
-			+ 			"["
-			+          	   "{"
-			+              	"\"event\": \"defendedAttack\","
-			+                  "\"data\": "
-			+                  "{"
-			+                  	"\"attacker\" : \"player2\","
-			+                      "\"defender\" : \"player1\","
-			+                      "\"attackerStartingPosition\" : 24,"
-			+                      "\"attackerAttackPosition\" : 11"
-			+                  "}"
-			+              "}"
-			+          "],"
-			+          "\"gameData\" : {"
-			+               "\"player1Tiles\" : [1, 3, 2, 2, 3],"
-			+                "\"player2Tiles\" : [2, 4, 3, 5, 1],"
-			+                "\"turnDescription\" : \"Player 1 used two 5 tiles to attack but was defended.\""
-			+          "},"
-			+          "\"debugData\" : {"
-			+          	"\"stderr\" : [ \"An array\", \"of lines output by the bot\", \"stderr on this turn.\" ],"
-			+          	"\"stdout\" : [ \"An array\", \"of lines output by the bot\", \"stdout on this turn.\" ]"
-			+          "}"
-			+ 		"}";
-	  	case 2:
-	  		return "{"
-			+              "\"animatableEvents\": ["
-			+                 "{"
-			+                   "\"event\": \"move\","
-			+                   "\"data\": { "
-			+                     "\"objectName\" : \"player1\","
-			+                     "\"finalPosition\" : 0 "
-			+                   "} "
-			+                 "}"
-			+              "],"
-			+              "\"gameData\" : {"
-			+                "\"player1Tiles\" : [1, 3, 5, 5, 3],"
-			+                "\"player2Tiles\" : [2, 4, 3, 5, 1],"
-			+                "\"turnDescription\" : \"Player 2 used a 3 tile to move to position 11.\""
-			+              "},"
-			+              "\"debugData\" : {"
-			+                "\"stderr\" : [ \"An array\", \"of lines output by the bot\", \"stderr on this turn.\" ],"
-			+                "\"stdout\" : [ \"An array\", \"of lines output by the bot\", \"stdout on this turn.\" ]"
-			+              "}"
-			+            "}";
-	  }
-	  return "";
-	}
 }
+  

@@ -269,7 +269,12 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
         }
         else{
           // The assumption is there will only be one game, but has support for multiple games in the future
-          self.queryGameModule(nameList[0], callback);
+          if(nameList.length !== 1) {
+            callback(new Error("Failed to find the system game module in the database."));
+          }
+          else {
+            self.queryGameModule(nameList[0], callback);
+          }
         }
       });
     }
