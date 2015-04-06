@@ -2,87 +2,68 @@
 
 import java.io.IOException;
 import java.util.Scanner;
+
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.HashMap;
 
 public class ArenaGameManager {
   
   // arg[0] should be "testarena"
   // arg[1] should be a JSON string containing all other information.
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     
     if (args.length < 2 || !args[0].equals("testarena")) {
       System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
       System.exit(1);
     }
-
-    JSONObject parsed = (JSONObject) JSONValue.parse(args[1]);
-    JSONObject bot1 = (JSONObject) parsed.get("bot1");
-    JSONObject bot2 = (JSONObject) parsed.get("bot2");
-    printJSONInfo(args, parsed, bot1, bot2);
-
-
-
-    //String botPath = args[0];
-    //String username = args[1];
+ 
+    JSONObject arenaInfo = (JSONObject) JSONValue.parse(args[1]);
+    JSONObject bot1 = (JSONObject) arenaInfo.get("bot1");
+    JSONObject bot2 = (JSONObject) arenaInfo.get("bot2");
     
-    String username = "rvh5220";
+    //printJSONInfo(args, arenaInfo, bot1, bot2);
     
-    Player bot = null;
+    Long numOfBots = (Long) arenaInfo.get("numberOfBots");
+    Player plyr1 = null, plyr2 = null;
+    
+    if( numOfBots == 1 ) {
+      String path = (String) bot1.get("path");
+      String lang = (String) bot1.get("language");
 
-    System.out.flush();
-    try {
-      bot = new Player(botPath, username);
-    } catch (IOException e) {
-      System.err.println("An Exception was thrown.");
-      System.exit(1);
+      plyr1 = new Player(path, getLanguage(lang));
+      plyr2 = new Player();
+      
+    } else {
+      String path = (String) bot1.get("path");
+      String lang = (String) bot1.get("language");
+
+      plyr1 = new Player(path, getLanguage(lang));
+      path = (String) bot2.get("path");
+      lang = (String) bot2.get("language");
+
+      plyr2 = new Player(path, getLanguage(lang));
+      
     }
+     
     
-    ArenaGameInstance arenaGame = new ArenaGameInstance(bot);
+
+    ArenaGameInstance arenaGame = new ArenaGameInstance(plyr1, plyr2);
     
     arenaGame.runArenaGame();
-  
-
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  private static Language getLanguage(String lang) {
+    if(lang.equals("java")) {
+      return Language.JAVA;
+    } else if( lang.equals("c++")) {
+      return Language.CPP;
+    } else {
+      return Language.INVALID;
+    }
+  }
 
   private static void printJSONInfo(String[] args, JSONObject parsed, JSONObject bot1,
       JSONObject bot2) {
@@ -99,6 +80,12 @@ public class ArenaGameManager {
     }
   }
 
+  
+  
+  
+  
+  
+  
   
   
   
