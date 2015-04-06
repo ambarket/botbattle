@@ -66,6 +66,11 @@ public class Game implements GameInterface {
   }
 
   public boolean isValidMove(String move, String board, int player) {
+    
+    if(move == null){
+      return false;
+    }
+    
     short TYPE_OF_MOVE = 0, TILES_USED = 1;
     String[] peices = move.split(";");
     int tileValue;
@@ -199,8 +204,13 @@ public class Game implements GameInterface {
     String jsonString = "{";
     
     int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
-    jsonString += animatedEventJSON(move.split(";")[0], "Player" + player, finalPos) + ",";
     
+    if(move == null){
+      jsonString += animatedEventJSON("null Move", "Player" + player, finalPos) + ",";
+    } else {
+      jsonString += animatedEventJSON(move.split(";")[0], "Player" + player, finalPos) + ",";
+    }
+
     if(isValidMove(move, board, player)){
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
