@@ -4,13 +4,15 @@ import java.util.Scanner;
 
 public class ArenaGameInstance {
   
-  private Player bot;
+  private Player bot1;
+  private Player bot2;
   private GameInterface game;
 
 
 
-  public ArenaGameInstance(Player bot) {
-    this.bot = bot;
+  public ArenaGameInstance(Player bot1, Player bot2) {
+    this.bot1 = bot1;
+    this.bot2 = bot2;
     game = new Game();
   }
 
@@ -28,18 +30,12 @@ public class ArenaGameInstance {
 
       int player = (i % 2) + 1;
       
-      if (player == 1) {
-        //Get human players move from test arena page
-        move = scner.nextLine();
-        
-        // If the player wants to quit
-        if (move.toLowerCase().equals("exit")) {
-          break;
-        }
+      if (player == 1) {  
+        move = bot1.getMove(board);  
       } else {
-        move = bot.getMove(board);        
+        move = bot2.getMove(board);        
       }
-
+      System.err.println("\nMOVE:" + move + ", PLAYER: " + player + "\n");
       if (game.isValidMove(move, board, player)) {
         board = game.updateBoard(move, board, player);
         
@@ -52,21 +48,16 @@ public class ArenaGameInstance {
         }
       } else {
         System.out.println(game.getJSONStringForThisTurn(board, move, player));
-        System.out.println("Invalid move made");
-        break;
       }
 
       i++;
     }
-
-    // This is just for testing. Can be removed later
-    System.out.println("Game over");
-    scner.close();
+    
   }
 
   @Override
   public String toString() {
-    return "ArenaGameInstance [\n\tplayer1=" + "Human" + ",\n\tplayer2=" + bot + ",\n game="
+    return "ArenaGameInstance [\n\tplayer1=" + bot1 + ",\n\tplayer2=" + bot2 + ",\n game="
         + Game.getName()  + "]";
   }
 
