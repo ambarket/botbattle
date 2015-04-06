@@ -150,7 +150,7 @@ public class BoardTests {
 		String board = "11111;0000010002000;12345";
 		String updatedBoard = SaveTheIslandGame.Board.executeAttack(board, 1, 1);
 		
-		assertEquals("11111;0100000002000;12345", updatedBoard);
+		assertEquals("11111;0100002000000;12345", updatedBoard);
 	}
 	
 	
@@ -159,15 +159,15 @@ public class BoardTests {
 		String board = "11141;00000100020000;12335";
 		String updatedBoard = SaveTheIslandGame.Board.executeAttack(board, 2, 1);
 		
-		assertEquals("11141;00000100000002;12335", updatedBoard);
+		assertEquals("11141;00000000100002;12335", updatedBoard);
 	}
 	
 	@Test
 	public void testExecuteAttackWithDefense() {
 		String board = "11141;0000010002000;12344";
-		String updatedBoard = SaveTheIslandGame.Board.executeAttack(board, 1, 2);
+		String updatedBoard = SaveTheIslandGame.Board.executeAttack(board, 2, 1);
 		
-		assertEquals("0100000002000", SaveTheIslandGame.Board.getIsland(updatedBoard));
+		assertEquals("0000010002000", SaveTheIslandGame.Board.getIsland(updatedBoard));
 	}
 	
 	@Test
@@ -175,7 +175,7 @@ public class BoardTests {
 		String board = "11111;0000010002000;12344";
 		String updatedBoard = SaveTheIslandGame.Board.executeAttack(board, 1, 2);
 		
-		assertEquals("0000000002000", SaveTheIslandGame.Board.getIsland(updatedBoard));
+		assertEquals("0000002000000", SaveTheIslandGame.Board.getIsland(updatedBoard));
 	}
 	
 	@Test
@@ -183,6 +183,6 @@ public class BoardTests {
 		String board = "11144;0000010002000;12311";
 		String updatedBoard = SaveTheIslandGame.Board.executeAttack(board, 2, 2);
 		
-		assertEquals("0000010000000", SaveTheIslandGame.Board.getIsland(updatedBoard));
+		assertEquals("0000000010000", SaveTheIslandGame.Board.getIsland(updatedBoard));
 	}
 }

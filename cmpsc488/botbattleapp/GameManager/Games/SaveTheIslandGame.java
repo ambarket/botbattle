@@ -1,7 +1,15 @@
 
 
+import java.util.List;
 import java.util.Random;
 
+/*
+ * If you want to test a different game then just copy and paste its class here.
+ * E.g. if you want to test the save the island game copy everything in SaveTheIsland.java
+ *  and paste it here. Then just rename the class the Game.
+ */
+
+//Save the island
 public class SaveTheIslandGame implements GameInterface {
   public String getStartingBoard() {
     Random rng = new Random();
@@ -58,6 +66,11 @@ public class SaveTheIslandGame implements GameInterface {
   }
 
   public boolean isValidMove(String move, String board, int player) {
+    
+    if(move == null){
+      return false;
+    }
+    
     short TYPE_OF_MOVE = 0, TILES_USED = 1;
     String[] peices = move.split(";");
     int tileValue;
@@ -65,7 +78,7 @@ public class SaveTheIslandGame implements GameInterface {
     //Attempt to get value for tile, if it doesn't parse then not a valid move
     try {
       tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
-    } catch (NumberFormatException e) {
+    } catch (Exception e) {
       return false;
     }
 
@@ -148,7 +161,13 @@ public class SaveTheIslandGame implements GameInterface {
 
   protected static String prettyPrintMove(String move, int player) {
     String output = "Player " + player + " ";
-    String tiles = move.split(";")[1];
+    String tiles;
+    
+    try {
+      tiles = move.split(";")[1];
+    } catch (Exception e) {
+      return "Invalid Move: " + move;
+    }
 
     if (move.startsWith("attack")) {
       output += "attacks with ";
@@ -185,10 +204,24 @@ public class SaveTheIslandGame implements GameInterface {
     String jsonString = "{";
     
     int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
-    jsonString += animatedEventJSON(move.split(";")[0], "Player" + player, finalPos) + ",";
-    jsonString +=
-        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-            prettyPrintMove(move, player)) + "},";
+    
+    if(move == null){
+      jsonString += animatedEventJSON("null Move", "Player" + player, finalPos) + ",";
+    } else {
+      jsonString += animatedEventJSON(move.split(";")[0], "Player" + player, finalPos) + ",";
+    }
+
+    if(isValidMove(move, board, player)){
+      jsonString +=
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+              prettyPrintMove(move, player)) + "},";
+    } else {
+      jsonString +=
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+              "Invalid Move") + "},";
+    }
+    
+    
     jsonString += "\"debugData\" : {\"stderr\" : [],\"stdout\" : [\"" + move + "\"]}};";
     return jsonString;
   }
@@ -315,13 +348,15 @@ public class SaveTheIslandGame implements GameInterface {
       }
 
       replacePlayersTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
+
+      if(defenseTiles < numOfAttacks){ //Attack was succesful
+        int attacker = (victim == 1 ? 2 : 1);
+        board = movePlayer(board, attacker, distance - 1);
+      }
       numOfAttacks = -(numOfAttacks - defenseTiles);
 
-      return movePlayer(board, victim, numOfAttacks * getDistanceBetweenPlayers(board));
+      return movePlayer(board, victim, numOfAttacks * distance);
     }
   }
   // ----------------------- END BOARD CLASS ---------------------
-
-
-
 }

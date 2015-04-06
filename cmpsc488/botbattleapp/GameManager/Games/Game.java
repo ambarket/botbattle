@@ -336,7 +336,7 @@ public class Game implements GameInterface {
     public static String executeAttack(String board, int victim, int numOfAttacks) {
       String tiles = getPlayersTiles(victim, board);
       int defenseTiles = 0, distance = getDistanceBetweenPlayers(board);
-
+      
       for (int i = 0; i < 5; i++) {
         if (Integer.parseInt(tiles.substring(i, i + 1)) == distance) {
           defenseTiles++;
@@ -348,6 +348,11 @@ public class Game implements GameInterface {
       }
 
       replacePlayersTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
+      
+      if(defenseTiles < numOfAttacks){ //Attack was succesful
+        int attacker = (victim == 1 ? 2 : 1);
+        board = movePlayer(board, attacker, distance - 1);
+      }
       numOfAttacks = -(numOfAttacks - defenseTiles);
 
       return movePlayer(board, victim, numOfAttacks * getDistanceBetweenPlayers(board));
