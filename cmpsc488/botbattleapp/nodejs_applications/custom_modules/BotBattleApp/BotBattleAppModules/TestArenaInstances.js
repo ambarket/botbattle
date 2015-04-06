@@ -45,7 +45,7 @@ module.exports = new (function() {
       }
       logger.log("TestArenaInstances", "Cleaned :", count, " instances.");
       cleanTest_Arena_tmp();
-    }, 10000/*3600000*/); // 1 hour 3600000
+    }, 3600000); // 1 hour 3600000
   })();
   
   this.getGame = function(id) { return testArenaInstances[id] }
@@ -92,8 +92,8 @@ module.exports = new (function() {
         'bot2Path' : null,
         'gameStateQueue' : [],
         'resetExpirationTime' : function() {
-          //this.gameExpireDateTime = new Date().addHours(2);
-          this.gameExpireDateTime = new Date().addSeconds(30);
+          this.gameExpireDateTime = new Date().addHours(2);
+          //this.gameExpireDateTime = new Date().addSeconds(30);
         },   
       };
     testArenaInstances[newGameId].resetExpirationTime();
