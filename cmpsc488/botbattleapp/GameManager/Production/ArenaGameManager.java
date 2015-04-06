@@ -43,6 +43,69 @@ public class ArenaGameManager {
       // Just exit, maybe throw an exception.
     }
     
+    
+
+    if (args.length < 2) {
+      System.err.println("Must supplie arguments of bot path and username.");
+      System.exit(1);
+    }
+
+    //String botPath = args[0];
+    //String username = args[1];
+    String botPath = path;
+    String username = "rvh5220";
+    
+    Player bot = null;
+
+    System.out.flush();
+    try {
+      bot = new Player(botPath, username);
+    } catch (IOException e) {
+      System.out.println("An Exception was thrown.");
+    }
+    
+    ArenaGameInstance arenaGame = new ArenaGameInstance(bot);
+    
+    arenaGame.runArenaGame();
+  
+
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  public static void test() {
     /* With one bot (e.g. bot v human test arena) -- human is always player 2
      * ARGUMENT: 
      *      {   "numberOfBots":1,
@@ -94,34 +157,7 @@ public class ArenaGameManager {
     
     // Exit because we sent the final gameState and are done.
     
-    
-    /*  Other code.
-    if (args.length < 2) {
-      System.err.println("Must supplie arguments of bot path and username.");
-      System.exit(1);
-    }
-
-    //String botPath = args[0];
-    //String username = args[1];
-    String botPath = path;
-    String username = "rvh5220";
-    
-    Player bot = null;
-
-    System.out.flush();
-    try {
-      bot = new Player(botPath, username);
-    } catch (IOException e) {
-      System.out.println("An Exception was thrown.");
-    }
-    
-    ArenaGameInstance arenaGame = new ArenaGameInstance(bot);
-    
-    arenaGame.runArenaGame();
-  */
-
   }
-
 
 
   public static String getHardCodedGameState(int stateNum) {
