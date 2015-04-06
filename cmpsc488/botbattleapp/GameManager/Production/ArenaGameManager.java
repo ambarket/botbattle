@@ -11,48 +11,26 @@ import java.util.LinkedList;
 import java.util.HashMap;
 
 public class ArenaGameManager {
-  public static  String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\GameManager\\bin";
+  
+  // arg[0] should be "testarena"
+  // arg[1] should be a JSON string containing all other information.
   public static void main(String[] args) {
-    // see https://code.google.com/p/json-simple/ for the library used
-    // command line compilation: javac -classpath Jars/json-simple-1.1.1.jar Production/*.java Games/Game.java
-    // command line run: java -classpath Jars/json-simple-1.1.1.jar ArenaGameManager
     
-    // arg[0] will be "testarena" or "tournament"
-    // arg[1] will be a JSON string containing all other information.
-    //  The info for the test arena is specified below.
-    if (args[0].equals("testarena")) {
-      JSONObject parsed = (JSONObject)JSONValue.parse(args[1]);
-      JSONObject bot1 = (JSONObject)parsed.get("bot1");
-      JSONObject bot2 = (JSONObject)parsed.get("bot2");
-      System.err.println("ARGUMENT: " + args[1]);
-      System.err.println("PARSED_ARGUMENT: " + parsed);
-      System.err.println("NUMBER_OF_BOTS: " + parsed.get("numberOfBots"));
-      System.err.println("BOT1: " + bot1);
-      System.err.println("BOT1_LANGUAGE: " + bot1.get("language"));
-      System.err.println("BOT1_PATH: " + bot1.get("path"));
-      if (bot2 != null) {
-        System.err.println("BOT2: " + bot2);
-        System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
-        System.err.println("BOT2_PATH: " + bot2.get("path"));
-      }
-    }
-    else if (args[0].equals("tournament")) {
-      System.err.println("Torunament isnt implemented");
-    }
-    else {
-      // Just exit, maybe throw an exception.
-    }
-    
-    
-
-    if (args.length < 2) {
-      System.err.println("Must supplie arguments of bot path and username.");
+    if (args.length < 2 || !args[0].equals("testarena")) {
+      System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
       System.exit(1);
     }
 
+    JSONObject parsed = (JSONObject) JSONValue.parse(args[1]);
+    JSONObject bot1 = (JSONObject) parsed.get("bot1");
+    JSONObject bot2 = (JSONObject) parsed.get("bot2");
+    printJSONInfo(args, parsed, bot1, bot2);
+
+
+
     //String botPath = args[0];
     //String username = args[1];
-    String botPath = path;
+    
     String username = "rvh5220";
     
     Player bot = null;
@@ -61,7 +39,8 @@ public class ArenaGameManager {
     try {
       bot = new Player(botPath, username);
     } catch (IOException e) {
-      System.out.println("An Exception was thrown.");
+      System.err.println("An Exception was thrown.");
+      System.exit(1);
     }
     
     ArenaGameInstance arenaGame = new ArenaGameInstance(bot);
@@ -69,6 +48,55 @@ public class ArenaGameManager {
     arenaGame.runArenaGame();
   
 
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  private static void printJSONInfo(String[] args, JSONObject parsed, JSONObject bot1,
+      JSONObject bot2) {
+    System.err.println("ARGUMENT: " + args[1]);
+    System.err.println("PARSED_ARGUMENT: " + parsed);
+    System.err.println("NUMBER_OF_BOTS: " + parsed.get("numberOfBots"));
+    System.err.println("BOT1: " + bot1);
+    System.err.println("BOT1_LANGUAGE: " + bot1.get("language"));
+    System.err.println("BOT1_PATH: " + bot1.get("path"));
+    if (bot2 != null) {
+      System.err.println("BOT2: " + bot2);
+      System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
+      System.err.println("BOT2_PATH: " + bot2.get("path"));
+    }
   }
 
   
