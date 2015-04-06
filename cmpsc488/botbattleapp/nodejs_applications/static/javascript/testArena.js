@@ -189,9 +189,6 @@
        try {
          response = JSON.parse(req.responseText);
          if (req.status == 200) {
-           if (response.millisecondsUntilExpiration) {
-             flashStatusOrErrorMessage('warning', "Your game session will expire in " + response.millisecondsUntilExpiration / 1000 + " seconds.");
-           }
            if (response.event === 'success') {
              flashStatusOrErrorMessage('status', "The game is loading, please wait.");
              TEST_ARENA.transitionPageToState('loadingGame');
@@ -226,9 +223,6 @@
        try {
          response = JSON.parse(req.responseText);
          if (req.status == 200) {
-           if (response.millisecondsUntilExpiration) {
-             flashStatusOrErrorMessage('warning', "Your game session will expire in " + response.millisecondsUntilExpiration / 1000 + " seconds.");
-           }
            if (response.event === 'success') {
              flashStatusOrErrorMessage('status', "Your move has been submitted.");
            }
@@ -266,9 +260,6 @@
        try {
          response = JSON.parse(req.responseText);
          if (req.status == 200) {
-           if (response.millisecondsUntilExpiration) {
-             flashStatusOrErrorMessage('warning', "Your game session will expire in " + response.millisecondsUntilExpiration / 1000 + " seconds.");
-           }
            if (response.event === 'success') {
              flashStatusOrErrorMessage('status', "The game has been killed, start a new game or upload new bots to continue...");
              TEST_ARENA.transitionPageToState('uploaded');
@@ -316,7 +307,15 @@
          response = JSON.parse(req.responseText);
          if (req.status == 200) {
            if (response.millisecondsUntilExpiration) {
-             flashStatusOrErrorMessage('warning', "Your game session will expire in " + response.millisecondsUntilExpiration / 1000 + " seconds.");
+             var date = new Date(response.millisecondsUntilExpiration);
+             var str = '';
+             str += date.getUTCDate()-1 + " days, ";
+             str += date.getUTCHours() + " hours, ";
+             str += date.getUTCMinutes() + " minutes, ";
+             str += date.getUTCSeconds() + " seconds, ";
+             str += date.getUTCMilliseconds() + " millis";
+             console.log(str);
+             flashStatusOrErrorMessage('warning', "Your game session will expire in " + str);
            }
            
            if (response.event === 'success') {

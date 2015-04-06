@@ -86,10 +86,7 @@ function registerTestArenaRoutes(server, database) {
   server.addDynamicRoute('get', '/startGame', function(req, res) {
     var success = testArenaInstances.spawnNewGameInstance(req.query.id);
     if (success) {
-      res.json(
-          { 'event' : 'success', 
-            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
-          });
+      res.json({ 'event' : 'success' });
     }
     else {
       res.json({ 'event' : 'expiredID'});
@@ -131,9 +128,7 @@ function registerTestArenaRoutes(server, database) {
        }
        else{
          res.json(
-           { 'event' : 'success' , 
-             'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
-           });
+           { 'event' : 'success' });
        }
     });
   });
