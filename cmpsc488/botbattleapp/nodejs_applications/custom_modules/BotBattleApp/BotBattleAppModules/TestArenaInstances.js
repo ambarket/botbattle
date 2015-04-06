@@ -88,8 +88,10 @@ module.exports = new (function() {
         'gameState' : null,
         'gameExpireDateTime' : null,
         'gameModule' : gameModule,
-        'bot1Path' : null,
-        'bot2Path' : null,
+        'bot1SourcePath' : null,
+        'bot2SourcePath' : null,
+        'bot1CompiledPath' : null,
+        'bot2CompiledPath' : null,
         'gameStateQueue' : [],
         'resetExpirationTime' : function() {
           this.gameExpireDateTime = new Date().addHours(2);
@@ -159,8 +161,27 @@ module.exports = new (function() {
           var classPath = path.resolve(paths.local_storage.game_modules + "/"
               + testArenaInstances[id].gameModule.gameName);
 
+          var jsonArgument = {};
+          jsonArgument.numberOfBots = testArenaInstances[id].numberOfBots;
+          jsonArgument.bot1 = { 'path' : testArenaInstances[id].bot1CompiledPath };  
+          if (jsonArgument.bot1.path.match(/.class$/)) {
+            jsonArgument.bot1.language = 'java';
+          }
+          else {
+            jsonArgument.bot1.language = 'c++';
+          }
+          if (jsonArgument.numberOfBots === 2) {
+            jsonArgument.bot2 = { 'path' : testArenaInstances[id].bot2CompiledPath };  
+            if (jsonArgument.bot2.path.match(/.class$/)) {
+              jsonArgument.bot2.language = 'java';
+            }
+            else {
+              jsonArgument.bot2.language = 'c++';
+            }
+          }
+
           //testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
-          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "ArenaGameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
+          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerJars + ":" + classPath, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
           testArenaInstances[id].gameState = "running";
 
           logger.log("TestArenaInstances", 

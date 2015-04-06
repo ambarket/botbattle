@@ -2,10 +2,85 @@
 
 import java.io.IOException;
 import java.util.Scanner;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.JSONArray;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.HashMap;
 
 public class ArenaGameManager {
 
   public static void main(String[] args) {
+    // see https://code.google.com/p/json-simple/ for the library used
+    // command line compilation: javac -classpath Jars/json-simple-1.1.1.jar Production/*.java Games/Game.java
+    // command line run: java -classpath Jars/json-simple-1.1.1.jar ArenaGameManager
+    
+    // arg[0] will be "testarena" or "tournament"
+    // arg[1] will be a JSON string containing all other information.
+    //  The info for the test arena is specified below.
+    if (args[0].equals("testarena")) {
+      JSONObject parsed = (JSONObject)JSONValue.parse(args[1]);
+      JSONObject bot1 = (JSONObject)parsed.get("bot1");
+      JSONObject bot2 = (JSONObject)parsed.get("bot2");
+      System.err.println("ARGUMENT: " + args[1]);
+      System.err.println("PARSED_ARGUMENT: " + parsed);
+      System.err.println("NUMBER_OF_BOTS: " + parsed.get("numberOfBots"));
+      System.err.println("BOT1: " + bot1);
+      System.err.println("BOT1_LANGUAGE: " + bot1.get("language"));
+      System.err.println("BOT1_PATH: " + bot1.get("path"));
+      if (bot2 != null) {
+        System.err.println("BOT2: " + bot2);
+        System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
+        System.err.println("BOT2_PATH: " + bot2.get("path"));
+      }
+    }
+    else if (args[0].equals("tournament")) {
+      System.err.println("Torunament isnt implemented");
+    }
+    else {
+      // Just exit, maybe throw an exception.
+    }
+    
+    /* With one bot (e.g. bot v human test arena) -- human is always player 2
+     * ARGUMENT: 
+     *      {   "numberOfBots":1,
+     *          "bot1": {
+     *              "path":"/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1L0FPEi/bot1/bot.class",
+     *              "language":"java"
+     *           }
+     *      }
+     *      PARSED_ARGUMENT: {"bot1":{"path":"\/home\/amb6470\/git\/botbattle\/cmpsc488\/botbattleapp\/nodejs_applications\/local_storage\/test_arena_tmp\/m1L0FPEi\/bot1\/bot.class","language":"java"},"numberOfBots":1}
+     *      NUMBER_OF_BOTS: 1
+     *      BOT1: {"path":"\/home\/amb6470\/git\/botbattle\/cmpsc488\/botbattleapp\/nodejs_applications\/local_storage\/test_arena_tmp\/m1L0FPEi\/bot1\/bot.class","language":"java"}
+     *      BOT1_LANGUAGE: java
+     *      BOT1_PATH: /home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1L0FPEi/bot1/bot.class
+     */
+    
+    /*  With two bots (e.g. bot v bot test arena)
+     *  ARGUMENT: 
+     *      {   "numberOfBots":2,
+     *          "bot1": {
+     *              "path":"/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/Qyx6SjvVs/bot1/bot.class",
+     *              "language":"java"
+     *          },
+     *          "bot2": {
+     *              "path":"/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/Qyx6SjvVs/bot2/blank.cpp.out",
+     *              "language":"c++"
+     *          }
+     *      }
+     *  PARSED_ARGUMENT: {"bot1":{"path":"\/home\/amb6470\/git\/botbattle\/cmpsc488\/botbattleapp\/nodejs_applications\/local_storage\/test_arena_tmp\/Qyx6SjvVs\/bot1\/bot.class","language":"java"},"bot2":{"path":"\/home\/amb6470\/git\/botbattle\/cmpsc488\/botbattleapp\/nodejs_applications\/local_storage\/test_arena_tmp\/Qyx6SjvVs\/bot2\/blank.cpp.out","language":"c++"},"numberOfBots":2}
+     *  NUMBER_OF_BOTS: 2
+     *  BOT1: {"path":"\/home\/amb6470\/git\/botbattle\/cmpsc488\/botbattleapp\/nodejs_applications\/local_storage\/test_arena_tmp\/Qyx6SjvVs\/bot1\/bot.class","language":"java"}
+     *  BOT1_LANGUAGE: java
+     *  BOT1_PATH: /home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/Qyx6SjvVs/bot1/bot.class
+     *  BOT2: {"path":"\/home\/amb6470\/git\/botbattle\/cmpsc488\/botbattleapp\/nodejs_applications\/local_storage\/test_arena_tmp\/Qyx6SjvVs\/bot2\/blank.cpp.out","language":"c++"}
+     *  BOT2_LANGUAGE: c++
+     *  BOT2_PATH: /home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/Qyx6SjvVs/bot2/blank.cpp.out
+     */
+
+
     
     // Testing the client code.
     Scanner sc = new Scanner(System.in);
@@ -18,7 +93,8 @@ public class ArenaGameManager {
     System.out.println(getHardCodedGameState(4));    // Send finalGame state (includes the last turn)
     
     // Exit because we sent the final gameState and are done.
-    /*
+    
+    /*  Other code.
     if (args.length < 2) {
       System.err.println("Must supplie arguments of bot path and username.");
       System.exit(1);
@@ -90,7 +166,45 @@ public class ArenaGameManager {
    
       switch(stateNum) {
         case 0:
-           return "{"    
+          // Note: This gives the following message, investigate why
+          //    ArenaGameManager.java uses unchecked or unsafe operations. Recompile with -Xlint:unchecked for details.
+
+          JSONObject gameState0 = new JSONObject();
+          gameState0.put("type", "initial");
+          gameState0.put("nextTurn", "player1");
+          
+          JSONArray gameState0_animatableEvents = new JSONArray();
+          gameState0.put("animatableEvents", gameState0_animatableEvents);
+          
+          ArrayList gameState0_gameData_player1Tiles = new ArrayList();
+          gameState0_gameData_player1Tiles.add(1);
+          gameState0_gameData_player1Tiles.add(3);
+          gameState0_gameData_player1Tiles.add(5);
+          gameState0_gameData_player1Tiles.add(5);
+          gameState0_gameData_player1Tiles.add(3);
+          
+          ArrayList gameState0_gameData_player2Tiles = new ArrayList();
+          gameState0_gameData_player2Tiles.add(2);
+          gameState0_gameData_player2Tiles.add(4);
+          gameState0_gameData_player2Tiles.add(3);
+          gameState0_gameData_player2Tiles.add(5);
+          gameState0_gameData_player2Tiles.add(1);
+          
+          JSONObject gameState0_gameData = new JSONObject();
+          gameState0_gameData.put("player1Tiles", gameState0_gameData_player1Tiles);
+          gameState0_gameData.put("player2Tiles", gameState0_gameData_player2Tiles);
+          gameState0_gameData.put("turnDescription", "The game has started2.");
+          gameState0.put("gameData", gameState0_gameData);
+          
+          JSONObject gameState0_debugData = new JSONObject();
+          JSONArray gameState0_debugData_stderr = new JSONArray();
+          JSONArray gameState0_debugData_stdout = new JSONArray();
+          gameState0_debugData.put("stderr", gameState0_debugData_stderr);
+          gameState0_debugData.put("stdout", gameState0_debugData_stdout);
+          gameState0.put("debugData", gameState0_debugData);
+
+         return gameState0.toJSONString(); 
+           /*"{"    
            +           "\"type\": \"initial\","
            +           "\"nextTurn\": \"player1\","
            +           "\"animatableEvents\": [],"
@@ -104,7 +218,56 @@ public class ArenaGameManager {
            +               "\"stdout\" : []"
            +           "}"
            +       "}";
+           */
         case 1:
+          JSONObject gameState1 = new JSONObject();
+          gameState1.put("type", "midGame");
+          gameState1.put("nextTurn", "player2");
+          
+          JSONArray gameState1_animatableEvents = new JSONArray();
+
+          JSONObject gameState1_animatableEvents_event0 = new JSONObject();
+          gameState1_animatableEvents_event0.put("event", "move");
+          
+          JSONObject gameState1_animatableEvents_event0_data = new JSONObject();
+          gameState1_animatableEvents_event0_data.put("objectName", "player1");
+          gameState1_animatableEvents_event0_data.put("finalPosition", 9);
+          gameState1_animatableEvents_event0.put("data", gameState1_animatableEvents_event0_data);
+          
+          gameState1_animatableEvents.add(gameState1_animatableEvents_event0);
+          gameState1.put("animatableEvents", gameState1_animatableEvents);
+          
+          ArrayList gameState1_gameData_player1Tiles = new ArrayList();
+          gameState1_gameData_player1Tiles.add(1);
+          gameState1_gameData_player1Tiles.add(3);
+          gameState1_gameData_player1Tiles.add(5);
+          gameState1_gameData_player1Tiles.add(5);
+          gameState1_gameData_player1Tiles.add(3);
+          
+          ArrayList gameState1_gameData_player2Tiles = new ArrayList();
+          gameState1_gameData_player2Tiles.add(2);
+          gameState1_gameData_player2Tiles.add(4);
+          gameState1_gameData_player2Tiles.add(3);
+          gameState1_gameData_player2Tiles.add(5);
+          gameState1_gameData_player2Tiles.add(1);
+          
+          JSONObject gameState1_gameData = new JSONObject();
+          gameState1_gameData.put("player1Tiles", gameState1_gameData_player1Tiles);
+          gameState1_gameData.put("player2Tiles", gameState1_gameData_player2Tiles);
+          gameState1_gameData.put("turnDescription", "The game has started2.");
+          gameState1.put("gameData", gameState1_gameData);
+          
+          JSONObject gameState1_debugData = new JSONObject();
+          JSONArray gameState1_debugData_stderr = new JSONArray();
+          gameState1_debugData_stderr.add("Some stuff from stderr");
+          JSONArray gameState1_debugData_stdout = new JSONArray();
+          gameState1_debugData_stdout.add("Some stuff from stdout");
+          gameState1_debugData.put("stderr", gameState1_debugData_stderr);
+          gameState1_debugData.put("stdout", gameState1_debugData_stdout);
+          gameState1.put("debugData", gameState1_debugData);
+
+         return gameState1.toJSONString(); 
+         /*
             return "{"           
             +           "\"type\": \"midGame\","
             +           "\"nextTurn\": \"player2\","
@@ -127,6 +290,7 @@ public class ArenaGameManager {
             +               "\"stdout\" : [ \"An array\", \"of lines output by the bot\", \"stdout on this turn.\" ]"
             +           "}"
             +       "}";
+            */
         case 2:
             return  "{"
             +           "\"type\": \"midGame\","

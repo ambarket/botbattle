@@ -104,11 +104,11 @@ module.exports = {
           }
           if(file.fieldname === "player1_bot_upload"){
             testArenaInstances.getGame(req.newGameId).bot1Name = file.originalname;
-            testArenaInstances.getGame(req.newGameId).bot1Path = file.path;
+            testArenaInstances.getGame(req.newGameId).bot1SourcePath = file.path;
           }
           if(file.fieldname === "player2_bot_upload"){
             testArenaInstances.getGame(req.newGameId).bot2Name = file.originalname;
-            testArenaInstances.getGame(req.newGameId).bot2Path = file.path;
+            testArenaInstances.getGame(req.newGameId).bot2SourcePath = file.path;
           }
         }
       }
@@ -136,7 +136,7 @@ module.exports = {
         var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
         // Move and compile bot for player 1
         var newBot1Path = path.resolve(gameFolder, "bot1", testArenaInstances.getGame(req.newGameId).bot1Name);
-        fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot1Path, newBot1Path, function(err){
+        fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot1SourcePath, newBot1Path, function(err){
           if (err) {
             logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to move source file"));
             res.json({"error" : "Failed to upload bot for player 1"});
@@ -144,13 +144,15 @@ module.exports = {
           }
           else {
             logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Successfully moved source file"));
-            compiler.compile(newBot1Path, function(err){
+            testArenaInstances.getGame(req.newGameId).bot1SourcePath = newBot1Path;
+            compiler.compile(newBot1Path, function(err, compiledFilePath){
               if(err){
                 logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to compile source file"));
                 res.json({"error" : "Failed to compile bot for player 1"});
                 removeIncompleteGameAfterFailure(req.newGameId);
               }
               else{
+                testArenaInstances.getGame(req.newGameId).bot1CompiledPath = compiledFilePath;
                 logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Successfully compiled source file"));
                 if(humanOrBot !== "bot"){ 
                     logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully processed bot uploads"));
@@ -162,21 +164,23 @@ module.exports = {
                 }
                 else { // Move and compile bot for player 2
                   var newBot2Path = path.resolve(gameFolder, "bot2", testArenaInstances.getGame(req.newGameId).bot2Name);
-                  fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot2Path, newBot2Path, function(err){
+                  fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot2SourcePath, newBot2Path, function(err){
                     if (err) {
                       logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Failed to move source file"));
                       res.json({"error" : "Failed to upload bot for player 2"});
                       removeIncompleteGameAfterFailure(req.newGameId);
                     }
                     else {
+                      testArenaInstances.getGame(req.newGameId).bot2SourcePath = newBot2Path;
                       logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Successfully moved source file"));
-                      compiler.compile(newBot2Path, function(err){
+                      compiler.compile(newBot2Path, function(err, compiledFilePath){
                         if(err){
                           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Failed to compile source file"));
                           res.json({"error" : "Failed to compile bot for player 2"});
                           removeIncompleteGameAfterFailure(req.newGameId);
                         }
                         else{
+                          testArenaInstances.getGame(req.newGameId).bot2CompiledPath = compiledFilePath;
                           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Successfully compiled source file"));
                           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully processed bot uploads"));
                           res.json(
