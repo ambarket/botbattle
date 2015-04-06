@@ -4,6 +4,7 @@
 /BadTicTacToeBot1.class
 /BoardTests.class
 /CompetitorData.class
+/Game$Board.class
 /Game.class
 /GameInstance.class
 /GameInterface.class
@@ -25,5 +26,3 @@
 /rvh5221.class
 /rvh5222.class
 /rvh5223.class
-/Game$Board.class
-/the-file-name1.txt
