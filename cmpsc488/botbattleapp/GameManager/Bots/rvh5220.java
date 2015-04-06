@@ -57,6 +57,6 @@ static boolean temp;
 				row++;
 			}
 		}
-		return null;
+		return " , , ";
 	}
 }
