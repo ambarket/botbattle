@@ -331,10 +331,12 @@
                    "but received this reponse intead: " + response);
              }
            }
-           else if (response.event === 'noGameRunning') {
+           else if (response.event === 'noStatesRemaining') {
              //flashStatusOrErrorMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
-             flashStatusOrErrorMessage('error', "The game has stopped unexpectedly, if this problem persists see your administrator");
-             TEST_ARENA.transitionPageToState('uploaded');
+             //flashStatusOrErrorMessage('error', "The game has stopped unexpectedly, if this problem persists see your administrator");
+             //TEST_ARENA.transitionPageToState('gameFinished');
+             flashStatusOrErrorMessage('status', "Game is no longer running on server and game state queue is empty, stopping the requester");
+             stopGameStateRequester();
            }
            else if (response.event === 'expiredID') {
              handleExpiredID();

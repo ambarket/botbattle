@@ -143,17 +143,19 @@ function registerTestArenaRoutes(server, database) {
     if (testArenaInstances.hasInstanceExpired(req.query.id)) {
       return res.json({ 'event' : 'expiredID' });
     }
-    if (!testArenaInstances.isGameManagerRunning(req.query.id)) {
-      return res.json({ 'event' : 'noGameRunning' });
-    }
     
     var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
     if (latestGameStateArray) {
-      res.json(
-          { 'event' : 'success',
-            'gamestates' : latestGameStateArray,
-            'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
-          });
+      if (testArenaInstances.isGameManagerRunning(req.query.id) || latestGameStateArray.length > 0) {
+        res.json(
+            { 'event' : 'success',
+              'gamestates' : latestGameStateArray,
+              'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
+            });
+      }
+      else {
+        return res.json({ 'event' : 'noStatesRemaining' });
+      }
     }
     else {
       res.json({ 'event' : 'expiredID' });
