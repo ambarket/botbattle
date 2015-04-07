@@ -214,15 +214,15 @@ public class Game implements GameInterface {
     if(isValidMove(move, board, player)){
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-              prettyPrintMove(move, player)) + "},";
+              prettyPrintMove(move, player)) + ",";
     } else {
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-              "Invalid Move") + "},";
+              "Invalid Move") + ",";
     }
     
     
-    jsonString += "\"debugData\" : {\"stderr\" : [],\"stdout\" : [\"" + move + "\"]}};";
+    jsonString += "\"debugData\" : {\"stderr\" : [],\"stdout\" : [\"" + move + "\"]}}";
     return jsonString;
   }
 

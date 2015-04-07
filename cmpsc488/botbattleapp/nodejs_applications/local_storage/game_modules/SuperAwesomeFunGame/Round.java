@@ -12,13 +12,13 @@ public class Round {
     games = new GameInstance[(int) Math.ceil(competitors.getNumberOfCompetitors() / 2)];
 
     for (int i = 0; i < games.length; i++) {
-      Player p1 = new Player(competitors.getBotPath(i), competitors.getUser(i));
+      Player p1 = new Player(competitors.getBotPath(i), competitors.getUser(i), Language.JAVA);
       Player p2 = null;
 
       if (i + 1 > competitors.getNumberOfCompetitors()) { // Possible we have odd number of competitors
-        p2 = new Player("badBot", "badBot");// TODO make generic bad bot to always time out
+        p2 = new Player("badBot", "badBot", Language.JAVA);// TODO make generic bad bot to always time out
       } else {
-        p2 = new Player(competitors.getBotPath(i + 1), competitors.getUser(i + 1));
+        p2 = new Player(competitors.getBotPath(i + 1), competitors.getUser(i + 1), Language.JAVA);
       }
 
       games[i] = new GameInstance(p1, p2);

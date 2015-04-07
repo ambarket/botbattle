@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Scanner;
 
 /**
  * @author Randall
@@ -22,41 +23,41 @@ public class Player implements Runnable {
   protected String usersName;
   protected BufferedReader reader;
   protected BufferedWriter writer;
-  protected boolean humanOrBot;//TODO based on feedback for ArenaGameManager this may be removable
+  protected boolean humanOrBot;
   protected volatile boolean read;
   protected volatile String move;
 
-  
-  //TODO based on response for ArenaGameManager this constructor may not be needed
-  //This constructor is for human players
-  public Player(String botFilePath) throws IOException {
-    humanOrBot = HUMAN;
-    
-    ProcessBuilder builder = new ProcessBuilder("java", "HumanPlayer");
-    builder.directory(new File(botFilePath));
-    botProcess = builder.start();
-
-    OutputStream stdin = botProcess.getOutputStream();
-    InputStream stdout = botProcess.getInputStream();
-
-    reader = new BufferedReader(new InputStreamReader(stdout));
-    writer = new BufferedWriter(new OutputStreamWriter(stdin));
-    
+  public Player() throws IOException {
+    humanOrBot = HUMAN;    
     read = false;
     move = null;
-  }
-
-  // TODO: change thrown exception to try catch block or maybe add try catch block in gameManager
-  public Player(String botFilePath, String usersName) throws IOException {
-    this.botFilePath = botFilePath;
-    this.usersName = usersName;
-
-    ProcessBuilder builder = new ProcessBuilder("java", usersName);
-    //ProcessBuilder builder = new ProcessBuilder("java", usersName); 
     
-    builder.directory(new File(botFilePath));
+    InputStream stdout = System.in;
+    reader = new BufferedReader(new InputStreamReader(stdout));  
+  }
+  
+  public Player(String botFilePath, String usersName, Language lang) throws IOException {
+    this(botFilePath, lang);
+    this.usersName = usersName;    
+  }
+  
+  public Player(String botFilePath, Language language ) throws IOException {
+    this.botFilePath = botFilePath;
+    String cmd = "";
+    
+    switch (language) {
+      case JAVA:
+        cmd = "java";
+        break;
+      case CPP:
+        cmd = "";
+        break;
+    }
+    
+    ProcessBuilder builder = new ProcessBuilder(cmd, botFilePath);
+    //builder.directory(new File(botFilePath));
     botProcess = builder.start();
-
+    
     OutputStream stdin = botProcess.getOutputStream();
     InputStream stdout = botProcess.getInputStream();
 
@@ -68,22 +69,21 @@ public class Player implements Runnable {
     move = null;
   }
 
-
   public String getMove(String board) {
 
-    if(!botProcess.isAlive()){
+    if(botProcess != null && !botProcess.isAlive()){
       return "Bot exited on its own.";
     }
     
     try {
-      writer.write(board + "\n");
-      writer.flush();
       read = false;
       Thread readFromBotThread = new Thread(this);
       readFromBotThread.start();
       
       if (humanOrBot == BOT) {
-        
+        writer.write(board + "\n");
+        writer.flush();
+        System.err.println("\n\tREADING FROM BOT\n");
         readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
       } else if (humanOrBot == HUMAN) {
         readFromBotThread.join();//Humans dont have a time out so wait forever.
@@ -118,6 +118,7 @@ public class Player implements Runnable {
   public void run() {
     try {
       move = reader.readLine();
+      
     } catch (IOException e) {
       move = "Bot Threw Exception";
     }

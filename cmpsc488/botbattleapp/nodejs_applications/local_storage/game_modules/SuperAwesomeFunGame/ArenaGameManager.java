@@ -2,47 +2,125 @@
 
 import java.io.IOException;
 import java.util.Scanner;
+
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.HashMap;
 
 public class ArenaGameManager {
+  
+  // arg[0] should be "testarena"
+  // arg[1] should be a JSON string containing all other information.
+  public static void main(String[] args) throws IOException {
+    
+    if (args.length < 2 || !args[0].equals("testarena")) {
+      System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
+      System.exit(1);
+    }
+ 
+    JSONObject arenaInfo = (JSONObject) JSONValue.parse(args[1]);
+    JSONObject bot1 = (JSONObject) arenaInfo.get("bot1");
+    JSONObject bot2 = (JSONObject) arenaInfo.get("bot2");
+    
+    //printJSONInfo(args, arenaInfo, bot1, bot2);
+    
+    Long numOfBots = (Long) arenaInfo.get("numberOfBots");
+    Player plyr1 = null, plyr2 = null;
+    
+    if( numOfBots == 1 ) {
+      String path = (String) bot1.get("path");
+      String lang = (String) bot1.get("language");
 
-  public static void main(String[] args) {
-    // see https://code.google.com/p/json-simple/ for the library used
-    // command line compilation: javac -classpath Jars/json-simple-1.1.1.jar Production/*.java Games/Game.java
-    // command line run: java -classpath Jars/json-simple-1.1.1.jar ArenaGameManager
+      plyr1 = new Player(path, getLanguage(lang));
+      plyr2 = new Player();
+      
+    } else {
+      String path = (String) bot1.get("path");
+      String lang = (String) bot1.get("language");
+
+      plyr1 = new Player(path, getLanguage(lang));
+      path = (String) bot2.get("path");
+      lang = (String) bot2.get("language");
+
+      plyr2 = new Player(path, getLanguage(lang));
+      
+    }
+     
     
-    // arg[0] will be "testarena" or "tournament"
-    // arg[1] will be a JSON string containing all other information.
-    //  The info for the test arena is specified below.
-    if (args[0].equals("testarena")) {
-      JSONObject parsed = (JSONObject)JSONValue.parse(args[1]);
-      JSONObject bot1 = (JSONObject)parsed.get("bot1");
-      JSONObject bot2 = (JSONObject)parsed.get("bot2");
-      System.err.println("ARGUMENT: " + args[1]);
-      System.err.println("PARSED_ARGUMENT: " + parsed);
-      System.err.println("NUMBER_OF_BOTS: " + parsed.get("numberOfBots"));
-      System.err.println("BOT1: " + bot1);
-      System.err.println("BOT1_LANGUAGE: " + bot1.get("language"));
-      System.err.println("BOT1_PATH: " + bot1.get("path"));
-      if (bot2 != null) {
-        System.err.println("BOT2: " + bot2);
-        System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
-        System.err.println("BOT2_PATH: " + bot2.get("path"));
-      }
-    }
-    else if (args[0].equals("tournament")) {
-      System.err.println("Torunament isnt implemented");
-    }
-    else {
-      // Just exit, maybe throw an exception.
-    }
+
+    ArenaGameInstance arenaGame = new ArenaGameInstance(plyr1, plyr2);
     
+    arenaGame.runArenaGame();
+  }
+  
+  private static Language getLanguage(String lang) {
+    if(lang.equals("java")) {
+      return Language.JAVA;
+    } else if( lang.equals("c++")) {
+      return Language.CPP;
+    } else {
+      return Language.INVALID;
+    }
+  }
+
+  private static void printJSONInfo(String[] args, JSONObject parsed, JSONObject bot1,
+      JSONObject bot2) {
+    System.err.println("ARGUMENT: " + args[1]);
+    System.err.println("PARSED_ARGUMENT: " + parsed);
+    System.err.println("NUMBER_OF_BOTS: " + parsed.get("numberOfBots"));
+    System.err.println("BOT1: " + bot1);
+    System.err.println("BOT1_LANGUAGE: " + bot1.get("language"));
+    System.err.println("BOT1_PATH: " + bot1.get("path"));
+    if (bot2 != null) {
+      System.err.println("BOT2: " + bot2);
+      System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
+      System.err.println("BOT2_PATH: " + bot2.get("path"));
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  public static void test() {
     /* With one bot (e.g. bot v human test arena) -- human is always player 2
      * ARGUMENT: 
      *      {   "numberOfBots":1,
@@ -94,30 +172,7 @@ public class ArenaGameManager {
     
     // Exit because we sent the final gameState and are done.
     
-    /*  Other code.
-    if (args.length < 2) {
-      System.err.println("Must supplie arguments of bot path and username.");
-      System.exit(1);
-    }
-
-    String botPath = args[0];
-    String username = args[1];
-    Player bot = null;
-
-    System.out.flush();
-    try {
-      bot = new Player(botPath, "rvh5220");
-    } catch (IOException e) {
-      System.out.println("An Exception was thrown.");
-    }
-    
-    ArenaGameInstance arenaGame = new ArenaGameInstance(bot);
-    
-    arenaGame.runArenaGame();
-  */
-
   }
-
 
 
   public static String getHardCodedGameState(int stateNum) {
