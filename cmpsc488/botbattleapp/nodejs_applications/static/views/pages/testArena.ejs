@@ -56,7 +56,10 @@
         <input id="killCurrentGame" type="button" value="Kill Game" style="display: none">
         <div id="humanInput" class="form-item">
           <h4>Human Input</h4>
-          <textarea id="humanInput_stdin"></textarea>
+          <form name="humanInputForm" id="humanInputForm">
+          </form>
+          <!-- textarea id="humanInput_stdin"></textarea -->
+          <br>
           <button id="send_move">Send Move</button>
         </div>
       </div>
@@ -64,7 +67,7 @@
     </div>
     
     <div class="col-sm-8">
-      <canvas style="border: 1px solid" id="GameCanvas" width="1050" height="650"></canvas>
+      <canvas style="border: 1px solid; z-index:-1" id="GameCanvas" width="1050" height="650"></canvas>
     </div>
   </div> <!-- End Row -->
   
