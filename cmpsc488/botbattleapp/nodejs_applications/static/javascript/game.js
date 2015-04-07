@@ -647,8 +647,6 @@ var GameBoard = function() {
         form.appendChild(input); 
         var text = document.createTextNode(" " + i);
         form.appendChild(text);
-        //input = document.createElement("input");
-        //document.getElementById(("player2Tile" + i).toString()).innerHTML = i;  
         form.appendChild(document.createElement("br"));
       }
     }
@@ -662,8 +660,6 @@ var GameBoard = function() {
       form.appendChild(input); 
       var text = document.createTextNode("right");
       form.appendChild(text);
-      //input = document.createElement("input");
-      //document.getElementById("rightButton").innerHTML = "Right";
     }
     temp = document.getElementById("leftButton")
     if(temp === null){
@@ -675,8 +671,6 @@ var GameBoard = function() {
       form.appendChild(input); 
       var text = document.createTextNode("left");
       form.appendChild(text);
-      //input = document.createElement("input");
-      //document.getElementById("leftButton").innerHTML = "Left";
     }
   }
 }
