@@ -23,7 +23,7 @@ module.exports = {
         }
       });
       
-      // Gram the game module from the DB, and create a new game
+      // Grab the game module from the DB, and create a new game
       // In a multi-game module system this database call will need to be replaced with one for the
       //    game module selected by the client.
       database.queryForSystemGameModule(function(err, gameModule) {

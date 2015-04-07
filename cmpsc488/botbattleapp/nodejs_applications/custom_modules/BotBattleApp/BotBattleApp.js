@@ -77,9 +77,25 @@ function registerTestArenaRoutes(server, database) {
    * Requested the test arena page is requested
    */
   server.addDynamicRoute('get', '/', function(req, res) {
-    // TODO: Can support multiple game modules if pass a list along in future
-  	var locals = helpers.copyLocalsAndDeleteMessage(req.session);
-  	res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
+    // Grab the game module from the DB, and create a new game
+    // In a multi-game module system this database call will need to be replaced with one for the
+    //    game module selected by the client.
+    database.queryForSystemGameModule(function(err, gameModule) {
+      if (err) {
+        logger.log("BotBattleApp", 
+            helpers.getLogMessageAboutGame("NotCreatedYet", "Failed to load test arena because system game module couldn't be found: ", err.message));
+        res.status(500).send("An unexpected error occured while loading the test arena. Please see your administrator if this problem persists.");
+      }
+      else {
+        //console.log(gameModule);
+        
+        // TODO: Can support multiple game modules if pass a list along in future
+        var locals = helpers.copyLocalsAndDeleteMessage(req.session);
+        //locals.gameJavascriptFile = gameModule.gameJavascriptFile;
+        locals.gameJavascriptUrl = "/static/javascript/game.js";
+        res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
+      }
+    });
   });
 
 
