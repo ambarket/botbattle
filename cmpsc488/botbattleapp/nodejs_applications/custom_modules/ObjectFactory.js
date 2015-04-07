@@ -8,13 +8,14 @@ User.newInstance = function(username, password, group) {
   return new User(username, password, group);
 };
 
-function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
+function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFileDirectory, classFileDirectory, moveTimeout, gameJavascriptUrl) {
     this.gameName = gameName;
     this.directory = gameModuleDirectory;
     this.rulesFilePath = rulesFilePath;
-    this.sourceFilePath = sourceFilePath;
-    this.classFilePath = classFilePath;
+    this.sourceFileDirectory = sourceFileDirectory;
+    this.classFileDirectory = classFileDirectory;
     this.moveTimeout = moveTimeout;
+    this.gameJavascriptUrl = gameJavascriptUrl;
 }
 GameModule.keyFieldName = 'gameName';
 GameModule.newInstance = function(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {

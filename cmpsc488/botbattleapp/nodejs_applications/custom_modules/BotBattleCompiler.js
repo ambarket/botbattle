@@ -38,6 +38,9 @@ function BotBattleCompiler() {
     directoryPath = path.resolve(folder, folderContentList[item]);
     // TODO: THis is terrible coding.
     sourceFiles.unshift("-classpath", paths.gameManagerJars);
+    sourceFiles.push("-d");
+    var outputDirectory = folder //TODO: Folder must be created first path.resolve(folder, "../", "GameManagerCompiled");
+    sourceFiles.push(outputDirectory);
     console.log("Compiling", sourceFiles);
     compilationProcess = spawn('javac', sourceFiles);
     compilationProcess
@@ -50,7 +53,7 @@ function BotBattleCompiler() {
           else
           {
             self.emit('complete', 'Compilation of ' + sourceFiles + ' successful!');
-            callback(null, sourceFiles)
+            callback(null, outputDirectory)
           }
         })
         .on('exit', function (code, signal) 

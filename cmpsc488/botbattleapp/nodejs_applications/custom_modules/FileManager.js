@@ -85,7 +85,8 @@ function FileManager(botBattleDatabase) {
     this.deleteInitConfigTmp = function(callback) {
       self.removeFileOrFolder(paths.init_config_tmp, callback);
     }
-    /*
+    
+    
     this.createDirectoryForGameModule = function(gameName, callback) {
       var path = require('path');
       var newDirectoryPath = path.resolve(paths.local_storage.game_modules, gameName);
@@ -93,7 +94,7 @@ function FileManager(botBattleDatabase) {
         callback(err, newDirectoryPath);
       });
     }
-    */
+    
     
     this.createDirectoryForPrivateTournament = function(tournamentName, callback) {
       var path = require('path');

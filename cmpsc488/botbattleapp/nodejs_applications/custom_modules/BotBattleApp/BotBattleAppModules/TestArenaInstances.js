@@ -144,22 +144,15 @@ module.exports = new (function() {
         return false;
       } 
       else {
-        if (!testArenaInstances[id].gameModule.classFilePath) {
+        if (!testArenaInstances[id].gameModule.classFileDirectory) {
           logger.log("TestArenaInstances", 
-              helpers.getLogMessageAboutGame(id, "Path to GameManager classFile is null, cannot spawn"));
+              helpers.getLogMessageAboutGame(id, "Path to GameManager classFiles is null, cannot spawn"));
           return false;
         } 
         else {
           // Update expiration time after each action on this instance.
           testArenaInstances[id].resetExpirationTime();
           var workingGamePath = path.resolve(paths.local_storage.test_arena_tmp, id);
-          // TODO: This should be using gameModule.classFilePath. Currently gameModule.classFilePath is being set to the list of source files.
-          //    This is bad since the regular compile for a single file that we used for bots returns the actual compiled file. 
-          //    Instead of using the classpath argument it should probably just use the full absolute path to the GameManager class file.
-          //    Which should be returned by the callback in BotBattleCompiler.compileDIrectory method.
-          //    By default I believe it will search for the other class files in the same directory.
-          var classPath = path.resolve(paths.local_storage.game_modules + "/"
-              + testArenaInstances[id].gameModule.gameName);
 
           var jsonArgument = {};
           jsonArgument.numberOfBots = testArenaInstances[id].numberOfBots;
@@ -181,7 +174,7 @@ module.exports = new (function() {
           }
 
           //testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
-          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerJars + ":" + classPath, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
+          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerJars + ":" + testArenaInstances[id].gameModule.classFileDirectory, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
           testArenaInstances[id].gameState = "running";
 
           logger.log("TestArenaInstances", 
