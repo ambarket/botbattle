@@ -215,9 +215,28 @@
    //----------------------------------Send Move------------------------------------
 // Valid events are 'success', 'expiredID', and 'noGameRunning' anything else will be treated as unexpected
    document.getElementById("send_move").addEventListener('click', function(ev) {
+     var data;// = new FormData(document.forms.namedItem("humanInputForm"));
+     $.fn.serializeObject = function()
+     {
+         var o = {};
+         var a = this.serializeArray();
+         $.each(a, function() {
+             if (o[this.name] !== undefined) {
+                 if (!o[this.name].push) {
+                     o[this.name] = [o[this.name]];
+                 }
+                 o[this.name].push(this.value || '');
+             } else {
+                 o[this.name] = this.value || '';
+             }
+         });
+         return o;
+     };
+     data = (JSON.stringify($('form[name="humanInputForm"]').serializeObject()));
      var req = new XMLHttpRequest();
-     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput_stdin").value, true);
-    
+     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + data, true);
+     //req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput_stdin").value, true);
+     //req.open("POST", "sendMove/?id=" + TEST_ARENA.myId, true);
      req.onload = function(event) {
        console.log(req.responseText);
        try {
