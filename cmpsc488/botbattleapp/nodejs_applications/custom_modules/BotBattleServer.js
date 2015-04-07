@@ -246,6 +246,21 @@ module.exports = function BotBattleServer() {
     self.addStaticFolderRoute('/static/javascript', paths.static_content.javascript);
     self.addStaticFolderRoute('/static/images', paths.static_content.images);
     self.addStaticFolderRoute('/static/icons', paths.static_content.icons);
+    
+    var path = require('path');
+    // Note if its an absolute path (starts with '/') then resolve will ignore the paths.app_root part
+    
+    self.addDynamicRoute('get', /^\/game\/(.*)\/images/, function(req, res) {
+      // To get the filePath just strip /game/ off and append to game_modules directory.
+      var resolvedFilePath = path.join(paths.local_storage.game_modules, req.url.substring(6));
+      res.sendFile(resolvedFilePath);
+    });
+    
+    self.addDynamicRoute('get', /^\/game\/(.*)\/javascript/, function(req, res) {
+      // To get the filePath just strip /game/ off and append to game_modules directory.
+      var resolvedFilePath = path.join(paths.local_storage.game_modules, req.url.substring(6));
+      res.sendFile(resolvedFilePath);
+    });
   }
 }
 
