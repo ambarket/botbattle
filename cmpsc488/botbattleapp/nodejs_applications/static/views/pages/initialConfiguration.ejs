@@ -67,6 +67,20 @@
 				</label> <input name="gameName" type="text" maxlength="100"
 					size="30" value="SuperAwesomeFunGame" required></input>
 			</div>
+      
+      <div class="form-item">
+        <label id="title" for="gameMoveTimeout"> Game Move Timeout <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="gameMoveTimeout" type="number"   value=30 ></input>
+          <p></p>
+      </div>
+          
+      <div class="form-item">
+        <label id="title" for="gameRules"> Game Rules (.pdf) <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="gameRules" type="file" ></input>
+          <p></p>
+      </div>
 			
 			<!-- https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications -->
 			<div class="form-item">
@@ -75,20 +89,21 @@
 				</label> <input name="gameSource" type="file" ></input>
 					<p></p>
 			</div>
-			
-			<div class="form-item">
-				<label id="title" for="gameRules"> Game Rules <span
-					class="form-required" title="This field is required."> * </span>
-				</label> <input name="gameRules" type="file" ></input>
-					<p></p>
-			</div>
-			
-			<div class="form-item">
-        <label id="title" for="gameMoveTimeout"> Game Move Timeout <span
+      
+      <div class="form-item">
+        <label id="title" for="gameJavascript"> Game Module Javascript (.js)<span
           class="form-required" title="This field is required."> * </span>
-        </label> <input name="gameMoveTimeout" type="number"   value=30 ></input>
+        </label> <input name="gameJavascript" type="file" ></input>
           <p></p>
       </div>
+      
+      <div class="form-item">
+        <label id="title" for="gameResources"> Game Module Resources (.zip) <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="gameResources" type="file"></input>
+          <p>Any resources needed by the game's javascript. These will be unzipped and made available at /game/[Game Name]/resources/</p>
+      </div>
+      
 			<hr>
 			<h1>Tournament Setup</h1>
 			<div class="form-item">

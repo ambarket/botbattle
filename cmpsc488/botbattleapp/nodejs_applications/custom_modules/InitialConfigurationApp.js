@@ -284,8 +284,8 @@ function InitialConfigurationApp(initConfigAppServer) {
 
   function initGameModuleTask2_MoveGameRulesAndSourceIntoNewDirectory(tmpData, initGameModuleTask2Callback) {
     var path = require('path');
-    var newRulesFilePath = path.resolve(tmpData.newDirectoryPath, "Rules", tmpData.gameRulesFile.name);
-    var newSourceFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameSourceFile.name);
+    var newRulesFilePath = path.resolve(tmpData.newDirectoryPath, "Rules", tmpData.gameRulesFile.originalname);
+    var newSourceFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameSourceFile.originalname);
     fileManager.moveFile(tmpData.gameRulesFile.path, newRulesFilePath, function(err) {
       if (err) {
         err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
@@ -435,87 +435,17 @@ function InitialConfigurationApp(initConfigAppServer) {
     initConfigAppServer.addDynamicRoute('get', '/', function(req, res) {
       res.render('pages/initialConfiguration');
     });
-    /*
-    initConfigAppServer.addStaticFileRoute('/', paths.static_content.html
-        + 'initialConfiguration.html');
-    */
+
     var multer = require('multer');
-    initConfigAppServer
-        .addDynamicRoute(
-            'post',
-            '/processInitialConfiguration',
+    initConfigAppServer.addDynamicRoute('post','/processInitialConfiguration',
             multer({
               dest : paths.init_config_tmp,
               limits : {
                 fieldNameSize : 100,
-              // files: 2,
-              // fields: 5
-              // fieldNameSize - integer - Max field name size (Default: 100
-              // bytes)
-              // fieldSize - integer - Max field value size (Default: 1MB)
-              // fields - integer - Max number of non-file fields (Default:
-              // Infinity)
-              // fileSize - integer - For multipart forms, the max file size (in
-              // bytes)
-              // (Default: Infinity)
-              // files - integer - For multipart forms, the max number of file
-              // fields
-              // (Default: Infinity)
-              // parts - integer - For multipart forms, the max number of parts
-              // (fields
-              // + files) (Default: Infinity)
-              // headerPairs - integer - For multipart forms, the max number of
-              // header
-              // key=>value pairs to parse Default: 2000 (same as node's http).
               },
-              // putSingleFilesInArray: true, // this needs doen for future
-              // compat. but
-              // will break current multiproto.
-              rename : function(fieldname, filename) {
-                return filename;
-              },
+              putSingleFilesInArray: true, 
               onFileUploadStart : function(file, req, res) {
                 logger.log(file.fieldname + ' is starting ...');
-                var javaRE = /.*\.java/;
-                if (file.fieldname == 'gameSource') {
-                  if (file.name.match(javaRE)) {
-                    logger.log(file.fieldname + ':' + file.name
-                        + ' is a .java file, uploading will continue');
-                    self.emit('status_update',
-                        'Verified game module is a java file');
-                  } else {
-                    console
-                        .log(file.fieldname
-                            + ':'
-                            + file.name
-                            + ' is a NOT .java file, this file will not be uploaded');
-                    self
-                        .emit('config_error',
-                            'Error during form submission: Game module source is not a .java file');
-                    // Returning false cancels the upload.
-                    return false;
-                  }
-                }
-                var pdfRE = /.*\.pdf/;
-                if (file.fieldname == 'gameRules') {
-                  if (file.name.match(pdfRE)) {
-                    logger.log(file.fieldname + ':' + file.name
-                        + ' is a .pdf file, uploading will continue');
-                    self.emit('status_update',
-                        'Verified game rules is a pdf file');
-                  } else {
-                    console
-                        .log(file.fieldname
-                            + ':'
-                            + file.name
-                            + ' is a NOT .pdf file, this file will not be uploaded');
-                    self
-                        .emit('config_error',
-                            'Error during form submission: Game rules is not a .pdf file');
-                    // Returning false cancels the upload.
-                    return false;
-                  }
-                }
               },
               onFileUploadComplete : function(file, req, res) {
                 logger.log(file.fieldname + ' uploaded to  ' + file.path);
@@ -557,16 +487,18 @@ function InitialConfigurationApp(initConfigAppServer) {
             adminPassword : sanitizer.sanitize(req.body.adminPassword),
             // game module parameters
             gameName : sanitizer.sanitize(req.body.gameName),
-            gameSource : req.files.gameSource,
-            gameRules : req.files.gameRules,
             gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
+            gameRules : req.files.gameRules[0],
+            gameSource : req.files.gameSource[0],
+            gameJavascript : req.files.gameJavascript[0],
+            gameResources : req.files.gameResources[0],
             // tournament parameters
             tournamentName : sanitizer.sanitize(req.body.tournamentName),
-            studentList : req.files.studentList,
+            studentList : req.files.studentList[0],
             tournamentDeadline : sanitizer
                 .sanitize(req.body.tournamentDeadline),
           };
-          
+          console.log(sanitizedFormData);
           var valid = verifyAllFieldsWereSubmitted();
           if (valid) {
             valid = verifyAllFieldsMatchRegex();
@@ -604,26 +536,19 @@ function InitialConfigurationApp(initConfigAppServer) {
       }
     }
     
-    if (valid && (sanitizedFormData.gameSource.name === sanitizedFormData.gameRules.name || 
-        sanitizedFormData.gameSource.name === sanitizedFormData.studentList.name || 
-        sanitizedFormData.gameRules.name === sanitizedFormData.studentList.name)) {
-      valid = false;
-      self.emit('config_error', 'Game Module Source, Game Rules, and Student List must have unique file names');
-    }
     return valid;
   }
   
   function verifyAllFieldsMatchRegex() {
     var inputValidator = require(paths.custom_modules.InputValidator).newInstance();
     var valid = true;
+    
+    //-------------------------------Database Configuration------------------------
     if (!inputValidator.isIPAddressOrHostName(sanitizedFormData.databaseHost)) {
       self.emit('config_error', 'Invalid database host');
       var valid = false;
     }
-    if (!inputValidator.isCorrectGameName(sanitizedFormData.gameSource.name)) {
-      self.emit('config_error', 'Game Module Source must be named Game.java');
-      var valid = false;
-    }
+
     if (!inputValidator.isPortNumber(sanitizedFormData.databasePort)) {
       self.emit('config_error', 'Invalid database port');
       var valid = false;
@@ -640,6 +565,8 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Invalid database password, must be atleast 4 characters and contain atleast one number');
       var valid = false;
     }
+    
+    //-------------------------------Admin User------------------------
     if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.adminUserName)) {
       self.emit('config_error', 'Invalid admin username, must be alphanumeric with atleast 4 and no more than 35 characters');
       var valid = false;
@@ -648,14 +575,40 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Invalid admin password, must be atleast 4 characters and contain atleast one number');
       var valid = false;
     }
+   
+    //-------------------------------Game Setup------------------------
     if (!inputValidator.is4to35Char(sanitizedFormData.gameName)) {
       self.emit('config_error', 'Invalid game module name, must be alphanumeric with atleast 4 and no more than 35 characters');
       var valid = false;
     }
+    console.log(sanitizedFormData.gameSource);
+    console.log(sanitizedFormData.gameSource.originalname);
+    if (!inputValidator.isCorrectGameName(sanitizedFormData.gameSource.originalname)) {
+      self.emit('config_error', 'Game Module Source must be named Game.java');
+      var valid = false;
+    }
+    
+    if (!inputValidator.isPdfFile(sanitizedFormData.gameRules.originalname)) {
+      self.emit('config_error', 'Game Module Rules file must have a .pdf extension');
+      var valid = false;
+    }
+    console.log(sanitizedFormData);
+    if (!inputValidator.isJavascriptFile(sanitizedFormData.gameJavascript.originalname)) {
+      self.emit('config_error', 'Game Module Javascript file must have a .js extension');
+      var valid = false;
+    }
+    
+    if (!inputValidator.isZipFile(sanitizedFormData.gameJavascript.originalname)) {
+      self.emit('config_error', 'Game Module Resources file must have a .zip extension');
+      var valid = false;
+    }
+    
     if (!inputValidator.isMoveTimeout(sanitizedFormData.gameMoveTimeout)) {
       self.emit('config_error', 'Invalid game move timeout, must be a number of seconds between 0 and 300');
       var valid = false;
     }
+    
+    //-------------------------------Torunament Setup------------------------
     if (!inputValidator.is4to35Char(sanitizedFormData.tournamentName)) {
       self.emit('config_error', 'Invalid tournament name, must be alphanumeric with atleast 4 and no more than 35 characters');
       var valid = false;

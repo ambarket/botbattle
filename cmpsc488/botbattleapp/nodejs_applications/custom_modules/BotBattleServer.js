@@ -250,7 +250,7 @@ module.exports = function BotBattleServer() {
     var path = require('path');
     // Note if its an absolute path (starts with '/') then resolve will ignore the paths.app_root part
     
-    self.addDynamicRoute('get', /^\/game\/(.*)\/images/, function(req, res) {
+    self.addDynamicRoute('get', /^\/game\/(.*)\/resources/, function(req, res) {
       // To get the filePath just strip /game/ off and append to game_modules directory.
       var resolvedFilePath = path.join(paths.local_storage.game_modules, req.url.substring(6));
       res.sendFile(resolvedFilePath);
