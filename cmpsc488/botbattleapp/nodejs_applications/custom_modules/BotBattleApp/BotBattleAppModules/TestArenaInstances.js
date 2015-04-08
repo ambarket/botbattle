@@ -144,7 +144,7 @@ module.exports = new (function() {
         return false;
       } 
       else {
-        if (!testArenaInstances[id].gameModule.classFileDirectory) {
+        if (!testArenaInstances[id].gameModule.directories.gameManagerCompiled) {
           logger.log("TestArenaInstances", 
               helpers.getLogMessageAboutGame(id, "Path to GameManager classFiles is null, cannot spawn"));
           return false;
@@ -174,7 +174,7 @@ module.exports = new (function() {
           }
 
           //testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
-          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerJars + ":" + testArenaInstances[id].gameModule.directors.gameManagerCompiled, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
+          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerJars + ":" + testArenaInstances[id].gameModule.directories.gameManagerCompiled, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
           testArenaInstances[id].gameState = "running";
 
           logger.log("TestArenaInstances", 

@@ -61,48 +61,83 @@
       <hr>
 		
 			<h1>Game Setup</h1>
-			<div class="form-item">
-				<label id="title" for="gameName"> Game Name<span
-					class="form-required" title="This field is required."> * </span>
-				</label> <input name="gameName" type="text" maxlength="100"
-					size="30" value="SuperAwesomeFunGame" required></input>
-			</div>
+      <div class="form-item">
+        <label id="title" for="gameSelect"> Select Game Module <span
+          class="form-required" title="This field is required."> * </span>
+        </label> 
+        <div style="display:inline-block"> 
+          Save The Island <input id = "saveTheIslandRadio" name="gameSelect" display="inline" type="radio" value="saveTheIsland" checked="checked" required></input>
+          Custom Game Upload <input id = "customGameRadio" name="gameSelect" type="radio" value="customGame" required></input>
+        </div>
       
-      <div class="form-item">
-        <label id="title" for="gameMoveTimeout"> Game Move Timeout <span
-          class="form-required" title="This field is required."> * </span>
-        </label> <input name="gameMoveTimeout" type="number"   value=30 ></input>
-          <p></p>
+      <div id="customGameUpload" style="display:none">
+      <h2>Custom Game Upload</h1>
+  			<div class="form-item">
+  				<label id="title" for="gameName"> Game Name<span
+  					class="form-required" title="This field is required."> * </span>
+  				</label> <input id ="gameName" name="gameName" type="text" maxlength="100"
+  					size="30" value="SuperAwesomeFunGame" ></input>
+  			</div>
+        
+        <div class="form-item">
+          <label id="title" for="gameMoveTimeout"> Game Move Timeout (seconds)<span
+            class="form-required" title="This field is required."> * </span>
+          </label> <input id ="gameMoveTimeout" name="gameMoveTimeout" type="number" value=30 ></input>
+            <p></p>
+        </div>
+            
+        <div class="form-item">
+          <label id="title" for="gameRules"> Game Rules (.pdf) <span
+            class="form-required" title="This field is required."> * </span>
+          </label> <input id="gameRules" name="gameRules" type="file" ></input>
+            <p></p>
+        </div>
+  			
+  			<!-- https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications -->
+  			<div class="form-item">
+  				<label id="title" for="gameSource"> Game Module Source (.java)<span
+  					class="form-required" title="This field is required."> * </span>
+  				</label> <input id="gameSource" name="gameSource" type="file" ></input>
+  					<p></p>
+  			</div>
+        
+        <div class="form-item">
+          <label id="title" for="gameJavascript"> Game Module Javascript (.js)<span
+            class="form-required" title="This field is required."> * </span>
+          </label> <input id="gameJavascript" name="gameJavascript" type="file" ></input>
+            <p></p>
+        </div>
+        
+        <div class="form-item">
+          <label id="title" for="gameResources"> Game Module Resources (.zip) <span
+            class="form-required" title="This field is required."> * </span>
+          </label> <input id="gameResources" name="gameResources" type="file" ></input>
+            <p>Any resources needed by the game's javascript. These will be unzipped and made available at /game/[Game Name]/resources/</p>
+        </div>
       </div>
-          
-      <div class="form-item">
-        <label id="title" for="gameRules"> Game Rules (.pdf) <span
-          class="form-required" title="This field is required."> * </span>
-        </label> <input name="gameRules" type="file" ></input>
-          <p></p>
-      </div>
-			
-			<!-- https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications -->
-			<div class="form-item">
-				<label id="title" for="gameSource"> Game Module Source (.java)<span
-					class="form-required" title="This field is required."> * </span>
-				</label> <input name="gameSource" type="file" ></input>
-					<p></p>
-			</div>
       
-      <div class="form-item">
-        <label id="title" for="gameJavascript"> Game Module Javascript (.js)<span
-          class="form-required" title="This field is required."> * </span>
-        </label> <input name="gameJavascript" type="file" ></input>
-          <p></p>
-      </div>
+      <script> // Listen for Game Module Select radio buttons
+        document.getElementById('saveTheIslandRadio').addEventListener("click", function() {
+          document.getElementById("customGameUpload").style.display = "none";
+          document.getElementById("gameName").required = false;
+          document.getElementById("gameMoveTimeout").required = false;
+          document.getElementById("gameRules").required = false;
+          document.getElementById("gameSource").required = false;
+          document.getElementById("gameJavascript").required = false;
+          document.getElementById("gameResources").required = false; 
+        });
+        document.getElementById('customGameRadio').addEventListener("click", function() {
+          document.getElementById("customGameUpload").style.display = "block";
+          document.getElementById("gameName").required = true;
+          document.getElementById("gameMoveTimeout").required = true;
+          document.getElementById("gameRules").required = true;
+          document.getElementById("gameSource").required = true;
+          document.getElementById("gameJavascript").required = true;
+          document.getElementById("gameResources").required = true; 
+        });
+      </script>
       
-      <div class="form-item">
-        <label id="title" for="gameResources"> Game Module Resources (.zip) <span
-          class="form-required" title="This field is required."> * </span>
-        </label> <input name="gameResources" type="file"></input>
-          <p>Any resources needed by the game's javascript. These will be unzipped and made available at /game/[Game Name]/resources/</p>
-      </div>
+
       
 			<hr>
 			<h1>Tournament Setup</h1>

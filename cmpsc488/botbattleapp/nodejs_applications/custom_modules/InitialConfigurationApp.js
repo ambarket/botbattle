@@ -265,7 +265,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         initGameModuleTask1Callback(err);
       } else {
         self.emit('progress_update', 64);
-        self.emit('status_update', '&nbsp&nbsp Directories for game module created at ' + directories);
+        self.emit('status_update', '&nbsp&nbsp Game module directories successfully created');
         
         tmpData.newDirectories = directories;
         initGameModuleTask1Callback(null, tmpData);
@@ -282,7 +282,7 @@ function InitialConfigurationApp(initConfigAppServer) {
         initGameModuleTask2ACallback(err);
       } else {
         var newSourceFilePath = path.join(tmpData.newDirectories.gameManagerSource, tmpData.gameSourceFile.originalname);
-        fileManager.moveFile(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
+        fileManager.copyFileOrFolder(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
           if (err) {
             err.message = "Failed to move '" + tmpData.gameSourceFile.path + "' to " + newSourceFilePath  + '\n' + err.message;
             initGameModuleTask2ACallback(err)
@@ -300,7 +300,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     var path = require('path');
     tmpData.newRulesFilePath = path.resolve(tmpData.newDirectories.rules, tmpData.gameRulesFile.originalname);
     
-    fileManager.moveFile(tmpData.gameRulesFile.path, tmpData.newRulesFilePath, function(err) {
+    fileManager.copyFileOrFolder(tmpData.gameRulesFile.path, tmpData.newRulesFilePath, function(err) {
       if (err) {
         err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
         initGameModuleTask2BCallback(err)
@@ -316,7 +316,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     var path = require('path');
     tmpData.javascriptFilePath = path.resolve(tmpData.newDirectories.javascript, tmpData.gameJavascriptFile.originalname);
 
-    fileManager.moveFile(tmpData.gameJavascriptFile.path, tmpData.javascriptFilePath, function(err) {
+    fileManager.copyFileOrFolder(tmpData.gameJavascriptFile.path, tmpData.javascriptFilePath, function(err) {
       if (err) {
         err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameJavascriptFile.path + "' to " + tmpData.javascriptFilePath + '\n' + err.message;
         initGameModuleTask2CCallback(err)
@@ -522,6 +522,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             adminUserName : sanitizer.sanitize(req.body.adminUserName),
             adminPassword : sanitizer.sanitize(req.body.adminPassword),
             // game module parameters
+            gameSelect : sanitizer.sanitize(req.body.gameSelect),
             gameName : sanitizer.sanitize(req.body.gameName),
             gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
             gameRules : (req.files.gameRules) ? req.files.gameRules[0] : undefined,
@@ -535,6 +536,12 @@ function InitialConfigurationApp(initConfigAppServer) {
                 .sanitize(req.body.tournamentDeadline),
           };
           console.log(sanitizedFormData);
+          
+          if (sanitizedFormData.gameSelect === 'saveTheIsland') {
+            loadSaveTheIsland(sanitizedFormData);
+            
+          }
+          
           var valid = verifyAllFieldsWereSubmitted();
           if (valid) {
             valid = verifyAllFieldsMatchRegex();
@@ -561,6 +568,38 @@ function InitialConfigurationApp(initConfigAppServer) {
           res.end();
         });
   })();
+  
+  function loadSaveTheIsland(sanitizedFormData) {
+    sanitizedFormData.gameName = "SaveTheIsland";
+    sanitizedFormData.gameMoveTimeout = "30";
+    sanitizedFormData.gameRules = 
+     { fieldname: 'gameRules',
+       originalname: 'SaveTheIslandGameRules.pdf',
+       name: 'SaveTheIslandGameRules.pdf',
+       path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/SaveTheIslandGameRules.pdf',
+       extension: 'pdf',
+     };
+    sanitizedFormData.gameSource = 
+       { fieldname: 'gameSource',
+         originalname: 'Game.java',
+         name: 'Game.java',
+         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/Game.java',
+         extension: 'java',
+       };
+    sanitizedFormData.gameJavascript =
+       { fieldname: 'gameJavascript',
+         originalname: 'game.js',
+         name: 'game.js',
+         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/game.js',
+       };
+    sanitizedFormData.gameResources = 
+       { fieldname: 'gameResources',
+         originalname: 'resources.zip',
+         name: 'resources.zip',
+         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/resources.zip',
+         extension: 'zip'
+       };
+  }
   
   function verifyAllFieldsWereSubmitted() {
     var valid = true;

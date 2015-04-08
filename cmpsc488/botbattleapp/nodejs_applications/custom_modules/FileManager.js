@@ -99,7 +99,7 @@ function FileManager(botBattleDatabase) {
           resources : path.join(paths.local_storage.game_modules, gameName, "resources"),
       }
       var array = Object.keys(directories).map(function (key) {return directories[key]});
-      console.log("Array: ", array);
+
       
       async.each(array, createFolder, function(err) {
         if (err) {
@@ -107,15 +107,10 @@ function FileManager(botBattleDatabase) {
           callback(err);
         }
         else {
-          logger.log("Game Module folders successfully created");
+          logger.log("FileManager", "New Game Module Directories created at", directories);
           callback(null, directories);
         }
       });
-      /*
-      createFolder(newDirectoryPath, function(err, data) {
-        callback(err, newDirectoryPath);
-      });
-      */
     }
     
     
