@@ -74,7 +74,7 @@ function registerGameResourceRoutes(server, database) {
             //var resolvedFilePath = path.join(gameModule.resourcesDirectory, );
             //res.sendFile(resolvedFilePath);
             var fileName = req.url.substring(req.url.indexOf('resources/') + 10);
-            res.sendFile(fileName, { root: gameModule.resourcesDirectory }, function (err) {
+            res.sendFile(fileName, { root: gameModule.directories.resources }, function (err) {
               if (err) {
                 logger.log("BotBattleApp", "Failed to serve request for", req.url, ", likely this file doesn't exist on the file system.", err.message);
                 res.status(404).send("Failed to find the requested resource. Please see your administrator if this problem persists.");

@@ -88,11 +88,34 @@ function FileManager(botBattleDatabase) {
     
     
     this.createDirectoryForGameModule = function(gameName, callback) {
+      var async = require('async');
       var path = require('path');
-      var newDirectoryPath = path.resolve(paths.local_storage.game_modules, gameName);
+      var directories = {
+          root : path.join(paths.local_storage.game_modules, gameName),
+          gameManagerSource : path.join(paths.local_storage.game_modules, gameName, "GameManagerSource"),
+          gameManagerCompiled : path.join(paths.local_storage.game_modules, gameName, "GameManagerCompiled"),
+          rules : path.join(paths.local_storage.game_modules, gameName, "rules"),
+          javascript : path.join(paths.local_storage.game_modules, gameName, "javascript"),
+          resources : path.join(paths.local_storage.game_modules, gameName, "resources"),
+      }
+      var array = Object.keys(directories).map(function (key) {return directories[key]});
+      console.log("Array: ", array);
+      
+      async.each(array, createFolder, function(err) {
+        if (err) {
+          err.message += " Failed to create game module folders";
+          callback(err);
+        }
+        else {
+          logger.log("Game Module folders successfully created");
+          callback(null, directories);
+        }
+      });
+      /*
       createFolder(newDirectoryPath, function(err, data) {
         callback(err, newDirectoryPath);
       });
+      */
     }
     
     
