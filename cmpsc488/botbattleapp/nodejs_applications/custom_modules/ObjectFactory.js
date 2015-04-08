@@ -8,18 +8,19 @@ User.newInstance = function(username, password, group) {
   return new User(username, password, group);
 };
 
-function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFileDirectory, classFileDirectory, moveTimeout, gameJavascriptUrl) {
+function GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFileDirectory, classFileDirectory, moveTimeout, javascriptFilePath, resourcesDirectory) {
     this.gameName = gameName;
     this.directory = gameModuleDirectory;
     this.rulesFilePath = rulesFilePath;
     this.sourceFileDirectory = sourceFileDirectory;
     this.classFileDirectory = classFileDirectory;
     this.moveTimeout = moveTimeout;
-    this.gameJavascriptUrl = gameJavascriptUrl;
+    this.javascriptFilePath = javascriptFilePath;
+    this.resourcesDirectory = resourcesDirectory;
 }
 GameModule.keyFieldName = 'gameName';
-GameModule.newInstance = function(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout) {
-  return new GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFilePath, classFilePath, moveTimeout);
+GameModule.newInstance = function(gameName, gameModuleDirectory, rulesFilePath, sourceFileDirectory, classFileDirectory, moveTimeout, javascriptFilePath, resourcesDirectory)  {
+  return new GameModule(gameName, gameModuleDirectory, rulesFilePath, sourceFileDirectory, classFileDirectory, moveTimeout, javascriptFilePath, resourcesDirectory) ;
 };
 
 function Tournament(tournamentName, tournamentDirectory, gameName, uploadDeadline, usersArray, state) {

@@ -299,14 +299,14 @@ function InitialConfigurationApp(initConfigAppServer) {
   
   function initGameModuleTask2B_MoveGameRulesIntoNewDirectory(tmpData, initGameModuleTask2BCallback) {
     var path = require('path');
-    tmpData.newRulesFilePath = path.resolve(tmpData.newGameModuleDirectory, "Rules", tmpData.gameRulesFile.originalname);
-
+    tmpData.newRulesFilePath = path.resolve(tmpData.newGameModuleDirectory, "rules", tmpData.gameRulesFile.originalname);
+    
     fileManager.moveFile(tmpData.gameRulesFile.path, tmpData.newRulesFilePath, function(err) {
       if (err) {
         err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
         initGameModuleTask2BCallback(err)
       } else {
-        self.emit('progress_update', 68);
+        self.emit('progress_update', 65);
         self.emit('status_update', '&nbsp&nbsp Successfully moved rules file into game module directory');
         initGameModuleTask2BCallback(null, tmpData);
       }
@@ -315,14 +315,14 @@ function InitialConfigurationApp(initConfigAppServer) {
   
   function initGameModuleTask2C_MoveGameJavascriptIntoNewDirectory(tmpData, initGameModuleTask2CCallback) {
     var path = require('path');
-    tmpData.newJavacriptFilePath = path.resolve(tmpData.newGameModuleDirectory, "javascript", tmpData.gameJavascriptFile.originalname);
-    tmpData.gameJavascriptUrl = "/game/" + tmpData.gameName + "/javascript/" + tmpData.gameJavascriptFile.originalname;
-    fileManager.moveFile(tmpData.gameJavascriptFile.path, tmpData.newJavacriptFilePath, function(err) {
+    tmpData.javascriptFilePath = path.resolve(tmpData.newGameModuleDirectory, "javascript", tmpData.gameJavascriptFile.originalname);
+
+    fileManager.moveFile(tmpData.gameJavascriptFile.path, tmpData.javascriptFilePath, function(err) {
       if (err) {
-        err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameJavascriptFile.path + "' to " + tmpData.newJavacriptFilePath + '\n' + err.message;
+        err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameJavascriptFile.path + "' to " + tmpData.javascriptFilePath + '\n' + err.message;
         initGameModuleTask2CCallback(err)
       } else {
-        self.emit('progress_update', 68);
+        self.emit('progress_update', 66);
         self.emit('status_update', '&nbsp&nbsp Successfully moved game javascript file into game module directory');
         initGameModuleTask2CCallback(null, tmpData);
       }
@@ -377,11 +377,11 @@ function InitialConfigurationApp(initConfigAppServer) {
   }
 
   function initGameModuleTask4_InsertGameModuleDatabaseEntry(tmpData, callback) {
-  
     var gameModuleObject = objectFactory.GameModule.newInstance(
         tmpData.gameName, tmpData.newGameModuleDirectory, tmpData.newRulesFilePath,
         tmpData.newGameManagerSourceDirectory, tmpData.newGameManagerClassFileDirectory,
-        tmpData.gameTimeout, tmpData.gameJavascriptUrl);
+        tmpData.gameTimeout, tmpData.javascriptFilePath, tmpData.newResourcesDirectory);
+    //(gameName, gameModuleDirectory, rulesFilePath, sourceFileDirectory, classFileDirectory, moveTimeout, javascriptFilePath, resourcesDirectory) 
 
     database.insertGameModule(gameModuleObject, 
         function(err) {
