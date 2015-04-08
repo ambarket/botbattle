@@ -72,4 +72,50 @@ function flashStatusOrErrorMessage(type, message) {
   flashQueue.addNewMessage({'type' : type, 'message' : message});
 }
 
+/*  TODO: FInish this
+function logMessage(type, message) {
+  if (type === 'expirationWarning') {
+    flashStatusOrErrorMessage('warning', message);
+  }
+  else {
+    $('eventLog').html("");
+  }
+}
+*/
+
+//----------------------------------Error Handling------------------------------------
+function handleExpiredID() {
+  console.log("The record associated with your id has expired. Please upload new bots to continue.");
+  flashStatusOrErrorMessage('error', "The record associated with your id has expired. Please upload new bots to continue.");
+  TEST_ARENA.transitionPageToState('pageLoaded');
+}
+
+function handleServerError(origin, response) {
+  flashStatusOrErrorMessage('error', "A server error occurred while processing your request, if this problem persists see your administrator.");
+
+  TEST_ARENA.transitionPageToState('pageLoaded');
+  console.log("Server error in", origin, "Response:", response);
+}
+
+function handleClientError(origin, err) {
+  flashStatusOrErrorMessage('error', "A client error occurred while processing your request, if this problem persists see your administrator.");
+
+  TEST_ARENA.transitionPageToState('pageLoaded');
+  console.log("Client error in", origin, "Error:", err);
+}
+
+function handleNonSuccessHttpStatus(origin, status, response) {
+  flashStatusOrErrorMessage('error', "HTTP Error", status, "received while processing your request, if this problem persists see your administrator.");
+
+  TEST_ARENA.transitionPageToState('pageLoaded');
+  console.log("HTTP Error", status, "in", origin, "Response:", response);
+}
+
+function handleUnexpectedResponse(origin, response) {
+  flashStatusOrErrorMessage('error', "Unexpected response received while processing your request, if this problem persists see your administrator.");
+
+  TEST_ARENA.transitionPageToState('pageLoaded');
+  console.log("Unexpected response in", origin, "Response:", response);
+}
+
 

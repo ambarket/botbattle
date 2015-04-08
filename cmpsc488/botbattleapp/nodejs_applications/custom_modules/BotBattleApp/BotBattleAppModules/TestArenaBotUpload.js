@@ -28,8 +28,7 @@ module.exports = {
       //    game module selected by the client.
       database.queryForSystemGameModule(function(err, gameModule) {
         if (err) {
-          logger.log("TestArenaBotUpload", 
-              helpers.getLogMessageAboutGame("NotCreatedYet", "There was an error getting the system game module: ", err.message));
+          logger.log("TestArenaBotUpload", "There was an error getting the system game module while creating new test arena instance: ", err.message);
           res.json({'error' : "An unexpected error occured while uploading your bots. Please try again or see your administrator"});
         }
         else {

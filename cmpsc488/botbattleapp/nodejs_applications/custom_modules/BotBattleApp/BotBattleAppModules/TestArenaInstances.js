@@ -129,25 +129,26 @@ module.exports = new (function() {
     }); 
   }
   
-  
+  // Synchronous
+  // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
   this.spawnNewGameInstance = function(id) {
     var spawn = require('child_process').spawn;
     if (self.hasInstanceExpired(id)) {
       logger.log("TestArenaInstances", 
           helpers.getLogMessageAboutGame(id, "Invalid ID, cannot spawn game manager"));
-      return false;
+      return 'expiredID';
     } 
     else {
       if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
         logger.log("TestArenaInstances", 
             helpers.getLogMessageAboutGame(id, "Game Manager already running"));
-        return false;
+        return 'gameAlreadyRunning';
       } 
       else {
         if (!testArenaInstances[id].gameModule.directories.gameManagerCompiled) {
           logger.log("TestArenaInstances", 
               helpers.getLogMessageAboutGame(id, "Path to GameManager classFiles is null, cannot spawn"));
-          return false;
+          return 'gameManagerNotFound';
         } 
         else {
           // Update expiration time after each action on this instance.
@@ -230,13 +231,14 @@ module.exports = new (function() {
             }
             logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager threw the following error "  + err.message));
           });
-          return true;
+          return 'success';
         }
       }
     }
   }
   
   // Synchronous
+  // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
   this.sendMoveToGameInstanceById = function(id, move) {
     if (!self.hasInstanceExpired(id)) {
       testArenaInstances[id].resetExpirationTime();
@@ -257,8 +259,10 @@ module.exports = new (function() {
   
   // TODO: now that we use this in many places we should make a killSpawnedGame(id, callback) and a 
   //       deleteTestArenaInstance(id, callback) because all removals and cleanups are a combination of the two.
-  // TODO:  This shouldn't happen, but if the folder for an id is deleted before the game is then a call to this will just hang.
-  //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
+  // TODO: I considered making these synchronous since theres really no need for the client to wait for the
+  //    game kill to finish, and theres nothing it can do in the event that the kill fails for some reason.
+  //    THe only thing I'm not sure about is in the case of deleteTestArenaInstanceAndGameForId if its possible
+  //    for the process to be garbage collected before it's actually killed because we deleted testArenaInstances[id]
   this.killSpawnedGameForId = function(id, callback) {
     if (!self.hasInstanceExpired(id)) {
       if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {
@@ -279,8 +283,8 @@ module.exports = new (function() {
     } 
     else {
       if (id !== "defaultIdValue") {
-        logger.log("TestArenaInstances", "killSpawnedGameForId invalid id: " +  id);
-        callback(new Error("Invalid id: " + id));
+        logger.log("TestArenaInstances", "killSpawnedGameForId expired id: " +  id);
+        callback(new Error("Expired id: " + id));
       } 
       else {
         callback(null);
@@ -288,6 +292,8 @@ module.exports = new (function() {
     }
   }
   
+  // TODO:  This shouldn't happen, but if the folder for an id is deleted before the game is then a call to this will just hang.
+  //       scenario is I deleted the folders while a game was running in the client then hit kill game in the client
   this.deleteTestArenaInstanceAndGameForId = function(id, callback) {
     if (!self.hasInstanceExpired(id)) {
       if (testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running') {

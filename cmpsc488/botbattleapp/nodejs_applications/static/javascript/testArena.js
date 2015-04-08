@@ -106,19 +106,7 @@
        };
      });
    });
- 
-   function handleUnexpectedResponse(from, response) {
-     flashStatusOrErrorMessage('error', "Unexpected response received, if this problem persists see your administrator.");
-
-     TEST_ARENA.transitionPageToState('pageLoaded');
-     console.log("Unexpected response from", from, ":", response);
-   }
-   
-   function handleExpiredID() {
-     console.log("Handle expiredID");
-     flashStatusOrErrorMessage('error', "The record associated with your id has expired. Please upload new bots to continue.");
-     TEST_ARENA.transitionPageToState('pageLoaded');
-   }
+  
  //----------------------------------Upload Bots Form------------------------------------
    // Listen for radio checks
    $('#human').click(function() {
@@ -152,6 +140,12 @@
      req.onload = function(event) {
        try {
          response = JSON.parse(req.responseText);
+       }
+       catch (e) {
+         handleUnexpectedResponse('processBotUploads', req.responseText);
+         return; // Don't continue unless it was a json response.
+       }
+       try {
          if (req.status == 200) {
            if (response.status) {
              TEST_ARENA.myId = response.id;
@@ -167,11 +161,11 @@
            }
          } 
          else {
-           handleUnexpectedResponse('processBotUploads', response);
+           handleNonSuccessHttpStatus('processBotUploads', req.status, response);
          }
        }
-       catch (e) {
-         handleUnexpectedResponse('processBotUploads', req.responseText);
+       catch(err) {
+         handleClientError('processBotUploads', err);
        }
      };
      req.send(data);
@@ -188,24 +182,37 @@
      req.onload = function(event) {
        try {
          response = JSON.parse(req.responseText);
-         if (req.status == 200) {
-           if (response.event === 'success') {
-             flashStatusOrErrorMessage('status', "The game is loading, please wait.");
-             TEST_ARENA.transitionPageToState('loadingGame');
-           } 
-           else if (response.event === 'expiredID') {
-             handleExpiredID();
-           }
-           else {
-             handleUnexpectedResponse('startNewGame', response);
-           }
-         } 
-         else {
-           handleUnexpectedResponse('startNewGame', response);
-         }
        }
        catch (e) {
          handleUnexpectedResponse('startNewGame', req.responseText);
+         return; // Don't continue unless it was a json response.
+       }
+       try {
+         if (req.status == 200) {
+           switch(response.event) {
+             case 'expiredID':
+               handleExpiredID();
+               break;
+             case 'gameAlreadyRunning':
+               flashStatusOrErrorMessage('error', "A running game is already associated with your ID, please kill the existing game before starting a new one.");
+               break;
+             case 'gameManagerNotFound':
+               handleServerError('startNewGame', response);
+               break;
+             case 'success':
+               flashStatusOrErrorMessage('status', "The game is loading, please wait.");
+               TEST_ARENA.transitionPageToState('loadingGame');
+               break;
+             default:
+               handleUnexpectedResponse('startNewGame', response);
+           }
+         } 
+         else {
+           handleNonSuccessHttpStatus('startNewGame', req.status, response);
+         }
+       }
+       catch(err) {
+         handleClientError('startNewGame', err);
        }
      }
      req.send();
@@ -238,30 +245,36 @@
      //req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput_stdin").value, true);
      //req.open("POST", "sendMove/?id=" + TEST_ARENA.myId, true);
      req.onload = function(event) {
-       console.log(req.responseText);
        try {
          response = JSON.parse(req.responseText);
+       }
+       catch (e) {
+         handleUnexpectedResponse('sendMove', req.responseText);
+         return; // Don't continue unless it was a json response.
+       }
+       try {
          if (req.status == 200) {
-           if (response.event === 'success') {
-             flashStatusOrErrorMessage('status', "Your move has been submitted.");
-           }
-           else if (response.event === 'noGameRunning') {
-             flashStatusOrErrorMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
-             TEST_ARENA.transitionPageToState('uploaded');
-           }
-           else if (response.event === 'expiredID') {
-             handleExpiredID();
-           }
-           else {
-             handleUnexpectedResponse('send_move', response);
+           switch(response.event) {
+             case 'expiredID':
+               handleExpiredID();
+               break;
+             case 'noGameRunning':
+               flashStatusOrErrorMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
+               TEST_ARENA.transitionPageToState('uploaded');
+               break;
+             case 'success':
+               flashStatusOrErrorMessage('status', "Your move has been submitted.");
+               break;
+             default:
+               handleUnexpectedResponse('sendMove', response);
            }
          } 
          else {
-           handleUnexpectedResponse('send_move', response);
+           handleNonSuccessHttpStatus('sendMove', req.status, response);
          }
        }
-       catch (e) {
-         handleUnexpectedResponse('send_move', req.responseText);
+       catch(err) {
+         handleClientError('sendMove', err);
        }
      }
      req.send();
@@ -274,28 +287,34 @@
      var response = null;
 
      req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
-     
      req.onload = function(event) {
        try {
          response = JSON.parse(req.responseText);
-         if (req.status == 200) {
-           if (response.event === 'success') {
-             flashStatusOrErrorMessage('status', "The game has been killed, start a new game or upload new bots to continue...");
-             TEST_ARENA.transitionPageToState('uploaded');
-           } 
-           else if (response.event === 'expiredID') {
-             handleExpiredID();
-           }
-           else {
-             handleUnexpectedResponse('killCurrentGame', response);
-           }
-         } 
-         else {
-           handleUnexpectedResponse('killCurrentGame', response);
-         }
        }
        catch (e) {
          handleUnexpectedResponse('killCurrentGame', req.responseText);
+         return; // Don't continue unless it was a json response.
+       }
+       try {
+         if (req.status == 200) {
+           switch(response.event) {
+             case 'expiredID':
+               handleExpiredID();
+               break;
+             case 'success':
+               flashStatusOrErrorMessage('killCurrentGame', "The game has been killed, start a new game or upload new bots to continue...");
+               TEST_ARENA.transitionPageToState('uploaded');
+               break;
+             default:
+               handleUnexpectedResponse('killCurrentGame', response);
+           }
+         } 
+         else {
+           handleNonSuccessHttpStatus('killCurrentGame', req.status, response);
+         }
+       }
+       catch(err) {
+         handleClientError('killCurrentGame', err);
        }
      }
      req.send();
@@ -324,6 +343,12 @@
      req.onload = function(event) {
        try {
          response = JSON.parse(req.responseText);
+       }
+       catch (e) {
+         handleUnexpectedResponse('sendMove', req.responseText);
+         return; // Don't continue unless it was a json response.
+       }
+       try {
          if (req.status == 200) {
            if (response.millisecondsUntilExpiration) {
              var date = new Date(response.millisecondsUntilExpiration);
@@ -334,41 +359,38 @@
              str += date.getUTCSeconds() + " seconds, ";
              str += date.getUTCMilliseconds() + " millis";
              console.log(str);
-             flashStatusOrErrorMessage('warning', "Your game session will expire in " + str);
+             flashStatusOrErrorMessage('expirationWarning', "Your game session will expire in " + str);
            }
-           
-           if (response.event === 'success') {
-             if(response.gamestates){
-               for ( var turnIndex in response.gamestates) {
-                 console.log("gameState /n",response.gamestates[turnIndex]);
-                 TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates[turnIndex]);
+           switch(response.event) {
+             case 'expiredID':
+               handleExpiredID();
+               break;
+             case 'noStatesRemaining':
+               flashStatusOrErrorMessage('status', "Game is no longer running on server and game state queue is empty, stopping the requester");
+               stopGameStateRequester();
+               break;
+             case 'success':
+               if(response.gamestates){
+                 for ( var turnIndex in response.gamestates) {
+                   console.log("gameState /n",response.gamestates[turnIndex]);
+                   TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates[turnIndex]);
+                 }
                }
-             }
-             else {
-               console.log("Expected gamestates on successful response to getLatestGameStates",
-                   "but received this reponse intead: " + response);
-             }
-           }
-           else if (response.event === 'noStatesRemaining') {
-             //flashStatusOrErrorMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
-             //flashStatusOrErrorMessage('error', "The game has stopped unexpectedly, if this problem persists see your administrator");
-             //TEST_ARENA.transitionPageToState('gameFinished');
-             flashStatusOrErrorMessage('status', "Game is no longer running on server and game state queue is empty, stopping the requester");
-             stopGameStateRequester();
-           }
-           else if (response.event === 'expiredID') {
-             handleExpiredID();
-           }
-           else {
-             handleUnexpectedResponse('getLatestGameStates', response);
+               else {
+                 console.log("Expected gamestates on successful response to getLatestGameStates",
+                     "but received this reponse intead: " + response);
+               }
+               break;
+             default:
+               handleUnexpectedResponse('getLatestGameStates', response);
            }
          } 
          else {
-           handleUnexpectedResponse('getLatestGameStates', response);
+           handleNonSuccessHttpStatus('getLatestGameStates', req.status, response);
          }
        }
-       catch (e) {
-         handleUnexpectedResponse('getLatestGameStates', req.responseText);
+       catch(err) {
+         handleClientError('getLatestGameStates', err);
        }
      }
      req.send();

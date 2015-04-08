@@ -218,32 +218,18 @@ function registerTestArenaRoutes(server, database) {
 
 
   server.addDynamicRoute('get', '/startGame', function(req, res) {
-    var success = testArenaInstances.spawnNewGameInstance(req.query.id);
-    if (success) {
-      res.json({ 'event' : 'success' });
-    }
-    else {
-      res.json({ 'event' : 'expiredID'});
-    }
-
+    // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
+    // These will be handled on the client side accordingly.
+    var event = testArenaInstances.spawnNewGameInstance(req.query.id);
+    res.json({ 'event' : event });
   });
   
   server.addDynamicRoute('get', '/sendMove', function(req, res) {
     setTimeout(function(){ 
+      // Returns a event code from the set { 'expiredID', 'noGameRunning', 'success' }
+      // These will be handled on the client side accordingly.
       var event = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
-      if (event === 'success') {
-        res.json({ 'event' : 'success' });
-      }
-      else if (event === 'noGameRunning') {
-        res.json({ 'event' : 'noGameRunning' });
-      }
-      else if (event === 'expiredID') {
-        res.json({ 'event' : 'expiredID'});
-      }
-      else {
-        logger.log("BotBattleApp", "Invalid event in sendMove", event);
-        res.send("Invalid event");
-      }
+      res.json({ 'event' : event });
     }, 2000);
   });
   
@@ -269,10 +255,6 @@ function registerTestArenaRoutes(server, database) {
  
   
   server.addDynamicRoute('get', '/getLatestGameStates', function(req,res) {
-    if (testArenaInstances.hasInstanceExpired(req.query.id)) {
-      return res.json({ 'event' : 'expiredID' });
-    }
-    
     var latestGameStateArray = testArenaInstances.popAllFromGameStateQueue(req.query.id);
     if (latestGameStateArray) {
       if (testArenaInstances.isGameManagerRunning(req.query.id) || latestGameStateArray.length > 0) {
@@ -286,6 +268,7 @@ function registerTestArenaRoutes(server, database) {
         return res.json({ 'event' : 'noStatesRemaining' });
       }
     }
+    // popAllFromGameStateQueue returns null if the instance has expired.
     else {
       res.json({ 'event' : 'expiredID' });
     }
