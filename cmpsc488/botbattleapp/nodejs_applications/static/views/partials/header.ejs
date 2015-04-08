@@ -4,7 +4,7 @@
     <div class="container-fluid">
 
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 Bot!Battle!
             </a>
         </div>
@@ -28,6 +28,12 @@
                 <%if (locals.group === 'admin') { %>
                     <li><a href="/adminPortal">Admin Portal</a></li>
                 <% } %> 
+            <% } %>
+            
+            <% if(!locals.gameRulesUrl) { %>
+                <!-- do nothing -->
+            <% } else{ %>
+                    <li><a href="<%= locals.gameRulesUrl %>">Game Rules</a></li>
             <% } %>
         </ul>
       
