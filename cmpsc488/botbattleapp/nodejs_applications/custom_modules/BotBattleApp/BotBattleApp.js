@@ -210,7 +210,8 @@ function registerTestArenaRoutes(server, database) {
         console.log(gameModule);
         
         var locals = helpers.copyLocalsAndDeleteMessage(req.session);
-        locals.gameJavascriptUrl = "/game/" + gameModule.gameName + "/javascript";
+        //locals.gameJavascriptUrl = "/game/" + gameModule.gameName + "/javascript";
+        locals.gameJavascriptUrl = "/static/javascript/game.js";    // Switch to the way above once changes to game.js have been finalized
         locals.gameRulesUrl = "/game/" + gameModule.gameName + "/rules";
         res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
       }
