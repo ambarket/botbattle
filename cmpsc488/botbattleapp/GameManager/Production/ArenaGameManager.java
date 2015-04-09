@@ -29,7 +29,7 @@ public class ArenaGameManager {
     JSONObject bot1 = (JSONObject) arenaInfo.get("bot1");
     JSONObject bot2 = (JSONObject) arenaInfo.get("bot2");
     
-    printJSONInfo(args, arenaInfo, bot1, bot2);
+    //printJSONInfo(args, arenaInfo, bot1, bot2);
     
     Long numOfBots = (Long) arenaInfo.get("numberOfBots");
     Player plyr1 = null, plyr2 = null;
@@ -37,19 +37,22 @@ public class ArenaGameManager {
     if( numOfBots == 1 ) {
       String path = (String) bot1.get("path");
       String lang = (String) bot1.get("language");
+      String username = (String) bot1.get("username");
 
-      plyr1 = new Player(path, getLanguage(lang));
+      plyr1 = new Player(path, username, getLanguage(lang));
       plyr2 = new Player();
       
     } else {
       String path = (String) bot1.get("path");
       String lang = (String) bot1.get("language");
+      String username = (String) bot1.get("username");
 
-      plyr1 = new Player(path, getLanguage(lang));
+      plyr1 = new Player(path, username, getLanguage(lang));
       path = (String) bot2.get("path");
       lang = (String) bot2.get("language");
+      username = (String) bot2.get("username");
 
-      plyr2 = new Player(path, getLanguage(lang));
+      plyr2 = new Player(path, username, getLanguage(lang));
       
     }
      
@@ -78,6 +81,7 @@ public class ArenaGameManager {
     System.err.println("BOT1: " + bot1);
     System.err.println("BOT1_LANGUAGE: " + bot1.get("language"));
     System.err.println("BOT1_PATH: " + bot1.get("path"));
+    System.err.println("Username1: " + bot1.get("username"));
     if (bot2 != null) {
       System.err.println("BOT2: " + bot2);
       System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));

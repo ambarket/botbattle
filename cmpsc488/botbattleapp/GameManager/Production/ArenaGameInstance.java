@@ -38,7 +38,7 @@ public class ArenaGameInstance {
         }
         
         game.updateBoard(move, player);
-        
+        System.err.println(game.getBoard());
         //Sent to stdout for Arena to see
         System.out.println(game.getJSONStringForThisTurn());
         

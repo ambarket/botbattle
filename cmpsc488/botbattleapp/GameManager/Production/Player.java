@@ -39,16 +39,11 @@ public class Player implements Runnable {
   }
   
   public Player(String botFilePath, String usersName, Language lang) throws IOException {
-    this(botFilePath, lang);
-    this.usersName = usersName;    
-  }
-  
-  public Player(String botFilePath, Language language ) throws IOException {
     this.botFilePath = botFilePath;
-    String cmd = language.getRunCommand();
+    String cmd = lang.getRunCommand();
 
-    ProcessBuilder builder = new ProcessBuilder(cmd, botFilePath);
-    //builder.directory(new File(botFilePath));
+    ProcessBuilder builder = new ProcessBuilder(cmd, usersName);
+    builder.directory(new File(botFilePath));
     botProcess = builder.start();
 
     OutputStream stdin = botProcess.getOutputStream();
@@ -61,6 +56,7 @@ public class Player implements Runnable {
     humanOrBot = BOT;
     read = false;
     move = null;
+      
   }
 
   public String getMove(String board) {
