@@ -29,7 +29,7 @@ public class ArenaGameManager {
     JSONObject bot1 = (JSONObject) arenaInfo.get("bot1");
     JSONObject bot2 = (JSONObject) arenaInfo.get("bot2");
     
-    //printJSONInfo(args, arenaInfo, bot1, bot2);
+    printJSONInfo(args, arenaInfo, bot1, bot2);
     
     Long numOfBots = (Long) arenaInfo.get("numberOfBots");
     Player plyr1 = null, plyr2 = null;

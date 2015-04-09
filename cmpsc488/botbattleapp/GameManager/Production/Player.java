@@ -2,6 +2,7 @@
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,8 +48,9 @@ public class Player implements Runnable {
     String cmd = language.getRunCommand();
 
     ProcessBuilder builder = new ProcessBuilder(cmd, botFilePath);
+    //builder.directory(new File(botFilePath));
     botProcess = builder.start();
-    
+
     OutputStream stdin = botProcess.getOutputStream();
     InputStream stdout = botProcess.getInputStream();
     stderr = botProcess.getErrorStream();
