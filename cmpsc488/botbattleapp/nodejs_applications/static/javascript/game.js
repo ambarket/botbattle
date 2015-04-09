@@ -3,7 +3,7 @@
 GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
-      TEST_ARENA.appendDivToHtmlElementById('moveList', gameData.turnDescription);
+      GLOBAL.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
       //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
@@ -12,8 +12,8 @@ GAME = {
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
-      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
-      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
+      GLOBAL.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      GLOBAL.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
     
@@ -50,6 +50,7 @@ GAME = {
       // TODO: Add err argument if they can occur
       gb.loadResources(function() {
         GAME.gameboard = gb;
+        GAME.gameboard.addHumanInputButtons(GAME.gameboard.player1Tiles, GAME.gameboard.player2Tiles);
         readyCallback();
       });
     }
@@ -256,7 +257,7 @@ function Drawer() {
       
       // TODO  fix this like above mentions
       if((p1Grid >= 0 && p1Grid <= GAME.gameboard.numberOfGrids - 1) && (p2Grid >= 0 && p2Grid <= GAME.gameboard.numberOfGrids - 1)){
-        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 495 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 500 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
       else{
           if(p1Grid < 0){
@@ -284,8 +285,8 @@ function Drawer() {
     //  Maybe we actually want to move all hardcoded canvas pixel related stuff to the drawer
     var tileParameters = {
         'player1StartingX' : 50,
-        'player2StartingX' : 700,
-        'y' : 550,
+        'player2StartingX' : 750,
+        'y' : 570,
         'width' : 50,
         'height' : 50,
         'fillStyle' : '#FFFFD1',
@@ -354,7 +355,7 @@ var GameBoard = function() {
   
   context.font= 30  * TEST_ARENA.scale + 'px Arial';
   context.fillStyle="black";
-  context.fillText("Loading...", 1050/2 * TEST_ARENA.scale - 50, 650/2 * TEST_ARENA.scale); 
+  context.fillText("Loading...", self.backGroundWidth/3 * TEST_ARENA.scale, self.backGroundHeight/2 * TEST_ARENA.scale); 
   
   this.loadResources = function(callback) {
     // can get the image width property automatically
@@ -611,8 +612,8 @@ var GameBoard = function() {
         'loadedCallback' : imageLoadedCallback
       }
     }
-    var treeSpriteDefaultsOptions = 
-      this.backgroundElements = {
+    
+    this.backgroundElements = {
         trees1 : {
           tree1 : new drawableImage(makeNewTree(10, 110)),
           tree2 : new drawableImage(makeNewTree(75, 100)),
@@ -631,5 +632,45 @@ var GameBoard = function() {
           callback();
         }
       }
+  }
+  
+  this.addHumanInputButtons = function(player1Tiles, player2Tiles) { 
+    var form = document.getElementById("humanInputForm");
+    for (var i = 0; i < player2Tiles.length; i++) {
+      var temp = document.getElementById(("player2Tile" + i).toString())
+      if(temp === null){
+        var input = document.createElement("input");
+        input.type = "checkbox";
+        input.name = "player2Tile" + i;
+        input.value = i;
+        input.id = "player2Tile" + i;
+        form.appendChild(input); 
+        var text = document.createTextNode(" " + i);
+        form.appendChild(text);
+        form.appendChild(document.createElement("br"));
+      }
+    }
+    temp = document.getElementById("rightButton")
+    if(temp === null){
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = "direction";
+      input.value = "right";
+      input.id = "rightButton";
+      form.appendChild(input); 
+      var text = document.createTextNode("right");
+      form.appendChild(text);
+    }
+    temp = document.getElementById("leftButton")
+    if(temp === null){
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = "direction";
+      input.value = "left";
+      input.id = "leftButton";
+      form.appendChild(input); 
+      var text = document.createTextNode("left");
+      form.appendChild(text);
+    }
   }
 }

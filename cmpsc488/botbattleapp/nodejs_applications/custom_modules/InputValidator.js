@@ -6,6 +6,9 @@ function InputValidator() {
   var moveTimeoutRegex = /^(\d|[1-9]\d|[1-2]\d\d|[3][0][0])$/; // 0 - 300
   var portNumberRegex = /^(\d|[1-9]\d|[1-9]\d\d|[1-9]\d\d\d|[1-5]\d\d\d\d|[6][0-5][0-5][0-3][0-6])$/; //0 - 65536
   var gameModuleSourceRegex = "Game.java";
+  var javascriptFileRegex = /.js$/;
+  var zipFileRegex = /.zip$/;
+  var pdfFileRegex = /.pdf$/;
   
   var fourToThirtyFiveCharRegex = /^(.{4,35})$/
     
@@ -19,6 +22,18 @@ function InputValidator() {
   
   this.isCorrectGameName = function(string){
     return (string.match(gameModuleSourceRegex));
+  }
+  
+  this.isZipFile = function(string){
+    return (string.match(zipFileRegex));
+  }
+  
+  this.isJavascriptFile = function(string){
+    return (string.match(javascriptFileRegex));
+  }
+  
+  this.isPdfFile = function(string){
+    return (string.match(pdfFileRegex));
   }
   
   //TODO Make this use a better password regex. Kept it as alphanumeric so it works with the database password we've been using

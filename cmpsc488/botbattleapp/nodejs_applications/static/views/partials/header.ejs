@@ -4,7 +4,7 @@
     <div class="container-fluid">
 
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 Bot!Battle!
             </a>
         </div>
@@ -29,9 +29,56 @@
                     <li><a href="/adminPortal">Admin Portal</a></li>
                 <% } %> 
             <% } %>
+            
+            <% if(!locals.gameRulesUrl) { %>
+                <!-- do nothing -->
+            <% } else{ %>
+                    <li><a href="<%= locals.gameRulesUrl %>">Game Rules</a></li>
+            <% } %>
+            
+            <li><a id="eventLogToggle">Event Log</a></li>
         </ul>
       
     </div>
 </nav>
+
+
+<div class="row">
+  <div id="eventLogContainer" class="col-sm-12" style="display:none">
+    <h4>Event Log</h4>
+    <div id="eventLog" class="scrollableBox"></div>
+    <button id ="clearLog">Clear Log</button>
+    <hr>
+  </div>
+</div>
+
+<div class="message">
+    <!--<p>"Locals: <%= JSON.stringify(locals) %></p>-->
+    <% if(locals.message) { %>
+        <% if (locals.message.type === 'success') { %>
+          <!-- A good thing happened -->
+          <p style="color:green"><%= locals.message.text %></p>
+        <% } else if (locals.message.type === 'error') { %>
+          <!-- A bad thing happened -->
+          <p style="color:red"><%= locals.message.text %></p>
+        <% } else { %>
+          <!-- Not necessarily good or bad -->
+          <p><%= locals.message.text %></p>
+        <% } %>
+        <script> 
+
+        // Wanted to make this call the GLOBAL.event log instead but can't due to 
+        // the fact that global.js references html elements and must be deferred.
+          $('.message').slideDown(function() {
+              setTimeout(function() {
+                  $('.message').html("");
+              }, 3000);
+          });
+        </script>
+    <% } else{ %>
+      <!-- No Messages -->
+    <% } %>
+</div>
+
 
 

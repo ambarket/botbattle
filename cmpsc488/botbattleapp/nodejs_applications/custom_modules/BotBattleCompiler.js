@@ -15,7 +15,7 @@ function BotBattleCompiler() {
   var fileManager = new (require(paths.custom_modules.FileManager));
   var self = this;
   
-  this.compileDirectoryJava = function(folder, callback) {
+  this.compileDirectoryJava = function(folder, outputFolder, callback) {
     if (!callback || typeof(callback) != "function") {
       console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
       self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
@@ -38,6 +38,8 @@ function BotBattleCompiler() {
     directoryPath = path.resolve(folder, folderContentList[item]);
     // TODO: THis is terrible coding.
     sourceFiles.unshift("-classpath", paths.gameManagerJars);
+    sourceFiles.push("-d");
+    sourceFiles.push(outputFolder);
     console.log("Compiling", sourceFiles);
     compilationProcess = spawn('javac', sourceFiles);
     compilationProcess
@@ -50,7 +52,7 @@ function BotBattleCompiler() {
           else
           {
             self.emit('complete', 'Compilation of ' + sourceFiles + ' successful!');
-            callback(null, sourceFiles)
+            callback(null)
           }
         })
         .on('exit', function (code, signal) 
