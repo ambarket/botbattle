@@ -17,10 +17,15 @@ public interface GameInterface {
 
   boolean isGameWon();
   
+  void setOver(boolean over);
+  
   public String getJSONStringForThisTurn();
   
   public String getJSONStringForThisTurn(String botsStderr);
 
   String getJSONstringFromGameResults(GameResults results);
-
+  
+  String getInvalidMoveJSON();
+  
+  String getValidMoveJSON();
 }

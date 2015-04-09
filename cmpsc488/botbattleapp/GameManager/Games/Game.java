@@ -13,11 +13,13 @@ public class Game implements GameInterface {
   private String board;
   private String lastMove;
   private int lastPlayersTurn;
+  private boolean over;
 
   public Game() {
     board = getStartingBoard();
     lastPlayersTurn = 0;
     lastMove = "";
+    over = false;
   }
 
   public String getStartingBoard() {
@@ -60,12 +62,21 @@ public class Game implements GameInterface {
   }
 
   public boolean isGameOver() {
+    
+    if(over) {
+      return true;
+    }
+    
     // This game doesnt have ties so winning is the only way it will end.
     if (isGameWon()) {
       return true;
     }
 
     return false;
+  }
+
+  public void setOver(boolean over) {
+    this.over = over;
   }
 
   public boolean isGameWon() {
@@ -213,7 +224,7 @@ public class Game implements GameInterface {
     String s = "\"type\": ";
     if (player == 0) { // initial
       s += "\"initial\",";
-    } else if (isGameWon()) { // final
+    } else if (isGameOver()) { // final
       s += "\"final\",";
     } else {
       s += "\"midGame\"";
@@ -231,7 +242,7 @@ public class Game implements GameInterface {
     int player = lastPlayersTurn;
     String jsonString = "{";
 
-    int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
+    int finalPos = Game.Board.getIsland(board).indexOf(String.valueOf(player));
 
     jsonString += getType(move, player) + ",";
     jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
@@ -244,11 +255,11 @@ public class Game implements GameInterface {
 
     if (isValidMove(move, player)) {
       jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+          gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
     } else {
       jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+          gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board),
               "Invalid Move") + ",";
     }
 
@@ -268,7 +279,7 @@ public class Game implements GameInterface {
 
     jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
     jsonString +=
-        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+        gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board),
             "initial board") + "}";
 
 
@@ -285,7 +296,7 @@ public class Game implements GameInterface {
       }
       jsonString += animation + ",";
       jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc)
+          gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board), desc)
               + "}";
     }
 
@@ -293,7 +304,19 @@ public class Game implements GameInterface {
 
     return jsonString;
   }
-
+  
+  @Override
+  public String getInvalidMoveJSON() {
+    
+    return "{valid:\"No\"}";
+  }
+  
+  @Override
+  public String getValidMoveJSON() {
+    
+    return "{valid:\"Yes\"}";
+  }
+  
   // -------------------------- BOARD CLASS ---------------------
   public static class Board {
     public static String getPlayersTiles(int player, String board) {

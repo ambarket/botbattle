@@ -32,6 +32,11 @@ public class ArenaGameInstance {
       }
       System.err.println("\nMOVE:" + move + ", PLAYER: " + player + "\n");
       if (game.isValidMove(move, player)) {
+        
+        if(player == 2 && bot2.humanOrBot == Player.HUMAN){
+          System.out.println(game.getValidMoveJSON());
+        }
+        
         game.updateBoard(move, player);
         
         //Sent to stdout for Arena to see
@@ -41,11 +46,21 @@ public class ArenaGameInstance {
           System.out.println("Game Won by player" + player);
           break;
         }
+        
+        i++;
+        
       } else {
-        System.out.println(game.getJSONStringForThisTurn());
+        if(player == 2 && bot2.humanOrBot == Player.HUMAN){
+          System.out.println(game.getInvalidMoveJSON());
+        } else {
+          game.setOver(true);
+          System.out.println(game.getJSONStringForThisTurn());
+          System.err.println("Ending game due to bots invalid move.");
+          break;
+        }
+        
       }
 
-      i++;
     }
     
   }

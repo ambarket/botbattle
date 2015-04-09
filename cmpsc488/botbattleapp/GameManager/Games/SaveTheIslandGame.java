@@ -13,11 +13,13 @@ public class SaveTheIslandGame implements GameInterface {
   private String board;
   private String lastMove;
   private int lastPlayersTurn;
+  private boolean over;
 
   public SaveTheIslandGame() {
     board = getStartingBoard();
     lastPlayersTurn = 0;
     lastMove = "";
+    over = false;
   }
 
   public String getStartingBoard() {
@@ -60,12 +62,21 @@ public class SaveTheIslandGame implements GameInterface {
   }
 
   public boolean isGameOver() {
+    
+    if(over) {
+      return true;
+    }
+    
     // This game doesnt have ties so winning is the only way it will end.
     if (isGameWon()) {
       return true;
     }
 
     return false;
+  }
+
+  public void setOver(boolean over) {
+    this.over = over;
   }
 
   public boolean isGameWon() {
@@ -213,7 +224,7 @@ public class SaveTheIslandGame implements GameInterface {
     String s = "\"type\": ";
     if (player == 0) { // initial
       s += "\"initial\",";
-    } else if (isGameWon()) { // final
+    } else if (isGameOver()) { // final
       s += "\"final\",";
     } else {
       s += "\"midGame\"";
@@ -293,9 +304,21 @@ public class SaveTheIslandGame implements GameInterface {
 
     return jsonString;
   }
-
+  
+  @Override
+  public String getInvalidMoveJSON() {
+    
+    return "{valid:\"No\"}";
+  }
+  
+  @Override
+  public String getValidMoveJSON() {
+    
+    return "{valid:\"Yes\"}";
+  }
+  
   // -------------------------- BOARD CLASS ---------------------
-  static class Board {
+  public static class Board {
     public static String getPlayersTiles(int player, String board) {
       if (player == 1) {
         return board.split(";")[0];
@@ -386,7 +409,7 @@ public class SaveTheIslandGame implements GameInterface {
       }
       numOfAttacks = -(numOfAttacks - defenseTiles);
 
-      return movePlayer(board, victim, numOfAttacks * distance);
+      return movePlayer(board, victim, numOfAttacks * getDistanceBetweenPlayers(board));
     }
   }
   // ----------------------- END BOARD CLASS ---------------------

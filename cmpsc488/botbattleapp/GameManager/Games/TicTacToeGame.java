@@ -206,4 +206,25 @@ public class TicTacToeGame implements GameInterface {
     // TODO Auto-generated method stub
     return null;
   }
+
+
+  @Override
+  public String getInvalidMoveJSON() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  @Override
+  public String getValidMoveJSON() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  @Override
+  public void setOver(boolean over) {
+    // TODO Auto-generated method stub
+    
+  }
 }
