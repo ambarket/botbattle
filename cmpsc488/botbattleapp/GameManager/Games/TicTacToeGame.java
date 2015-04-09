@@ -159,9 +159,50 @@ public class TicTacToeGame implements GameInterface {
     return jsonString;
   }
 
+  @Override
+  public String getBoard() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 
   @Override
-  public String getJSONStringForThisTurn(String board, String move, int player) {
+  public void updateBoard(String move, int player) {
+    // TODO Auto-generated method stub
+    
+  }
+
+
+  @Override
+  public boolean isValidMove(String board, int player) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+
+  @Override
+  public boolean isGameOver() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+
+  @Override
+  public boolean isGameWon() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+
+  @Override
+  public String getJSONStringForThisTurn() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  @Override
+  public String getJSONStringForThisTurn(String botsStderr) {
     // TODO Auto-generated method stub
     return null;
   }

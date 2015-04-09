@@ -34,7 +34,7 @@ public class SaveTheIslandGameTest {
     String tiles = SaveTheIslandGame.Board.getPlayersTiles(1, board);
     String move = "attack;" + tiles.substring(0, 1);
 
-    assertFalse(stiGame.isValidMove(move, board, 1));
+    assertFalse(stiGame.isValidMove(move, 1));
   }
 
   @Test
@@ -43,7 +43,7 @@ public class SaveTheIslandGameTest {
     String tiles = SaveTheIslandGame.Board.getPlayersTiles(1, board);
     String move = "ammack;" + tiles.substring(0, 1);
 
-    assertFalse(stiGame.isValidMove(move, board, 1));
+    assertFalse(stiGame.isValidMove(move, 1));
   }
 
   @Test
@@ -52,7 +52,7 @@ public class SaveTheIslandGameTest {
     String tiles = SaveTheIslandGame.Board.getPlayersTiles(1, board);
     String move = "attack;6";
 
-    assertFalse(stiGame.isValidMove(move, board, 1));
+    assertFalse(stiGame.isValidMove(move, 1));
   }
 
   @Test
@@ -63,12 +63,12 @@ public class SaveTheIslandGameTest {
         "attack;" + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1)
             + tiles.substring(0, 1) + tiles.substring(0, 1) + tiles.substring(0, 1);
 
-    assertFalse(stiGame.isValidMove(move, board, 1));
+    assertFalse(stiGame.isValidMove(move, 1));
   }
 
   @Test
   public void testIsGameOverWithStartingBoard() {
-    assertFalse(stiGame.isGameOver(stiGame.getStartingBoard()));
+    assertFalse(stiGame.isGameOver());
   }
 
   @Test

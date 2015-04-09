@@ -6,18 +6,20 @@
  *
  */
 public interface GameInterface {
-		
-  String getStartingBoard();
 
-  String updateBoard(String move, String board, int player);
-
-  boolean isValidMove(String move, String board, int player);
-
-  boolean isGameOver(String board);
-
-  boolean isGameWon(String board);
+  String getBoard();
   
-  public String getJSONStringForThisTurn(String board, String move, int player);
+  void updateBoard(String move, int player);
+
+  boolean isValidMove(String board, int player);
+
+  boolean isGameOver();
+
+  boolean isGameWon();
+  
+  public String getJSONStringForThisTurn();
+  
+  public String getJSONStringForThisTurn(String botsStderr);
 
   String getJSONstringFromGameResults(GameResults results);
 

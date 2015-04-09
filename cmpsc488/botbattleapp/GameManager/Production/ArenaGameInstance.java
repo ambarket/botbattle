@@ -1,7 +1,5 @@
 
 
-import java.util.Scanner;
-
 public class ArenaGameInstance {
   
   private Player bot1;
@@ -17,37 +15,34 @@ public class ArenaGameInstance {
   }
 
   public void runArenaGame() {
-    int i = 0;
-    Scanner scner = new Scanner(System.in);
-    // Add starting board
-    String move = " ; ";
-    String board = game.getStartingBoard();
+    int i = 0;    
+    String move = "";
 
     //Send starting board to the test arena
-    System.out.println(game.getJSONStringForThisTurn(board, move, 0));
+    System.out.println(game.getJSONStringForThisTurn());
     
-    while (!game.isGameOver(board)) {
+    while (!game.isGameOver()) {
 
       int player = (i % 2) + 1;
       
       if (player == 1) {  
-        move = bot1.getMove(board);  
+        move = bot1.getMove(game.getBoard());  
       } else {
-        move = bot2.getMove(board);        
+        move = bot2.getMove(game.getBoard());        
       }
       System.err.println("\nMOVE:" + move + ", PLAYER: " + player + "\n");
-      if (game.isValidMove(move, board, player)) {
-        board = game.updateBoard(move, board, player);
+      if (game.isValidMove(move, player)) {
+        game.updateBoard(move, player);
         
         //Sent to stdout for Arena to see
-        System.out.println(game.getJSONStringForThisTurn(board, move, player));
+        System.out.println(game.getJSONStringForThisTurn());
         
-        if (game.isGameWon(board)) {
+        if (game.isGameWon()) {
           System.out.println("Game Won by player" + player);
           break;
         }
       } else {
-        System.out.println(game.getJSONStringForThisTurn(board, move, player));
+        System.out.println(game.getJSONStringForThisTurn());
       }
 
       i++;
