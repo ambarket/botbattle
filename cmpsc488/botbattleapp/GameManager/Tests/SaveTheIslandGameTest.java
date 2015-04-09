@@ -26,7 +26,7 @@ public class SaveTheIslandGameTest {
     SaveTheIslandGame g = new SaveTheIslandGame();
     g.setBoard("46114;10000000000000002;12345");
     g.updateBoard("move;6", 1);
-    System.err.println(g.getBoard());
+
     String tiles = g.getBoard().substring(0, 5);
     for (int i = 0; i < 5; i++) {
       if (tiles.substring(i, i + 1).equals("6")) {
@@ -36,6 +36,22 @@ public class SaveTheIslandGameTest {
     assertTrue(true);
   }
 
+  @Test
+  public void testUpdateBoardAttackDefended() {
+    SaveTheIslandGame g = new SaveTheIslandGame();
+    g.setBoard("43114;00000001002000000;12345");
+    g.updateBoard("attack;3", 1);
+    assertEquals("43114;00000001002000000;12345", g.getBoard());
+  }
+  
+  @Test
+  public void testUpdateBoardAttackNotDefended() {
+    SaveTheIslandGame g = new SaveTheIslandGame();
+    g.setBoard("43114;00000001002000000;12245");
+    g.updateBoard("attack;3", 1);
+    assertEquals("00000000010002000", g.getBoard().split(";")[1]);
+  }
+  
   @Test
   public void testIsValidMove() {
     String board = stiGame.getStartingBoard();

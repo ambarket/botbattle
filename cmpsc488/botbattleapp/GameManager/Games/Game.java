@@ -423,7 +423,7 @@ public class Game implements GameInterface {
       }
       numOfAttacks = -(numOfAttacks - defenseTiles);
 
-      return movePlayer(board, victim, numOfAttacks * getDistanceBetweenPlayers(board));
+      return movePlayer(board, victim, numOfAttacks * distance);
     }
   }
   // ----------------------- END BOARD CLASS ---------------------
