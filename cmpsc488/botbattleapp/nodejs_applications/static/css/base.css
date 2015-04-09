@@ -26,7 +26,7 @@ body {
 
 .scrollableBox{
 	 font-size: 15px;
-   height:300px;
+   height:200px;
    width:autopx;
    /*border:1px solid;*/
    overflow:auto

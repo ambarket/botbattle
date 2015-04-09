@@ -226,6 +226,8 @@ function InitialConfigurationApp(initConfigAppServer) {
       gameName : sanitizedFormData.gameName,
       gameRulesFile : sanitizedFormData.gameRules,
       gameSourceFile : sanitizedFormData.gameSource,
+      gameJavascriptFile : sanitizedFormData.gameJavascript,
+      gameResourcesFile : sanitizedFormData.gameResources,
       gameTimeout : sanitizedFormData.gameMoveTimeout
     }
     async.waterfall(
@@ -235,7 +237,10 @@ function InitialConfigurationApp(initConfigAppServer) {
              seedCallback(null, tmpData);
            }, 
            initGameModuleTask1_CreateDirectoryFromGameName,
-           initGameModuleTask2_MoveGameRulesAndSourceIntoNewDirectory,
+           initGameModuleTask2A_MoveGameManagerSourceIntoNewDirectory,
+           initGameModuleTask2B_MoveGameRulesIntoNewDirectory,
+           initGameModuleTask2C_MoveGameJavascriptIntoNewDirectory,
+           initGameModuleTask2D_ExtractGameResourcesIntoNewDirectory,
            initGameModuleTask3_CompileGameModuleSourceFile,
            initGameModuleTask4_InsertGameModuleDatabaseEntry 
          ], 
@@ -251,63 +256,97 @@ function InitialConfigurationApp(initConfigAppServer) {
       );
   }
 
-  function initGameModuleTask1_CreateDirectoryFromGameName(tmpData, callback) {
+  function initGameModuleTask1_CreateDirectoryFromGameName(tmpData, initGameModuleTask1Callback) {
     var path = require('path');
-    var pathToDirectory = path.resolve(paths.local_storage.game_modules, tmpData.gameName);
-    fileManager.copyFileOrFolder(paths.gameManagerSource, pathToDirectory, function(err) {
-          if (err) {
-            err.message += "&nbsp&nbsp Error creating directory for game module";
-            callback(err);
-          } else {
-            self.emit('progress_update', 64);
-            self.emit('status_update', '&nbsp&nbsp Directory for game module created at ' + pathToDirectory);
-            
-            tmpData.newDirectoryPath = pathToDirectory;
-            callback(null, tmpData);
-          }
-    });
-    /*
-    fileManager.createDirectoryForGameModule(tmpData.gameName, function(err, pathToDirectory) {
+
+    fileManager.createDirectoryForGameModule(tmpData.gameName, function(err, directories) {
       if (err) {
         err.message += "&nbsp&nbsp Error creating directory for game module";
-        callback(err);
+        initGameModuleTask1Callback(err);
       } else {
         self.emit('progress_update', 64);
-        self.emit('status_update', '&nbsp&nbsp Directory for game module created at ' + pathToDirectory);
+        self.emit('status_update', '&nbsp&nbsp Game module directories successfully created');
         
-        tmpData.newDirectoryPath = pathToDirectory;
-        callback(null, tmpData);
+        tmpData.newDirectories = directories;
+        initGameModuleTask1Callback(null, tmpData);
       }
     });
-    */
   }
-
-  function initGameModuleTask2_MoveGameRulesAndSourceIntoNewDirectory(tmpData, initGameModuleTask2Callback) {
+      
+  function initGameModuleTask2A_MoveGameManagerSourceIntoNewDirectory(tmpData, initGameModuleTask2ACallback) {
     var path = require('path');
-    var newRulesFilePath = path.resolve(tmpData.newDirectoryPath, "Rules", tmpData.gameRulesFile.name);
-    var newSourceFilePath = path.resolve(tmpData.newDirectoryPath, tmpData.gameSourceFile.name);
-    fileManager.moveFile(tmpData.gameRulesFile.path, newRulesFilePath, function(err) {
+    
+    fileManager.copyFileOrFolder(paths.gameManagerSource, tmpData.newDirectories.gameManagerSource, function(err) {
+      if (err) {
+        err.message += "&nbsp&nbsp Error creating directory for GameManager source code";
+        initGameModuleTask2ACallback(err);
+      } else {
+        var newSourceFilePath = path.join(tmpData.newDirectories.gameManagerSource, tmpData.gameSourceFile.originalname);
+        fileManager.copyFileOrFolder(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
+          if (err) {
+            err.message = "Failed to move '" + tmpData.gameSourceFile.path + "' to " + newSourceFilePath  + '\n' + err.message;
+            initGameModuleTask2ACallback(err)
+          } else {
+            self.emit('progress_update', 64);
+            self.emit('status_update', '&nbsp&nbsp Copy of GameManager source code created at ' + tmpData.newDirectories.gameManagerSource);
+            initGameModuleTask2ACallback(null, tmpData);
+          }
+        });  
+      }
+    });
+  }
+  
+  function initGameModuleTask2B_MoveGameRulesIntoNewDirectory(tmpData, initGameModuleTask2BCallback) {
+    var path = require('path');
+    tmpData.newRulesFilePath = path.resolve(tmpData.newDirectories.rules, tmpData.gameRulesFile.originalname);
+    
+    fileManager.copyFileOrFolder(tmpData.gameRulesFile.path, tmpData.newRulesFilePath, function(err) {
       if (err) {
         err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameRulesFile.path + "' to " + newRulesFilePath + '\n' + err.message;
-        initGameModuleTask2Callback(err)
+        initGameModuleTask2BCallback(err)
       } else {
-        fileManager.moveFile(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
-          if (err) {
-            err.message = "Failed to move '" + tmpData.gameSourceFile.path + "' to " + newSourceFilePath  + '\n' + err.message;;
-            initGameModuleTask2Callback(err)
-          } else {
-            self.emit('progress_update', 68);
-            self.emit('status_update', '&nbsp&nbsp Successfully moved game module rules and source files to new directory');
-            tmpData.newRulesFilePath = newRulesFilePath;
-            tmpData.newSourceFilePath = newSourceFilePath;
-            initGameModuleTask2Callback(null, tmpData);
-          }
-        });
+        self.emit('progress_update', 65);
+        self.emit('status_update', '&nbsp&nbsp Successfully moved rules file into game module directory');
+        initGameModuleTask2BCallback(null, tmpData);
       }
     });
   }
+  
+  function initGameModuleTask2C_MoveGameJavascriptIntoNewDirectory(tmpData, initGameModuleTask2CCallback) {
+    var path = require('path');
+    tmpData.javascriptFilePath = path.resolve(tmpData.newDirectories.javascript, tmpData.gameJavascriptFile.originalname);
 
-  function initGameModuleTask3_CompileGameModuleSourceFile(tmpData, callback) {
+    fileManager.copyFileOrFolder(tmpData.gameJavascriptFile.path, tmpData.javascriptFilePath, function(err) {
+      if (err) {
+        err.message = "&nbsp&nbsp Failed to move '" + tmpData.gameJavascriptFile.path + "' to " + tmpData.javascriptFilePath + '\n' + err.message;
+        initGameModuleTask2CCallback(err)
+      } else {
+        self.emit('progress_update', 66);
+        self.emit('status_update', '&nbsp&nbsp Successfully moved game javascript file into game module directory');
+        initGameModuleTask2CCallback(null, tmpData);
+      }
+    });
+  }
+  
+  function initGameModuleTask2D_ExtractGameResourcesIntoNewDirectory(tmpData, initGameModuleTask2DCallback) {
+    var path = require('path');
+    var exec = require('child_process').exec;
+    var child = child = exec('unzip ' + tmpData.gameResourcesFile.path + " -d " + tmpData.newDirectories.resources,
+        function (err, stdout, stderr) {
+          console.log('unzip resources stdout: ' + stdout);
+          console.log('unzip resources stderr: ' + stderr);
+          if (err) {
+            err.message = "&nbsp&nbsp Failed to extract game resources to new directory " + err.message;
+            initGameModuleTask2DCallback(err)
+          } else {
+            self.emit('progress_update', 68);
+            self.emit('status_update', '&nbsp&nbsp Successfully extracted game resources into game module directory');
+            initGameModuleTask2DCallback(null, tmpData);
+          }
+        });
+  }
+
+  function initGameModuleTask3_CompileGameModuleSourceFile(tmpData, initGameModuleTask3Callback) {
     var compiler = require(paths.custom_modules.BotBattleCompiler)
         .createBotBattleCompiler().on('warning', function(message) {
           logger.log('compilation warning:', message);
@@ -322,25 +361,22 @@ function InitialConfigurationApp(initConfigAppServer) {
           logger.log('compilation complete:', message);
         });
 
-    compiler.compileDirectoryJava(tmpData.newDirectoryPath,
-        function(err, compiledFilePath) {
+    compiler.compileDirectoryJava(tmpData.newDirectories.gameManagerSource, tmpData.newDirectories.gameManagerCompiled,
+        function(err) {
           if (err) {
-            err.message += "&nbsp&nbsp Error compiling "+ compiledFilePath +" source file";
-            callback(err);
+            initGameModuleTask3Callback(err);
           } else {
             self.emit('progress_update', 72);
-            self.emit('status_update', '&nbsp&nbsp Successfully compiled '+ compiledFilePath +' source file!');
-            tmpData.compiledFilePath = compiledFilePath;
-            callback(err, tmpData);
+            self.emit('status_update', '&nbsp&nbsp Successfully compiled the game manager!');
+            initGameModuleTask3Callback(err, tmpData);
           }
         });
   }
 
   function initGameModuleTask4_InsertGameModuleDatabaseEntry(tmpData, callback) {
     var gameModuleObject = objectFactory.GameModule.newInstance(
-        tmpData.gameName, tmpData.newDirectoryPath, tmpData.newRulesFilePath,
-        tmpData.newSourceFilePath, tmpData.compiledFilePath,
-        tmpData.gameTimeout);
+        tmpData.gameName, tmpData.newDirectories, tmpData.newRulesFilePath, tmpData.javascriptFilePath, tmpData.gameTimeout);
+    //(gameName, gameModuleDirectories, rulesFilePath, javascriptFilePath, moveTimeout) 
 
     database.insertGameModule(gameModuleObject, 
         function(err) {
@@ -435,87 +471,17 @@ function InitialConfigurationApp(initConfigAppServer) {
     initConfigAppServer.addDynamicRoute('get', '/', function(req, res) {
       res.render('pages/initialConfiguration');
     });
-    /*
-    initConfigAppServer.addStaticFileRoute('/', paths.static_content.html
-        + 'initialConfiguration.html');
-    */
+
     var multer = require('multer');
-    initConfigAppServer
-        .addDynamicRoute(
-            'post',
-            '/processInitialConfiguration',
+    initConfigAppServer.addDynamicRoute('post','/processInitialConfiguration',
             multer({
               dest : paths.init_config_tmp,
               limits : {
                 fieldNameSize : 100,
-              // files: 2,
-              // fields: 5
-              // fieldNameSize - integer - Max field name size (Default: 100
-              // bytes)
-              // fieldSize - integer - Max field value size (Default: 1MB)
-              // fields - integer - Max number of non-file fields (Default:
-              // Infinity)
-              // fileSize - integer - For multipart forms, the max file size (in
-              // bytes)
-              // (Default: Infinity)
-              // files - integer - For multipart forms, the max number of file
-              // fields
-              // (Default: Infinity)
-              // parts - integer - For multipart forms, the max number of parts
-              // (fields
-              // + files) (Default: Infinity)
-              // headerPairs - integer - For multipart forms, the max number of
-              // header
-              // key=>value pairs to parse Default: 2000 (same as node's http).
               },
-              // putSingleFilesInArray: true, // this needs doen for future
-              // compat. but
-              // will break current multiproto.
-              rename : function(fieldname, filename) {
-                return filename;
-              },
+              putSingleFilesInArray: true, 
               onFileUploadStart : function(file, req, res) {
                 logger.log(file.fieldname + ' is starting ...');
-                var javaRE = /.*\.java/;
-                if (file.fieldname == 'gameSource') {
-                  if (file.name.match(javaRE)) {
-                    logger.log(file.fieldname + ':' + file.name
-                        + ' is a .java file, uploading will continue');
-                    self.emit('status_update',
-                        'Verified game module is a java file');
-                  } else {
-                    console
-                        .log(file.fieldname
-                            + ':'
-                            + file.name
-                            + ' is a NOT .java file, this file will not be uploaded');
-                    self
-                        .emit('config_error',
-                            'Error during form submission: Game module source is not a .java file');
-                    // Returning false cancels the upload.
-                    return false;
-                  }
-                }
-                var pdfRE = /.*\.pdf/;
-                if (file.fieldname == 'gameRules') {
-                  if (file.name.match(pdfRE)) {
-                    logger.log(file.fieldname + ':' + file.name
-                        + ' is a .pdf file, uploading will continue');
-                    self.emit('status_update',
-                        'Verified game rules is a pdf file');
-                  } else {
-                    console
-                        .log(file.fieldname
-                            + ':'
-                            + file.name
-                            + ' is a NOT .pdf file, this file will not be uploaded');
-                    self
-                        .emit('config_error',
-                            'Error during form submission: Game rules is not a .pdf file');
-                    // Returning false cancels the upload.
-                    return false;
-                  }
-                }
               },
               onFileUploadComplete : function(file, req, res) {
                 logger.log(file.fieldname + ' uploaded to  ' + file.path);
@@ -556,16 +522,25 @@ function InitialConfigurationApp(initConfigAppServer) {
             adminUserName : sanitizer.sanitize(req.body.adminUserName),
             adminPassword : sanitizer.sanitize(req.body.adminPassword),
             // game module parameters
+            gameSelect : sanitizer.sanitize(req.body.gameSelect),
             gameName : sanitizer.sanitize(req.body.gameName),
-            gameSource : req.files.gameSource,
-            gameRules : req.files.gameRules,
             gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
+            gameRules : (req.files.gameRules) ? req.files.gameRules[0] : undefined,
+            gameSource : (req.files.gameSource) ? req.files.gameSource[0] : undefined,
+            gameJavascript : (req.files.gameJavascript) ? req.files.gameJavascript[0] : undefined,
+            gameResources : (req.files.gameResources) ? req.files.gameResources[0] : undefined,
             // tournament parameters
             tournamentName : sanitizer.sanitize(req.body.tournamentName),
-            studentList : req.files.studentList,
+            studentList : (req.files.studentList) ? req.files.studentList[0] : undefined,
             tournamentDeadline : sanitizer
                 .sanitize(req.body.tournamentDeadline),
           };
+          console.log(sanitizedFormData);
+          
+          if (sanitizedFormData.gameSelect === 'saveTheIsland') {
+            loadSaveTheIsland(sanitizedFormData);
+            
+          }
           
           var valid = verifyAllFieldsWereSubmitted();
           if (valid) {
@@ -594,6 +569,38 @@ function InitialConfigurationApp(initConfigAppServer) {
         });
   })();
   
+  function loadSaveTheIsland(sanitizedFormData) {
+    sanitizedFormData.gameName = "SaveTheIsland";
+    sanitizedFormData.gameMoveTimeout = "30";
+    sanitizedFormData.gameRules = 
+     { fieldname: 'gameRules',
+       originalname: 'SaveTheIslandGameRules.pdf',
+       name: 'SaveTheIslandGameRules.pdf',
+       path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/SaveTheIslandGameRules.pdf',
+       extension: 'pdf',
+     };
+    sanitizedFormData.gameSource = 
+       { fieldname: 'gameSource',
+         originalname: 'Game.java',
+         name: 'Game.java',
+         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/Game.java',
+         extension: 'java',
+       };
+    sanitizedFormData.gameJavascript =
+       { fieldname: 'gameJavascript',
+         originalname: 'game.js',
+         name: 'game.js',
+         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/game.js',
+       };
+    sanitizedFormData.gameResources = 
+       { fieldname: 'gameResources',
+         originalname: 'resources.zip',
+         name: 'resources.zip',
+         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/resources.zip',
+         extension: 'zip'
+       };
+  }
+  
   function verifyAllFieldsWereSubmitted() {
     var valid = true;
     for (fieldName in sanitizedFormData) {
@@ -604,26 +611,19 @@ function InitialConfigurationApp(initConfigAppServer) {
       }
     }
     
-    if (valid && (sanitizedFormData.gameSource.name === sanitizedFormData.gameRules.name || 
-        sanitizedFormData.gameSource.name === sanitizedFormData.studentList.name || 
-        sanitizedFormData.gameRules.name === sanitizedFormData.studentList.name)) {
-      valid = false;
-      self.emit('config_error', 'Game Module Source, Game Rules, and Student List must have unique file names');
-    }
     return valid;
   }
   
   function verifyAllFieldsMatchRegex() {
     var inputValidator = require(paths.custom_modules.InputValidator).newInstance();
     var valid = true;
+    
+    //-------------------------------Database Configuration------------------------
     if (!inputValidator.isIPAddressOrHostName(sanitizedFormData.databaseHost)) {
       self.emit('config_error', 'Invalid database host');
       var valid = false;
     }
-    if (!inputValidator.isCorrectGameName(sanitizedFormData.gameSource.name)) {
-      self.emit('config_error', 'Game Module Source must be named Game.java');
-      var valid = false;
-    }
+
     if (!inputValidator.isPortNumber(sanitizedFormData.databasePort)) {
       self.emit('config_error', 'Invalid database port');
       var valid = false;
@@ -640,6 +640,8 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Invalid database password, must be atleast 4 characters and contain atleast one number');
       var valid = false;
     }
+    
+    //-------------------------------Admin User------------------------
     if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.adminUserName)) {
       self.emit('config_error', 'Invalid admin username, must be alphanumeric with atleast 4 and no more than 35 characters');
       var valid = false;
@@ -648,14 +650,40 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Invalid admin password, must be atleast 4 characters and contain atleast one number');
       var valid = false;
     }
+   
+    //-------------------------------Game Setup------------------------
     if (!inputValidator.is4to35Char(sanitizedFormData.gameName)) {
       self.emit('config_error', 'Invalid game module name, must be alphanumeric with atleast 4 and no more than 35 characters');
       var valid = false;
     }
+    console.log(sanitizedFormData.gameSource);
+    console.log(sanitizedFormData.gameSource.originalname);
+    if (!inputValidator.isCorrectGameName(sanitizedFormData.gameSource.originalname)) {
+      self.emit('config_error', 'Game Module Source must be named Game.java');
+      var valid = false;
+    }
+    
+    if (!inputValidator.isPdfFile(sanitizedFormData.gameRules.originalname)) {
+      self.emit('config_error', 'Game Module Rules file must have a .pdf extension');
+      var valid = false;
+    }
+    console.log(sanitizedFormData);
+    if (!inputValidator.isJavascriptFile(sanitizedFormData.gameJavascript.originalname)) {
+      self.emit('config_error', 'Game Module Javascript file must have a .js extension');
+      var valid = false;
+    }
+    
+    if (!inputValidator.isZipFile(sanitizedFormData.gameResources.originalname)) {
+      self.emit('config_error', 'Game Module Resources file must have a .zip extension');
+      var valid = false;
+    }
+    
     if (!inputValidator.isMoveTimeout(sanitizedFormData.gameMoveTimeout)) {
       self.emit('config_error', 'Invalid game move timeout, must be a number of seconds between 0 and 300');
       var valid = false;
     }
+    
+    //-------------------------------Torunament Setup------------------------
     if (!inputValidator.is4to35Char(sanitizedFormData.tournamentName)) {
       self.emit('config_error', 'Invalid tournament name, must be alphanumeric with atleast 4 and no more than 35 characters');
       var valid = false;

@@ -44,13 +44,12 @@ function Logger(destination) {
       message += " " + "general" + ": " + arguments[0];
     }
     
-    for (var i = 1; i < arguments.length; i++) {
-      message += " " + arguments[i]; 
-    }
+    arguments[0] = message;
     
-    if (destination === 'console') {
-      console.log(message);
+    if(console){
+      console.log.apply(console, arguments);
     }
+
   }
 };
 module.exports = Logger;
