@@ -2,13 +2,11 @@
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Scanner;
 
 /**
  * @author Randall
@@ -18,11 +16,14 @@ public class Player implements Runnable {
   public static final boolean HUMAN = false;
   public static final boolean BOT = true;
   
-  protected String botFilePath;
-  protected Process botProcess;
   protected String usersName;
+  protected String botFilePath;
+  
+  protected Process botProcess;
+  protected InputStream stderr;
   protected BufferedReader reader;
   protected BufferedWriter writer;
+  
   protected boolean humanOrBot;
   protected volatile boolean read;
   protected volatile String move;
@@ -50,9 +51,10 @@ public class Player implements Runnable {
     
     OutputStream stdin = botProcess.getOutputStream();
     InputStream stdout = botProcess.getInputStream();
-
+    stderr = botProcess.getErrorStream();
+    
     reader = new BufferedReader(new InputStreamReader(stdout));
-    writer = new BufferedWriter(new OutputStreamWriter(stdin));
+    writer = new BufferedWriter(new OutputStreamWriter(stdin));  
     
     humanOrBot = BOT;
     read = false;
@@ -94,6 +96,24 @@ public class Player implements Runnable {
       botProcess.destroyForcibly();
       return null;
     }
+  }
+  
+  public String getAnyStderr() {
+    if(  humanOrBot == HUMAN ) {
+      return "";
+    }
+
+    int avalBytes;
+    try {
+      avalBytes = stderr.available();
+      byte[] buff = new byte[avalBytes];
+  
+      stderr.read(buff, 0, avalBytes);
+      
+      return new String(buff);
+    } catch (IOException e) {
+      return "Exception thrown while trying to read bots stderr.";
+    }  
   }
   
   public String getBotFilePath() {
