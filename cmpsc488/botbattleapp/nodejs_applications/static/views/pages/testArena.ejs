@@ -2,24 +2,18 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head><% include ../partials/head %>
-</head>
-<body onbeforeunload="return leave()" class="container">
-
-  <header>
-    <% include ../partials/header %>
-
-    <!--<link rel="stylesheet" type="text/css" href="static/css/testArena.css" media="all" />-->
+<head>
+    <% include ../partials/head %>
     <script type="text/javascript" src="/static/javascript/async.js"></script>
-    
     <script type="text/javascript" src="/static/javascript/drawable.js"></script>
     <script type="text/javascript" src="<%= locals.gameJavascriptUrl %>"></script>
     <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
+</head>
 
-
+<body onbeforeunload="return leave()" class="container">
+  <header>
+    <% include ../partials/header %>
   </header>
-
-  <% include ../partials/message %>
 
   <div class="row">
     <div class="col-sm-4">
@@ -89,12 +83,6 @@
       <div id="stderr" class="scrollableBox"></div>
     </div>
 
-  </div>
-  <div class="row">
-    <div class="col-sm-12">
-      <h4>Event Log</h4>
-      <div id="eventLog" class="scrollableBox"></div>
-    </div>
   </div>
 
 </body>

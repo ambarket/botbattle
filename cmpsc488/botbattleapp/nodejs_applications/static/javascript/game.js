@@ -3,7 +3,7 @@
 GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
-      TEST_ARENA.appendDivToHtmlElementById('moveList', gameData.turnDescription);
+      GLOBAL.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
       //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
@@ -12,8 +12,8 @@ GAME = {
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
-      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
-      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
+      GLOBAL.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      GLOBAL.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
     

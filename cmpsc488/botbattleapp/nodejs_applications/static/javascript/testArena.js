@@ -23,8 +23,11 @@
        },
        'gameStateQueue' : null, //Set by resetGameStateQueue
        'state' : 'pageLoaded',
-
    }
+   
+   
+
+
    
    //----------------------------------TEST_ARENA State Transitions------------------------------------   
    TEST_ARENA.transitionPageToState = function(state) {
@@ -114,8 +117,8 @@
      $('#player2FileChoose').hide();
      $('#humanInput').show();
      $('#gameControlDiv').hide();
-     resetValueAttrributeById('player2_bot_upload');
-     resetValueAttrributeById('player1_bot_upload');
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+     GLOBAL.resetValueAttrributeById('player1_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = false;
    });
@@ -125,8 +128,8 @@
      $('#player2FileChoose').show();
      $('#humanInput').hide();
      $('#gameControlDiv').hide();
-     resetValueAttrributeById('player2_bot_upload');
-     resetValueAttrributeById('player1_bot_upload');
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+     GLOBAL.resetValueAttrributeById('player1_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = true;
    });
@@ -142,30 +145,30 @@
          response = JSON.parse(req.responseText);
        }
        catch (e) {
-         handleUnexpectedResponse('processBotUploads', req.responseText);
+         GLOBAL.handleUnexpectedResponse('processBotUploads', req.responseText);
          return; // Don't continue unless it was a json response.
        }
        try {
          if (req.status == 200) {
            if (response.status) {
              TEST_ARENA.myId = response.id;
-             flashStatusOrErrorMessage('status', response.status);
+             GLOBAL.eventLog.logMessage('status', response.status);
              TEST_ARENA.transitionPageToState('uploaded');
            }
            else if (response.error) {
-             flashStatusOrErrorMessage('error', response.error);
+             GLOBAL.eventLog.logMessage('error', response.error);
              TEST_ARENA.transitionPageToState('pageLoaded');
            } 
            else {
-             handleUnexpectedResponse('processBotUploads', response);
+             GLOBAL.handleUnexpectedResponse('processBotUploads', response);
            }
          } 
          else {
-           handleNonSuccessHttpStatus('processBotUploads', req.status, response);
+           GLOBAL.handleNonSuccessHttpStatus('processBotUploads', req.status, response);
          }
        }
        catch(err) {
-         handleClientError('processBotUploads', err);
+         GLOBAL.handleClientError('processBotUploads', err);
        }
      };
      req.send(data);
@@ -184,35 +187,35 @@
          response = JSON.parse(req.responseText);
        }
        catch (e) {
-         handleUnexpectedResponse('startNewGame', req.responseText);
+         GLOBAL.handleUnexpectedResponse('startNewGame', req.responseText);
          return; // Don't continue unless it was a json response.
        }
        try {
          if (req.status == 200) {
            switch(response.event) {
              case 'expiredID':
-               handleExpiredID();
+               GLOBAL.handleExpiredID();
                break;
              case 'gameAlreadyRunning':
-               flashStatusOrErrorMessage('error', "A running game is already associated with your ID, please kill the existing game before starting a new one.");
+               GLOBAL.eventLog.logMessage('error', "A running game is already associated with your ID, please kill the existing game before starting a new one.");
                break;
              case 'gameManagerNotFound':
-               handleServerError('startNewGame', response);
+               GLOBAL.handleServerError('startNewGame', response);
                break;
              case 'success':
-               flashStatusOrErrorMessage('status', "The game is loading, please wait.");
+               GLOBAL.eventLog.logMessage('status', "The game is loading, please wait.");
                TEST_ARENA.transitionPageToState('loadingGame');
                break;
              default:
-               handleUnexpectedResponse('startNewGame', response);
+               GLOBAL.handleUnexpectedResponse('startNewGame', response);
            }
          } 
          else {
-           handleNonSuccessHttpStatus('startNewGame', req.status, response);
+           GLOBAL.handleNonSuccessHttpStatus('startNewGame', req.status, response);
          }
        }
        catch(err) {
-         handleClientError('startNewGame', err);
+         GLOBAL.handleClientError('startNewGame', err);
        }
      }
      req.send();
@@ -249,32 +252,32 @@
          response = JSON.parse(req.responseText);
        }
        catch (e) {
-         handleUnexpectedResponse('sendMove', req.responseText);
+         GLOBAL.handleUnexpectedResponse('sendMove', req.responseText);
          return; // Don't continue unless it was a json response.
        }
        try {
          if (req.status == 200) {
            switch(response.event) {
              case 'expiredID':
-               handleExpiredID();
+               GLOBAL.handleExpiredID();
                break;
              case 'noGameRunning':
-               flashStatusOrErrorMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
+               GLOBAL.eventLog.logMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
                TEST_ARENA.transitionPageToState('uploaded');
                break;
              case 'success':
-               flashStatusOrErrorMessage('status', "Your move has been submitted.");
+               GLOBAL.eventLog.logMessage('status', "Your move has been submitted.");
                break;
              default:
-               handleUnexpectedResponse('sendMove', response);
+               GLOBAL.handleUnexpectedResponse('sendMove', response);
            }
          } 
          else {
-           handleNonSuccessHttpStatus('sendMove', req.status, response);
+           GLOBAL.handleNonSuccessHttpStatus('sendMove', req.status, response);
          }
        }
        catch(err) {
-         handleClientError('sendMove', err);
+         GLOBAL.handleClientError('sendMove', err);
        }
      }
      req.send();
@@ -292,29 +295,29 @@
          response = JSON.parse(req.responseText);
        }
        catch (e) {
-         handleUnexpectedResponse('killCurrentGame', req.responseText);
+         GLOBAL.handleUnexpectedResponse('killCurrentGame', req.responseText);
          return; // Don't continue unless it was a json response.
        }
        try {
          if (req.status == 200) {
            switch(response.event) {
              case 'expiredID':
-               handleExpiredID();
+               GLOBAL.handleExpiredID();
                break;
              case 'success':
-               flashStatusOrErrorMessage('killCurrentGame', "The game has been killed, start a new game or upload new bots to continue...");
+               GLOBAL.eventLog.logMessage('status', "The game has been killed, start a new game or upload new bots to continue...");
                TEST_ARENA.transitionPageToState('uploaded');
                break;
              default:
-               handleUnexpectedResponse('killCurrentGame', response);
+               GLOBAL.handleUnexpectedResponse('killCurrentGame', response);
            }
          } 
          else {
-           handleNonSuccessHttpStatus('killCurrentGame', req.status, response);
+           GLOBAL.handleNonSuccessHttpStatus('killCurrentGame', req.status, response);
          }
        }
        catch(err) {
-         handleClientError('killCurrentGame', err);
+         GLOBAL.handleClientError('killCurrentGame', err);
        }
      }
      req.send();
@@ -345,28 +348,26 @@
          response = JSON.parse(req.responseText);
        }
        catch (e) {
-         handleUnexpectedResponse('sendMove', req.responseText);
+         GLOBAL.handleUnexpectedResponse('sendMove', req.responseText);
          return; // Don't continue unless it was a json response.
        }
        try {
          if (req.status == 200) {
-           if (response.millisecondsUntilExpiration) {
+           if (response.millisecondsUntilExpiration < 60000 * 120) {
              var date = new Date(response.millisecondsUntilExpiration);
              var str = '';
              str += date.getUTCDate()-1 + " days, ";
              str += date.getUTCHours() + " hours, ";
              str += date.getUTCMinutes() + " minutes, ";
-             str += date.getUTCSeconds() + " seconds, ";
-             str += date.getUTCMilliseconds() + " millis";
-             console.log(str);
-             flashStatusOrErrorMessage('expirationWarning', "Your game session will expire in " + str);
+             str += date.getUTCSeconds() + " seconds";
+             GLOBAL.messageFlasher.flashMessage('warning', "Your game session will expire in " + str);
            }
            switch(response.event) {
              case 'expiredID':
-               handleExpiredID();
+               GLOBAL.handleExpiredID();
                break;
              case 'noStatesRemaining':
-               flashStatusOrErrorMessage('status', "Game is no longer running on server and game state queue is empty, stopping the requester");
+               GLOBAL.eventLog.logMessage('status', "Game is no longer running on server and game state queue is empty, stopping the requester");
                stopGameStateRequester();
                break;
              case 'success':
@@ -382,15 +383,15 @@
                }
                break;
              default:
-               handleUnexpectedResponse('getLatestGameStates', response);
+               GLOBAL.handleUnexpectedResponse('getLatestGameStates', response);
            }
          } 
          else {
-           handleNonSuccessHttpStatus('getLatestGameStates', req.status, response);
+           GLOBAL.handleNonSuccessHttpStatus('getLatestGameStates', req.status, response);
          }
        }
        catch(err) {
-         handleClientError('getLatestGameStates', err);
+         GLOBAL.handleClientError('getLatestGameStates', err);
        }
      }
      req.send();
@@ -439,7 +440,7 @@
          else {
            if (nextGameState.type === 'initial') {
              TEST_ARENA.transitionPageToState('gameStarted');
-             flashStatusOrErrorMessage('status', "We got the initial game state");
+             GLOBAL.eventLog.logMessage('status', "We got the initial game state");
              GAME.resetGameboard(function(err) {
                var draw = function() {
                  GAME.drawer.drawBoard();
@@ -452,12 +453,12 @@
              });
            }
            else if (nextGameState.type === 'midGame') {
-             flashStatusOrErrorMessage('status', "We got a midGame game state");
+             GLOBAL.eventLog.logMessage('status', "We got a midGame game state");
              passGameStateToGAME(nextGameState);
            }
            else if (nextGameState.type === 'final') {
              TEST_ARENA.transitionPageToState('gameFinished');
-             flashStatusOrErrorMessage('status', "We got the final game state");
+             GLOBAL.eventLog.logMessage('status', "We got the final game state");
              passGameStateToGAME(nextGameState);
            }
            else {
@@ -470,27 +471,7 @@
      })();
    }
    
-   //----------------------------------Helper Stuff------------------------------------
-     var resetValueAttrributeById = function(id) {
-       document.getElementById(id).value = "";
-     }
-   
-     TEST_ARENA.appendArrayOfDivsToHtmlElementById = function(id, contentArray) {
-       for (var i = 0; i < contentArray.length; i++) {
-         TEST_ARENA.appendDivToHtmlElementById(id, contentArray[i]);
-       }
-     }
-
-     TEST_ARENA.appendDivToHtmlElementById = function(id, content) {
-       //Add debugging data to the page
-       var element =  document.getElementById(id);
-       var html = [];
-       html.push(element.innerHTML);
-       html.push('<div>' + content + '</div>');
-       element.innerHTML = html.join('');
-       element.scrollTop = element.scrollHeight;
-     }
-     
+   //----------------------------------Helper Stuff------------------------------------     
      TEST_ARENA.coinFlip = function(weight){
        var coin = Math.random();
        if(weight){
