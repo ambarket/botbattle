@@ -576,27 +576,27 @@ function InitialConfigurationApp(initConfigAppServer) {
      { fieldname: 'gameRules',
        originalname: 'SaveTheIslandGameRules.pdf',
        name: 'SaveTheIslandGameRules.pdf',
-       path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/SaveTheIslandGameRules.pdf',
+       path: paths.built_in_games.save_the_island.rules_pdf,
        extension: 'pdf',
      };
     sanitizedFormData.gameSource = 
        { fieldname: 'gameSource',
          originalname: 'Game.java',
          name: 'Game.java',
-         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/Game.java',
+         path: paths.built_in_games.save_the_island.game_java,
          extension: 'java',
        };
     sanitizedFormData.gameJavascript =
        { fieldname: 'gameJavascript',
          originalname: 'game.js',
          name: 'game.js',
-         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/game.js',
+         path: paths.built_in_games.save_the_island.game_js,
        };
     sanitizedFormData.gameResources = 
        { fieldname: 'gameResources',
          originalname: 'resources.zip',
          name: 'resources.zip',
-         path: '/home/amb6470/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/built_in_games/save_the_island/resources.zip',
+         path: paths.built_in_games.save_the_island.resources_zip,
          extension: 'zip'
        };
   }

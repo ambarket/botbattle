@@ -3,7 +3,7 @@
 GAME = {
     'processGameData' : function(gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
-      TEST_ARENA.appendDivToHtmlElementById('moveList', gameData.turnDescription);
+      GLOBAL.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
       //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
@@ -12,8 +12,8 @@ GAME = {
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
-      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
-      TEST_ARENA.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
+      GLOBAL.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      GLOBAL.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
     
@@ -645,8 +645,8 @@ var GameBoard = function() {
         input.value = i;
         input.id = "player2Tile" + i;
         form.appendChild(input); 
-        input = document.createElement("input");
-        document.getElementById(("player2Tile" + i).toString()).innerHTML = i;  
+        var text = document.createTextNode(" " + i);
+        form.appendChild(text);
         form.appendChild(document.createElement("br"));
       }
     }
@@ -658,8 +658,8 @@ var GameBoard = function() {
       input.value = "right";
       input.id = "rightButton";
       form.appendChild(input); 
-      input = document.createElement("input");
-      document.getElementById("rightButton").innerHTML = "Right";
+      var text = document.createTextNode("right");
+      form.appendChild(text);
     }
     temp = document.getElementById("leftButton")
     if(temp === null){
@@ -669,8 +669,8 @@ var GameBoard = function() {
       input.value = "left";
       input.id = "leftButton";
       form.appendChild(input); 
-      input = document.createElement("input");
-      document.getElementById("leftButton").innerHTML = "Left";
+      var text = document.createTextNode("left");
+      form.appendChild(text);
     }
   }
 }

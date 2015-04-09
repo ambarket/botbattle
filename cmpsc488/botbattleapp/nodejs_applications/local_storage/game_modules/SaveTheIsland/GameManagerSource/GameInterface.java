@@ -16,8 +16,8 @@ public interface GameInterface {
   boolean isGameOver(String board);
 
   boolean isGameWon(String board);
-
-  String getHTMLForBoard(String board);
+  
+  public String getJSONStringForThisTurn(String board, String move, int player);
 
   String getJSONstringFromGameResults(GameResults results);
 

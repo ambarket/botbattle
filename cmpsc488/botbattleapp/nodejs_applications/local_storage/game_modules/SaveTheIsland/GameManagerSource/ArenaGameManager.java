@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.HashMap;
 
 public class ArenaGameManager {
-
+  public static  String path = "C:\\Users\\Kitty\\git\\botbattle\\cmpsc488\\botbattleapp\\GameManager\\bin";
   public static void main(String[] args) {
     // see https://code.google.com/p/json-simple/ for the library used
     // command line compilation: javac -classpath Jars/json-simple-1.1.1.jar Production/*.java Games/Game.java
@@ -94,19 +94,23 @@ public class ArenaGameManager {
     
     // Exit because we sent the final gameState and are done.
     
+    
     /*  Other code.
     if (args.length < 2) {
       System.err.println("Must supplie arguments of bot path and username.");
       System.exit(1);
     }
 
-    String botPath = args[0];
-    String username = args[1];
+    //String botPath = args[0];
+    //String username = args[1];
+    String botPath = path;
+    String username = "rvh5220";
+    
     Player bot = null;
 
     System.out.flush();
     try {
-      bot = new Player(botPath, "rvh5220");
+      bot = new Player(botPath, username);
     } catch (IOException e) {
       System.out.println("An Exception was thrown.");
     }
