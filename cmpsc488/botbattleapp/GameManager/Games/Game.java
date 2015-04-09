@@ -200,6 +200,19 @@ public class Game implements GameInterface {
     return output;
   }
   
+  private String getType(String board, String move, int player) {
+    String s = "\"type\": ";
+    if(player == 0) { //initial
+     s += "\"initial\",";
+    } else if( isGameWon(board) ) { //final
+      s += "\"final\",";
+    } else {
+      s += "\"midGame\",";
+    }
+    
+    return s;
+  }
+  
   public String getJSONStringForThisTurn(String board, String move, int player) {
     String jsonString = "{";
     
