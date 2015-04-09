@@ -81,7 +81,6 @@ module.exports = new (function() {
 
   // Pass the gameModule object of the game to play
   this.createNewGame = function(gameModule, callback) {
-    console.log("GameModule /n\n", gameModule);
     // create new gameId, create new testArenaInstance, create file structure for the instance, and finally pass the newGameId to the callback.
     var newGameId = require('shortid').generate();
     testArenaInstances[newGameId] = { 
