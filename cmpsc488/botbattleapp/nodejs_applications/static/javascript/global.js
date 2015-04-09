@@ -108,30 +108,30 @@ GLOBAL.eventLog = new (function() {
 // ----------------------------------Error Handling------------------------------------
 GLOBAL.handleExpiredID = function() {
   console.log("The record associated with your id has expired. Please upload new bots to continue.");
-  GLOBAL.logMessageInHTML('error',
+  GLOBAL.eventLog.logMessage('error',
       "The record associated with your id has expired. Please upload new bots to continue.");
 }
 
 GLOBAL.handleServerError = function(origin, response) {
-  GLOBAL.logMessageInHTML('error',
+  GLOBAL.eventLog.logMessage('error',
       "A server error occurred while processing your request, if this problem persists see your administrator.");
   console.log("Server error in", origin, "Response:", response);
 }
 
 GLOBAL.handleClientError = function(origin, err) {
-  GLOBAL.logMessageInHTML('error',
+  GLOBAL.eventLog.logMessage('error',
       "A client error occurred while processing your request, if this problem persists see your administrator.");
   console.log("Client error in", origin, "Error:", err);
 }
 
 GLOBAL.handleNonSuccessHttpStatus = function(origin, status, response) {
-  GLOBAL.logMessageInHTML('error', "HTTP Error", status,
+  GLOBAL.eventLog.logMessage('error', "HTTP Error", status,
       "received while processing your request, if this problem persists see your administrator.");
   console.log("HTTP Error", status, "in", origin, "Response:", response);
 }
 
 GLOBAL.handleUnexpectedResponse = function(origin, response) {
-  GLOBAL.logMessageInHTML('error',
+  GLOBAL.eventLog.logMessage('error',
       "Unexpected response received while processing your request, if this problem persists see your administrator.");
   console.log("Unexpected response in", origin, "Response:", response);
 }
