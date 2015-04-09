@@ -134,6 +134,7 @@ module.exports = {
       else {
         var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
         // Move and compile bot for player 1
+        var newBot1Directory = path.resolve(gameFolder, "bot1");
         var newBot1Path = path.resolve(gameFolder, "bot1", testArenaInstances.getGame(req.newGameId).bot1Name);
         fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot1SourcePath, newBot1Path, function(err){
           if (err) {
@@ -144,6 +145,7 @@ module.exports = {
           else {
             logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Successfully moved source file"));
             testArenaInstances.getGame(req.newGameId).bot1SourcePath = newBot1Path;
+            testArenaInstances.getGame(req.newGameId).bot1Directory = newBot1Directory;
             compiler.compile(newBot1Path, function(err, compiledFilePath){
               if(err){
                 logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to compile source file"));
@@ -162,7 +164,9 @@ module.exports = {
                     }); 
                 }
                 else { // Move and compile bot for player 2
+                  var newBot2Directory = path.resolve(gameFolder, "bot2");
                   var newBot2Path = path.resolve(gameFolder, "bot2", testArenaInstances.getGame(req.newGameId).bot2Name);
+                  
                   fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot2SourcePath, newBot2Path, function(err){
                     if (err) {
                       logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Failed to move source file"));
@@ -171,6 +175,7 @@ module.exports = {
                     }
                     else {
                       testArenaInstances.getGame(req.newGameId).bot2SourcePath = newBot2Path;
+                      testArenaInstances.getGame(req.newGameId).bot2Directory = newBot2Directory;
                       logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Successfully moved source file"));
                       compiler.compile(newBot2Path, function(err, compiledFilePath){
                         if(err){

@@ -19,27 +19,16 @@ public class ArenaGameManager {
   // arg[1] should be a JSON string containing all other information.
   public static void main(String[] args) throws IOException {
     
-	  
     if (args.length < 2 || !args[0].equals("testarena")) {
       System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
-      //System.exit(1);
-      args = new String[2];args[0] = "testarena";
-	  args[1] = "{\"numberOfBots\":1,"
-	  		+ "\"bot1\":{"
-	  		+ 	"\"path\":\"/home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1KowMts/bot1/SaveIslandBot1.class\","
-	  		+ 	"\"language\":\"java\","
-	  		+ 	"\"name\":\"SaveIslandBot1\","
-	  		+ 	"\"directory\":\"/home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1KowMts/bot1\""
-	  		+ "}}";
-
+      System.exit(1);
     }
-    System.err.println(args[1]);
  
     JSONObject arenaInfo = (JSONObject) JSONValue.parse(args[1]);
     JSONObject bot1 = (JSONObject) arenaInfo.get("bot1");
     JSONObject bot2 = (JSONObject) arenaInfo.get("bot2");
     
-    printJSONInfo(args, arenaInfo, bot1, bot2);
+    //printJSONInfo(args, arenaInfo, bot1, bot2);
     
     Long numOfBots = (Long) arenaInfo.get("numberOfBots");
     Player plyr1 = null, plyr2 = null;
@@ -53,14 +42,14 @@ public class ArenaGameManager {
       plyr2 = new Player();
       
     } else {
-      String path = (String) bot1.get("directory");
+      String path = (String) bot1.get("path");
       String lang = (String) bot1.get("language");
-      String username = (String) bot1.get("name");
+      String username = (String) bot1.get("username");
 
       plyr1 = new Player(path, username, getLanguage(lang));
-      path = (String) bot2.get("directory");
+      path = (String) bot2.get("path");
       lang = (String) bot2.get("language");
-      username = (String) bot2.get("name");
+      username = (String) bot2.get("username");
 
       plyr2 = new Player(path, username, getLanguage(lang));
       
@@ -90,13 +79,12 @@ public class ArenaGameManager {
     System.err.println("NUMBER_OF_BOTS: " + parsed.get("numberOfBots"));
     System.err.println("BOT1: " + bot1);
     System.err.println("BOT1_LANGUAGE: " + bot1.get("language"));
-    System.err.println("BOT1_PATH: " + bot1.get("directory"));
-    System.err.println("Username1: " + bot1.get("name"));
+    System.err.println("BOT1_PATH: " + bot1.get("path"));
+    System.err.println("Username1: " + bot1.get("username"));
     if (bot2 != null) {
       System.err.println("BOT2: " + bot2);
       System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
-      System.err.println("BOT2_PATH: " + bot2.get("directory"));
-      System.err.println("Username2: " + bot2.get("name"));
+      System.err.println("BOT2_PATH: " + bot2.get("path"));
     }
   }
 

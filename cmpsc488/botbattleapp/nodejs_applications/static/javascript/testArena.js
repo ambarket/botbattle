@@ -448,6 +448,8 @@
        var passGameStateToGAME = function(nextGameState) {
          // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
          GAME.processGameData(nextGameState.gameData, function(err) {
+           //TODO: make this called when receive humanInputEnabled = true in move.
+           GAME.getHumanInput();
            GAME.processDebugData(nextGameState.debugData, function(err) {
              async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
                processNextGameState();

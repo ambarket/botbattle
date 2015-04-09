@@ -88,6 +88,10 @@ module.exports = new (function() {
         'gameState' : null,
         'gameExpireDateTime' : null,
         'gameModule' : gameModule,
+        'bot1Name' : null,
+        'bot2Name' : null,
+        'bot1Directory' : null,
+        'bot2Directory' : null,
         'bot1SourcePath' : null,
         'bot2SourcePath' : null,
         'bot1CompiledPath' : null,
@@ -161,17 +165,26 @@ module.exports = new (function() {
           jsonArgument.bot1 = { 'path' : testArenaInstances[id].bot1CompiledPath };  
           if (jsonArgument.bot1.path.match(/.class$/)) {
             jsonArgument.bot1.language = 'java';
+            jsonArgument.bot1.name = testArenaInstances[id].bot1Name.substring(0, testArenaInstances[id].bot1Name.length-5);
+            jsonArgument.bot1.directory = testArenaInstances[id].bot1Directory;
+            console.log("Java name test: ", jsonArgument.bot1.name)
           }
           else {
             jsonArgument.bot1.language = 'c++';
+            jsonArgument.bot1.name = testArenaInstances[id].bot1Name;
+            jsonArgument.bot1.directory = testArenaInstances[id].bot1Directory;
           }
           if (jsonArgument.numberOfBots === 2) {
             jsonArgument.bot2 = { 'path' : testArenaInstances[id].bot2CompiledPath };  
             if (jsonArgument.bot2.path.match(/.class$/)) {
               jsonArgument.bot2.language = 'java';
+              jsonArgument.bot2.name = testArenaInstances[id].bot2Name.substring(0, testArenaInstances[id].bot2Name.length-5);
+              jsonArgument.bot2.directory = testArenaInstances[id].bot2Directory;
             }
             else {
               jsonArgument.bot2.language = 'c++';
+              jsonArgument.bot2.name = testArenaInstances[id].bot2Name;
+              jsonArgument.bot2.directory = testArenaInstances[id].bot2Directory;
             }
           }
 
