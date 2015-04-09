@@ -13,8 +13,7 @@ public class ArenaGameManager {
   
   //TODO look at final position field in animated events. It should be for the attacked player?
   //TODO test animated events fields based on requirements from Steven and Austin
-  //TODO capture bots stderr and add to json response
-  //TODO check if human users input is valid, and if not then dont advance until it is
+
   
   // arg[0] should be "testarena"
   // arg[1] should be a JSON string containing all other information.
