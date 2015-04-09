@@ -1,6 +1,5 @@
 GLOBAL = {};
 
-console.log(RENDERED_LOCALS);
 GLOBAL.resetValueAttrributeById = function(id) {
   document.getElementById(id).value = "";
 }
@@ -111,43 +110,28 @@ GLOBAL.handleExpiredID = function() {
   console.log("The record associated with your id has expired. Please upload new bots to continue.");
   GLOBAL.logMessageInHTML('error',
       "The record associated with your id has expired. Please upload new bots to continue.");
-  if (TEST_ARENA) {
-    TEST_ARENA.transitionPageToState('pageLoaded');
-  }
 }
 
 GLOBAL.handleServerError = function(origin, response) {
   GLOBAL.logMessageInHTML('error',
       "A server error occurred while processing your request, if this problem persists see your administrator.");
   console.log("Server error in", origin, "Response:", response);
-  if (TEST_ARENA) {
-    TEST_ARENA.transitionPageToState('pageLoaded');
-  }
 }
 
 GLOBAL.handleClientError = function(origin, err) {
   GLOBAL.logMessageInHTML('error',
       "A client error occurred while processing your request, if this problem persists see your administrator.");
   console.log("Client error in", origin, "Error:", err);
-  if (TEST_ARENA) {
-    TEST_ARENA.transitionPageToState('pageLoaded');
-  }
 }
 
 GLOBAL.handleNonSuccessHttpStatus = function(origin, status, response) {
   GLOBAL.logMessageInHTML('error', "HTTP Error", status,
       "received while processing your request, if this problem persists see your administrator.");
   console.log("HTTP Error", status, "in", origin, "Response:", response);
-  if (TEST_ARENA) {
-    TEST_ARENA.transitionPageToState('pageLoaded');
-  }
 }
 
 GLOBAL.handleUnexpectedResponse = function(origin, response) {
   GLOBAL.logMessageInHTML('error',
       "Unexpected response received while processing your request, if this problem persists see your administrator.");
   console.log("Unexpected response in", origin, "Response:", response);
-  if (TEST_ARENA) {
-    TEST_ARENA.transitionPageToState('pageLoaded');
-  }
 }

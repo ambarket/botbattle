@@ -146,6 +146,7 @@
        }
        catch (e) {
          GLOBAL.handleUnexpectedResponse('processBotUploads', req.responseText);
+         TEST_ARENA.transitionPageToState('pageLoaded');
          return; // Don't continue unless it was a json response.
        }
        try {
@@ -161,14 +162,17 @@
            } 
            else {
              GLOBAL.handleUnexpectedResponse('processBotUploads', response);
+             TEST_ARENA.transitionPageToState('pageLoaded');
            }
          } 
          else {
            GLOBAL.handleNonSuccessHttpStatus('processBotUploads', req.status, response);
+           TEST_ARENA.transitionPageToState('pageLoaded');
          }
        }
        catch(err) {
          GLOBAL.handleClientError('processBotUploads', err);
+         TEST_ARENA.transitionPageToState('pageLoaded');
        }
      };
      req.send(data);
@@ -188,6 +192,7 @@
        }
        catch (e) {
          GLOBAL.handleUnexpectedResponse('startNewGame', req.responseText);
+         TEST_ARENA.transitionPageToState('pageLoaded');
          return; // Don't continue unless it was a json response.
        }
        try {
@@ -195,12 +200,14 @@
            switch(response.event) {
              case 'expiredID':
                GLOBAL.handleExpiredID();
+               TEST_ARENA.transitionPageToState('pageLoaded');
                break;
              case 'gameAlreadyRunning':
                GLOBAL.eventLog.logMessage('error', "A running game is already associated with your ID, please kill the existing game before starting a new one.");
                break;
              case 'gameManagerNotFound':
                GLOBAL.handleServerError('startNewGame', response);
+               TEST_ARENA.transitionPageToState('pageLoaded');
                break;
              case 'success':
                GLOBAL.eventLog.logMessage('status', "The game is loading, please wait.");
@@ -208,14 +215,18 @@
                break;
              default:
                GLOBAL.handleUnexpectedResponse('startNewGame', response);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+               break;
            }
          } 
          else {
            GLOBAL.handleNonSuccessHttpStatus('startNewGame', req.status, response);
+           TEST_ARENA.transitionPageToState('pageLoaded');
          }
        }
        catch(err) {
          GLOBAL.handleClientError('startNewGame', err);
+         TEST_ARENA.transitionPageToState('pageLoaded');
        }
      }
      req.send();
@@ -253,6 +264,7 @@
        }
        catch (e) {
          GLOBAL.handleUnexpectedResponse('sendMove', req.responseText);
+         TEST_ARENA.transitionPageToState('pageLoaded');
          return; // Don't continue unless it was a json response.
        }
        try {
@@ -260,6 +272,7 @@
            switch(response.event) {
              case 'expiredID':
                GLOBAL.handleExpiredID();
+               TEST_ARENA.transitionPageToState('pageLoaded');
                break;
              case 'noGameRunning':
                GLOBAL.eventLog.logMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
@@ -270,14 +283,18 @@
                break;
              default:
                GLOBAL.handleUnexpectedResponse('sendMove', response);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+               break;
            }
          } 
          else {
            GLOBAL.handleNonSuccessHttpStatus('sendMove', req.status, response);
+           TEST_ARENA.transitionPageToState('pageLoaded');
          }
        }
        catch(err) {
          GLOBAL.handleClientError('sendMove', err);
+         TEST_ARENA.transitionPageToState('pageLoaded');
        }
      }
      req.send();
@@ -296,6 +313,7 @@
        }
        catch (e) {
          GLOBAL.handleUnexpectedResponse('killCurrentGame', req.responseText);
+         TEST_ARENA.transitionPageToState('pageLoaded');
          return; // Don't continue unless it was a json response.
        }
        try {
@@ -303,6 +321,7 @@
            switch(response.event) {
              case 'expiredID':
                GLOBAL.handleExpiredID();
+               TEST_ARENA.transitionPageToState('pageLoaded');
                break;
              case 'success':
                GLOBAL.eventLog.logMessage('status', "The game has been killed, start a new game or upload new bots to continue...");
@@ -310,14 +329,18 @@
                break;
              default:
                GLOBAL.handleUnexpectedResponse('killCurrentGame', response);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+               break;
            }
          } 
          else {
            GLOBAL.handleNonSuccessHttpStatus('killCurrentGame', req.status, response);
+           TEST_ARENA.transitionPageToState('pageLoaded');
          }
        }
        catch(err) {
          GLOBAL.handleClientError('killCurrentGame', err);
+         TEST_ARENA.transitionPageToState('pageLoaded');
        }
      }
      req.send();
@@ -349,6 +372,7 @@
        }
        catch (e) {
          GLOBAL.handleUnexpectedResponse('sendMove', req.responseText);
+         TEST_ARENA.transitionPageToState('pageLoaded');
          return; // Don't continue unless it was a json response.
        }
        try {
@@ -365,6 +389,7 @@
            switch(response.event) {
              case 'expiredID':
                GLOBAL.handleExpiredID();
+               TEST_ARENA.transitionPageToState('pageLoaded');
                break;
              case 'noStatesRemaining':
                GLOBAL.eventLog.logMessage('status', "Game is no longer running on server and game state queue is empty, stopping the requester");
@@ -384,14 +409,18 @@
                break;
              default:
                GLOBAL.handleUnexpectedResponse('getLatestGameStates', response);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+               break;
            }
          } 
          else {
            GLOBAL.handleNonSuccessHttpStatus('getLatestGameStates', req.status, response);
+           TEST_ARENA.transitionPageToState('pageLoaded');
          }
        }
        catch(err) {
          GLOBAL.handleClientError('getLatestGameStates', err);
+         TEST_ARENA.transitionPageToState('pageLoaded');
        }
      }
      req.send();
