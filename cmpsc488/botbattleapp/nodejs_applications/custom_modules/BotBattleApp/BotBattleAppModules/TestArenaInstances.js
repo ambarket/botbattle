@@ -81,6 +81,7 @@ module.exports = new (function() {
 
   // Pass the gameModule object of the game to play
   this.createNewGame = function(gameModule, callback) {
+    console.log("GameModule /n\n", gameModule);
     // create new gameId, create new testArenaInstance, create file structure for the instance, and finally pass the newGameId to the callback.
     var newGameId = require('shortid').generate();
     testArenaInstances[newGameId] = { 
@@ -145,7 +146,8 @@ module.exports = new (function() {
         return 'gameAlreadyRunning';
       } 
       else {
-        if (!testArenaInstances[id].gameModule.directories.gameManagerCompiled) {
+        //TODO : added test for bad database
+        if (!testArenaInstances[id].gameModule.directories || !testArenaInstances[id].gameModule.directories.gameManagerCompiled) {
           logger.log("TestArenaInstances", 
               helpers.getLogMessageAboutGame(id, "Path to GameManager classFiles is null, cannot spawn"));
           return 'gameManagerNotFound';

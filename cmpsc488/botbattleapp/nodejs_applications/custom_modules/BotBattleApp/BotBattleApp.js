@@ -223,6 +223,7 @@ function registerTestArenaRoutes(server, database) {
     // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
     // These will be handled on the client side accordingly.
     var event = testArenaInstances.spawnNewGameInstance(req.query.id);
+    //TODO: Event is sent to client and fails at Global when GLOBAL.logMessageInHTML('error' is called.
     res.json({ 'event' : event });
   });
   
