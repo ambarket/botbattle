@@ -54,10 +54,10 @@ public class Game implements GameInterface {
       board = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
     } else if (move.startsWith("retreat")) {
       board = Board.movePlayer(board, player, -value);
-      replacePlayersTiles(Game.Board.getNewTiles(board, player, value, 1), player);
+      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
     } else if (move.startsWith("move")) {
       board = Board.movePlayer(board, player, value);
-      replacePlayersTiles(Game.Board.getNewTiles(board, player, value, 1), player);
+      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
     }
 
     lastPlayersTurn = player;
@@ -65,9 +65,9 @@ public class Game implements GameInterface {
   
   protected void replacePlayersTiles(String newTiles, int player) {
     if(player == 1) {
-      board = newTiles + ";" + Game.Board.getIsland(board) + ";" + Game.Board.getPlayersTiles(2, board);
+      board = newTiles + ";" + Board.getIsland(board) + ";" + Board.getPlayersTiles(2, board);
     } else {
-      board = Game.Board.getPlayersTiles(2, board) + ";" + Game.Board.getIsland(board) + ";" + newTiles;
+      board = Board.getPlayersTiles(2, board) + ";" + Board.getIsland(board) + ";" + newTiles;
     }
   }
 
@@ -256,7 +256,7 @@ public class Game implements GameInterface {
     int player = lastPlayersTurn;
     String jsonString = "{";
 
-    int finalPos = Game.Board.getIsland(board).indexOf(String.valueOf(player));
+    int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
 
     jsonString += getType(move, player) + ",";
     jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
@@ -269,11 +269,11 @@ public class Game implements GameInterface {
 
     if (isValidMove(move, player)) {
       jsonString +=
-          gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board),
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
     } else {
       jsonString +=
-          gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board),
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               "Invalid Move") + ",";
     }
 
@@ -293,7 +293,7 @@ public class Game implements GameInterface {
 
     jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
     jsonString +=
-        gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board),
+        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
             "initial board") + "}";
 
 
@@ -310,7 +310,7 @@ public class Game implements GameInterface {
       }
       jsonString += animation + ",";
       jsonString +=
-          gameDataJSON(Game.Board.getPlayersTiles(1, board), Game.Board.getPlayersTiles(2, board), desc)
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc)
               + "}";
     }
 
