@@ -207,7 +207,7 @@ public class Game implements GameInterface {
     } else if( isGameWon(board) ) { //final
       s += "\"final\",";
     } else {
-      s += "\"midGame\",";
+      s += "\"midGame\"";
     }
     
     return s;
@@ -217,6 +217,9 @@ public class Game implements GameInterface {
     String jsonString = "{";
     
     int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
+    
+    jsonString += getType(board, move, player) + ",";
+    jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
     
     if(move == null){
       jsonString += animatedEventJSON("null Move", "Player" + player, finalPos) + ",";
