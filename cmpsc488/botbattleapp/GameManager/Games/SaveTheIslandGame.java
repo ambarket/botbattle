@@ -47,20 +47,34 @@ public class SaveTheIslandGame implements GameInterface {
   }
 
   public void updateBoard(String move, int player) {
-    String updatedBoard = "";
+
     String[] peices = move.split(";");
     int value = Integer.parseInt(peices[1].substring(0, 1));
     if (move.startsWith("attack")) {
-      updatedBoard = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
+      board = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
     } else if (move.startsWith("retreat")) {
-      updatedBoard = Board.movePlayer(board, player, -value);
+      board = Board.movePlayer(board, player, -value);
+      replacePlayersTiles(SaveTheIslandGame.Board.getNewTiles(board, player, value, 1), player);
     } else if (move.startsWith("move")) {
-      updatedBoard = Board.movePlayer(board, player, value);
+      board = Board.movePlayer(board, player, value);
+      replacePlayersTiles(SaveTheIslandGame.Board.getNewTiles(board, player, value, 1), player);
     }
-    board = updatedBoard;
+
     lastPlayersTurn = player;
   }
+  
+  protected void replacePlayersTiles(String newTiles, int player) {
+    if(player == 1) {
+      board = newTiles + ";" + SaveTheIslandGame.Board.getIsland(board) + ";" + SaveTheIslandGame.Board.getPlayersTiles(2, board);
+    } else {
+      board = SaveTheIslandGame.Board.getPlayersTiles(2, board) + ";" + SaveTheIslandGame.Board.getIsland(board) + ";" + newTiles;
+    }
+  }
 
+  protected void setBoard(String newBoard) {
+    board= newBoard;
+  }
+  
   public boolean isGameOver() {
     
     if(over) {
@@ -242,7 +256,7 @@ public class SaveTheIslandGame implements GameInterface {
     int player = lastPlayersTurn;
     String jsonString = "{";
 
-    int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
+    int finalPos = SaveTheIslandGame.Board.getIsland(board).indexOf(String.valueOf(player));
 
     jsonString += getType(move, player) + ",";
     jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
@@ -255,11 +269,11 @@ public class SaveTheIslandGame implements GameInterface {
 
     if (isValidMove(move, player)) {
       jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+          gameDataJSON(SaveTheIslandGame.Board.getPlayersTiles(1, board), SaveTheIslandGame.Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
     } else {
       jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+          gameDataJSON(SaveTheIslandGame.Board.getPlayersTiles(1, board), SaveTheIslandGame.Board.getPlayersTiles(2, board),
               "Invalid Move") + ",";
     }
 
@@ -279,7 +293,7 @@ public class SaveTheIslandGame implements GameInterface {
 
     jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
     jsonString +=
-        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+        gameDataJSON(SaveTheIslandGame.Board.getPlayersTiles(1, board), SaveTheIslandGame.Board.getPlayersTiles(2, board),
             "initial board") + "}";
 
 
@@ -296,7 +310,7 @@ public class SaveTheIslandGame implements GameInterface {
       }
       jsonString += animation + ",";
       jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc)
+          gameDataJSON(SaveTheIslandGame.Board.getPlayersTiles(1, board), SaveTheIslandGame.Board.getPlayersTiles(2, board), desc)
               + "}";
     }
 
@@ -338,7 +352,7 @@ public class SaveTheIslandGame implements GameInterface {
       return distance.length() - 1;
     }
 
-    public static String replacePlayersTiles(String board, int player, int value, int numOfValues) {
+    public static String getNewTiles(String board, int player, int value, int numOfValues) {
       Random rng = new Random();
 
       String tiles = getPlayersTiles(player, board);
@@ -401,7 +415,7 @@ public class SaveTheIslandGame implements GameInterface {
         }
       }
 
-      replacePlayersTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
+      getNewTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
 
       if (defenseTiles < numOfAttacks) { // Attack was succesful
         int attacker = (victim == 1 ? 2 : 1);

@@ -1,12 +1,10 @@
 
-
 import static org.junit.Assert.*;
-
 
 import org.junit.Test;
 
 public class SaveTheIslandGameTest {
-  
+
   static SaveTheIslandGame stiGame = new SaveTheIslandGame();
 
   @Test
@@ -25,7 +23,17 @@ public class SaveTheIslandGameTest {
 
   @Test
   public void testUpdateBoard() {
-    fail("Not yet implemented");
+    SaveTheIslandGame g = new SaveTheIslandGame();
+    g.setBoard("46114;10000000000000002;12345");
+    g.updateBoard("move;6", 1);
+    System.err.println(g.getBoard());
+    String tiles = g.getBoard().substring(0, 5);
+    for (int i = 0; i < 5; i++) {
+      if (tiles.substring(i, i + 1).equals("6")) {
+        fail("Tiles: " + tiles);
+      }
+    }
+    assertTrue(true);
   }
 
   @Test
@@ -73,6 +81,6 @@ public class SaveTheIslandGameTest {
 
   @Test
   public void testAnimatedEventJSON() {
-    //TODO write unit test for JSON functions in game class
+    // TODO write unit test for JSON functions in game class
   }
 }

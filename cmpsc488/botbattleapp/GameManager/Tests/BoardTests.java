@@ -65,13 +65,13 @@ public class BoardTests {
 	@Test
 	public void testReplacePlayersTilesReturnsStringOfCorrectLength() {
 		String board = "43112;0000010002000;12345";
-		assertEquals(5, SaveTheIslandGame.Board.replacePlayersTiles(board, 1, 1, 2).length());
+		assertEquals(5, SaveTheIslandGame.Board.getNewTiles(board, 1, 1, 2).length());
 	}
 	
 	@Test
 	public void testReplacePlayersTilesRemovesOldTiles() {
 		String board = "46116;0000010002000;12345";
-		String tiles = SaveTheIslandGame.Board.replacePlayersTiles(board, 1, 6, 2);
+		String tiles = SaveTheIslandGame.Board.getNewTiles(board, 1, 6, 2);
 		
 		for(int i = 0; i < 5; i++) {
 			if( tiles.substring(i, i+1).equals("6") ) {
@@ -84,7 +84,7 @@ public class BoardTests {
 	@Test
 	public void testReplacePlayersTilesDoesntReplaceWrongTiles() {
 		String board = "11111;0000010002000;12345";
-		String tiles = SaveTheIslandGame.Board.replacePlayersTiles(board, 1, 6, 2);
+		String tiles = SaveTheIslandGame.Board.getNewTiles(board, 1, 6, 2);
 		int count = 0;
 		System.out.println(tiles);
 		for(int i = 0; i < tiles.length(); i++) {

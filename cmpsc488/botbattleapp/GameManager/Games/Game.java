@@ -47,20 +47,34 @@ public class Game implements GameInterface {
   }
 
   public void updateBoard(String move, int player) {
-    String updatedBoard = "";
+
     String[] peices = move.split(";");
     int value = Integer.parseInt(peices[1].substring(0, 1));
     if (move.startsWith("attack")) {
-      updatedBoard = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
+      board = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
     } else if (move.startsWith("retreat")) {
-      updatedBoard = Board.movePlayer(board, player, -value);
+      board = Board.movePlayer(board, player, -value);
+      replacePlayersTiles(Game.Board.getNewTiles(board, player, value, 1), player);
     } else if (move.startsWith("move")) {
-      updatedBoard = Board.movePlayer(board, player, value);
+      board = Board.movePlayer(board, player, value);
+      replacePlayersTiles(Game.Board.getNewTiles(board, player, value, 1), player);
     }
-    board = updatedBoard;
+
     lastPlayersTurn = player;
   }
+  
+  protected void replacePlayersTiles(String newTiles, int player) {
+    if(player == 1) {
+      board = newTiles + ";" + Game.Board.getIsland(board) + ";" + Game.Board.getPlayersTiles(2, board);
+    } else {
+      board = Game.Board.getPlayersTiles(2, board) + ";" + Game.Board.getIsland(board) + ";" + newTiles;
+    }
+  }
 
+  protected void setBoard(String newBoard) {
+    board= newBoard;
+  }
+  
   public boolean isGameOver() {
     
     if(over) {
@@ -338,7 +352,7 @@ public class Game implements GameInterface {
       return distance.length() - 1;
     }
 
-    public static String replacePlayersTiles(String board, int player, int value, int numOfValues) {
+    public static String getNewTiles(String board, int player, int value, int numOfValues) {
       Random rng = new Random();
 
       String tiles = getPlayersTiles(player, board);
@@ -401,7 +415,7 @@ public class Game implements GameInterface {
         }
       }
 
-      replacePlayersTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
+      getNewTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
 
       if (defenseTiles < numOfAttacks) { // Attack was succesful
         int attacker = (victim == 1 ? 2 : 1);
