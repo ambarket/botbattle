@@ -80,11 +80,7 @@
    
    TEST_ARENA.transitionPageToState('pageLoaded');
  
- //----------------------------------Page Unload Handling------------------------------------
-   function leave() {
-     return "Leaving the page will stop your program from running!";
-   }
- 
+ //----------------------------------Page Unload Handling------------------------------------ 
    // TODO: guess this doesn't work sometimes
    // https://xhr.spec.whatwg.org/
    var unloadHandler = function() {

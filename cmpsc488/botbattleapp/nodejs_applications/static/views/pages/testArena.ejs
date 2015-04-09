@@ -8,6 +8,11 @@
     <script type="text/javascript" src="/static/javascript/drawable.js"></script>
     <script type="text/javascript" src="<%= locals.gameJavascriptUrl %>"></script>
     <script defer type="text/javascript" src="/static/javascript/testArena.js"></script>
+    <script>   
+		function leave() {
+		     return "Leaving the page will stop your program from running!";
+		   }
+	</script>
 </head>
 
 <body onbeforeunload="return leave()" class="container">
