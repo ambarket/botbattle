@@ -43,19 +43,9 @@ public class Player implements Runnable {
   
   public Player(String botFilePath, Language language ) throws IOException {
     this.botFilePath = botFilePath;
-    String cmd = "";
-    
-    switch (language) {
-      case JAVA:
-        cmd = "java";
-        break;
-      case CPP:
-        cmd = "";
-        break;
-    }
-    
+    String cmd = language.getRunCommand();
+
     ProcessBuilder builder = new ProcessBuilder(cmd, botFilePath);
-    //builder.directory(new File(botFilePath));
     botProcess = builder.start();
     
     OutputStream stdin = botProcess.getOutputStream();
