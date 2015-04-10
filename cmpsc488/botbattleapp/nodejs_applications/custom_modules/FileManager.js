@@ -86,6 +86,10 @@ function FileManager(botBattleDatabase) {
       self.removeFileOrFolder(paths.init_config_tmp, callback);
     }
     
+    this.deleteTestArenaTmp = function(callback) {
+      self.removeFileOrFolder(paths.local_storage.test_arena_tmp, callback);
+    }
+    
     
     this.createDirectoryForGameModule = function(gameName, callback) {
       var async = require('async');

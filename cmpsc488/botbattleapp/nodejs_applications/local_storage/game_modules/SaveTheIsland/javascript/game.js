@@ -44,13 +44,50 @@ GAME = {
     
     'gameboard' : null, // will be set by the resetGAME.gameboard method
     'drawer' : new Drawer(),
-    
+    'getHumanInput' : function() { 
+      var form = document.getElementById("humanInputForm");
+      for (var i = 0; i < this.gameboard.player2Tiles.length; i++) {
+        var temp = document.getElementById(("player2Tile" + i).toString())
+        if(temp === null){
+          var input = document.createElement("input");
+          input.type = "checkbox";
+          input.name = "player2Tile" + i;
+          input.value = this.gameboard.player2Tiles[i];
+          input.id = "player2Tile" + i;
+          form.appendChild(input); 
+          var text = document.createTextNode(" " + this.gameboard.player2Tiles[i]);
+          form.appendChild(text);
+          form.appendChild(document.createElement("br"));
+        }
+      }
+      temp = document.getElementById("rightButton")
+      if(temp === null){
+        var input = document.createElement("input");
+        input.type = "radio";
+        input.name = "direction";
+        input.value = "right";
+        input.id = "rightButton";
+        form.appendChild(input); 
+        var text = document.createTextNode("right");
+        form.appendChild(text);
+      }
+      temp = document.getElementById("leftButton")
+      if(temp === null){
+        var input = document.createElement("input");
+        input.type = "radio";
+        input.name = "direction";
+        input.value = "left";
+        input.id = "leftButton";
+        form.appendChild(input); 
+        var text = document.createTextNode("left");
+        form.appendChild(text);
+      }
+    },
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
       // TODO: Add err argument if they can occur
       gb.loadResources(function() {
         GAME.gameboard = gb;
-        GAME.gameboard.addHumanInputButtons(GAME.gameboard.player1Tiles, GAME.gameboard.player2Tiles);
         readyCallback();
       });
     }
@@ -632,45 +669,5 @@ var GameBoard = function() {
           callback();
         }
       }
-  }
-  
-  this.addHumanInputButtons = function(player1Tiles, player2Tiles) { 
-    var form = document.getElementById("humanInputForm");
-    for (var i = 0; i < player2Tiles.length; i++) {
-      var temp = document.getElementById(("player2Tile" + i).toString())
-      if(temp === null){
-        var input = document.createElement("input");
-        input.type = "checkbox";
-        input.name = "player2Tile" + i;
-        input.value = i;
-        input.id = "player2Tile" + i;
-        form.appendChild(input); 
-        var text = document.createTextNode(" " + i);
-        form.appendChild(text);
-        form.appendChild(document.createElement("br"));
-      }
-    }
-    temp = document.getElementById("rightButton")
-    if(temp === null){
-      var input = document.createElement("input");
-      input.type = "radio";
-      input.name = "direction";
-      input.value = "right";
-      input.id = "rightButton";
-      form.appendChild(input); 
-      var text = document.createTextNode("right");
-      form.appendChild(text);
-    }
-    temp = document.getElementById("leftButton")
-    if(temp === null){
-      var input = document.createElement("input");
-      input.type = "radio";
-      input.name = "direction";
-      input.value = "left";
-      input.id = "leftButton";
-      form.appendChild(input); 
-      var text = document.createTextNode("left");
-      form.appendChild(text);
-    }
   }
 }

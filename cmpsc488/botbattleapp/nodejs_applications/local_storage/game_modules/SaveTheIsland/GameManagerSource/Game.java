@@ -237,9 +237,9 @@ public class Game implements GameInterface {
   private String getType(String move, int player) {
     String s = "\"type\": ";
     if (player == 0) { // initial
-      s += "\"initial\",";
+      s += "\"initial\"";
     } else if (isGameOver()) { // final
-      s += "\"final\",";
+      s += "\"final\"";
     } else {
       s += "\"midGame\"";
     }

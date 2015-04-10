@@ -75,7 +75,6 @@ module.exports.local_storage = {
     'private_tournaments' :  path.join(local_storage_directory, 'private_tournaments'),
     'public_tournaments' :  path.join(local_storage_directory, 'public_tournaments'),
     'test_arena_tmp' :  path.join(local_storage_directory, 'test_arena_tmp'),
-    'uploads' :  path.join(local_storage_directory, 'uploads')
 }
 
 module.exports.init_config_tmp =  path.join(module.exports.app_root,'init_config_tmp');
