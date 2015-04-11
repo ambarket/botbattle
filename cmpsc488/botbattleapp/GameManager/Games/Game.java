@@ -9,7 +9,8 @@ import java.util.Random;
 
 // Save the island
 public class Game implements GameInterface {
-
+  
+  private String lastBoard;
   private String board;
   private String lastMove;
   private int lastPlayersTurn;
@@ -17,6 +18,7 @@ public class Game implements GameInterface {
 
   public Game() {
     board = getStartingBoard();
+    lastBoard = board;
     lastPlayersTurn = 0;
     lastMove = "";
     over = false;
@@ -47,8 +49,9 @@ public class Game implements GameInterface {
   }
 
   public void updateBoard(String move, int player) {
-
+    lastBoard = board;
     String[] peices = move.split(";");
+ 
     int value = Integer.parseInt(peices[1].substring(0, 1));
     if (move.startsWith("attack")) {
       board = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
@@ -157,6 +160,60 @@ public class Game implements GameInterface {
     return true;
   }
 
+  public boolean isValidMove2(String move, int player) {
+
+    if (move == null) {
+      return false;
+    }
+
+    short TYPE_OF_MOVE = 0, TILES_USED = 1;
+    String[] peices = move.split(";");
+    int tileValue;
+
+    // Attempt to get value for tile, if it doesn't parse then not a valid move
+    try {
+      tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
+    } catch (Exception e) {
+      return false;
+    }
+
+    if (peices.length != 2) {
+      return false;
+    }
+
+    String typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
+    if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat")) {
+      return false;
+    }
+
+    if (typeOfMove.equals("attack")) {
+      // Check all given tiles are the same
+      if (!peices[TILES_USED].matches(tileValue + "+")) {
+        return false;
+      }
+
+      // Check that the other player is the correct distance away
+      if (tileValue != Board.getDistanceBetweenPlayers(lastBoard)) {
+        return false;
+      }
+    } else if (typeOfMove.equals("move") || typeOfMove.equals("retreat")) {
+      // Can only move or retreat by one tile
+      if (peices[TILES_USED].length() != 1) {
+        return false;
+      }
+    } else {
+      // Un recognized move type
+      return false;
+    }
+
+    // Check player has those tiles
+    if (!Board.checkPlayersTiles(lastBoard, player, tileValue, peices[TILES_USED].length())) {
+      return false;
+    }
+
+    return true;
+  }
+  
   public static int getBotTimeoutInMilliseconds() {
     return 3000;
   }
@@ -272,7 +329,7 @@ public class Game implements GameInterface {
       jsonString += animatedEventJSON(move.split(";")[0], player, finalPos) + ",";
     }
     
-    if (isValidMove(move, player)) {
+    if (isValidMove2(move, player)) {
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
@@ -383,6 +440,21 @@ public class Game implements GameInterface {
       return newTiles;
     }
 
+    public static String getNewTilesAndReplace(String board, int player, int value, int numOfValues) {
+
+      String p1 = Board.getPlayersTiles(1, board),
+          p2 = Board.getPlayersTiles(2, board),
+          island = Board.getIsland(board);
+      
+      if(player == 1){
+        p1 = getNewTiles(board, player, value, numOfValues);
+      } else {
+        p2 = getNewTiles(board, player, value, numOfValues);
+      }   
+      
+      return p1 + ";" + island + ";" + p2;
+    }
+    
     public static boolean checkPlayersTiles(String board, int player, int value, int numOfValues) {
       String tiles = getPlayersTiles(player, board);
       int count = 0;
@@ -416,6 +488,7 @@ public class Game implements GameInterface {
 
     public static String executeAttack(String board, int victim, int numOfAttacks) {
       String tiles = getPlayersTiles(victim, board);
+      int attacker = (victim == 1 ? 2 : 1);
       int defenseTiles = 0, distance = getDistanceBetweenPlayers(board);
 
       for (int i = 0; i < 5; i++) {
@@ -427,16 +500,17 @@ public class Game implements GameInterface {
           break;
         }
       }
-
-      getNewTiles(board, victim, getDistanceBetweenPlayers(board), defenseTiles);
-
-      if (defenseTiles < numOfAttacks) { // Attack was succesful
-        int attacker = (victim == 1 ? 2 : 1);
+      
+      if (defenseTiles < numOfAttacks) { // Attack was succesful       
         board = movePlayer(board, attacker, distance - 1);
       }
-      numOfAttacks = -(numOfAttacks - defenseTiles);
-
-      return movePlayer(board, victim, numOfAttacks * distance);
+      
+      int numOfSucesfullAttacks = -(numOfAttacks - defenseTiles);      
+      board  = movePlayer(board, victim, numOfSucesfullAttacks * distance);
+      board = getNewTilesAndReplace(board, victim, distance, defenseTiles);
+      board = getNewTilesAndReplace(board, attacker, distance, numOfAttacks);
+      
+      return board; 
     }
   }
   // ----------------------- END BOARD CLASS ---------------------
