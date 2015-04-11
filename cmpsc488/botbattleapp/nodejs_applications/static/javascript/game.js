@@ -178,11 +178,16 @@ GAME = {
     */
 
   var animations = {
-      move : function(eventData, processAnimatableEventCallback) {
+        fallback : function(eventData, processAnimatableEventCallback){
+          var player = GAME.gameboard.playerAnimations[eventData.player];
+          eventData.animation = player.fallingBack
+          animations.move(eventData, processAnimatableEventCallback);
+        },
+        move : function(eventData, processAnimatableEventCallback) {
         // Setup any variables needed for the animation
-        var finalPosition = (eventData.finalPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
+        var finalPosition = (eventData.endPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
-        var player = GAME.gameboard.playerAnimations[eventData.objectName];
+        var player = GAME.gameboard.playerAnimations[eventData.player];
         player.standing.visible = false;
         if(eventData.animation){
           eventData.animation.visible = true;
@@ -225,14 +230,41 @@ GAME = {
         })(startTime);
       },
       successfulAttack : function(eventData, processAnimatableEventCallback) {
-
+        // eventData.player is always attacking player
+        // Setup any variables needed for the defend animation
+        var attackingPlayer = GAME.gameboard.playerAnimations[eventData.player];
+        
+        // Set current state and position of attacking player
+        //TODO  change this so it is based on grid positions. And above and everywhere else too.
+        attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+        attackingPlayer.attack.y = attackingPlayer.standing.y;  
+        attackingPlayer.standing.visible = false;
+        attackingPlayer.attack.visible = true;
+        attackingPlayer.current = attackingPlayer.attack;
+        
+        // Immediately invoke this loop that will run until the animation is complete, then call the callback
+        (function AttackLoop() {
+          if (!attackingPlayer.attack.done) {
+            requestAnimFrame(function() {
+              AttackLoop();
+            });
+          } 
+          else {                
+            attackingPlayer.attack.done = false;
+            attackingPlayer.attack.visible = false;
+            attackingPlayer.standing.visible = true;  
+          }
+        })();
       },
       defendedAttack : function(eventData, processAnimatableEventCallback) {
-        // Perform the initial move to the attack position.
-        animations.move({'objectName' : eventData.attacker, 'finalPosition' : eventData.attackerAttackPosition}, function() {
           // Setup any variables needed for the defend animation
-          var defendingPlayer = GAME.gameboard.playerAnimations[eventData.defender];
-          var attackingPlayer = GAME.gameboard.playerAnimations[eventData.attacker];
+          var attackingPlayer = GAME.gameboard.playerAnimations[eventData.player];
+          if(eventData.player === "player1"){
+            var defendingPlayer = GAME.gameboard.playerAnimations["player2"];
+          }
+          else{
+            var defendingPlayer = GAME.gameboard.playerAnimations["player1"];
+          }
           // Set current state and position of defending player
 
           // in the future -- position changes like this need to be based on the grid position then shifted so the "winner" isn't messed up anymore
@@ -258,25 +290,16 @@ GAME = {
               });
             } 
             else {   // maybe make just current instead of changing visible...
-              defendingPlayer.defend.done = false;
-              
+              defendingPlayer.defend.done = false;              
               defendingPlayer.defend.visible = false;
-              defendingPlayer.standing.visible = true;
-                
+              defendingPlayer.standing.visible = true;                
               attackingPlayer.attack.done = false;
               attackingPlayer.attack.visible = false;
               attackingPlayer.standing.visible = true;
-              
-              // Now move the attacker back to where they started, pass along the callback to finally be called after the move is done
-              animations.move({'objectName' : eventData.attacker, 'finalPosition' : eventData.attackerStartingPosition, 'animation' : attackingPlayer.fallingBack}, processAnimatableEventCallback);
-            }
+           }
           })();
-        });
-      },
-      died : function(eventData, processAnimatableEventCallback) {
-
       }
-    }
+    };
 
 //--------------------------The Drawer (View)------------------------------------
 function Drawer() {
