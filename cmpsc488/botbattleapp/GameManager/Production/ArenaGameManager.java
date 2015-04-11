@@ -1,6 +1,7 @@
 
 
 import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 
 import org.json.simple.JSONObject;
@@ -29,7 +30,7 @@ public class ArenaGameManager {
       System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
       System.exit(1);
     }
- 
+
     runArenaGame(args[1]);
   }
 
