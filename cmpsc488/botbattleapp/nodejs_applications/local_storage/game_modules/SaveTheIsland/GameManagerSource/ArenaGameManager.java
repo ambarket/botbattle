@@ -366,7 +366,8 @@ public class ArenaGameManager {
         case 2:  
         	return  "{"    
 		    +           "\"messageType\": \"humanInputValidation\","
-			+           "\"valid\": true,"         
+		    +			"\"type\": \"midGame\","
+			+           "\"valid\": true"         
 			+       "}";
         case 3:
             return  "{"
@@ -387,7 +388,7 @@ public class ArenaGameManager {
             +               "\"event\": \"defendedAttack\","
             +                  "\"data\": "
             +                  "{"
-            +                      "\"player\" : \"player1\""
+            +                      "\"player\" : \"player2\""
             +                  "}"
             +              "},"
             +              "{"
@@ -436,7 +437,8 @@ public class ArenaGameManager {
            case 5: 
         	    return  "{"    
        		    +           "\"messageType\": \"humanInputValidation\","
-    			+           "\"valid\": true,"         
+        	    +			"\"type\": \"midGame\","
+    			+           "\"valid\": true"         
     			+       "}";
            case 6:
                 return "{"

@@ -86,6 +86,7 @@ module.exports = new (function() {
     testArenaInstances[newGameId] = { 
         'gameProcess' : null,
         'gameState' : null,   // 'running', 'expectingHumanInput', 'closed', 'exited', 'error'
+        'waitingForHumanInput' : false,
         'gameExpireDateTime' : null,
         'gameModule' : gameModule,
         'bot1Name' : null,
@@ -203,14 +204,16 @@ module.exports = new (function() {
               for (var i = 0; i < array.length; i++) {
                 try {
                   var message = JSON.parse(array[i]);
-                  if ((message.messageType === 'humanInputValidation' && message.valid === 'false') ||
-                      (message.messageType === 'gamestate' && message.enableHumanInput === 'true')) {
-                    testArenaInstances[id].gameState = 'waitingForHumanInput';
+                  if ((message.messageType === 'humanInputValidation' && message.valid === false) ||
+                      (message.messageType === 'gamestate' && message.enableHumanInput === true)) {
+                    testArenaInstances[id].waitingForHumanInput = true;
+                    console.log(testArenaInstances[id].gameState);
                   }
+                  
                   testArenaInstances[id].gameStateQueue.push(message);
                   
                   logger.log("TestArenaInstances", 
-                      helpers.getLogMessageAboutGame(id, "gameStateQueue: " + testArenaInstances[id].gameStateQueue));
+                      helpers.getLogMessageAboutGame(id, "gameStateQueue: "), JSON.stringify(testArenaInstances[id].gameStateQueue));
                 }
                 catch(e) {
                   console.log("Invalid JSON sent", array[i], e);
@@ -261,8 +264,8 @@ module.exports = new (function() {
   this.sendMoveToGameInstanceById = function(id, move) {
     if (!self.hasInstanceExpired(id)) {
       testArenaInstances[id].resetExpirationTime();
-      if(testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "waitingForHumanInput"){
-        testArenaInstances[id].gameState = 'running';
+      if(testArenaInstances[id].gameProcess && testArenaInstances[id].waitingForHumanInput){
+        testArenaInstances[id].waitingForHumanInput = false;
         testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
         logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
         return 'success';

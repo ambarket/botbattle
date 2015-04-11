@@ -51,7 +51,7 @@ GAME = {
     'gameboard' : null, // will be set by the resetGAME.gameboard method
     'drawer' : new Drawer(),
     'setHumanInputElements' : function() { 
-      var form = document.getElementById("humanInputForm");
+      var form = document.createElement('FORM');//document.getElementById("humanInputForm");
       for (var i = 0; i < this.gameboard.player2Tiles.length; i++) {
         var temp = document.getElementById(("player2Tile" + i).toString())
         if(temp === null){
@@ -88,6 +88,7 @@ GAME = {
         var text = document.createTextNode("left");
         form.appendChild(text);
       }
+      document.getElementById("humanInputElements").appendChild(form);
     },
     'getMoveFromHumanInputElements' : function() {
       var data;// = new FormData(document.forms.namedItem("humanInputForm"));
@@ -178,12 +179,8 @@ GAME = {
     */
 
   var animations = {
-        fallback : function(eventData, processAnimatableEventCallback){
-          var player = GAME.gameboard.playerAnimations[eventData.player];
-          eventData.animation = player.fallingBack
-          animations.move(eventData, processAnimatableEventCallback);
-        },
         move : function(eventData, processAnimatableEventCallback) {
+          console.log("made it to the move fuc");
         // Setup any variables needed for the animation
         var finalPosition = (eventData.endPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
@@ -203,7 +200,7 @@ GAME = {
         
         // Immediately invoke this loop that will run until the animation is complete, then call the callback
         (function moveLoop(lastUpdateTime) {
-          var currentTime = updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
+          var currentTime = updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond);
           
           var done = player.current.x === finalPosition;
            
@@ -218,16 +215,25 @@ GAME = {
               eventData.animation.visible = false;
               player.current.x = eventData.animation.x;
               player.current.y = eventData.animation.y;
+              player.move.x = eventData.animation.x;
+              player.move.y = eventData.animation.y;
             }
             else{
               player.move.visible = false;
               player.current.x = player.move.x;
               player.current.y = player.move.y;
+              player.fallback.x = player.move.x;
+              player.fallback.y = player.move.y;
             }
             player.standing.visible = true;
             processAnimatableEventCallback();
           }
         })(startTime);
+      },
+      fallback : function(eventData, processAnimatableEventCallback){
+        var player = GAME.gameboard.playerAnimations[eventData.player];
+        eventData.animation = player.fallback;
+        animations.move(eventData, processAnimatableEventCallback);
       },
       successfulAttack : function(eventData, processAnimatableEventCallback) {
         // eventData.player is always attacking player
@@ -253,6 +259,7 @@ GAME = {
             attackingPlayer.attack.done = false;
             attackingPlayer.attack.visible = false;
             attackingPlayer.standing.visible = true;  
+            processAnimatableEventCallback();
           }
         })();
       },
@@ -296,6 +303,7 @@ GAME = {
               attackingPlayer.attack.done = false;
               attackingPlayer.attack.visible = false;
               attackingPlayer.standing.visible = true;
+              processAnimatableEventCallback();
            }
           })();
       }
@@ -670,7 +678,7 @@ var GameBoard = function() {
             move : self.drawableObjects.player1Running,
             attack : self.drawableObjects.player1Attacking,
             defend : self.drawableObjects.player1Blocking,
-            fallingBack : self.drawableObjects.player1Falling
+            fallback : self.drawableObjects.player1Falling
             //lose : "player1Lost"
         },
         player2 : {
@@ -679,7 +687,7 @@ var GameBoard = function() {
             move : self.drawableObjects.player2Running,
             attack : self.drawableObjects.player2Attacking,
             defend : self.drawableObjects.player2Blocking,
-            fallingBack : self.drawableObjects.player2Falling
+            fallback : self.drawableObjects.player2Falling
             //lose : "player2Lost"
         }
   }

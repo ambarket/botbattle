@@ -22,7 +22,13 @@ GAME = {
       //    and animate it on the canvas.
       //    Each animatableEvent has an 'event' property naming the event
       //    and a 'data' object containing any necessary information for the animation
-      animations[animatableEvent.event](animatableEvent.data, processAnimatableEventCallback);
+      var validEvents = ['move', 'fallback', 'successfulAttack', 'defendedAttack'];
+      if (validEvents.indexOf(animatableEvent.event) == -1) {
+        processAnimatableEventCallback(new Error("Invalid animatable event type"));
+      }
+      else {
+        animations[animatableEvent.event](animatableEvent.data, processAnimatableEventCallback);
+      }
     },
     
     // Run each time the drawer draws?
@@ -44,7 +50,7 @@ GAME = {
     
     'gameboard' : null, // will be set by the resetGAME.gameboard method
     'drawer' : new Drawer(),
-    'getHumanInput' : function() { 
+    'setHumanInputElements' : function() { 
       var form = document.getElementById("humanInputForm");
       for (var i = 0; i < this.gameboard.player2Tiles.length; i++) {
         var temp = document.getElementById(("player2Tile" + i).toString())
@@ -82,6 +88,28 @@ GAME = {
         var text = document.createTextNode("left");
         form.appendChild(text);
       }
+    },
+    'getMoveFromHumanInputElements' : function() {
+      var data;// = new FormData(document.forms.namedItem("humanInputForm"));
+      $.fn.serializeObject = function()
+      {
+          var o = {};
+          var a = this.serializeArray();
+          $.each(a, function() {
+              if (o[this.name] !== undefined) {
+                  if (!o[this.name].push) {
+                      o[this.name] = [o[this.name]];
+                  }
+                  o[this.name].push(this.value || '');
+              } else {
+                  o[this.name] = this.value || '';
+              }
+          });
+          return o;
+      };
+      data = (JSON.stringify($('form[name="humanInputForm"]').serializeObject()));
+      //TODO: Figure out move format with Randall
+      return data;
     },
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
@@ -150,12 +178,8 @@ GAME = {
     */
 
   var animations = {
-        fallback : function(eventData, processAnimatableEventCallback){
-          var player = GAME.gameboard.playerAnimations[eventData.player];
-          eventData.animation = player.fallingBack
-          animations.move(eventData, processAnimatableEventCallback);
-        },
         move : function(eventData, processAnimatableEventCallback) {
+          console.log("made it to the move fuc");
         // Setup any variables needed for the animation
         var finalPosition = (eventData.endPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
@@ -175,7 +199,7 @@ GAME = {
         
         // Immediately invoke this loop that will run until the animation is complete, then call the callback
         (function moveLoop(lastUpdateTime) {
-          var currentTime = updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond) 
+          var currentTime = updateXPositionLinearlyWithTime(player.current, finalPosition, lastUpdateTime, pixelsPerSecond);
           
           var done = player.current.x === finalPosition;
            
@@ -201,6 +225,11 @@ GAME = {
           }
         })(startTime);
       },
+      fallback : function(eventData, processAnimatableEventCallback){
+        var player = GAME.gameboard.playerAnimations[eventData.player];
+        eventData.animation = player.fallingBack;
+        animations.move(eventData, processAnimatableEventCallback);
+      },
       successfulAttack : function(eventData, processAnimatableEventCallback) {
         // eventData.player is always attacking player
         // Setup any variables needed for the defend animation
@@ -225,6 +254,7 @@ GAME = {
             attackingPlayer.attack.done = false;
             attackingPlayer.attack.visible = false;
             attackingPlayer.standing.visible = true;  
+            processAnimatableEventCallback();
           }
         })();
       },
@@ -268,6 +298,7 @@ GAME = {
               attackingPlayer.attack.done = false;
               attackingPlayer.attack.visible = false;
               attackingPlayer.standing.visible = true;
+              processAnimatableEventCallback();
            }
           })();
       }

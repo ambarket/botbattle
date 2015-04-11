@@ -441,6 +441,7 @@
            else {
              GLOBAL.eventLog.logMessage('error', "Invalid human input, please try again");
            }
+           processNextGameState();
          }
          else if (nextGameState.messageType === 'gamestate') {
            // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
@@ -464,7 +465,7 @@
                      else {
                        // If the game manager is waiting for human input 
                        if (nextGameState.enableHumanInput) {
-                         GAME.setHumanInput();
+                         GAME.setHumanInputElements();
                          document.getElementById("humanInput").style.display = "block";
                        }
                        processNextGameState();
@@ -503,14 +504,14 @@
              passGameStateToGAME(nextGameState);
            }
            else if (nextGameState.type === 'final') {
-             TEST_ARENA.transitionPageToState('gameFinished');
+             
              GLOBAL.eventLog.logMessage('status', "We got the final game state");
              passGameStateToGAME(nextGameState);
+             TEST_ARENA.transitionPageToState('gameFinished');
            }
            else {
              console.log("Invalid gameState type: " + nextGameState.type + " not sure how to process this");
            }
-          
          }
        }
        
@@ -541,13 +542,13 @@
          $('#gameControlDiv').show();
          $('#startNewGame').show();
          $('#killCurrentGame').hide();
-         //$('#humanInput').hide();
+         $('#humanInput').hide();
        }
        else if (startGame_or_killGame_or_hide === "killGame") {
          $('#gameControlDiv').show();
          $('#startNewGame').hide();
          $('#killCurrentGame').show();
-         //$('#humanInput').show();
+         $('#humanInput').hide();
          $('#moveList').html("");
          $('#stdout').html("");
          $('#stderr').html("");
@@ -556,7 +557,7 @@
          $('#gameControlDiv').hide();
          $('#startNewGame').hide();
          $('#killCurrentGame').hide();
-         //$('#humanInput').hide();
+         $('#humanInput').hide();
          $('#gameControlStatus').html("");
          $('#moveList').html("");
          $('#stdout').html("");
