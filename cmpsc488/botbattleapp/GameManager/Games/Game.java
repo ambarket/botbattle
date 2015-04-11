@@ -231,20 +231,34 @@ public class Game implements GameInterface {
     output += tiles.substring(4) + "]";
     return output;
   }
-
-  protected static String animatedEventJSON(String event, int player, int finalPosition) {
-    String output =
-        "\"animatableEvents\" : [{" + 
-              "\"event\": \"" + event + "\"," + 
-              "\"data\": { " +
-                  "\"player\" : " + player + "," + 
-                  "\"finalPosition\" : " + finalPosition +
-             "}}]";
-
-    return output;
+  
+  protected String getMoveAnimatedEventJSON(int player) {
+    String json = "{" +
+        "\"event\":\"move\"," + 
+        "\"data\":{" +
+            "\"player\":" + player + "," + 
+            "\"endposition\":" + Board.getPlayersPosition(board, player) + "," +
+            "\"startposition\":" + Board.getPlayersPosition(lastBoard, player) +
+        "}}";
+    
+    
+    return json;
   }
 
-  protected static String gameDataJSON(String player1Tiles, String player2Tiles, String description) {
+  protected String animatedEventJSON(String event, int player) {
+    String json = "{" +
+        "\"event\":\"" + event + "\"," + 
+        "\"data\":{" +
+            "\"player\":" + player + "," + 
+            "\"endposition\":" + Board.getPlayersPosition(board, player) + "," +
+            "\"startposition\":" + Board.getPlayersPosition(lastBoard, player) +
+        "}}";
+    
+    
+    return json;
+  }
+
+  protected String gameDataJSON(String player1Tiles, String player2Tiles, String description) {
     String output =
         "\"gameData\" : {" + 
             "\"player1Tiles\" : " + tilesToArray(player1Tiles) + "," +
@@ -255,7 +269,7 @@ public class Game implements GameInterface {
     return output;
   }
 
-  protected static String prettyPrintMove(String move, int player) {
+  protected String prettyPrintMove(String move, int player) {
     String output = "Player " + player + " ";
     String tiles;
 
@@ -317,6 +331,8 @@ public class Game implements GameInterface {
     String move = lastMove;
     int player = lastPlayersTurn;
     String jsonString = "{";
+    
+    jsonString += "\"messagetype:\"gamestate\",";
 
     int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
 
@@ -324,9 +340,9 @@ public class Game implements GameInterface {
     jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
 
     if (move == null) {//TODO fix this to reflect correct requirements
-      jsonString += animatedEventJSON("null Move", player, finalPos) + ",";
+      jsonString += animatedEventJSON("null Move", player) + ",";
     } else {
-      jsonString += animatedEventJSON(move.split(";")[0], player, finalPos) + ",";
+      jsonString += animatedEventJSON(move.split(";")[0], player) + ",";
     }
     
     if (isValidMove2(move, player)) {
@@ -355,7 +371,7 @@ public class Game implements GameInterface {
     String animation = "";
     String jsonString = "[{";
 
-    jsonString += animatedEventJSON("Initial Board", -1, -1) + ",";
+    jsonString += animatedEventJSON("Initial Board", -1) + ",";
     jsonString +=
         gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
             "initial board") + "}";
@@ -367,10 +383,10 @@ public class Game implements GameInterface {
 
       if (i % 2 == 1) {
         desc = prettyPrintMove((String) p1Moves[i / 2], 1);
-        animation = animatedEventJSON((String) p1Moves[i / 2], 1, 666);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 1);
       } else {
         desc = prettyPrintMove((String) p2Moves[i / 2], 2);
-        animation = animatedEventJSON((String) p1Moves[i / 2], 2, 666);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 2);
       }
       jsonString += animation + ",";
       jsonString +=
@@ -389,7 +405,7 @@ public class Game implements GameInterface {
     return "{"
         + "\"messagetype:\"humanInputValidation\","
         + "\"valid\":\"false\","
-        + "\"reason\":\"Not yet implemented\","
+        + "\"reason\":\"Not yet implemented\"," //TODO getInvalidMoveJSON
         + "}";
   }
   
