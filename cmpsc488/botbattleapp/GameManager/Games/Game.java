@@ -70,12 +70,12 @@ public class Game implements GameInterface {
     if(player == 1) {
       board = newTiles + ";" + Board.getIsland(board) + ";" + Board.getPlayersTiles(2, board);
     } else {
-      board = Board.getPlayersTiles(2, board) + ";" + Board.getIsland(board) + ";" + newTiles;
+      board = Board.getPlayersTiles(1, board) + ";" + Board.getIsland(board) + ";" + newTiles;
     }
   }
 
   protected void setBoard(String newBoard) {
-    board= newBoard;
+    board = newBoard;
   }
   
   public boolean isGameOver() {
@@ -386,13 +386,21 @@ public class Game implements GameInterface {
   @Override
   public String getInvalidMoveJSON() {
     
-    return "{valid:\"No\"}";
+    return "{"
+        + "\"messagetype:\"humanInputValidation\","
+        + "\"valid\":\"false\","
+        + "\"reason\":\"Not yet implemented\","
+        + "}";
   }
   
   @Override
   public String getValidMoveJSON() {
     
-    return "{valid:\"Yes\"}";
+    return "{"
+        + "\"messagetype:\"humanInputValidation\","
+        + "\"valid\":\"true\","
+        + "\"reason\":\"\","
+        + "}";
   }
   
   // -------------------------- BOARD CLASS ---------------------
