@@ -157,9 +157,9 @@ GAME = {
         },
         move : function(eventData, processAnimatableEventCallback) {
         // Setup any variables needed for the animation
-        var finalPosition = (eventData.finalPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
+        var finalPosition = (eventData.endPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
-        var player = GAME.gameboard.playerAnimations[eventData.objectName];
+        var player = GAME.gameboard.playerAnimations[eventData.player];
         player.standing.visible = false;
         if(eventData.animation){
           eventData.animation.visible = true;
@@ -229,8 +229,6 @@ GAME = {
         })();
       },
       defendedAttack : function(eventData, processAnimatableEventCallback) {
-        // Perform the initial move to the attack position.
-        //animations.move({'objectName' : eventData.attacker, 'finalPosition' : eventData.attackerAttackPosition}, function() {
           // Setup any variables needed for the defend animation
           var attackingPlayer = GAME.gameboard.playerAnimations[eventData.player];
           if(eventData.player === "player1"){

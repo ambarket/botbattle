@@ -19,11 +19,12 @@ public class ArenaGameManager {
   // arg[1] should be a JSON string containing all other information.
   public static void main(String[] args) throws IOException {
     
-	  
-    if (args.length < 2 || !args[0].equals("testarena")) {
+	  test();
+   /* if (args.length < 2 || !args[0].equals("testarena")) {
       System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
       //System.exit(1);
       args = new String[2];args[0] = "testarena";
+      // if need to debug change the path and directory
 	  args[1] = "{\"numberOfBots\":1,"
 	  		+ "\"bot1\":{"
 	  		+ 	"\"path\":\"/home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1KowMts/bot1/SaveIslandBot1.class\","
@@ -97,12 +98,8 @@ public class ArenaGameManager {
       System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
       System.err.println("BOT2_PATH: " + bot2.get("directory"));
       System.err.println("Username2: " + bot2.get("name"));
-    }
+    }*/
   }
-
-  
-  
-  
   
   
   
@@ -183,12 +180,14 @@ public class ArenaGameManager {
     // Testing the client code.
     Scanner sc = new Scanner(System.in);
     System.out.println(getHardCodedGameState(0)); // Send initialGameState immediately
+    System.out.println(getHardCodedGameState(1));  // bot goes
     String input = sc.next();  // Get first trun from the human
-    System.out.println(getHardCodedGameState(1));
-    System.out.println(getHardCodedGameState(2));
+    System.out.println(getHardCodedGameState(2));  // input validation
+    System.out.println(getHardCodedGameState(3));  // human goes
+    System.out.println(getHardCodedGameState(4));  // bot goes
     input = sc.next();   // Get second turn from the human
-    System.out.println(getHardCodedGameState(3));
-    System.out.println(getHardCodedGameState(4));    // Send finalGame state (includes the last turn)
+    System.out.println(getHardCodedGameState(5));  // input validation
+    System.out.println(getHardCodedGameState(6));  // Send finalGame state (includes the last turn)
     
     // Exit because we sent the final gameState and are done.
     
@@ -206,15 +205,13 @@ public class ArenaGameManager {
        *        passed to the used defined client javascript, then the client code will reset itself in preparation for a 
        *        new game. After sending this, the GameManager is expected to kill itself.
        *        
-       *  nextTurn : one of { "player1", "player2", "neither" }
+       *  enableHumanInput : one of { true, false}
        *     This will be used in the bot v. human test arena to determine when to display the humanInputElement
-       *        and retrieve human input. The human player will always be player2. This field should indicate which
-       *        player is up next. That is if the current gamestate is indicates the results of player1's turn, nextTurn should be "player2"
-       *     If it is the final gameState, this field is not applicable, in that case use the value "neither".
-       *  
+       *        and retrieve human input. 
+       *        
        *  animatableEvents : an array of animatableEvent objects"
        *      Each animatableEvent must have an event name and data object
-       *      Event names must be from the set { "move", "successfulAttack", "defendedAttack" } for saveTheIsland.
+       *      Event names must be from the set { "move", "fallback", "successfulAttack", "defendedAttack" } for saveTheIsland.
        *      Data objects are game specific and depend on the animation to be performed. Note that these are not
        *       completely fleshed out yet. But below you'll find what we are using for move and defendedAttack currently.
        *      
@@ -244,7 +241,7 @@ public class ArenaGameManager {
           // Note: This gives the following message, investigate why
           //    ArenaGameManager.java uses unchecked or unsafe operations. Recompile with -Xlint:unchecked for details.
 
-          JSONObject gameState0 = new JSONObject();
+          /*JSONObject gameState0 = new JSONObject();
           gameState0.put("type", "initial");
           gameState0.put("nextTurn", "player1");
           
@@ -278,10 +275,11 @@ public class ArenaGameManager {
           gameState0_debugData.put("stdout", gameState0_debugData_stdout);
           gameState0.put("debugData", gameState0_debugData);
 
-         return gameState0.toJSONString(); 
-           /*"{"    
+         return gameState0.toJSONString(); */
+           return "{"    
+           +		   "\"messageType\": \"gamestate\","
            +           "\"type\": \"initial\","
-           +           "\"nextTurn\": \"player1\","
+           +           "\"enableHumanInput\": false,"
            +           "\"animatableEvents\": [],"
            +           "\"gameData\" : {"
            +               "\"player1Tiles\" : [1, 3, 5, 5, 3],"
@@ -293,9 +291,8 @@ public class ArenaGameManager {
            +               "\"stdout\" : []"
            +           "}"
            +       "}";
-           */
         case 1:
-          JSONObject gameState1 = new JSONObject();
+          /*JSONObject gameState1 = new JSONObject();
           gameState1.put("type", "midGame");
           gameState1.put("nextTurn", "player2");
           
@@ -341,17 +338,18 @@ public class ArenaGameManager {
           gameState1_debugData.put("stdout", gameState1_debugData_stdout);
           gameState1.put("debugData", gameState1_debugData);
 
-         return gameState1.toJSONString(); 
-         /*
+         return gameState1.toJSONString(); */
+         
             return "{"           
+            +		    "\"messageType\": \"gamestate\","
             +           "\"type\": \"midGame\","
-            +           "\"nextTurn\": \"player2\","
+            +           "\"enableHumanInput\": true,"
             +           "\"animatableEvents\": ["
             +               "{"
             +                   "\"event\": \"move\","
             +                   "\"data\": { "
-            +                      "\"objectName\" : \"player1\","
-            +                      "\"finalPosition\" : 9 "
+            +                      "\"player\" : \"player1\","
+            +                      "\"endPosition\" : 9 "
             +                  "}"
             +               "}"
             +           "],"
@@ -365,21 +363,39 @@ public class ArenaGameManager {
             +               "\"stdout\" : [ \"An array\", \"of lines output by the bot\", \"stdout on this turn.\" ]"
             +           "}"
             +       "}";
-            */
-        case 2:
+        case 2:  
+        	return  "{"    
+		    +           "\"messageType\": \"humanInputValidation\","
+			+           "\"valid\": true,"         
+			+       "}";
+        case 3:
             return  "{"
+        	+	        "\"messageType\": \"gamestate\","
             +           "\"type\": \"midGame\","
-            +           "\"nextTurn\": \"player1\","
+            +           "\"enableHumanInput\": false,"
             +           "\"animatableEvents\": "
             +           "["
+            +              "{"
+            +               "\"event\": \"move\","
+            +                  "\"data\": "
+            +                  "{"
+            +                      "\"player\" : \"player2\","
+            +                      "\"endPosition\" : 10"
+            +                  "}"
+            +              "},"
             +              "{"
             +               "\"event\": \"defendedAttack\","
             +                  "\"data\": "
             +                  "{"
-            +                      "\"attacker\" : \"player2\","
-            +                      "\"defender\" : \"player1\","
-            +                      "\"attackerStartingPosition\" : 14,"
-            +                      "\"attackerAttackPosition\" : 10"
+            +                      "\"player\" : \"player1\""
+            +                  "}"
+            +              "},"
+            +              "{"
+            +               "\"event\": \"fallback\","
+            +                  "\"data\": "
+            +                  "{"
+            +					   "\"player\" : \"player2\","
+            +                      "\"endPosition\" : 14"
             +                  "}"
             +              "}"
             +          "],"
@@ -393,16 +409,17 @@ public class ArenaGameManager {
             +           "\"stdout\" : [ \"An array\", \"of lines output by the bot\", \"stdout on this turn.\" ]"
             +          "}"
             +       "}";
-        case 3:
+        case 4:
             return "{"
-            +              "\"type\": \"midGame\","
-            +              "\"nextTurn\": \"player2\","
+            +              "\"messageType\": \"gamestate\","
+            +           	"\"type\": \"midGame\","
+            +           	"\"enableHumanInput\": true,"
             +              "\"animatableEvents\": ["
             +                 "{"
             +                   "\"event\": \"move\","
             +                   "\"data\": { "
-            +                     "\"objectName\" : \"player1\","
-            +                     "\"finalPosition\" : 0 "
+            +					   "\"player\" : \"player1\","
+            +                      "\"endPosition\" : 0"
             +                   "} "
             +                 "}"
             +              "],"
@@ -416,16 +433,22 @@ public class ArenaGameManager {
             +                "\"stdout\" : [ \"An array\", \"of lines output by the bot\", \"stdout on this turn.\" ]"
             +              "}"
             +            "}";
-           case 4:
+           case 5: 
+        	    return  "{"    
+       		    +           "\"messageType\": \"humanInputValidation\","
+    			+           "\"valid\": true,"         
+    			+       "}";
+           case 6:
                 return "{"
-                +              "\"type\": \"final\","
-                +              "\"nextTurn\": \"neither\","
+                +              "\"messageType\": \"gamestate\","
+                +           	"\"type\": \"final\","
+                +           	"\"enableHumanInput\": false,"
                 +              "\"animatableEvents\": ["
                 +                 "{"
                 +                   "\"event\": \"move\","
                 +                   "\"data\": { "
-                +                     "\"objectName\" : \"player1\","
-                +                     "\"finalPosition\" : 0 "
+                +                     "\"player\" : \"player2\","
+                +                     "\"endPosition\" :  8"
                 +                   "} "
                 +                 "}"
                 +              "],"
