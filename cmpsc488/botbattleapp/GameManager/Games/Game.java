@@ -175,20 +175,25 @@ public class Game implements GameInterface {
     return output;
   }
 
-  protected static String animatedEventJSON(String event, String objctName, int finalPosition) {
+  protected static String animatedEventJSON(String event, int player, int finalPosition) {
     String output =
-        "\"animatableEvents\" : [" + "{" + "\"event\": \"" + event + "\"," + "\"data\": { "
-            + "\"objectName\" : \"" + objctName + "\"," + "\"finalPosition\" : " + finalPosition
-            + "}}]";
+        "\"animatableEvents\" : [{" + 
+              "\"event\": \"" + event + "\"," + 
+              "\"data\": { " +
+                  "\"player\" : " + player + "," + 
+                  "\"finalPosition\" : " + finalPosition +
+             "}}]";
 
     return output;
   }
 
   protected static String gameDataJSON(String player1Tiles, String player2Tiles, String description) {
     String output =
-        "\"gameData\" : {" + "\"player1Tiles\" : " + tilesToArray(player1Tiles) + ","
-            + "\"player2Tiles\" : " + tilesToArray(player2Tiles) + "," + "\"turnDescription\" : \""
-            + description + "\"}";
+        "\"gameData\" : {" + 
+            "\"player1Tiles\" : " + tilesToArray(player1Tiles) + "," +
+            "\"player2Tiles\" : " + tilesToArray(player2Tiles) + "," + 
+            "\"turnDescription\" : \"" + description + 
+         "\"}";
 
     return output;
   }
@@ -261,12 +266,12 @@ public class Game implements GameInterface {
     jsonString += getType(move, player) + ",";
     jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
 
-    if (move == null) {
-      jsonString += animatedEventJSON("null Move", "Player" + player, finalPos) + ",";
+    if (move == null) {//TODO fix this to reflect correct requirements
+      jsonString += animatedEventJSON("null Move", player, finalPos) + ",";
     } else {
-      jsonString += animatedEventJSON(move.split(";")[0], "Player" + player, finalPos) + ",";
+      jsonString += animatedEventJSON(move.split(";")[0], player, finalPos) + ",";
     }
-
+    
     if (isValidMove(move, player)) {
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
@@ -278,11 +283,13 @@ public class Game implements GameInterface {
     }
 
 
-    jsonString += "\"debugData\" : {\"stderr\" : [\"" + botsStderr + "\"],\"stdout\" : [\"" + move + "\"]}}";
+    jsonString += "\"debugData\" : {" +
+                       "\"stderr\" : [\"" + botsStderr + "\"]," +
+                       "\"stdout\" : [\"" + move + 
+                  "\"]}}";
     return jsonString;
   }
-
-  // TODO this seems like its mostly done except for the animation stuff and testing
+  
   public String getJSONstringFromGameResults(GameResults results) {
     Object[] p1Moves = results.getPlayer1Moves().toArray();
     Object[] p2Moves = results.getPlayer2Moves().toArray();
@@ -291,7 +298,7 @@ public class Game implements GameInterface {
     String animation = "";
     String jsonString = "[{";
 
-    jsonString += animatedEventJSON("Initial Board", "None", -1) + ",";
+    jsonString += animatedEventJSON("Initial Board", -1, -1) + ",";
     jsonString +=
         gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
             "initial board") + "}";
@@ -303,10 +310,10 @@ public class Game implements GameInterface {
 
       if (i % 2 == 1) {
         desc = prettyPrintMove((String) p1Moves[i / 2], 1);
-        animation = animatedEventJSON((String) p1Moves[i / 2], "player1", 666);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 1, 666);
       } else {
         desc = prettyPrintMove((String) p2Moves[i / 2], 2);
-        animation = animatedEventJSON((String) p1Moves[i / 2], "player2", 666);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 2, 666);
       }
       jsonString += animation + ",";
       jsonString +=
@@ -350,6 +357,12 @@ public class Game implements GameInterface {
       String distance = island.substring(island.indexOf("1"), island.indexOf("2") + 1);
 
       return distance.length() - 1;
+    }
+    
+    public static int getPlayersPosition(String board, int player) {
+      String island = getIsland(board); 
+
+      return island.indexOf(player);
     }
 
     public static String getNewTiles(String board, int player, int value, int numOfValues) {

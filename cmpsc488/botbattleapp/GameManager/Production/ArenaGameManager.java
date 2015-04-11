@@ -18,6 +18,7 @@ public class ArenaGameManager {
   //TODO ensure animated events array is empty for intial and final states.
   //TODO change semicolons to spaces (Lower priority)
   //TODO Rename somthing to somthing else.....dont remember what
+  //TODO when user enters invalid move add reason why it was invalid to JSON response
 
   
   // arg[0] should be "testarena"
