@@ -111,7 +111,7 @@
    $('#human').click(function() {
      $('#uploadBotButton').val("Upload Bot");
      $('#player2FileChoose').hide();
-     $('#humanInput').show();
+     //$('#humanInput').show();
      $('#gameControlDiv').hide();
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
      GLOBAL.resetValueAttrributeById('player1_bot_upload');
@@ -122,7 +122,7 @@
    $('#bot').click(function() {
      $('#uploadBotButton').val("Upload Bots");
      $('#player2FileChoose').show();
-     $('#humanInput').hide();
+     //$('#humanInput').hide();
      $('#gameControlDiv').hide();
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
      GLOBAL.resetValueAttrributeById('player1_bot_upload');
@@ -232,28 +232,9 @@
    //----------------------------------Send Move------------------------------------
 // Valid events are 'success', 'expiredID', and 'noGameRunning' anything else will be treated as unexpected
    document.getElementById("send_move").addEventListener('click', function(ev) {
-     var data;// = new FormData(document.forms.namedItem("humanInputForm"));
-     $.fn.serializeObject = function()
-     {
-         var o = {};
-         var a = this.serializeArray();
-         $.each(a, function() {
-             if (o[this.name] !== undefined) {
-                 if (!o[this.name].push) {
-                     o[this.name] = [o[this.name]];
-                 }
-                 o[this.name].push(this.value || '');
-             } else {
-                 o[this.name] = this.value || '';
-             }
-         });
-         return o;
-     };
-     data = (JSON.stringify($('form[name="humanInputForm"]').serializeObject()));
+
      var req = new XMLHttpRequest();
-     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + data, true);
-     //req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + document.getElementById("humanInput_stdin").value, true);
-     //req.open("POST", "sendMove/?id=" + TEST_ARENA.myId, true);
+     req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + GAME.getMoveFromHumanInputElements(), true);
      req.onload = function(event) {
        try {
          response = JSON.parse(req.responseText);
@@ -270,8 +251,11 @@
                GLOBAL.handleExpiredID();
                TEST_ARENA.transitionPageToState('pageLoaded');
                break;
+             case 'notExpectingHumanInput':
+               GLOBAL.eventLog.logMessage('error', "The game is not expecting human input, stop spamming us.");
+               break;
              case 'noGameRunning':
-               GLOBAL.eventLog.logMessage('error', "The game is not running, press Start Game or upload new bots to continue.");
+               GLOBAL.eventLog.logMessage('error', "The game is no longer running, please start a new game to continue.");
                TEST_ARENA.transitionPageToState('uploaded');
                break;
              case 'success':
@@ -303,42 +287,44 @@
      var response = null;
 
      req.open("GET", "killCurrentGame/?id=" + TEST_ARENA.myId, true);
-     req.onload = function(event) {
-       try {
-         response = JSON.parse(req.responseText);
-       }
-       catch (e) {
-         GLOBAL.handleUnexpectedResponse('killCurrentGame', req.responseText);
-         TEST_ARENA.transitionPageToState('pageLoaded');
-         return; // Don't continue unless it was a json response.
-       }
-       try {
-         if (req.status == 200) {
-           switch(response.event) {
-             case 'expiredID':
-               GLOBAL.handleExpiredID();
-               TEST_ARENA.transitionPageToState('pageLoaded');
-               break;
-             case 'success':
-               GLOBAL.eventLog.logMessage('status', "The game has been killed, start a new game or upload new bots to continue...");
-               TEST_ARENA.transitionPageToState('uploaded');
-               break;
-             default:
-               GLOBAL.handleUnexpectedResponse('killCurrentGame', response);
-               TEST_ARENA.transitionPageToState('pageLoaded');
-               break;
-           }
+     req.onreadystatechange=function()
+     {
+       if (req.readyState==4 && req.status==200) {
+         try {
+           response = JSON.parse(req.responseText);
+         }
+         catch (e) {
+           GLOBAL.handleUnexpectedResponse('killCurrentGame', req.responseText);
+           TEST_ARENA.transitionPageToState('pageLoaded');
+           return; // Don't continue unless it was a json response.
+         }
+         try {
+             switch(response.event) {
+               case 'expiredID':
+                 GLOBAL.handleExpiredID();
+                 TEST_ARENA.transitionPageToState('pageLoaded');
+                 break;
+               case 'success':
+                 GLOBAL.eventLog.logMessage('status', "The game has been killed, start a new game or upload new bots to continue...");
+                 TEST_ARENA.transitionPageToState('uploaded');
+                 break;
+               default:
+                 GLOBAL.handleUnexpectedResponse('killCurrentGame', response);
+                 TEST_ARENA.transitionPageToState('pageLoaded');
+                 break;
+             }
          } 
-         else {
-           GLOBAL.handleNonSuccessHttpStatus('killCurrentGame', req.status, response);
+         catch(err) {
+           GLOBAL.handleClientError('killCurrentGame', err);
            TEST_ARENA.transitionPageToState('pageLoaded');
          }
        }
-       catch(err) {
-         GLOBAL.handleClientError('killCurrentGame', err);
+       else {
+         GLOBAL.handleNonSuccessHttpStatus('killCurrentGame', req.status, response);
          TEST_ARENA.transitionPageToState('pageLoaded');
        }
      }
+
      req.send();
      ev.preventDefault();
    }, false);
@@ -391,11 +377,11 @@
                GLOBAL.eventLog.logMessage('status', "Game is no longer running on server and game state queue is empty, stopping the requester");
                stopGameStateRequester();
                break;
-             case 'success':
-               if(response.gamestates){
-                 for ( var turnIndex in response.gamestates) {
-                   console.log("gameState /n",response.gamestates[turnIndex]);
-                   TEST_ARENA.gameStateQueue.addNewGameState(response.gamestates[turnIndex]);
+             case 'success':  // Its valid json
+               if(response.data /*not just gamestates anymore*/) {
+                 for ( var index in response.data) {
+                   console.log("gameState or humanInputValidation message /n",response.data[index]);
+                   TEST_ARENA.gameStateQueue.addNewGameState(response.data[index]);
                  }
                }
                else {
@@ -444,18 +430,51 @@
        this.stop = function() {
          imRunning = false;
        }
-     
+       
        var passGameStateToGAME = function(nextGameState) {
-         // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
-         GAME.processGameData(nextGameState.gameData, function(err) {
-           //TODO: make this called when receive humanInputEnabled = true in move.
-           GAME.getHumanInput();
-           GAME.processDebugData(nextGameState.debugData, function(err) {
-             async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
-               processNextGameState();
-             });        
+         if (nextGameState.messageType === 'humanInputValidation') {
+           if (nextGameState.valid) {
+             GLOBAL.eventLog.logMessage('status', "Valid human input Yay!");
+             document.getElementById("humanInput").style.display = "none";
+             document.getElementById("humanInputElements").innerHTML = "";
+           }
+           else {
+             GLOBAL.eventLog.logMessage('error', "Invalid human input, please try again");
+           }
+         }
+         else if (nextGameState.messageType === 'gamestate') {
+           // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
+           GAME.processGameData(nextGameState.gameData, function(err) {
+             if (err) {
+               GLOBAL.handleClientError("passGameStateToGAME", err);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+             }
+             else {
+               GAME.processDebugData(nextGameState.debugData, function(err) {
+                 if (err) {
+                   GLOBAL.handleClientError("passGameStateToGAME", err);
+                   TEST_ARENA.transitionPageToState('pageLoaded');
+                 }
+                 else {
+                   async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
+                     if (err) {
+                       GLOBAL.handleClientError("passGameStateToGAME", err);
+                       TEST_ARENA.transitionPageToState('pageLoaded');
+                     }
+                     else {
+                       // If the game manager is waiting for human input 
+                       if (nextGameState.enableHumanInput) {
+                         GAME.setHumanInput();
+                         document.getElementById("humanInput").style.display = "block";
+                       }
+                       processNextGameState();
+                     }
+                   });   
+                 }
+               });
+             }
            });
-         });
+         }
        }
        
        var processNextGameState = function() {
@@ -522,13 +541,13 @@
          $('#gameControlDiv').show();
          $('#startNewGame').show();
          $('#killCurrentGame').hide();
-         $('#humanInput').hide();
+         //$('#humanInput').hide();
        }
        else if (startGame_or_killGame_or_hide === "killGame") {
          $('#gameControlDiv').show();
          $('#startNewGame').hide();
          $('#killCurrentGame').show();
-         $('#humanInput').show();
+         //$('#humanInput').show();
          $('#moveList').html("");
          $('#stdout').html("");
          $('#stderr').html("");
@@ -537,7 +556,7 @@
          $('#gameControlDiv').hide();
          $('#startNewGame').hide();
          $('#killCurrentGame').hide();
-         $('#humanInput').hide();
+         //$('#humanInput').hide();
          $('#gameControlStatus').html("");
          $('#moveList').html("");
          $('#stdout').html("");

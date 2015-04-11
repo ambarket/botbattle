@@ -85,7 +85,7 @@ module.exports = new (function() {
     var newGameId = require('shortid').generate();
     testArenaInstances[newGameId] = { 
         'gameProcess' : null,
-        'gameState' : null,
+        'gameState' : null,   // 'running', 'expectingHumanInput', 'closed', 'exited', 'error'
         'gameExpireDateTime' : null,
         'gameModule' : gameModule,
         'bot1Name' : null,
@@ -133,7 +133,7 @@ module.exports = new (function() {
     }); 
   }
   
-  // Synchronous
+  // Synchronous - called from /startGame
   // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
   this.spawnNewGameInstance = function(id) {
     var spawn = require('child_process').spawn;
@@ -167,7 +167,6 @@ module.exports = new (function() {
             jsonArgument.bot1.language = 'java';
             jsonArgument.bot1.name = testArenaInstances[id].bot1Name.substring(0, testArenaInstances[id].bot1Name.length-5);
             jsonArgument.bot1.directory = testArenaInstances[id].bot1Directory;
-            console.log("Java name test: ", jsonArgument.bot1.name)
           }
           else {
             jsonArgument.bot1.language = 'c++';
@@ -203,7 +202,13 @@ module.exports = new (function() {
               
               for (var i = 0; i < array.length; i++) {
                 try {
-                  testArenaInstances[id].gameStateQueue.push(JSON.parse(array[i]));
+                  var message = JSON.parse(array[i]);
+                  if ((message.messageType === 'humanInputValidation' && message.valid === 'false') ||
+                      (message.messageType === 'gamestate' && message.enableHumanInput === 'true')) {
+                    testArenaInstances[id].gameState = 'waitingForHumanInput';
+                  }
+                  testArenaInstances[id].gameStateQueue.push(message);
+                  
                   logger.log("TestArenaInstances", 
                       helpers.getLogMessageAboutGame(id, "gameStateQueue: " + testArenaInstances[id].gameStateQueue));
                 }
@@ -252,14 +257,19 @@ module.exports = new (function() {
   }
   
   // Synchronous
-  // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
+  // Returns a event code from the set { 'expiredID', 'noGameRunning', 'notExpectingHumanInput', 'success' }
   this.sendMoveToGameInstanceById = function(id, move) {
     if (!self.hasInstanceExpired(id)) {
       testArenaInstances[id].resetExpirationTime();
-      if(testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "running"){
+      if(testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === "waitingForHumanInput"){
+        testArenaInstances[id].gameState = 'running';
         testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
         logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
         return 'success';
+      }
+      else if (testArenaInstances[id].gameState === "running"){
+        logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager isn't expecting human input, can't send move", move));
+        return 'notExpectingHumanInput';
       }
       else {
         logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager isn't running, can't send move", move));

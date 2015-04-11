@@ -72,9 +72,10 @@ function runInitialConfiguration() {
 function runBotBattleApp(database) {
   logger.log('httpsServer', "Running Bot!Battle! at https://localhost:" + port);
   fileManager.deleteInitConfigTmp(function(){});
-  fileManager.deleteTestArenaTmp(function(){});
-  var botBattleAppServer = new BotBattleServer().initAndStartListening(port);
-  var botBattleApp = (new require(paths.custom_modules.BotBattleApp))(botBattleAppServer, database);
-   // TODO: register new listeners.  set prototype to inherit emmiter like initconfig
+  fileManager.deleteTestArenaTmp(function(){
+    var botBattleAppServer = new BotBattleServer().initAndStartListening(port);
+    var botBattleApp = (new require(paths.custom_modules.BotBattleApp))(botBattleAppServer, database);
+     // TODO: register new listeners.  set prototype to inherit emmiter like initconfig
+  });
 }
 

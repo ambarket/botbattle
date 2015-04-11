@@ -22,7 +22,13 @@ GAME = {
       //    and animate it on the canvas.
       //    Each animatableEvent has an 'event' property naming the event
       //    and a 'data' object containing any necessary information for the animation
-      animations[animatableEvent.event](animatableEvent.data, processAnimatableEventCallback);
+      var validEvents = ['move', 'fallback', 'successfulAttack', 'defendedAttack'];
+      if (validEvents.indexOf(animatableEvent.event) == -1) {
+        processAnimatableEventCallback(new Error("Invalid animatable event type"));
+      }
+      else {
+        animations[animatableEvent.event](animatableEvent.data, processAnimatableEventCallback);
+      }
     },
     
     // Run each time the drawer draws?
@@ -44,7 +50,7 @@ GAME = {
     
     'gameboard' : null, // will be set by the resetGAME.gameboard method
     'drawer' : new Drawer(),
-    'getHumanInput' : function() { 
+    'setHumanInputElements' : function() { 
       var form = document.getElementById("humanInputForm");
       for (var i = 0; i < this.gameboard.player2Tiles.length; i++) {
         var temp = document.getElementById(("player2Tile" + i).toString())
@@ -82,6 +88,28 @@ GAME = {
         var text = document.createTextNode("left");
         form.appendChild(text);
       }
+    },
+    'getMoveFromHumanInputElements' : function() {
+      var data;// = new FormData(document.forms.namedItem("humanInputForm"));
+      $.fn.serializeObject = function()
+      {
+          var o = {};
+          var a = this.serializeArray();
+          $.each(a, function() {
+              if (o[this.name] !== undefined) {
+                  if (!o[this.name].push) {
+                      o[this.name] = [o[this.name]];
+                  }
+                  o[this.name].push(this.value || '');
+              } else {
+                  o[this.name] = this.value || '';
+              }
+          });
+          return o;
+      };
+      data = (JSON.stringify($('form[name="humanInputForm"]').serializeObject()));
+      //TODO: Figure out move format with Randall
+      return data;
     },
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();

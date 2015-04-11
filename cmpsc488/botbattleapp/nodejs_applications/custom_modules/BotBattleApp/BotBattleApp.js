@@ -228,12 +228,10 @@ function registerTestArenaRoutes(server, database) {
   });
   
   server.addDynamicRoute('get', '/sendMove', function(req, res) {
-    setTimeout(function(){ 
-      // Returns a event code from the set { 'expiredID', 'noGameRunning', 'success' }
-      // These will be handled on the client side accordingly.
-      var event = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
-      res.json({ 'event' : event });
-    }, 2000);
+    // Returns a event code from the set { 'expiredID', 'noGameRunning', 'notExpectingHumanInput', 'success' }
+    // These will be handled on the client side accordingly.
+    var event = testArenaInstances.sendMoveToGameInstanceById(req.query.id, req.query.move);
+    res.json({ 'event' : event });
   });
   
   /**
@@ -263,7 +261,7 @@ function registerTestArenaRoutes(server, database) {
       if (testArenaInstances.isGameManagerRunning(req.query.id) || latestGameStateArray.length > 0) {
         res.json(
             { 'event' : 'success',
-              'gamestates' : latestGameStateArray,
+              'data' : latestGameStateArray,
               'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.query.id)
             });
       }
