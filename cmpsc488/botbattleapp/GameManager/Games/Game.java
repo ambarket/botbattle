@@ -60,12 +60,13 @@ public class Game implements GameInterface {
     } else if (move.startsWith("retreat")) {
       board = Board.movePlayer(board, player, -value);
       replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
-    } else if (move.startsWith("move")) {
+    } else {
       board = Board.movePlayer(board, player, value);
       replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
     }
 
     lastPlayersTurn = player;
+    lastMove = move;
   }
   
   protected void replacePlayersTiles(String newTiles, int player) {
@@ -109,7 +110,10 @@ public class Game implements GameInterface {
   }
 
   public boolean isValidMove(String move, int player) {
-
+    return isValidMove(move, player, board);
+  }
+  
+  protected boolean isValidMove(String move, int player, String board) {
     if (move == null) {
       reasonInvalid = "The action was null.";
       return false;
@@ -178,6 +182,10 @@ public class Game implements GameInterface {
   public static String getName() {
     return "SaveTheIsland";
   }
+  
+  public static int getOtherPlayer(int player) {
+    return ( player == 1 ? 2 : 1 );
+  }
 
   private static String tilesToArray(String tiles) {
     String output = "[";
@@ -189,13 +197,20 @@ public class Game implements GameInterface {
     return output;
   }
   
-  protected String getMoveAnimatedEventJSON(int player) {
+  protected String getAnimatedEventElement(String event, int player) {
+    return getAnimatedEventElement(event, player, Board.getPlayersPosition(board, player),
+                                                  Board.getPlayersPosition(lastBoard, player));
+  }
+
+  
+  
+  protected String getAnimatedEventElement(String event, int player, int startPos, int endPos) {
     String json = "{" +
-        "\"event\":\"move\"," + 
+        "\"event\":\"" + event + "\"," + 
         "\"data\":{" +
             "\"player\":" + player + "," + 
-            "\"endposition\":" + Board.getPlayersPosition(board, player) + "," +
-            "\"startposition\":" + Board.getPlayersPosition(lastBoard, player) +
+            "\"endposition\":" + endPos + "," +
+            "\"startposition\":" + startPos +
         "}}";
     
     
@@ -203,14 +218,22 @@ public class Game implements GameInterface {
   }
 
   protected String animatedEventJSON(String event, int player) {
-    String json = "{" +
-        "\"event\":\"" + event + "\"," + 
-        "\"data\":{" +
-            "\"player\":" + player + "," + 
-            "\"endposition\":" + Board.getPlayersPosition(board, player) + "," +
-            "\"startposition\":" + Board.getPlayersPosition(lastBoard, player) +
-        "}}";
+    String json = "";
     
+    if(event.equals("move")) {
+      json = getAnimatedEventElement("move", player);
+    } else if(event.equals("retreat")) {
+      json = getAnimatedEventElement("retreat", player);
+    } else if(event.equals("attack")) {
+      
+      if(Board.getIsland(board).equals(Board.getIsland(lastBoard))) {
+        json = getAnimatedEventElement("move", player, Board.getPlayersPosition(board, player), Board.getAttackPositionForPlayer(player, board)) + ",";
+        json += getAnimatedEventElement("defendedAttack", getOtherPlayer(player));
+      } else {
+        json = getAnimatedEventElement("move", player) + ",";
+        json += getAnimatedEventElement("successfulAttack", getOtherPlayer(player));
+      } 
+    } 
     
     return json;
   }
@@ -288,21 +311,17 @@ public class Game implements GameInterface {
     String move = lastMove;
     int player = lastPlayersTurn;
     String jsonString = "{";
-    
-    jsonString += "\"messagetype:\"gamestate\",";
 
-    int finalPos = Board.getIsland(board).indexOf(String.valueOf(player));
+    jsonString += "\"messagetype:\"gamestate\",";
 
     jsonString += getType(move, player) + ",";
     jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
 
-    if (move == null) {//TODO fix this to reflect correct requirements
-      jsonString += animatedEventJSON("null Move", player) + ",";
-    } else {
+    if (!isGameOver() && isValidMove(move, player, lastBoard) ) {
       jsonString += animatedEventJSON(move.split(";")[0], player) + ",";
-    }
+    } 
     
-    if (isValidMove(move, player)) {
+    if (isValidMove(move, player, lastBoard)) {
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
@@ -399,8 +418,18 @@ public class Game implements GameInterface {
     
     public static int getPlayersPosition(String board, int player) {
       String island = getIsland(board); 
-
-      return island.indexOf(player);
+      String playerString = (player == 1 ? "1" : "2");
+      return island.indexOf(playerString);
+    }
+    
+    public static int getAttackPositionForPlayer(int player, String board) {
+      int direction = 1;
+      int distance = getDistanceBetweenPlayers(board);
+      if( player == 2 ) {
+        direction = -1;
+      }
+      
+      return getPlayersPosition(board, player) + (direction * ( distance - 1 ));
     }
 
     public static String getNewTiles(String board, int player, int value, int numOfValues) {
@@ -409,12 +438,12 @@ public class Game implements GameInterface {
       String tiles = getPlayersTiles(player, board);
       String newTiles = "";
 
-      for (int i = 0; i < 5; i++) {
-        if (Integer.parseInt(tiles.substring(i, i + 1)) == value && numOfValues > 0) {
+      for (int i = 0; i < tiles.length(); i++) {
+        if (Character.getNumericValue(tiles.charAt(i)) == value && numOfValues > 0) {
           newTiles += rng.nextInt(6);
           numOfValues--;
         } else {
-          newTiles += tiles.substring(i, i + 1);
+          newTiles += tiles.charAt(i);
         }
       }
 
@@ -473,7 +502,7 @@ public class Game implements GameInterface {
       int defenseTiles = 0, distance = getDistanceBetweenPlayers(board);
 
       for (int i = 0; i < 5; i++) {
-        if (Integer.parseInt(tiles.substring(i, i + 1)) == distance) {
+        if (Character.getNumericValue(tiles.charAt(i)) == distance) {
           defenseTiles++;
         }
 
@@ -482,12 +511,13 @@ public class Game implements GameInterface {
         }
       }
       
-      if (defenseTiles < numOfAttacks) { // Attack was succesful       
-        board = movePlayer(board, attacker, distance - 1);
-      }
+      int numOfSucesfullAttacks = numOfAttacks - defenseTiles;
       
-      int numOfSucesfullAttacks = -(numOfAttacks - defenseTiles);      
-      board  = movePlayer(board, victim, numOfSucesfullAttacks * distance);
+      if (numOfSucesfullAttacks > 0) { // Attack was succesful       
+        board = movePlayer(board, attacker, distance - 1);
+        board = movePlayer(board, victim, -numOfSucesfullAttacks * distance);
+      } 
+      
       board = getNewTilesAndReplace(board, victim, distance, defenseTiles);
       board = getNewTilesAndReplace(board, attacker, distance, numOfAttacks);
       

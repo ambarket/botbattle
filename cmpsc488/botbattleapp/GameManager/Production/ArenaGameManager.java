@@ -12,15 +12,7 @@ import java.util.ArrayList;
 
 public class ArenaGameManager {
   
-  //TODO look at final position field in animated events. It should be for the attacked player?
-  //TODO test animated events fields based on requirements from Steven and Austin
-  
-  //TODO add new fields to json from discussion earlier today
-  //TODO ensure animated events array is empty for intial and final states.
-  //TODO change semicolons to spaces (Lower priority)
-  //TODO Rename somthing to somthing else.....dont remember what
-  //TODO when user enters invalid move add reason why it was invalid to JSON response
-
+  //TODO change it so players can only see their own tiles.
   
   // arg[0] should be "testarena"
   // arg[1] should be a JSON string containing all other information.
