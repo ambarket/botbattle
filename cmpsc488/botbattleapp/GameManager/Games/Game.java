@@ -13,6 +13,7 @@ public class Game implements GameInterface {
   private String lastBoard;
   private String board;
   private String lastMove;
+  private String reasonInvalid;
   private int lastPlayersTurn;
   private boolean over;
 
@@ -21,6 +22,7 @@ public class Game implements GameInterface {
     lastBoard = board;
     lastPlayersTurn = 0;
     lastMove = "";
+    reasonInvalid = "";
     over = false;
   }
 
@@ -109,6 +111,7 @@ public class Game implements GameInterface {
   public boolean isValidMove(String move, int player) {
 
     if (move == null) {
+      reasonInvalid = "The action was null.";
       return false;
     }
 
@@ -120,94 +123,48 @@ public class Game implements GameInterface {
     try {
       tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
     } catch (Exception e) {
+      reasonInvalid = "An exception was thrown trying to parse action, check your syntax.";
       return false;
     }
 
     if (peices.length != 2) {
+      reasonInvalid = "The syntax was incorrect, should be somthing like move;3 or attack;22";
       return false;
     }
 
     String typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
     if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat")) {
+      reasonInvalid = "The type of action was unrecognized, should be attack, move, or retreat.";
       return false;
     }
 
     if (typeOfMove.equals("attack")) {
       // Check all given tiles are the same
       if (!peices[TILES_USED].matches(tileValue + "+")) {
+        reasonInvalid = "The tiles given for attack must all be the same.";
         return false;
       }
 
       // Check that the other player is the correct distance away
       if (tileValue != Board.getDistanceBetweenPlayers(board)) {
+        reasonInvalid = "When attacking the tiles selected must be equal to the distance from player 2 to player 1.";
         return false;
       }
     } else if (typeOfMove.equals("move") || typeOfMove.equals("retreat")) {
       // Can only move or retreat by one tile
       if (peices[TILES_USED].length() != 1) {
+        reasonInvalid = "When moving or retreating only one tile may be used.";
         return false;
       }
     } else {
       // Un recognized move type
+      reasonInvalid = "The type of action was unrecognized, should be attack, move, or retreat.";
       return false;
     }
 
     // Check player has those tiles
     if (!Board.checkPlayersTiles(board, player, tileValue, peices[TILES_USED].length())) {
-      return false;
-    }
-
-    return true;
-  }
-
-  public boolean isValidMove2(String move, int player) {
-
-    if (move == null) {
-      return false;
-    }
-
-    short TYPE_OF_MOVE = 0, TILES_USED = 1;
-    String[] peices = move.split(";");
-    int tileValue;
-
-    // Attempt to get value for tile, if it doesn't parse then not a valid move
-    try {
-      tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
-    } catch (Exception e) {
-      return false;
-    }
-
-    if (peices.length != 2) {
-      return false;
-    }
-
-    String typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
-    if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat")) {
-      return false;
-    }
-
-    if (typeOfMove.equals("attack")) {
-      // Check all given tiles are the same
-      if (!peices[TILES_USED].matches(tileValue + "+")) {
-        return false;
-      }
-
-      // Check that the other player is the correct distance away
-      if (tileValue != Board.getDistanceBetweenPlayers(lastBoard)) {
-        return false;
-      }
-    } else if (typeOfMove.equals("move") || typeOfMove.equals("retreat")) {
-      // Can only move or retreat by one tile
-      if (peices[TILES_USED].length() != 1) {
-        return false;
-      }
-    } else {
-      // Un recognized move type
-      return false;
-    }
-
-    // Check player has those tiles
-    if (!Board.checkPlayersTiles(lastBoard, player, tileValue, peices[TILES_USED].length())) {
+      reasonInvalid = "You do not have the tiles you are trying to use.";
       return false;
     }
 
@@ -345,7 +302,7 @@ public class Game implements GameInterface {
       jsonString += animatedEventJSON(move.split(";")[0], player) + ",";
     }
     
-    if (isValidMove2(move, player)) {
+    if (isValidMove(move, player)) {
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
@@ -405,7 +362,7 @@ public class Game implements GameInterface {
     return "{"
         + "\"messagetype:\"humanInputValidation\","
         + "\"valid\":\"false\","
-        + "\"reason\":\"Not yet implemented\"," //TODO getInvalidMoveJSON
+        + "\"reason\":\"" + reasonInvalid + "\"," 
         + "}";
   }
   
