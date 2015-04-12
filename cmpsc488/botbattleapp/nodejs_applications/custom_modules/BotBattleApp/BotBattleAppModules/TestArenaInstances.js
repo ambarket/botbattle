@@ -264,7 +264,7 @@ module.exports = new (function() {
   this.sendMoveToGameInstanceById = function(id, move) {
     if (!self.hasInstanceExpired(id)) {
       testArenaInstances[id].resetExpirationTime();
-      if(testArenaInstances[id].gameProcess && testArenaInstances[id].waitingForHumanInput){
+      if(testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running' && testArenaInstances[id].waitingForHumanInput){
         testArenaInstances[id].waitingForHumanInput = false;
         testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
         logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
@@ -329,7 +329,7 @@ module.exports = new (function() {
         testArenaInstances[id].gameProcess.on('close', function(code) {
           logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager " +  pid + " exited with code " + code));
           delete testArenaInstances[id];
-          logger.log("TestArenaInstances", "After deletion testArenaInstances is:\n", JSON.stringify(testArenaInstances));
+          logger.log("TestArenaInstances", "After deletion testArenaInstances is:\\n", testArenaInstances);
           fileManager.deleteGameInstanceDirectory(id, function(err) {
             if (err) {
               callback(new Error("Failed to delete gameInstanceDirectory " + err.message));
@@ -343,7 +343,7 @@ module.exports = new (function() {
         testArenaInstances[id].gameProcess.stdin.end();
         testArenaInstances[id].gameProcess.kill();
       } else {
-        logger.log("TestArenaInstances", "No child for id", id);
+        logger.log("TestArenaInstances", "No gameManager for id", id);
         delete testArenaInstances[id];
         fileManager.deleteGameInstanceDirectory(id, function(err) {
           if (err) {
