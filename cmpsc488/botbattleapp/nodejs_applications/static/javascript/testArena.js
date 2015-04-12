@@ -491,7 +491,7 @@
              GAME.resetGameboard(function(err) {
                var draw = function() {
                  GAME.drawer.drawBoard();
-                 if (TEST_ARENA.state === 'gameStarted') {
+                 if (TEST_ARENA.state === 'gameStarted' || imRunning) {
                    requestAnimFrame(draw);
                  }
                };
