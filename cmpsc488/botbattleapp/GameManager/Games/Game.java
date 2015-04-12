@@ -291,7 +291,7 @@ public class Game implements GameInterface {
   }
 
   private String getType(String move, int player) {
-    String s = "\"type\": ";
+    String s = "\"type\":";
     if (player == 0) { // initial
       s += "\"initial\"";
     } else if (isGameOver()) { // final
@@ -312,13 +312,13 @@ public class Game implements GameInterface {
     int player = lastPlayersTurn;
     String jsonString = "{";
 
-    jsonString += "\"messagetype:\"gamestate\",";
+    jsonString += "\"messagetype\":\"gamestate\",";
 
     jsonString += getType(move, player) + ",";
-    jsonString += "\"nextTurn\": \"player" + ((player % 2) + 1) + "\",";
+    jsonString += "\"enableHumanInput\":\"player" + ((player % 2) + 1) + "\",";//TODO, check required format on their end
 
     if (!isGameOver() && isValidMove(move, player, lastBoard) ) {
-      jsonString += animatedEventJSON(move.split(";")[0], player) + ",";
+      jsonString += "\"animatableEvents\":[" + animatedEventJSON(move.split(";")[0], player) + "],";
     } 
     
     if (isValidMove(move, player, lastBoard)) {
