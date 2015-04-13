@@ -1,6 +1,7 @@
 
 
 import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 
 import org.json.simple.JSONObject;
@@ -11,36 +12,26 @@ import java.util.ArrayList;
 
 public class ArenaGameManager {
   
-  //TODO look at final position field in animated events. It should be for the attacked player?
-  //TODO test animated events fields based on requirements from Steven and Austin
-
+  //TODO change it so players can only see their own tiles.
   
   // arg[0] should be "testarena"
   // arg[1] should be a JSON string containing all other information.
   public static void main(String[] args) throws IOException {
     
-	  test();
-   /* if (args.length < 2 || !args[0].equals("testarena")) {
+    if (args.length < 2 || !args[0].equals("testarena")) {
       System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
-      //System.exit(1);
-      args = new String[2];args[0] = "testarena";
-      // if need to debug change the path and directory
-	  args[1] = "{\"numberOfBots\":1,"
-	  		+ "\"bot1\":{"
-	  		+ 	"\"path\":\"/home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1KowMts/bot1/SaveIslandBot1.class\","
-	  		+ 	"\"language\":\"java\","
-	  		+ 	"\"name\":\"SaveIslandBot1\","
-	  		+ 	"\"directory\":\"/home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1KowMts/bot1\""
-	  		+ "}}";
-
+      System.exit(1);
     }
-    System.err.println(args[1]);
- 
-    JSONObject arenaInfo = (JSONObject) JSONValue.parse(args[1]);
+
+    runArenaGame(args[1]);
+  }
+
+  private static void runArenaGame(String arenaInfoJSON) throws IOException {
+    JSONObject arenaInfo = (JSONObject) JSONValue.parse(arenaInfoJSON);
     JSONObject bot1 = (JSONObject) arenaInfo.get("bot1");
     JSONObject bot2 = (JSONObject) arenaInfo.get("bot2");
     
-    printJSONInfo(args, arenaInfo, bot1, bot2);
+    //printJSONInfo(args, arenaInfo, bot1, bot2);
     
     Long numOfBots = (Long) arenaInfo.get("numberOfBots");
     Player plyr1 = null, plyr2 = null;
@@ -98,7 +89,7 @@ public class ArenaGameManager {
       System.err.println("BOT2_LANGUAGE: " + bot2.get("language"));
       System.err.println("BOT2_PATH: " + bot2.get("directory"));
       System.err.println("Username2: " + bot2.get("name"));
-    }*/
+    }
   }
   
   
@@ -110,7 +101,13 @@ public class ArenaGameManager {
   
   
   
-  
+//  args[1] = "{\"numberOfBots\":1,"
+//      + "\"bot1\":{"
+//      +   "\"path\":\"/home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1KowMts/bot1/SaveIslandBot1.class\","
+//      +   "\"language\":\"java\","
+//      +   "\"name\":\"SaveIslandBot1\","
+//      +   "\"directory\":\"/home/steven/git/botbattle/cmpsc488/botbattleapp/nodejs_applications/local_storage/test_arena_tmp/m1KowMts/bot1\""
+//      + "}}";
   
   
   

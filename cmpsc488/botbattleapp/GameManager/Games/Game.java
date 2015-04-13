@@ -21,7 +21,7 @@ public class Game implements GameInterface {
     board = getStartingBoard();
     lastBoard = board;
     lastPlayersTurn = 0;
-    lastMove = "";
+    lastMove = "initial";
     reasonInvalid = "";
     over = false;
   }
@@ -35,7 +35,7 @@ public class Game implements GameInterface {
     }
     board += ";1";
 
-    for (int i = 0; i < 23; i++) {
+    for (int i = 0; i < 13; i++) {
       board += "0";
     }
     board += "2;";
@@ -171,7 +171,7 @@ public class Game implements GameInterface {
       reasonInvalid = "You do not have the tiles you are trying to use.";
       return false;
     }
-
+    reasonInvalid = "";
     return true;
   }
   
@@ -198,8 +198,7 @@ public class Game implements GameInterface {
   }
   
   protected String getAnimatedEventElement(String event, int player) {
-    return getAnimatedEventElement(event, player, Board.getPlayersPosition(board, player),
-                                                  Board.getPlayersPosition(lastBoard, player));
+    return getAnimatedEventElement(event, player, Board.getPlayersPosition(lastBoard, player), Board.getPlayersPosition(board, player));
   }
 
   
@@ -208,9 +207,9 @@ public class Game implements GameInterface {
     String json = "{" +
         "\"event\":\"" + event + "\"," + 
         "\"data\":{" +
-            "\"player\":" + player + "," + 
-            "\"endposition\":" + endPos + "," +
-            "\"startposition\":" + startPos +
+            "\"player\":\"player" + player + "\"," + 
+            "\"endPosition\":" + endPos + "," +
+            "\"startPosition\":" + startPos +
         "}}";
     
     
@@ -291,37 +290,38 @@ public class Game implements GameInterface {
   }
 
   private String getType(String move, int player) {
-    String s = "\"type\":";
     if (player == 0) { // initial
-      s += "\"initial\"";
+      return "initial";
     } else if (isGameOver()) { // final
-      s += "\"final\"";
+      return "final";
     } else {
-      s += "\"midGame\"";
+      return "mid";
     }
-
-    return s;
   }
 
-  public String getJSONStringForThisTurn() {
-      return getJSONStringForThisTurn("None");
+  public String getJSONStringForThisTurn(boolean player2IsHuman) {
+      return getJSONStringForThisTurn(player2IsHuman, null);
   }
   
-  public String getJSONStringForThisTurn(String botsStderr) {
+  public String getJSONStringForThisTurn(boolean player2IsHuman, String botsStderr) {
     String move = lastMove;
     int player = lastPlayersTurn;
     String jsonString = "{";
 
-    jsonString += "\"messagetype\":\"gamestate\",";
+    jsonString += "\"messageType\":\"" + getType(move, player) + "Gamestate\",";
 
-    jsonString += getType(move, player) + ",";
-    jsonString += "\"enableHumanInput\":\"player" + ((player % 2) + 1) + "\",";//TODO, check required format on their end
+    //jsonString += getType(move, player) + ",";
+    String enableHumanInput = (((player % 2) + 1) == 2 && player2IsHuman) ? "true" : "false";
+    jsonString += "\"enableHumanInput\":" + enableHumanInput + ",";
 
     if (!isGameOver() && isValidMove(move, player, lastBoard) ) {
       jsonString += "\"animatableEvents\":[" + animatedEventJSON(move.split(";")[0], player) + "],";
     } 
     
-    if (isValidMove(move, player, lastBoard)) {
+    if (move.equals("initial")) {
+	jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), 
+		"The game has started") + ",";
+    } else if (isValidMove(move, player, lastBoard)) {
       jsonString +=
           gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
@@ -333,9 +333,8 @@ public class Game implements GameInterface {
 
 
     jsonString += "\"debugData\" : {" +
-                       "\"stderr\" : [\"" + botsStderr + "\"]," +
-                       "\"stdout\" : [\"" + move + 
-                  "\"]}}";
+                       "\"stderr\" :" + (botsStderr == null ? "[]," : "[\"" + botsStderr + "\"],") +
+                       "\"stdout\" :" + (move.equals("initial") ? "[]}}" : "[\"" + move + "\"]}}");
     return jsonString;
   }
   
@@ -392,6 +391,23 @@ public class Game implements GameInterface {
         + "\"messagetype:\"humanInputValidation\","
         + "\"valid\":\"true\","
         + "\"reason\":\"\","
+        + "}";
+  }
+  
+  /* TODO: Not used yet but this function would replace both invalid and valid move JSON, this is the level of information
+   * we actually need. Not sure of the best way to get this implemented. I think the game loop needs to
+   * be changed because if the move is invalid and its a bot then the final game state
+   * is identical to the previous game state and the client makes no indication of why the game ended.
+   */
+  public String getMoveValidationJSON(String move, int player, boolean humanOrBot, boolean valid) {
+    move = move.replaceAll("\n", "\\n");    // Are new lines handled anywhere else and if not should they be?
+    return "{"
+        + "\"messageType\":\"moveValidation\","
+        + "\"valid\":" + ((valid) ? "true," : "false,")
+        + "\"reason\":\"" + reasonInvalid + "\","
+        + "\"player\":\"player" + player + "\","
+        + "\"move\":\"" + move + "\","  
+        + "\"humanOrBot\":\"" + ((humanOrBot) ? "human" : "bot") + "\""
         + "}";
   }
   

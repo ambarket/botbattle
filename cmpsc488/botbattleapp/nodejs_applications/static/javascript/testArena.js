@@ -41,33 +41,38 @@
        window.onresize = function() {
          TEST_ARENA.resizeCanvas();
        }
+       
+       TEST_ARENA.state = 'pageLoaded';
+       stopGameStateRequester();
+       
        TEST_ARENA.canvas = document.getElementById("GameCanvas");
        TEST_ARENA.context = TEST_ARENA.canvas.getContext('2d');
        TEST_ARENA.canvasMessage = "Upload Bots to Continue...";
+       TEST_ARENA.drawCanvasMessage();
        TEST_ARENA.resizeCanvas();
        setGameControlDiv("hide");
-       TEST_ARENA.state = 'pageLoaded';
-       stopGameStateRequester();
      }
      else if (state === 'uploaded') {
+       TEST_ARENA.state = 'uploaded';
+       stopGameStateRequester();
+       
        TEST_ARENA.canvasMessage = "Press Start Game to continue...";
        TEST_ARENA.drawCanvasMessage();
        setGameControlDiv("startGame");
-       TEST_ARENA.state = 'uploaded';
-
-       stopGameStateRequester();
      }
      else if (state === 'loadingGame') {
+       TEST_ARENA.state = 'loading';
        TEST_ARENA.resetGameStateQueue();
+       startGameStateRequester();
+       
        TEST_ARENA.canvasMessage = "Loading...";
        TEST_ARENA.drawCanvasMessage();
-       TEST_ARENA.state = 'loading';
        
        setGameControlDiv('killGame');
-       startGameStateRequester();
+
      }
      else if (state === 'gameStarted') {
-       // Currently not necessary but may be (this is after the initial game state is received.
+       // The draw function will continue drawing until the state is no longer 'gameStarted'
        TEST_ARENA.state = 'gameStarted';
      }
      else if (state === 'gameFinished') {
@@ -417,6 +422,7 @@
        var self = this;
        var gameStateQueue = [];
        var imRunning = false;
+       var nextGameState = null;    // Closure variable, updated at beginning of processNextGameState
        
        this.addNewGameState = function(gamestate) {
          gameStateQueue.push(gamestate);
@@ -431,83 +437,48 @@
          imRunning = false;
        }
        
-       var passGameStateToGAME = function(nextGameState) {
-         if (nextGameState.messageType === 'humanInputValidation') {
-           if (nextGameState.valid) {
-             GLOBAL.eventLog.logMessage('status', "Valid human input Yay!");
-             document.getElementById("humanInput").style.display = "none";
-             document.getElementById("humanInputElements").innerHTML = "";
-           }
-           else {
-             GLOBAL.eventLog.logMessage('error', "Invalid human input, please try again");
-           }
-           processNextGameState();
-         }
-         else if (nextGameState.messageType === 'gamestate') {
-           // TODO: Handle errors, also not sure if its better to output gameData and debugging before or after the animations
-           GAME.processGameData(nextGameState.gameData, function(err) {
-             if (err) {
-               GLOBAL.handleClientError("passGameStateToGAME", err);
-               TEST_ARENA.transitionPageToState('pageLoaded');
-             }
-             else {
-               GAME.processDebugData(nextGameState.debugData, function(err) {
-                 if (err) {
-                   GLOBAL.handleClientError("passGameStateToGAME", err);
-                   TEST_ARENA.transitionPageToState('pageLoaded');
-                 }
-                 else {
-                   async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, function(err) {
-                     if (err) {
-                       GLOBAL.handleClientError("passGameStateToGAME", err);
-                       TEST_ARENA.transitionPageToState('pageLoaded');
-                     }
-                     else {
-                       // If the game manager is waiting for human input 
-                       if (nextGameState.enableHumanInput) {
-                         GAME.setHumanInputElements();
-                         document.getElementById("humanInput").style.display = "block";
-                       }
-                       processNextGameState();
-                     }
-                   });   
-                 }
-               });
-             }
-           });
-         }
-       }
-       
        var processNextGameState = function() {
-         var nextGameState = gameStateQueue.splice(0, 1)[0];
+         nextGameState = gameStateQueue.splice(0, 1)[0];
      
          if (!nextGameState) {
            imRunning = false;
          } 
          else {
-           if (nextGameState.type === 'initial') {
+           if (nextGameState.messageType === 'initialGamestate') {
              TEST_ARENA.transitionPageToState('gameStarted');
              GLOBAL.eventLog.logMessage('status', "We got the initial game state");
              GAME.resetGameboard(function(err) {
                var draw = function() {
                  GAME.drawer.drawBoard();
                  if (TEST_ARENA.state === 'gameStarted' || imRunning) {
+                   console.log("drawing");
                    requestAnimFrame(draw);
                  }
                };
                draw();
-               passGameStateToGAME(nextGameState);
+               passGameStateToGAME();
              });
            }
-           else if (nextGameState.type === 'midGame') {
+           else if (nextGameState.messageType === 'midGamestate') {
              GLOBAL.eventLog.logMessage('status', "We got a midGame game state");
-             passGameStateToGAME(nextGameState);
+             passGameStateToGAME();
            }
-           else if (nextGameState.type === 'final') {
+           else if (nextGameState.messageType === 'finalGamestate') {
              
              GLOBAL.eventLog.logMessage('status', "We got the final game state");
-             passGameStateToGAME(nextGameState);
+             passGameStateToGAME();
              TEST_ARENA.transitionPageToState('gameFinished');
+           }
+           else if (nextGameState.messageType === 'humanInputValidation') {
+             if (nextGameState.valid) {
+               GLOBAL.eventLog.logMessage('status', "Valid human input Yay!");
+               document.getElementById("humanInput").style.display = "none";
+               document.getElementById("humanInputElements").innerHTML = "";
+             }
+             else {
+               GLOBAL.eventLog.logMessage('error', "Invalid human input, please try again");
+             }
+             processNextGameState();
            }
            else {
              console.log("Invalid gameState type: " + nextGameState.type + " not sure how to process this");
@@ -515,6 +486,57 @@
          }
        }
        
+       var passGameStateToGAME = function() {
+         async.series([passGameDataToGAME, passDebugDataToGAME, passAnimatableEventsToGAME, checkEnableHumanInput], function(err) {
+           console.log("Game has processed the gamestate", err);
+           if (err) {
+             GLOBAL.handleClientError("passGameStateToGAME", err);
+             TEST_ARENA.transitionPageToState('pageLoaded');
+             imRunning = false;
+             gameStateQueue = [];
+           }
+           else {
+             processNextGameState();
+           }
+         });
+       }
+       
+       var passGameDataToGAME = function(gameDataCallback) {
+         if (nextGameState.gameData) {
+           GAME.processGameData(nextGameState.gameData, gameDataCallback);
+         }
+         else {
+           console.log("No game data to process, moving on to debugData and animatable events");
+           gameDataCallback(null);
+         }
+       }
+           
+       var passDebugDataToGAME = function(debugDataCallback) {
+         if (nextGameState.debugData) {
+           GAME.processDebugData(nextGameState.debugData, debugDataCallback);
+         }
+         else {
+           debugDataCallback(null);
+         }
+       }
+
+       var passAnimatableEventsToGAME = function(animatableEventsCallback) {
+         if (nextGameState.animatableEvents) {
+           async.eachSeries(nextGameState.animatableEvents, GAME.processAnimatableEvent, animatableEventsCallback);
+         }
+         else {
+           animatableEventsCallback(null);
+         }
+       }
+       
+       var checkEnableHumanInput = function(enableHumanInputCallback) {
+           // If the game manager is waiting for human input 
+           if (nextGameState.enableHumanInput) {
+             GAME.setHumanInputElements();
+             document.getElementById("humanInput").style.display = "block";
+           }
+           enableHumanInputCallback();
+       }       
      })();
    }
    

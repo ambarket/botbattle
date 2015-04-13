@@ -205,7 +205,7 @@ module.exports = new (function() {
                 try {
                   var message = JSON.parse(array[i]);
                   if ((message.messageType === 'humanInputValidation' && message.valid === false) ||
-                      (message.messageType === 'gamestate' && message.enableHumanInput === true)) {
+                      (['initialGamestate', 'midGamestate', 'finalGamestate'].indexOf(message.messageType) !== -1 && message.enableHumanInput === true)) {
                     testArenaInstances[id].waitingForHumanInput = true;
                     console.log(testArenaInstances[id].gameState);
                   }

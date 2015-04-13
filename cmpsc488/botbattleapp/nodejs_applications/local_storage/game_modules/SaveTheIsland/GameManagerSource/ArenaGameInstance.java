@@ -17,9 +17,9 @@ public class ArenaGameInstance {
   public void runArenaGame() {
     int i = 0;    
     String move = "";
-
+    boolean botVsHuman = bot2.humanOrBot == Player.HUMAN;
     //Send starting board to the test arena
-    System.out.println(game.getJSONStringForThisTurn());
+    System.out.println(game.getJSONStringForThisTurn(botVsHuman));
     
     while (!game.isGameOver()) {
 
@@ -36,13 +36,15 @@ public class ArenaGameInstance {
         if(player == 2 && bot2.humanOrBot == Player.HUMAN){
           System.out.println(game.getValidMoveJSON());
         }
-        
+       
         game.updateBoard(move, player);
         System.err.println(game.getBoard());
         //Sent to stdout for Arena to see
-        System.out.println(game.getJSONStringForThisTurn());
+        
+        System.out.println(game.getJSONStringForThisTurn(botVsHuman));
         
         if (game.isGameWon()) {
+          // TODO: This needs to be integrated into the final game state as the turn description so it is displayed
           System.out.println("Game Won by player" + player);
           break;
         }
@@ -54,7 +56,8 @@ public class ArenaGameInstance {
           System.out.println(game.getInvalidMoveJSON());
         } else {
           game.setOver(true);
-          System.out.println(game.getJSONStringForThisTurn());
+          // TODO: sends duplicate information as the previous game state because the board wasn't updated.
+          System.out.println(game.getJSONStringForThisTurn(botVsHuman));    
           System.err.println("Ending game due to bots invalid move.");
           break;
         }

@@ -19,9 +19,9 @@ public interface GameInterface {
   
   void setOver(boolean over);
   
-  public String getJSONStringForThisTurn();
+  public String getJSONStringForThisTurn(boolean player2IsHuman);
   
-  public String getJSONStringForThisTurn(String botsStderr);
+  public String getJSONStringForThisTurn(boolean player2IsHuman, String botsStderr);
 
   String getJSONstringFromGameResults(GameResults results);
   
