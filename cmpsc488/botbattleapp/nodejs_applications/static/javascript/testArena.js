@@ -469,19 +469,15 @@
              passGameStateToGAME();
              TEST_ARENA.transitionPageToState('gameFinished');
            }
-           else if (nextGameState.messageType === 'humanInputValidation') {
-             if (nextGameState.valid) {
-               GLOBAL.eventLog.logMessage('status', "Valid human input Yay!");
-               document.getElementById("humanInput").style.display = "none";
-               document.getElementById("humanInputElements").innerHTML = "";
-             }
-             else {
-               GLOBAL.eventLog.logMessage('error', "Invalid human input, please try again");
-             }
+           else if (nextGameState.messageType === 'invalidMove') {
+             GLOBAL.eventLog.logMessage('error', 
+                 "Invalid move received from " + nextGameState.player + "<br>" + 
+                 "Move: " + nextGameState.move + "<br>" +
+                 "Reason: " + nextGameState.reason);
              processNextGameState();
            }
            else {
-             console.log("Invalid gameState type: " + nextGameState.type + " not sure how to process this");
+             console.log("Invalid gameState type: " + nextGameState.messageType + " not sure how to process this");
            }
          }
        }
@@ -534,6 +530,10 @@
            if (nextGameState.enableHumanInput) {
              GAME.setHumanInputElements();
              document.getElementById("humanInput").style.display = "block";
+           }
+           else {
+             document.getElementById("humanInput").style.display = "none";
+             document.getElementById("humanInputElements").innerHTML = "";
            }
            enableHumanInputCallback();
        }       

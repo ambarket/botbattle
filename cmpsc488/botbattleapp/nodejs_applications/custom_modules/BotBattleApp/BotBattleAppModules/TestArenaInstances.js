@@ -204,10 +204,9 @@ module.exports = new (function() {
               for (var i = 0; i < array.length; i++) {
                 try {
                   var message = JSON.parse(array[i]);
-                  if ((message.messageType === 'humanInputValidation' && message.valid === false) ||
+                  if ((message.messageType === 'invalidMove' && message.humanOrBot === 'human') ||
                       (['initialGamestate', 'midGamestate', 'finalGamestate'].indexOf(message.messageType) !== -1 && message.enableHumanInput === true)) {
                     testArenaInstances[id].waitingForHumanInput = true;
-                    console.log(testArenaInstances[id].gameState);
                   }
                   
                   testArenaInstances[id].gameStateQueue.push(message);
@@ -216,7 +215,8 @@ module.exports = new (function() {
                       helpers.getLogMessageAboutGame(id, "gameStateQueue: "), JSON.stringify(testArenaInstances[id].gameStateQueue));
                 }
                 catch(e) {
-                  console.log("Invalid JSON sent", array[i], e);
+                  logger.log("TestArenaInstances", 
+                      helpers.getLogMessageAboutGame(id, "Invalid JSON sent: "), e, array[i]);
                 }
               }
             }

@@ -32,10 +32,6 @@ public class ArenaGameInstance {
       }
       System.err.println("\nMOVE:" + move + ", PLAYER: " + player + "\n");
       if (game.isValidMove(move, player)) {
-        
-        if(player == 2 && bot2.humanOrBot == Player.HUMAN){
-          System.out.println(game.getValidMoveJSON());
-        }
        
         game.updateBoard(move, player);
         System.err.println(game.getBoard());
@@ -52,20 +48,17 @@ public class ArenaGameInstance {
         i++;
         
       } else {
-        if(player == 2 && bot2.humanOrBot == Player.HUMAN){
-          System.out.println(game.getInvalidMoveJSON());
-        } else {
+        boolean playerIsAHuman = player == 2 && bot2.humanOrBot == Player.HUMAN;
+        System.out.println(game.getInvalidMoveJSON(move, player, playerIsAHuman));
+        if(!playerIsAHuman){
           game.setOver(true);
           // TODO: sends duplicate information as the previous game state because the board wasn't updated.
           System.out.println(game.getJSONStringForThisTurn(botVsHuman));    
           System.err.println("Ending game due to bots invalid move.");
           break;
-        }
-        
+        }  
       }
-
     }
-    
   }
 
   @Override

@@ -25,7 +25,5 @@ public interface GameInterface {
 
   String getJSONstringFromGameResults(GameResults results);
   
-  String getInvalidMoveJSON();
-  
-  String getValidMoveJSON();
+  String getInvalidMoveJSON(String move, int player, boolean playerIsAHuman);
 }

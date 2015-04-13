@@ -374,42 +374,24 @@ public class Game implements GameInterface {
     return jsonString;
   }
   
-  @Override
-  public String getInvalidMoveJSON() {
-    
-    return "{"
-        + "\"messagetype:\"humanInputValidation\","
-        + "\"valid\":\"false\","
-        + "\"reason\":\"" + reasonInvalid + "\"," 
-        + "}";
-  }
-  
-  @Override
-  public String getValidMoveJSON() {
-    
-    return "{"
-        + "\"messagetype:\"humanInputValidation\","
-        + "\"valid\":\"true\","
-        + "\"reason\":\"\","
-        + "}";
-  }
   
   /* TODO: Not used yet but this function would replace both invalid and valid move JSON, this is the level of information
    * we actually need. Not sure of the best way to get this implemented. I think the game loop needs to
    * be changed because if the move is invalid and its a bot then the final game state
    * is identical to the previous game state and the client makes no indication of why the game ended.
    */
-  public String getMoveValidationJSON(String move, int player, boolean humanOrBot, boolean valid) {
+  @Override
+  public String getInvalidMoveJSON(String move, int player, boolean playerIsAHuman) {
     move = move.replaceAll("\n", "\\n");    // Are new lines handled anywhere else and if not should they be?
     return "{"
-        + "\"messageType\":\"moveValidation\","
-        + "\"valid\":" + ((valid) ? "true," : "false,")
+        + "\"messageType\":\"invalidMove\","
         + "\"reason\":\"" + reasonInvalid + "\","
         + "\"player\":\"player" + player + "\","
         + "\"move\":\"" + move + "\","  
-        + "\"humanOrBot\":\"" + ((humanOrBot) ? "human" : "bot") + "\""
+        + "\"humanOrBot\":\"" + ((playerIsAHuman) ? "human" : "bot") + "\""
         + "}";
   }
+  
   
   // -------------------------- BOARD CLASS ---------------------
   public static class Board {
