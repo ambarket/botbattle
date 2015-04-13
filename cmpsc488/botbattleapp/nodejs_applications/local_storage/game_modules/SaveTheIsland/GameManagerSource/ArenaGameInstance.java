@@ -5,21 +5,23 @@ public class ArenaGameInstance {
   private Player bot1;
   private Player bot2;
   private GameInterface game;
+  private GameType gameType;
 
 
-
-  public ArenaGameInstance(Player bot1, Player bot2) {
+  public ArenaGameInstance(Player bot1, Player bot2, GameType gameType) {
     this.bot1 = bot1;
     this.bot2 = bot2;
+    this.gameType = gameType;
     game = new Game();
   }
 
   public void runArenaGame() {
     int i = 0;    
-    String move = "";
-    boolean botVsHuman = bot2.humanOrBot == Player.HUMAN;
+    String move = "", stderr = "";
+
     //Send starting board to the test arena
-    System.out.println(game.getJSONStringForThisTurn(botVsHuman));
+    game.initializeGame(gameType);
+    System.out.println(game.getInitialGamestate());
     
     while (!game.isGameOver()) {
 
@@ -27,8 +29,10 @@ public class ArenaGameInstance {
       
       if (player == 1) {  
         move = bot1.getMove(game.getBoard());  
+        stderr = bot1.getAnyStderr();
       } else {
-        move = bot2.getMove(game.getBoard());        
+        move = bot2.getMove(game.getBoard());    
+        stderr = bot2.getAnyStderr();
       }
       System.err.println("\nMOVE:" + move + ", PLAYER: " + player + "\n");
       if (game.isValidMove(move, player)) {
@@ -37,23 +41,22 @@ public class ArenaGameInstance {
         System.err.println(game.getBoard());
         //Sent to stdout for Arena to see
         
-        System.out.println(game.getJSONStringForThisTurn(botVsHuman));
-        
         if (game.isGameWon()) {
-          // TODO: This needs to be integrated into the final game state as the turn description so it is displayed
-          System.out.println("Game Won by player" + player);
-          break;
+          game.setOver(true);
+          System.out.println(game.getFinalGamestate("Player " + player + " won the game!"));
+        }
+        else {
+          System.out.println(game.getMidGamestate(stderr));
         }
         
         i++;
         
       } else {
         boolean playerIsAHuman = player == 2 && bot2.humanOrBot == Player.HUMAN;
-        System.out.println(game.getInvalidMoveJSON(move, player, playerIsAHuman));
+        System.out.println(game.getInvalidMoveJSON(move, player));
         if(!playerIsAHuman){
           game.setOver(true);
-          // TODO: sends duplicate information as the previous game state because the board wasn't updated.
-          System.out.println(game.getJSONStringForThisTurn(botVsHuman));    
+          System.out.println(game.getFinalGamestate("Player " + player + " has been disqualified due to invalid move."));
           System.err.println("Ending game due to bots invalid move.");
           break;
         }  

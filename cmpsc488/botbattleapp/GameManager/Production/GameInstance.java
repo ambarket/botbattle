@@ -16,6 +16,7 @@ public class GameInstance implements Runnable {
     this.player2 = player2;
     results = new GameResults();
     game = new Game();
+    game.initializeGame(GameType.BOT_VS_BOT);
   }
 
   @Override

@@ -16,8 +16,12 @@ public class Game implements GameInterface {
   private String reasonInvalid;
   private int lastPlayersTurn;
   private boolean over;
+  private GameType gameType;
 
-  public Game() {
+  // Moved constructor to this because its something that should be explicitly in the interface
+  //    and constructors can't be in an interface. Also wanted to the GameType argument.
+  public void initializeGame(GameType gameType) {
+    this.gameType = gameType;
     board = getStartingBoard();
     lastBoard = board;
     lastPlayersTurn = 0;
@@ -298,39 +302,49 @@ public class Game implements GameInterface {
       return "mid";
     }
   }
+  
+  // TODO: Implement
+  public String getInitialGamestate() {
+    String jsonString = "{";
+    jsonString += "\"messageType\":\"initialGamestate\",";
+    jsonString += "\"enableHumanInput\":false,";
+    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), "The game has started");
+    jsonString += "}";
 
-  public String getJSONStringForThisTurn(boolean player2IsHuman) {
-      return getJSONStringForThisTurn(player2IsHuman, null);
+    return jsonString;
+  }
+  //TODO: Implement
+  public String getFinalGamestate(String descriptionOfEnding) {
+    String jsonString = "{";
+    jsonString += "\"messageType\":\"finalGamestate\",";
+    jsonString += "\"enableHumanInput\":false,";
+    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), descriptionOfEnding);
+    jsonString += "}";
+
+    return jsonString;
   }
   
-  public String getJSONStringForThisTurn(boolean player2IsHuman, String botsStderr) {
+  @Override
+  public String getMidGamestate() {
+      return getMidGamestate(null);
+  }
+  
+  @Override
+  // If this was called then it was a valid move and the game hasn't been won yet
+  public String getMidGamestate(String botsStderr) {
     String move = lastMove;
     int player = lastPlayersTurn;
     String jsonString = "{";
 
-    jsonString += "\"messageType\":\"" + getType(move, player) + "Gamestate\",";
+    jsonString += "\"messageType\":\"midGamestate\",";
 
-    //jsonString += getType(move, player) + ",";
-    String enableHumanInput = (((player % 2) + 1) == 2 && player2IsHuman) ? "true" : "false";
+    String enableHumanInput = (((player % 2) + 1) == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "true" : "false";
     jsonString += "\"enableHumanInput\":" + enableHumanInput + ",";
 
-    if (!isGameOver() && isValidMove(move, player, lastBoard) ) {
-      jsonString += "\"animatableEvents\":[" + animatedEventJSON(move.split(";")[0], player) + "],";
-    } 
+    jsonString += "\"animatableEvents\":[" + animatedEventJSON(move.split(";")[0], player) + "],";
     
-    if (move.equals("initial")) {
-	jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), 
-		"The game has started") + ",";
-    } else if (isValidMove(move, player, lastBoard)) {
-      jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               prettyPrintMove(move, player)) + ",";
-    } else {
-      jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-              "Invalid Move") + ",";
-    }
-
 
     jsonString += "\"debugData\" : {" +
                        "\"stderr\" :" + (botsStderr == null ? "[]," : "[\"" + botsStderr + "\"],") +
@@ -381,14 +395,14 @@ public class Game implements GameInterface {
    * is identical to the previous game state and the client makes no indication of why the game ended.
    */
   @Override
-  public String getInvalidMoveJSON(String move, int player, boolean playerIsAHuman) {
+  public String getInvalidMoveJSON(String move, int player) {
     move = move.replaceAll("\n", "\\n");    // Are new lines handled anywhere else and if not should they be?
     return "{"
         + "\"messageType\":\"invalidMove\","
         + "\"reason\":\"" + reasonInvalid + "\","
         + "\"player\":\"player" + player + "\","
         + "\"move\":\"" + move + "\","  
-        + "\"humanOrBot\":\"" + ((playerIsAHuman) ? "human" : "bot") + "\""
+        + "\"humanOrBot\":\"" + ((player == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "human" : "bot") + "\""
         + "}";
   }
   
@@ -437,6 +451,7 @@ public class Game implements GameInterface {
       String newTiles = "";
 
       for (int i = 0; i < tiles.length(); i++) {
+        System.err.println(Character.getNumericValue(tiles.charAt(i)));
         if (Character.getNumericValue(tiles.charAt(i)) == value && numOfValues > 0) {
           newTiles += rng.nextInt(6);
           numOfValues--;

@@ -35,7 +35,7 @@ public class ArenaGameManager {
     
     Long numOfBots = (Long) arenaInfo.get("numberOfBots");
     Player plyr1 = null, plyr2 = null;
-    
+    GameType gameType;
     if( numOfBots == 1 ) {
       String path = (String) bot1.get("directory");
       String lang = (String) bot1.get("language");
@@ -43,6 +43,7 @@ public class ArenaGameManager {
 
       plyr1 = new Player(path, username, getLanguage(lang));
       plyr2 = new Player();
+      gameType = GameType.BOT_VS_HUMAN;
       
     } else {
       String path = (String) bot1.get("directory");
@@ -55,12 +56,12 @@ public class ArenaGameManager {
       username = (String) bot2.get("name");
 
       plyr2 = new Player(path, username, getLanguage(lang));
-      
+      gameType = GameType.BOT_VS_BOT;
     }
      
     
 
-    ArenaGameInstance arenaGame = new ArenaGameInstance(plyr1, plyr2);
+    ArenaGameInstance arenaGame = new ArenaGameInstance(plyr1, plyr2, gameType);
     
     arenaGame.runArenaGame();
   }

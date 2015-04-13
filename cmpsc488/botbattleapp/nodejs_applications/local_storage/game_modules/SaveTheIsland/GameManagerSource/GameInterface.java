@@ -19,11 +19,17 @@ public interface GameInterface {
   
   void setOver(boolean over);
   
-  public String getJSONStringForThisTurn(boolean player2IsHuman);
+  public void initializeGame(GameType gameType);
   
-  public String getJSONStringForThisTurn(boolean player2IsHuman, String botsStderr);
+  public String getInitialGamestate();
+  
+  public String getMidGamestate();
+  
+  public String getMidGamestate(String botsStderr);
+  
+  public String getFinalGamestate(String descriptionOfEnding);
 
   String getJSONstringFromGameResults(GameResults results);
   
-  String getInvalidMoveJSON(String move, int player, boolean playerIsAHuman);
+  String getInvalidMoveJSON(String move, int player);
 }
