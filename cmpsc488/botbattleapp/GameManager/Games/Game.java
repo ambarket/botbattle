@@ -339,8 +339,8 @@ public class Game implements GameInterface {
     int player = lastPlayersTurn;
     String jsonString = "{";
     
-    botsStderr = botsStderr.replaceAll("\n", "\\n");
-    botsStderr = botsStderr.replaceAll("\"", "\\\"");
+    botsStderr = botsStderr.replace("\n", "\\n");
+    botsStderr = botsStderr.replace("\"", "\\\"");
 
     jsonString += "\"messageType\":\"midGamestate\",";
 
@@ -402,8 +402,8 @@ public class Game implements GameInterface {
    */
   @Override
   public String getInvalidMoveJSON(String move, int player) {
-    move = move.replaceAll("\n", "\\n");    // Are new lines handled anywhere else and if not should they be?
-    move = move.replaceAll("\"", "\\\"");
+    move = move.replace("\n", "\\n");    // Are new lines handled anywhere else and if not should they be?
+    move = move.replace("\"", "\\\"");
     return "{"
         + "\"messageType\":\"invalidMove\","
         + "\"reason\":\"" + reasonInvalid + "\","
