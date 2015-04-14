@@ -113,18 +113,18 @@ GAME = {
           return o;
       };
       data = $('form[name="humanInputForm"]').serializeObject();
-      console.log(data);
+      console.log("humanInputForm",data);
       //TODO: Figure out move format with Randall
       var move = "";
       move += data.moveType;
       move += ";";
       if (Array.isArray(data.player2Tile)) {
-        for (var tile in move.player2Tile) {
-          move += move.player2Tile[tile];
+        for (var tile in data.player2Tile) {
+          move += data.player2Tile[tile];
         }
       }
       else {
-        move += move.player2Tile;
+        move += data.player2Tile;
       }
 
       return move;
