@@ -113,7 +113,9 @@
   
  //----------------------------------Upload Bots Form------------------------------------
    // Listen for radio checks
-   $('#human').click(function() {
+   $('#human').click(humanRadioClick);    
+   function humanRadioClick() {
+     $("#human").prop("checked", true);
      $('#uploadBotButton').val("Upload Bot");
      $('#player2FileChoose').hide();
      //$('#humanInput').show();
@@ -122,9 +124,12 @@
      GLOBAL.resetValueAttrributeById('player1_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = false;
-   });
+   };
+   humanRadioClick();   // ALways set to human when page loads
  
-   $('#bot').click(function() {
+   $('#bot').click(botRadioClick);
+   function botRadioClick() {
+     $("#bot").prop("checked", true);
      $('#uploadBotButton').val("Upload Bots");
      $('#player2FileChoose').show();
      //$('#humanInput').hide();
@@ -133,7 +138,7 @@
      GLOBAL.resetValueAttrributeById('player1_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = true;
-   });
+   };
    
    var uploadBotsform = document.forms.namedItem("uploadBotForm");
    uploadBotsform.addEventListener('submit', function(ev) {

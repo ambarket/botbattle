@@ -9,6 +9,10 @@ public interface GameInterface {
 
   String getBoard();
   
+  String getPlayersOneBoard();
+  
+  String getPlayersTwoBoard();
+  
   void updateBoard(String move, int player);
 
   boolean isValidMove(String board, int player);

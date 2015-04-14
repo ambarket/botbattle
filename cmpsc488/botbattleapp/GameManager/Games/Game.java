@@ -226,15 +226,17 @@ public class Game implements GameInterface {
     if(event.equals("move")) {
       json = getAnimatedEventElement("move", player);
     } else if(event.equals("retreat")) {
-      json = getAnimatedEventElement("retreat", player);
+      json = getAnimatedEventElement("move", player);
     } else if(event.equals("attack")) {
       
       if(Board.getIsland(board).equals(Board.getIsland(lastBoard))) {
         json = getAnimatedEventElement("move", player, Board.getPlayersPosition(board, player), Board.getAttackPositionForPlayer(player, board)) + ",";
-        json += getAnimatedEventElement("defendedAttack", getOtherPlayer(player));
+        json += getAnimatedEventElement("defendedAttack", player)+ ",";
+        json += getAnimatedEventElement("fallback", player);
       } else {
         json = getAnimatedEventElement("move", player) + ",";
-        json += getAnimatedEventElement("successfulAttack", getOtherPlayer(player));
+        json += getAnimatedEventElement("successfulAttack", player)+ ",";
+        json += getAnimatedEventElement("fallback", getOtherPlayer(player));
       } 
     } 
     
@@ -318,6 +320,7 @@ public class Game implements GameInterface {
     String jsonString = "{";
     jsonString += "\"messageType\":\"finalGamestate\",";
     jsonString += "\"enableHumanInput\":false,";
+    jsonString += "\"animatableEvents\":[" + animatedEventJSON(lastMove.split(";")[0], lastPlayersTurn) + "],";
     jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), descriptionOfEnding);
     jsonString += "}";
 
@@ -538,4 +541,14 @@ public class Game implements GameInterface {
     }
   }
   // ----------------------- END BOARD CLASS ---------------------
+
+	@Override
+	public String getPlayersOneBoard() {
+		return Board.getPlayersTiles(1, board) + ";" + Board.getIsland(board);
+	}
+
+	@Override
+	public String getPlayersTwoBoard() {
+		return Board.getPlayersTiles(2, board) + ";" + Board.getIsland(board);
+	}
 }

@@ -44,7 +44,7 @@ public class SaveIslandBot1 {
   
   public static String getMove(String board) {
     String move = "666";
-    String s = Board.getPlayersTiles(1, board);
+    String s = board.split(";")[0];
     int distance = Board.getDistanceBetweenPlayers(board);
     
     for (int i = 0; i < s.length(); i++) {
@@ -56,6 +56,9 @@ public class SaveIslandBot1 {
         }
     }
     
+    if(move.equals("666")){
+    	move = "retreat;" + s.substring(0, 1);
+    }
     
     return move;
   }

@@ -28,10 +28,10 @@ public class ArenaGameInstance {
       int player = (i % 2) + 1;
       
       if (player == 1) {  
-        move = bot1.getMove(game.getBoard());  
+        move = bot1.getMove(game.getPlayersOneBoard());  
         stderr = bot1.getAnyStderr();
       } else {
-        move = bot2.getMove(game.getBoard());    
+        move = bot2.getMove(game.getPlayersTwoBoard());    
         stderr = bot2.getAnyStderr();
       }
       System.err.println("\nMOVE:" + move + ", PLAYER: " + player + "\n");
