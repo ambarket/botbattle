@@ -51,43 +51,47 @@ GAME = {
     'gameboard' : null, // will be set by the resetGAME.gameboard method
     'drawer' : new Drawer(),
     'setHumanInputElements' : function() { 
-      var form = document.createElement('FORM');//document.getElementById("humanInputForm");
+      var form = document.createElement('FORM');
+      form.name = "humanInputForm";
       for (var i = 0; i < this.gameboard.player2Tiles.length; i++) {
-        var temp = document.getElementById(("player2Tile" + i).toString())
-        if(temp === null){
           var input = document.createElement("input");
           input.type = "checkbox";
-          input.name = "player2Tile" + i;
+          input.name = "player2Tile";// + i;
           input.value = this.gameboard.player2Tiles[i];
           input.id = "player2Tile" + i;
           form.appendChild(input); 
           var text = document.createTextNode(" " + this.gameboard.player2Tiles[i]);
           form.appendChild(text);
           form.appendChild(document.createElement("br"));
-        }
       }
-      temp = document.getElementById("rightButton")
-      if(temp === null){
-        var input = document.createElement("input");
-        input.type = "radio";
-        input.name = "direction";
-        input.value = "right";
-        input.id = "rightButton";
-        form.appendChild(input); 
-        var text = document.createTextNode("right");
-        form.appendChild(text);
-      }
-      temp = document.getElementById("leftButton")
-      if(temp === null){
-        var input = document.createElement("input");
-        input.type = "radio";
-        input.name = "direction";
-        input.value = "left";
-        input.id = "leftButton";
-        form.appendChild(input); 
-        var text = document.createTextNode("left");
-        form.appendChild(text);
-      }
+
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = "moveType";
+      input.value = "retreat";
+      input.id = "retreatButton";
+      form.appendChild(input); 
+      var text = document.createTextNode("retreat");
+      form.appendChild(text);
+      
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = "moveType";
+      input.value = "move";
+      input.id = "moveButton";
+      form.appendChild(input); 
+      var text = document.createTextNode("move");
+      form.appendChild(text);
+      
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = "moveType";
+      input.value = "attack";
+      input.id = "attackButton";
+      form.appendChild(input); 
+      var text = document.createTextNode("attack");
+      form.appendChild(text);
+      
       document.getElementById("humanInputElements").appendChild(form);
     },
     'getMoveFromHumanInputElements' : function() {
@@ -108,9 +112,22 @@ GAME = {
           });
           return o;
       };
-      data = (JSON.stringify($('form[name="humanInputForm"]').serializeObject()));
+      data = $('form[name="humanInputForm"]').serializeObject();
+      console.log(data);
       //TODO: Figure out move format with Randall
-      return data;
+      var move = "";
+      move += data.moveType;
+      move += ";";
+      if (Array.isArray(data.player2Tile)) {
+        for (var tile in move.player2Tile) {
+          move += move.player2Tile[tile];
+        }
+      }
+      else {
+        move += move.player2Tile;
+      }
+
+      return move;
     },
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
