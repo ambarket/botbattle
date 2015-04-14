@@ -434,7 +434,11 @@ public class Game implements GameInterface {
     public static int getPlayersPosition(String board, int player) {
       String island = getIsland(board); 
       String playerString = (player == 1 ? "1" : "2");
-      return island.indexOf(playerString);
+      int pos = island.indexOf(playerString);
+      if(pos == -1 && player == 2){
+    	  return island.length() + 2;
+      }
+      return pos;
     }
     
     public static int getAttackPositionForPlayer(int player, String board) {
