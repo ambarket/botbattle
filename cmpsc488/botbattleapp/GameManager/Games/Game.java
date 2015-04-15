@@ -56,12 +56,12 @@ public class Game implements GameInterface {
 
   @Override
   public String getPlayerOneBoard() {
-      return Board.getPlayersTiles(1, board) + ";" + Board.getIsland(board);
+      return "1;" + Board.getPlayersTiles(1, board) + ";" + Board.getIsland(board);
   }
 
   @Override
   public String getPlayerTwoBoard() {
-      return Board.getPlayersTiles(2, board) + ";" + Board.getIsland(board);
+      return "2;" + Board.getPlayersTiles(2, board) + ";" + Board.getIsland(board);
   }
   
   @Override

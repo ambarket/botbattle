@@ -35,9 +35,11 @@ int main() {
 		if (move == "") {
 			move += "retreat;";
 			move += tiles[0];
-			break;
 		}
 		cout << move << endl;
+	}
+	while(cin >> tilesAndBoard) {
+		cout << "exited" << endl;
 	}
 }
 

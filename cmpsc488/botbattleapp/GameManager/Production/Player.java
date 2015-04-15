@@ -41,7 +41,11 @@ public class Player implements Runnable {
   public Player(String botFilePath, String executable, Language lang) throws IOException {
     this.botFilePath = botFilePath;
     String cmd = lang.getRunCommand();
-
+    // Start of trying to do setuid thing, its only going to work for c++ bots though...
+    // http://unix.stackexchange.com/questions/166817/using-the-setuid-bit-properly
+    // Process p =  Runtime.getRuntime().exec("/home/amb6470/testuid");
+    // p.waitFor();
+    
     System.err.println("Cmd:"+ cmd + ", name: " + executable + ", \nPATH: " + botFilePath);
     ProcessBuilder builder;
     if (!cmd.equals("")) {
