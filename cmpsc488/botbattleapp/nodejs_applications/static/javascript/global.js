@@ -54,7 +54,7 @@ GLOBAL.messageFlasher = new (function() {
     thisMessage = nextMessage;
     nextMessage = null;
     if (!thisMessage) {
-      $('.message').html("");
+      $('.message').html("<p>&nbsp</p>");
       imRunning = false;
     } else {
       $('.message').html(thisMessage);
@@ -98,6 +98,7 @@ GLOBAL.eventLog = new (function() {
   document.getElementById('eventLogToggle').addEventListener('click', function() {
     if ($('#eventLogContainer').css('display') == 'none') {
      $('#eventLogContainer').show();
+     $("#eventLog").get(0).scrollTop = $("#eventLog").get(0).scrollHeight;
     }
     else {
       $('#eventLogContainer').hide();
@@ -125,7 +126,7 @@ GLOBAL.handleClientError = function(origin, err) {
 }
 
 GLOBAL.handleNonSuccessHttpStatus = function(origin, status, response) {
-  GLOBAL.eventLog.logMessage('error', "HTTP Error", status,
+  GLOBAL.eventLog.logMessage('error', "HTTP Error" + status + 
       "received while processing your request, if this problem persists see your administrator.");
   console.log("HTTP Error", status, "in", origin, "Response:", response);
 }

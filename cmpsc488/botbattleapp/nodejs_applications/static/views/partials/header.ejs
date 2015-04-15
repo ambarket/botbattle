@@ -12,6 +12,7 @@
         <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
             
+            <!--  Commented out due to the fact that student and admin portals have not been implemented
             <% if(!locals.username) { %>
                 <li><a href="/login">Login</a></li>
             <% } else{ %>
@@ -19,9 +20,7 @@
             <% } %>
             
             
-            <% if(!locals.group) { %>
-                <!-- do nothing -->
-            <% } else{ %>
+            <% if(locals.group) { %>
                 <%if (locals.group === 'student') { %>
                     <li><a href="/studentPortal">Student Portal</a></li>
                 <% } %>
@@ -29,6 +28,7 @@
                     <li><a href="/adminPortal">Admin Portal</a></li>
                 <% } %> 
             <% } %>
+            -->
             
             <% if(!locals.gameRulesUrl) { %>
                 <!-- do nothing -->
@@ -76,7 +76,7 @@
           });
         </script>
     <% } else{ %>
-      <!-- No Messages -->
+      <p>&nbsp</p>
     <% } %>
 </div>
 
