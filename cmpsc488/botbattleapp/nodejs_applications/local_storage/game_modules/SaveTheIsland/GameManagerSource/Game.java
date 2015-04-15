@@ -464,7 +464,6 @@ public class Game implements GameInterface {
       String newTiles = "";
 
       for (int i = 0; i < tiles.length(); i++) {
-        System.err.println(Character.getNumericValue(tiles.charAt(i)));
         if (Character.getNumericValue(tiles.charAt(i)) == value && numOfValues > 0) {
           newTiles += rng.nextInt(6);
           numOfValues--;

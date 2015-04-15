@@ -38,14 +38,22 @@ public class Player implements Runnable {
     reader = new BufferedReader(new InputStreamReader(stdout));  
   }
   
-  public Player(String botFilePath, String usersName, Language lang) throws IOException {
+  public Player(String botFilePath, String executable, Language lang) throws IOException {
     this.botFilePath = botFilePath;
     String cmd = lang.getRunCommand();
 
-    //System.err.println("Cmd:"+ cmd + ", name: " + usersName + ", \nPATH: " + botFilePath);
+    System.err.println("Cmd:"+ cmd + ", name: " + executable + ", \nPATH: " + botFilePath);
+    ProcessBuilder builder;
+    if (!cmd.equals("")) {
+      builder = new ProcessBuilder(cmd , executable);    // For java it has to be just the class name
+      builder.directory(new File(botFilePath));         // And you have to set the directory.
+    }
+    else {
+      // For c++ you have to have the whole path. And directory as done for java has no effect
+      builder = new ProcessBuilder(botFilePath + "/" + executable);  
+    }
+
     
-    ProcessBuilder builder = new ProcessBuilder(cmd , usersName);
-    builder.directory(new File(botFilePath));
     botProcess = builder.start();
 
     OutputStream stdin = botProcess.getOutputStream();

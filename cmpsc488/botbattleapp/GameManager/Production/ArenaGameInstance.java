@@ -36,10 +36,14 @@ public class ArenaGameInstance {
       }
       
       // TODO: Use library to perform proper JSON cleaning of move and stderr.
-      move = move.replace("\n", "\\n"); 
-      move = move.replace("\"", "\\\"");
-      stderr = stderr.replace("\n", "\\n");
-      stderr = stderr.replace("\"", "\\\"");
+      if (move != null) {
+        move = move.replace("\n", "\\n"); 
+        move = move.replace("\"", "\\\"");
+      }
+      if (stderr != null) {
+        stderr = stderr.replace("\n", "\\n");
+        stderr = stderr.replace("\"", "\\\"");
+      }
       
       String reasonMoveWasInvalid = game.validateMove(move, player);
       if (reasonMoveWasInvalid == null) {
