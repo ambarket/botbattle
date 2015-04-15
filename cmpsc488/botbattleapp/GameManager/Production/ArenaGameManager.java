@@ -19,7 +19,7 @@ public class ArenaGameManager {
   public static void main(String[] args) throws IOException {
     
     if (args.length < 2 || !args[0].equals("testarena")) {
-      System.err.println("Must supplie arguments of \"testarena\" and JSON string with startup info.");
+      System.err.println("Must supply arguments of \"testarena\" and JSON string with startup info.");
       System.exit(1);
     }
 

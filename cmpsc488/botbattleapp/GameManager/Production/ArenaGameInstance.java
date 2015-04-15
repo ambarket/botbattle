@@ -21,53 +21,60 @@ public class ArenaGameInstance {
 
     //Send starting board to the test arena
     game.initializeGame(gameType);
-    System.out.println(game.getInitialGamestate());
+    System.out.println(game.getInitialGameStateJSON());
     
     while (!game.isGameOver()) {
 
       int player = (i % 2) + 1;
       
       if (player == 1) {  
-        move = bot1.getMove(game.getPlayersOneBoard());  
+        move = bot1.getMove(game.getPlayerOneBoard());  
         stderr = bot1.getAnyStderr();
       } else {
-        move = bot2.getMove(game.getPlayersTwoBoard());    
+        move = bot2.getMove(game.getPlayerTwoBoard());    
         stderr = bot2.getAnyStderr();
       }
-      System.err.println("\nMOVE:" + move + ", PLAYER: " + player + "\n");
-      if (game.isValidMove(move, player)) {
-       
-        game.updateBoard(move, player);
-        System.err.println(game.getBoard());
-        //Sent to stdout for Arena to see
-        
-        if (game.isGameWon()) {
-          game.setOver(true);
-          System.out.println(game.getFinalGamestate("Player " + player + " won the game!"));
-        }
-        else {
-          System.out.println(game.getMidGamestate(stderr));
-        }
-        
+      
+      // TODO: Use library to perform proper JSON cleaning of move and stderr.
+      move = move.replace("\n", "\\n"); 
+      move = move.replace("\"", "\\\"");
+      stderr = stderr.replace("\n", "\\n");
+      stderr = stderr.replace("\"", "\\\"");
+      
+      String reasonMoveWasInvalid = game.validateMove(move, player);
+      if (reasonMoveWasInvalid == null) {
+        game.updateBoard(move, stderr, player);
+        System.out.println(game.getMidGameStateJSON());
         i++;
-        
       } else {
-        boolean playerIsAHuman = player == 2 && bot2.humanOrBot == Player.HUMAN;
-        System.out.println(game.getInvalidMoveJSON(move, player));
-        if(!playerIsAHuman){
-          game.setOver(true);
-          System.out.println(game.getFinalGamestate("Player " + player + " has been disqualified due to invalid move."));
-          System.err.println("Ending game due to bots invalid move.");
-          break;
-        }  
+        System.out.println(getInvalidMoveJSON(move, stderr, player, reasonMoveWasInvalid));
       }
+      
+      // Temporary debugging info.
+      System.err.println("\nMOVE:" + move + 
+          ", PLAYER: " + player + "\n" + 
+          ", STDERR: " + stderr + "\n" +
+          ", BOARD: " + game.getCompleteBoard());
     }
+    
+    System.out.println(game.getFinalGameStateJSON());
   }
 
   @Override
   public String toString() {
     return "ArenaGameInstance [\n\tplayer1=" + bot1 + ",\n\tplayer2=" + bot2 + ",\n game="
-        + Game.getName()  + "]";
+        + game.getName()  + "]";
+  }
+  
+  public String getInvalidMoveJSON(String move, String stderr, int player, String reasonInvalid) {
+    return "{"
+        + "\"messageType\":\"invalidMove\","
+        + "\"reason\":\"" + reasonInvalid + "\","
+        + "\"player\":\"player" + player + "\","
+        + "\"move\":\"" + move + "\","  
+        + "\"stderr\":\"" + stderr + "\","  
+        + "\"humanOrBot\":\"" + ((player == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "human" : "bot") + "\""
+        + "}";
   }
 
 }

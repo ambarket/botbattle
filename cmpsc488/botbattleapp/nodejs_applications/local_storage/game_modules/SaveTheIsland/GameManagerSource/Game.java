@@ -13,21 +13,165 @@ public class Game implements GameInterface {
   private String lastBoard;
   private String board;
   private String lastMove;
-  private String reasonInvalid;
+  private String lastDebugMessage;
+  
   private int lastPlayersTurn;
-  private boolean over;
+  // Will be set by updateBoard if the game has been won, or by validateMove
+  //    if a bot made an invalid move.
+  private String gameOverMessage;  
   private GameType gameType;
 
-  // Moved constructor to this because its something that should be explicitly in the interface
-  //    and constructors can't be in an interface. Also wanted to the GameType argument.
+  // TODO: Add to interface or move to GameInstance.
+  public static int getBotTimeoutInMilliseconds() {
+    return 3000;
+  }
+  
+  @Override
+  public String getName() {
+    return "SaveTheIsland";
+  }
+  
+  @Override
   public void initializeGame(GameType gameType) {
     this.gameType = gameType;
     board = getStartingBoard();
     lastBoard = board;
     lastPlayersTurn = 0;
     lastMove = "initial";
-    reasonInvalid = "";
-    over = false;
+    gameOverMessage = null;
+  }
+  
+  @Override
+  public boolean isGameOver() {
+    if(gameOverMessage != null) {
+      return true;
+    }
+    return false;
+  }
+  
+  @Override
+  public String getCompleteBoard() {
+    return board;
+  }
+
+  @Override
+  public String getPlayerOneBoard() {
+      return Board.getPlayersTiles(1, board) + ";" + Board.getIsland(board);
+  }
+
+  @Override
+  public String getPlayerTwoBoard() {
+      return Board.getPlayersTiles(2, board) + ";" + Board.getIsland(board);
+  }
+  
+  @Override
+  public void updateBoard(String move, String debugMessage, int player) {
+    lastBoard = board;
+    String[] peices = move.split(";");
+ 
+    int value = Integer.parseInt(peices[1].substring(0, 1));
+    if (move.startsWith("attack")) {
+      board = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
+    } else if (move.startsWith("retreat")) {
+      board = Board.movePlayer(board, player, -value);
+      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
+    } else {
+      board = Board.movePlayer(board, player, value);
+      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
+    }
+
+    lastPlayersTurn = player;
+    lastMove = move;
+    lastDebugMessage = debugMessage;
+    int winner = getWinner();
+    if (winner != 0) {
+      gameOverMessage = "Player " + winner + " has won the game.";
+    }
+  }
+  
+
+  @Override
+  public String getInitialGameStateJSON() {
+    String jsonString = "{";
+    jsonString += "\"messageType\":\"initialGamestate\",";
+    jsonString += "\"enableHumanInput\":false,";
+    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), "The game has started");
+    jsonString += "}";
+
+    return jsonString;
+  }
+  
+  @Override
+  // If this was called then it was a valid move and the game hasn't been won yet
+  public String getMidGameStateJSON() {
+    String move = lastMove;
+    int player = lastPlayersTurn;
+    String botsStderr = lastDebugMessage;
+    String jsonString = "{";
+
+    jsonString += "\"messageType\":\"midGamestate\",";
+
+    String enableHumanInput = (((player % 2) + 1) == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "true" : "false";
+    jsonString += "\"enableHumanInput\":" + enableHumanInput + ",";
+
+    jsonString += "\"animatableEvents\":[" + animatedEventJSON(move.split(";")[0], player) + "],";
+    
+    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+              prettyPrintMove(move, player)) + ",";
+
+    jsonString += "\"debugData\" : {" +
+                       "\"stderr\" :" + (botsStderr == null ? "[]," : "[\"" + botsStderr + "\"],") +
+                       "\"stdout\" :" + (move.equals("initial") ? "[]}}" : "[\"" + move + "\"]}}");
+    return jsonString;
+  }
+  
+  @Override
+  public String getFinalGameStateJSON() {
+    String jsonString = "{";
+    jsonString += "\"messageType\":\"finalGamestate\",";
+    jsonString += "\"enableHumanInput\":false,";
+    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), gameOverMessage);
+    jsonString += "}";
+
+    return jsonString;
+  }
+  
+  @Override
+  // TODO: Not relevant for test arena, maybe remove from this class.
+  public String getJSONstringFromGameResults(GameResults results) {
+    Object[] p1Moves = results.getPlayer1Moves().toArray();
+    Object[] p2Moves = results.getPlayer2Moves().toArray();
+    String board = results.getBoards().get(0);
+    String desc = "";
+    String animation = "";
+    String jsonString = "[{";
+
+    jsonString += animatedEventJSON("Initial Board", -1) + ",";
+    jsonString +=
+        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+            "initial board") + "}";
+
+
+    for (int i = 1; i < results.getBoards().size(); i++) {
+      jsonString += ",{";
+      board = results.getBoards().get(i);
+
+      if (i % 2 == 1) {
+        desc = prettyPrintMove((String) p1Moves[i / 2], 1);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 1);
+      } else {
+        desc = prettyPrintMove((String) p2Moves[i / 2], 2);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 2);
+      }
+      jsonString += animation + ",";
+      jsonString +=
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc)
+              + "}";
+    }
+
+    jsonString += "]";
+
+    return jsonString;
   }
 
   public String getStartingBoard() {
@@ -49,28 +193,34 @@ public class Game implements GameInterface {
 
     return board;
   }
+  
+  public boolean isGameWon() {
+    String island = Board.getIsland(board);
 
-  public String getBoard() {
-    return board;
-  }
-
-  public void updateBoard(String move, int player) {
-    lastBoard = board;
-    String[] peices = move.split(";");
- 
-    int value = Integer.parseInt(peices[1].substring(0, 1));
-    if (move.startsWith("attack")) {
-      board = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
-    } else if (move.startsWith("retreat")) {
-      board = Board.movePlayer(board, player, -value);
-      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
+    if (island.indexOf("1") != -1 && island.indexOf("2") != -1) {
+      return false;
     } else {
-      board = Board.movePlayer(board, player, value);
-      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
+      return true;
     }
-
-    lastPlayersTurn = player;
-    lastMove = move;
+  }
+  
+  /**
+   * @return 
+   *    0 if both players are on the board
+   *    1 if player 1 has won the game
+   *    2 if player 2 has won the game
+   */
+  private int getWinner() {
+    String island = Board.getIsland(board);
+    if (island.indexOf("1") == -1) {
+      return 2;
+    }
+    else if (island.indexOf("2") == -1) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
   }
   
   protected void replacePlayersTiles(String newTiles, int player) {
@@ -84,43 +234,19 @@ public class Game implements GameInterface {
   protected void setBoard(String newBoard) {
     board = newBoard;
   }
-  
-  public boolean isGameOver() {
-    
-    if(over) {
-      return true;
-    }
-    
-    // This game doesnt have ties so winning is the only way it will end.
-    if (isGameWon()) {
-      return true;
-    }
 
-    return false;
-  }
 
-  public void setOver(boolean over) {
-    this.over = over;
-  }
 
-  public boolean isGameWon() {
-    String island = Board.getIsland(board);
-
-    if (island.indexOf("1") != -1 && island.indexOf("2") != -1) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  public boolean isValidMove(String move, int player) {
-    return isValidMove(move, player, board);
+  @Override
+  public String validateMove(String move, int player) {
+    return validateMove(move, player, board);
   }
   
-  protected boolean isValidMove(String move, int player, String board) {
+  // Used for internally for validation on a previous board.
+  protected String validateMove(String move, int player, String board) {
     if (move == null) {
-      reasonInvalid = "The action was null.";
-      return false;
+      disqualifyPlayerIfABot(player);
+      return "The action was null.";
     }
 
     short TYPE_OF_MOVE = 0, TILES_USED = 1;
@@ -131,60 +257,58 @@ public class Game implements GameInterface {
     try {
       tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
     } catch (Exception e) {
-      reasonInvalid = "An exception was thrown trying to parse action, check your syntax.";
-      return false;
+      disqualifyPlayerIfABot(player);
+      return "An exception was thrown trying to parse action, check your syntax.";
     }
 
     if (peices.length != 2) {
-      reasonInvalid = "The syntax was incorrect, should be somthing like move;3 or attack;22";
-      return false;
+      disqualifyPlayerIfABot(player);
+      return "The syntax was incorrect, should be somthing like move;3 or attack;22";
     }
 
     String typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
     if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat")) {
-      reasonInvalid = "The type of action was unrecognized, should be attack, move, or retreat.";
-      return false;
+      disqualifyPlayerIfABot(player);
+      return "The type of action was unrecognized, should be attack, move, or retreat.";
     }
 
     if (typeOfMove.equals("attack")) {
       // Check all given tiles are the same
       if (!peices[TILES_USED].matches(tileValue + "+")) {
-        reasonInvalid = "The tiles given for attack must all be the same.";
-        return false;
+        disqualifyPlayerIfABot(player);
+        return "The tiles given for attack must all be the same.";
       }
 
       // Check that the other player is the correct distance away
       if (tileValue != Board.getDistanceBetweenPlayers(board)) {
-        reasonInvalid = "When attacking the tiles selected must be equal to the distance from player 2 to player 1.";
-        return false;
+        disqualifyPlayerIfABot(player);
+        return "When attacking the tiles selected must be equal to the distance from player 2 to player 1.";
       }
     } else if (typeOfMove.equals("move") || typeOfMove.equals("retreat")) {
       // Can only move or retreat by one tile
       if (peices[TILES_USED].length() != 1) {
-        reasonInvalid = "When moving or retreating only one tile may be used.";
-        return false;
+        disqualifyPlayerIfABot(player);
+        return "When moving or retreating only one tile may be used.";
       }
     } else {
       // Un recognized move type
-      reasonInvalid = "The type of action was unrecognized, should be attack, move, or retreat.";
-      return false;
+      disqualifyPlayerIfABot(player);
+      return "The type of action was unrecognized, should be attack, move, or retreat.";
     }
 
     // Check player has those tiles
     if (!Board.checkPlayersTiles(board, player, tileValue, peices[TILES_USED].length())) {
-      reasonInvalid = "You do not have the tiles you are trying to use.";
-      return false;
+      disqualifyPlayerIfABot(player);
+      return "You do not have the tiles you are trying to use.";
     }
-    reasonInvalid = "";
-    return true;
+    
+    return null; // Valid move
   }
   
-  public static int getBotTimeoutInMilliseconds() {
-    return 3000;
-  }
-
-  public static String getName() {
-    return "SaveTheIsland";
+  private void disqualifyPlayerIfABot(int player) {
+    if (player == 1 || (gameType.equals(GameType.BOT_VS_BOT) && player == 2)) {
+      gameOverMessage = "Player " + player + " was disqualified after making an invalid move.";
+    }
   }
   
   public static int getOtherPlayer(int player) {
@@ -205,8 +329,6 @@ public class Game implements GameInterface {
     return getAnimatedEventElement(event, player, Board.getPlayersPosition(lastBoard, player), Board.getPlayersPosition(board, player));
   }
 
-  
-  
   protected String getAnimatedEventElement(String event, int player, int startPos, int endPos) {
     String json = "{" +
         "\"event\":\"" + event + "\"," + 
@@ -215,7 +337,6 @@ public class Game implements GameInterface {
             "\"endPosition\":" + endPos + "," +
             "\"startPosition\":" + startPos +
         "}}";
-    
     
     return json;
   }
@@ -295,125 +416,6 @@ public class Game implements GameInterface {
     return output;
   }
 
-  private String getType(String move, int player) {
-    if (player == 0) { // initial
-      return "initial";
-    } else if (isGameOver()) { // final
-      return "final";
-    } else {
-      return "mid";
-    }
-  }
-  
-  // TODO: Implement
-  public String getInitialGamestate() {
-    String jsonString = "{";
-    jsonString += "\"messageType\":\"initialGamestate\",";
-    jsonString += "\"enableHumanInput\":false,";
-    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), "The game has started");
-    jsonString += "}";
-
-    return jsonString;
-  }
-  //TODO: Implement
-  public String getFinalGamestate(String descriptionOfEnding) {
-    String jsonString = "{";
-    jsonString += "\"messageType\":\"finalGamestate\",";
-    jsonString += "\"enableHumanInput\":false,";
-    jsonString += "\"animatableEvents\":[" + animatedEventJSON(lastMove.split(";")[0], lastPlayersTurn) + "],";
-    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), descriptionOfEnding);
-    jsonString += "}";
-
-    return jsonString;
-  }
-  
-  @Override
-  public String getMidGamestate() {
-      return getMidGamestate(null);
-  }
-  
-  @Override
-  // If this was called then it was a valid move and the game hasn't been won yet
-  public String getMidGamestate(String botsStderr) {
-    String move = lastMove;
-    int player = lastPlayersTurn;
-    String jsonString = "{";
-    
-    botsStderr = botsStderr.replace("\n", "\\n");
-    botsStderr = botsStderr.replace("\"", "\\\"");
-
-    jsonString += "\"messageType\":\"midGamestate\",";
-
-    String enableHumanInput = (((player % 2) + 1) == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "true" : "false";
-    jsonString += "\"enableHumanInput\":" + enableHumanInput + ",";
-
-    jsonString += "\"animatableEvents\":[" + animatedEventJSON(move.split(";")[0], player) + "],";
-    
-    jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-              prettyPrintMove(move, player)) + ",";
-
-    jsonString += "\"debugData\" : {" +
-                       "\"stderr\" :" + (botsStderr == null ? "[]," : "[\"" + botsStderr + "\"],") +
-                       "\"stdout\" :" + (move.equals("initial") ? "[]}}" : "[\"" + move + "\"]}}");
-    return jsonString;
-  }
-  
-  public String getJSONstringFromGameResults(GameResults results) {
-    Object[] p1Moves = results.getPlayer1Moves().toArray();
-    Object[] p2Moves = results.getPlayer2Moves().toArray();
-    String board = results.getBoards().get(0);
-    String desc = "";
-    String animation = "";
-    String jsonString = "[{";
-
-    jsonString += animatedEventJSON("Initial Board", -1) + ",";
-    jsonString +=
-        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-            "initial board") + "}";
-
-
-    for (int i = 1; i < results.getBoards().size(); i++) {
-      jsonString += ",{";
-      board = results.getBoards().get(i);
-
-      if (i % 2 == 1) {
-        desc = prettyPrintMove((String) p1Moves[i / 2], 1);
-        animation = animatedEventJSON((String) p1Moves[i / 2], 1);
-      } else {
-        desc = prettyPrintMove((String) p2Moves[i / 2], 2);
-        animation = animatedEventJSON((String) p1Moves[i / 2], 2);
-      }
-      jsonString += animation + ",";
-      jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc)
-              + "}";
-    }
-
-    jsonString += "]";
-
-    return jsonString;
-  }
-  
-  
-  /* TODO: Not used yet but this function would replace both invalid and valid move JSON, this is the level of information
-   * we actually need. Not sure of the best way to get this implemented. I think the game loop needs to
-   * be changed because if the move is invalid and its a bot then the final game state
-   * is identical to the previous game state and the client makes no indication of why the game ended.
-   */
-  @Override
-  public String getInvalidMoveJSON(String move, int player) {
-    move = move.replace("\n", "\\n");    // Are new lines handled anywhere else and if not should they be?
-    move = move.replace("\"", "\\\"");
-    return "{"
-        + "\"messageType\":\"invalidMove\","
-        + "\"reason\":\"" + reasonInvalid + "\","
-        + "\"player\":\"player" + player + "\","
-        + "\"move\":\"" + move + "\","  
-        + "\"humanOrBot\":\"" + ((player == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "human" : "bot") + "\""
-        + "}";
-  }
-  
-  
   // -------------------------- BOARD CLASS ---------------------
   public static class Board {
     public static String getPlayersTiles(int player, String board) {
@@ -549,14 +551,4 @@ public class Game implements GameInterface {
     }
   }
   // ----------------------- END BOARD CLASS ---------------------
-
-	@Override
-	public String getPlayersOneBoard() {
-		return Board.getPlayersTiles(1, board) + ";" + Board.getIsland(board);
-	}
-
-	@Override
-	public String getPlayersTwoBoard() {
-		return Board.getPlayersTiles(2, board) + ";" + Board.getIsland(board);
-	}
 }

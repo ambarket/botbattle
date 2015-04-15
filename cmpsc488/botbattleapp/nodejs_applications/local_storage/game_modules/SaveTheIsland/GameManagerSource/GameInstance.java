@@ -25,7 +25,7 @@ public class GameInstance implements Runnable {
 
     // Add starting board
     String move = "";
-    results.addBoard(game.getBoard());
+    results.addBoard(game.getCompleteBoard());
 
     while (!game.isGameOver()) {
 
@@ -37,18 +37,18 @@ public class GameInstance implements Runnable {
       System.out.flush();
       
       if (player == 1) {
-        move = player1.getMove(game.getBoard());
+        move = player1.getMove(game.getCompleteBoard());
         results.addMove(move, player);
       } else {
-        move = player2.getMove(game.getBoard());
+        move = player2.getMove(game.getCompleteBoard());
         results.addMove(move, player);
       }
 
-      if (game.isValidMove(move, player)) {
-        game.updateBoard(move, player);
-        results.addBoard(game.getBoard());
+      if (game.validateMove(move, player) == null) {
+        game.updateBoard(move, "", player);
+        results.addBoard(game.getCompleteBoard());
 
-        if (game.isGameWon()) {
+        if (game.isGameOver()) {
           System.out.println("Game Won by player" + player);
           results.setWinner(player);
           break;
@@ -89,7 +89,7 @@ public class GameInstance implements Runnable {
   @Override
   public String toString() {
     return "GameManager [\n\tplayer1=" + player1 + ",\n\tplayer2=" + player2 + ",\n game="
-        + Game.getName() + ",\n results=" + results + "]";
+        + game.getName() + ",\n results=" + results + "]";
   }
 
 

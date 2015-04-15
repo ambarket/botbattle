@@ -112,9 +112,22 @@ GAME = {
           });
           return o;
       };
-      data = (JSON.stringify($('form[name="humanInputForm"]').serializeObject()));
+      data = $('form[name="humanInputForm"]').serializeObject();
+      console.log("humanInputForm",data);
       //TODO: Figure out move format with Randall
-      return data;
+      var move = "";
+      move += data.moveType;
+      move += ";";
+      if (Array.isArray(data.player2Tile)) {
+        for (var tile in data.player2Tile) {
+          move += data.player2Tile[tile];
+        }
+      }
+      else {
+        move += data.player2Tile;
+      }
+
+      return move;
     },
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
