@@ -171,7 +171,7 @@ module.exports = new (function() {
           }
           else {
             jsonArgument.bot1.language = 'c++';
-            jsonArgument.bot1.name = testArenaInstances[id].bot1Name;
+            jsonArgument.bot1.name = testArenaInstances[id].bot1CompiledPath.substring(testArenaInstances[id].bot1Directory.length); // have to get compiled name
             jsonArgument.bot1.directory = testArenaInstances[id].bot1Directory;
           }
           if (jsonArgument.numberOfBots === 2) {
@@ -183,7 +183,7 @@ module.exports = new (function() {
             }
             else {
               jsonArgument.bot2.language = 'c++';
-              jsonArgument.bot2.name = testArenaInstances[id].bot2Name;
+              jsonArgument.bot2.name = testArenaInstances[id].bot2CompiledPath.substring(testArenaInstances[id].bot2Directory.length);// testArenaInstances[id].bot2Name;
               jsonArgument.bot2.directory = testArenaInstances[id].bot2Directory;
             }
           }

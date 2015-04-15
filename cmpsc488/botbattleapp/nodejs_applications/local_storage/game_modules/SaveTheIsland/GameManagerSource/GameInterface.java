@@ -33,19 +33,6 @@ public interface GameInterface {
   public String getInitialGameStateJSON();
   
   /**
-   * Used as the control for the main game loop. Once this returns true, the
-   * game is considered over and the GameInstance will call getFinalGameStateJSON.
-   * @return
-   */
-  boolean isGameOver();
-
-  String getCompleteBoard();
-  
-  String getPlayerOneBoard();
-  
-  String getPlayerTwoBoard();
-  
-  /**
    *  Must return null if it was a valid move. If invalid you may provide a string
    *  indicating the reason the move was invalid. This will be logged on the client side.
    * @param move
@@ -62,13 +49,19 @@ public interface GameInterface {
    * @param player
    */
   void updateBoard(String move, String botsStderr, int player);
-
-
-
-
   
-  
+  /**
+   * Used as the control for the main game loop. Once this returns true, the
+   * game is considered over and the GameInstance will call getFinalGameStateJSON.
+   * @return
+   */
+  boolean isGameOver();
 
+  String getCompleteBoard();
+  
+  String getPlayerOneBoard();
+  
+  String getPlayerTwoBoard();
   
   public String getMidGameStateJSON();
   

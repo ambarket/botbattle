@@ -44,7 +44,7 @@ public class Player implements Runnable {
 
     //System.err.println("Cmd:"+ cmd + ", name: " + usersName + ", \nPATH: " + botFilePath);
     
-    ProcessBuilder builder = new ProcessBuilder("java" , usersName);
+    ProcessBuilder builder = new ProcessBuilder(cmd , usersName);
     builder.directory(new File(botFilePath));
     botProcess = builder.start();
 

@@ -35,20 +35,16 @@ public class ArenaGameInstance {
         stderr = bot2.getAnyStderr();
       }
       
-      // TODO: Use library to perform proper JSON cleaning of move and stderr
+      // TODO: Use library to perform proper JSON cleaning of move and stderr.
       move = move.replace("\n", "\\n"); 
       move = move.replace("\"", "\\\"");
       stderr = stderr.replace("\n", "\\n");
       stderr = stderr.replace("\"", "\\\"");
       
-      // This is null if the move was valid.
       String reasonMoveWasInvalid = game.validateMove(move, player);
       if (reasonMoveWasInvalid == null) {
         game.updateBoard(move, stderr, player);
-
-        //Sent to stdout for Arena to see
         System.out.println(game.getMidGameStateJSON());
-        
         i++;
       } else {
         System.out.println(getInvalidMoveJSON(move, stderr, player, reasonMoveWasInvalid));
