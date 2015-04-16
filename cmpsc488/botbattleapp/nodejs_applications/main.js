@@ -37,8 +37,9 @@ fileManager.parseConfigurationFile(function(err, config) {
   }
 })
 
-var initConfigMessageQueue = [];
+
 function runInitialConfiguration() {
+  var initConfigMessageQueue = [];
   var initConfigAppServer = (new BotBattleServer()).initAndStartListening(port);
   
   initConfigAppServer.addDynamicRoute('get', '/getLatestInitConfigMessage', function(req,res) {
@@ -53,33 +54,27 @@ function runInitialConfiguration() {
   
   var initConfigApp = new (require(paths.custom_modules.InitialConfigurationApp))(initConfigAppServer)
     .on('progress_update', function(progress) {
-        //initConfigAppServer.socketIOEmitToAll('progress_update', progress);
         initConfigMessageQueue.push({ "event" : "progress_update", "data" : progress});
       })
     .on('config_error', function(err) {
         logger.log("There was an error during initial configuration...\n" + err);
-       // initConfigAppServer.socketIOEmitToAll('config_error', err);
         initConfigMessageQueue.push({ "event" : "config_error", "data" : err});
       })
     .on('status_update', function(status) {
-        //initConfigAppServer.socketIOEmitToAll('status_update', status);
         initConfigMessageQueue.push({ "event" : "status_update", "data" : status});
     })
     .on('reset_form', function() {
-        //initConfigAppServer.socketIOEmitToAll('reset_form');
         initConfigMessageQueue.push({ "event" : "reset_form"});
     })
     .on('config_success', function(database) {
         logger.log("Initial configuration completed successfully!" );
-        
-        //initConfigAppServer.socketIOEmitToAll('config_success', null);    
+         
         initConfigMessageQueue.push({ "event" : "config_success"});
         
         // Close the server, then load a new one to serve the botBattleApp
         initConfigAppServer.shutdown(function(err) {
           logger.log('initialConfig','The initial configuration server has been shutdown!');
           runBotBattleApp(database);
-          // Probably not even be necessary now that these are defined locally in this function
           initConfigAppServer = null;
 		  initConfigApp = null;
         });
@@ -92,7 +87,6 @@ function runBotBattleApp(database) {
   fileManager.deleteTestArenaTmp(function(){
     var botBattleAppServer = new BotBattleServer().initAndStartListening(port);
     var botBattleApp = (new require(paths.custom_modules.BotBattleApp))(botBattleAppServer, database);
-     // TODO: register new listeners.  set prototype to inherit emmiter like initconfig
   });
 }
 

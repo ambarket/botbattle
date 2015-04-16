@@ -11,12 +11,10 @@ module.exports = function BotBattleServer() {
   var logger = require(paths.custom_modules.Logger).newInstance('console');
   var expressApp = null;
   var httpsServer = null;
-  var socketIO = null;  
   var httpsConnectionTracker = null;
-  var socketIOConnectionTracker = null;
  
   /**
-   * Initialize the expressApp, httpsServer, socketIO, and connectionTracker properties 
+   * Initialize the expressApp, httpsServer, and connectionTracker properties 
    * and begin listening for connections on https://localhost:port, where port is the TCP port 
    * number passed to the constructor.
    * 
@@ -32,12 +30,9 @@ module.exports = function BotBattleServer() {
     var https = require('https');
     var fs = require('fs');
     var options = { key : fs.readFileSync(paths.https_cert.key), cert : fs.readFileSync(paths.https_cert.cert) };
+    
     httpsServer = https.createServer(options, expressApp).listen(port);
-    
-    socketIO = require('socket.io').listen(httpsServer);
-    
     httpsConnectionTracker = new (require(paths.custom_modules.HTTPSConnectionTracker))(httpsServer);
-    socketIOConnectionTracker = new (require(paths.custom_modules.SocketIOConnectionTracker))(socketIO);
     
     return self;
   }
@@ -56,7 +51,6 @@ module.exports = function BotBattleServer() {
     setTimeout(function() {httpsConnectionTracker.closeAllConnections(); }, 2000);
     
     httpsServer.close(function(err) {
-      socketIO = null;
       self.server = null;
       expressApp = null;
       callback(err);
@@ -110,8 +104,6 @@ module.exports = function BotBattleServer() {
     }
   };
   
-
-  
   /**
    * Adds the specified middleware to the express stack.
    * 
@@ -120,50 +112,6 @@ module.exports = function BotBattleServer() {
    */
   this.addMiddleware = function(middleware) {
     expressApp.use(middleware);
-  };
-  
-  /**
-   * Emits the message over this servers socket.io
-   * 
-   * @param {String} event Event to fire.
-   * @param {Object} data Object to be passed.
-   * @method socketIOEmitToAll
-   */
-  this.socketIOEmitToAll = function(event, data) {
-    socketIOConnectionTracker.emitToAll(event, data);
-  };
-  
-  /**
-   * Register a callback to process the data on the event.
-   * 
-   * @param {String} event Event to be processed.
-   * @param {Function} callback Callback with the prototype "function(data)" 
-   * @method socketIOReceiveFromAll
-   */
-  this.socketIOReceiveFromAll = function(event, callback) {
-    socketIOConnectionTracker.onReceiveFromAll(event, callback);
-  };
-  
-  /**
-   * Emits the message over this servers socket.io to a specified client
-   * @param {String} id Socket.io id of the original socket given to the client
-   * @param {String} event Event to fire.
-   * @param {Object} data Object to be passed.
-   * @method socketIOEmitToId
-   */
-  this.socketIOEmitToId = function(id, event, data) {
-    socketIOConnectionTracker.emitToId(id, event, data);
-  };
-  
-  /**
-   * Register a callback to process the data on the event from a specified client
-   * @param {String} id Socket.io id of the original socket given to the client
-   * @param {String} event Event to be processed.
-   * @param {Function} callback Callback with the prototype "function(data)" 
-   * @method socketIOReceiveFromId
-   */
-  this.socketIOReceiveFromId = function(id, event, callback) {
-    socketIOConnectionTracker.onFromId(id, event, callback);
   };
   
   /**
@@ -219,8 +167,6 @@ module.exports = function BotBattleServer() {
     var passport = require('passport');
     self.addMiddleware(passport.initialize());
     self.addMiddleware(passport.session());
-    
-
   }
   
   /**
@@ -231,17 +177,19 @@ module.exports = function BotBattleServer() {
    * @private
    */
   function registerCommonRoutes() {
-    // Log every incoming request, then pass along for further processing
+    
+    // Since locals will be used in many calls to res.render
+    //  ensure it exists.
     self.addMiddleware(function(req, res, next) {
       if (req.session && !req.session.locals) {
         req.session.locals = {};
       }
-      logger.log('httpsServer', req.method, req.url);
-      logger.log('session', JSON.stringify(req.session));
+      // Log request to the server.
+      //logger.log('httpsServer', req.method, req.url);
+      //logger.log('session', JSON.stringify(req.session));
       next();
     });
-
-    var express = require('express');
+   
     self.addStaticFolderRoute('/static/css', paths.static_content.css);
     self.addStaticFolderRoute('/static/javascript', paths.static_content.javascript);
     self.addStaticFolderRoute('/static/images', paths.static_content.images);
