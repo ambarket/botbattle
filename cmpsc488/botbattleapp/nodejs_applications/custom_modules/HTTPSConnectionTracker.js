@@ -10,7 +10,7 @@ module.exports = function HTTPSConnectionTracker(server) {
   // http://socket.io/docs/rooms-and-namespaces/
   // https://github.com/Automattic/socket.io/wiki/Authorizing
   var paths = require("./BotBattlePaths");
-  var logger = require(paths.custom_modules.Logger).newInstance('console');
+  var logger = require(paths.custom_modules.Logger).newInstance();
   // Private member to store the sockets
   var sockets = {}, nextSocketId = 0;
  

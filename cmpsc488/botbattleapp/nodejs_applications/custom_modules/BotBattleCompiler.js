@@ -10,7 +10,7 @@
 function BotBattleCompiler() {
   var paths = require("./BotBattlePaths");
   var path = require('path');
-  var logger = require(paths.custom_modules.Logger).newInstance('console');
+  var logger = require(paths.custom_modules.Logger).newInstance();
   var spawn = require('child_process').spawn;
   var fileManager = new (require(paths.custom_modules.FileManager));
   var self = this;

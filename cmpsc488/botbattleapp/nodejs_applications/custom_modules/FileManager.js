@@ -18,7 +18,7 @@ function FileManager(botBattleDatabase) {
     var localStorageInitialized = false;
     var database = botBattleDatabase;
     var paths = require('./BotBattlePaths');
-    var logger = require(paths.custom_modules.Logger).newInstance('console');
+    var logger = require(paths.custom_modules.Logger).newInstance();
     
     /**
      * Upon successful completion, all paths in paths.local_storage will exist. Note this will not

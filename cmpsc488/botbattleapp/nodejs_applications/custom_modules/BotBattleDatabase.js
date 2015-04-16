@@ -20,7 +20,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
     var url = "mongodb://" + host + ":" + port + "/" + dbName;
     var paths = require("./BotBattlePaths");
     var objectFactory = require(paths.custom_modules.ObjectFactory);
-    var logger = require(paths.custom_modules.Logger).newInstance('console');
+    var logger = require(paths.custom_modules.Logger).newInstance();
     
     
     /**

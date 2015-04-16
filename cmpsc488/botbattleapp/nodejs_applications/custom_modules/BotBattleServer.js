@@ -8,7 +8,7 @@
 module.exports = function BotBattleServer() {
   var self = this;
   var paths = require('./BotBattlePaths');
-  var logger = require(paths.custom_modules.Logger).newInstance('console');
+  var logger = require(paths.custom_modules.Logger).newInstance();
   var expressApp = null;
   var httpsServer = null;
   var httpsConnectionTracker = null;

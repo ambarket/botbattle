@@ -17,7 +17,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   var paths = require('./BotBattlePaths');
   var fileManager = new (require(paths.custom_modules.FileManager));
   var objectFactory = require(paths.custom_modules.ObjectFactory);
-  var logger = require(paths.custom_modules.Logger).newInstance('console');
+  var logger = require(paths.custom_modules.Logger).newInstance();
 
   /**
    * An object containing all fields submitted in the initial configuration form

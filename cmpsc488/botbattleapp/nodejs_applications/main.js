@@ -9,7 +9,7 @@ var port = process.argv[2] || 6058;
 var paths = require('./custom_modules/BotBattlePaths');
 var BotBattleServer = require(paths.custom_modules.BotBattleServer);
 var fileManager = require(paths.custom_modules.FileManager).newInstance();
-var logger = require(paths.custom_modules.Logger).newInstance('console');
+var logger = require(paths.custom_modules.Logger).newInstance();
 
 fileManager.parseConfigurationFile(function(err, config) {
   if (err) {

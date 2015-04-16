@@ -3,7 +3,7 @@ var path = require('path');
 
 var helpers = require(paths.BotBattleApp_sub_modules.Helpers);
 var fileManager = require(paths.custom_modules.FileManager).newInstance();
-var logger = require(paths.custom_modules.Logger).newInstance('console');
+var logger = require(paths.custom_modules.Logger).newInstance();
 var testArenaInstances = require(paths.BotBattleApp_sub_modules.TestArenaInstances);
 
 function BotBattleApp(server, database) {

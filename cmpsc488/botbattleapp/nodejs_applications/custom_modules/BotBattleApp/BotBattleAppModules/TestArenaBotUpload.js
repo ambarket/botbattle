@@ -1,7 +1,7 @@
 var paths = require('../../BotBattlePaths');
 var path = require('path');
 var fileManager = require(paths.custom_modules.FileManager).newInstance();
-var logger = require(paths.custom_modules.Logger).newInstance('console');
+var logger = require(paths.custom_modules.Logger).newInstance();
 var compiler = new (require(paths.custom_modules.BotBattleCompiler));
 
 var helpers = require(paths.BotBattleApp_sub_modules.Helpers);

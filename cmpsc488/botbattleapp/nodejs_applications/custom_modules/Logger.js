@@ -18,13 +18,7 @@ var categoryDestinations = {
     TestArenaInstances : ['console']
 }
   
-function Logger(destination) {
-  if (destination !== 'console') {
-    throw new Error("argument to Logger must be one of ['console']");
-  }
-  this.destination = destination;
-  
-
+function Logger() {
   /**
    * First argument can be the category of the message. If not, the 'general' category will be applied.
    */
@@ -53,6 +47,6 @@ function Logger(destination) {
   }
 };
 module.exports = Logger;
-module.exports.newInstance = function(destination) {
-  return new Logger(destination);
+module.exports.newInstance = function() {
+  return new Logger();
 }
