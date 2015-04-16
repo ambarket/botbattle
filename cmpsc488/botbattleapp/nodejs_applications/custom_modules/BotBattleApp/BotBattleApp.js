@@ -25,7 +25,7 @@ function BotBattleApp(server, database) {
     }
 
 
-	require(paths.BotBattleApp_sub_modules.Login).registerRoutes(server, database);
+	//require(paths.BotBattleApp_sub_modules.Login).registerRoutes(server, database);
 	require(paths.BotBattleApp_sub_modules.StudentPortal).registerRoutes(server, database);
 	require(paths.BotBattleApp_sub_modules.AdminPortal).registerRoutes(server, database);
 	
