@@ -96,7 +96,6 @@ function FileManager(botBattleDatabase) {
       var path = require('path');
       var directories = {
           root : path.join(paths.local_storage.game_modules, gameName),
-          gameManagerSource : path.join(paths.local_storage.game_modules, gameName, "GameManagerSource"),
           gameManagerCompiled : path.join(paths.local_storage.game_modules, gameName, "GameManagerCompiled"),
           rules : path.join(paths.local_storage.game_modules, gameName, "rules"),
           javascript : path.join(paths.local_storage.game_modules, gameName, "javascript"),

@@ -3,11 +3,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <% include ../partials/basic_head %>
+    <% include ../partials/head %>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+    
+    <!--  Seemed like trying to defer this script actually caused the io referercen error in the browser
+          and also may have resulting is some weird behavior of socket.io. -->
+          
+    <!--  <script defer src="/static/javascript/initialConfigurationClient.js"></script>-->
+    <script defer src="/static/javascript/initConfigClient.js"></script>
 </head>
 <body class="container">
+  <header>
+    <% include ../partials/header %>
+  </header>
 
-    <main class="centered">
+ <!--  <div class="centered">-->
     
 	<form id="initConfigForm" enctype="multipart/form-data"">
 
@@ -44,21 +54,6 @@
 					size="15" value="testPass" required></input>
 			</div>
 	    <hr>
-	    
-	    <h1>Administrator User Configuration</h1>
-      <div class="form-item">
-        <label id="title" for="adminUserName"> Admin UserName <span
-          class="form-required" title="This field is required."> * </span>
-        </label> <input name="adminUserName" type="text" maxlength="60" size="15"
-          value="testUser" placeholder="testAdmin" required></input>
-      </div>
-      <div class="form-item">
-        <label id="title" for="adminPassword"> Admin Password <span
-          class="form-required" title="This field is required."> * </span>
-        </label> <input name="adminPassword" type="password" maxlength="60"
-          size="15" value="testPass" required></input>
-      </div>
-      <hr>
 		
 			<h1>Game Setup</h1>
       <div class="form-item">
@@ -137,8 +132,24 @@
         });
       </script>
       
+      <!--  Admin Portal has not been fully implemented.    
+      <h1>Administrator User Configuration</h1>
+      <div class="form-item">
+        <label id="title" for="adminUserName"> Admin UserName <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="adminUserName" type="text" maxlength="60" size="15"
+          value="testUser" placeholder="testAdmin" required></input>
+      </div>
+      <div class="form-item">
+        <label id="title" for="adminPassword"> Admin Password <span
+          class="form-required" title="This field is required."> * </span>
+        </label> <input name="adminPassword" type="password" maxlength="60"
+          size="15" value="testPass" required></input>
+      </div>
+      <hr>
+      -->
 
-      
+      <!--  Tournament has not been fully implemented
 			<hr>
 			<h1>Tournament Setup</h1>
 			<div class="form-item">
@@ -148,7 +159,6 @@
 					size="30" value="Clash of The Bots!!" required></input>
 			</div>
 			
-			<!-- https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications -->
 			<div class="form-item">
 				<label id="title" for="studentList"> Student List <span
 					class="form-required" title="This field is required."> * </span>
@@ -162,8 +172,7 @@
 				</label> <input name="tournamentDeadline" required type="date" ></input>
 					<p></p>
 			</div>
-
-		
+      -->
 		<hr>
 		
 		<p>
@@ -171,19 +180,17 @@
 		</p>
 		
 	</form>
+  
+  <hr>
+  
 	<p id="progressTitle" class="largeText">
 		Progress:
 		<progress id="progress" value="0" max="100" size="20"> </progress>
 	</p>
 	
-	<div id="reloading_message"></div> 
+	<div id="reloading_message"></div>
 	
-	<div id="log">
-	 <p class="largeText"> Log: </p>
-	 <div id="message" class="scrollableBox"></div>
-	</div>
-	
-	</main>
+  <hr>
 	
 	
   <footer>
@@ -191,16 +198,5 @@
   </footer>
 
 </body>
-
-
-<script src="/socket.io/socket.io.js"></script>
-<script	src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
-
-<!--  Seemed like trying to defer this script actually caused the io referercen error in the browser
-      and also may have resulting is some weird behavior of socket.io. -->
-      
-<script src="/static/javascript/initialConfigurationClient.js"></script>
-
-
 
 </html>

@@ -149,10 +149,6 @@
      })();
    }
    
-   
-
-
-   
    //----------------------------------TEST_ARENA State Transitions------------------------------------   
    TEST_ARENA.transitionPageToState = function(state) {
      if (state === 'pageLoaded') {

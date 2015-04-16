@@ -10,7 +10,7 @@ var categoryDestinations = {
     database : ['ignore'],
     session : ['ignore'],
     fileManager : ['console'],
-    initialConfig : ['console'],
+    InitialConfigurationApp : ['console'],
     httpsServer : ['console'],
     BotBattleCompiler : ['console'],
     BotBattleApp : ['console'],

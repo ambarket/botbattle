@@ -1,3 +1,4 @@
+
 GLOBAL = {};
 
 GLOBAL.resetValueAttrributeById = function(id) {
@@ -68,31 +69,29 @@ GLOBAL.messageFlasher = new (function() {
           } else {
             timeDisplayed += 1000;
           }
-          console.log(timeDisplayed);
         } else {
           clearInterval(displayInterval);
           processNextMessage();
         }
-      }, 1000);
+      }, 500);
     }
   }
 })();
 
 GLOBAL.eventLog = new (function() {
+  var self = this;
   this.logMessage = function(type, message) {
     var htmlMessage = GLOBAL.getColoredMessageParagraphByType(type, message);
     GLOBAL.messageFlasher.flashHTML(htmlMessage);
     GLOBAL.appendDivToHtmlElementById('eventLog', htmlMessage);
   }
 
-  this.clearLog = function(type, message) {
-    var htmlMessage = GLOBAL.getColoredMessageParagraphByType(type, message);
-    GLOBAL.messageFlasher.flashHTML(htmlMessage);
-    GLOBAL.appendDivToHtmlElementById('eventLog', htmlMessage);
+  this.clearLog = function() {
+    $('#eventLog').html("");
   }
   
   document.getElementById('clearLog').addEventListener('click', function() {
-    $('#eventLog').html("");
+    GLOBAL.eventLog.clearLog();
   });
   
   document.getElementById('eventLogToggle').addEventListener('click', function() {
@@ -126,8 +125,8 @@ GLOBAL.handleClientError = function(origin, err) {
 }
 
 GLOBAL.handleNonSuccessHttpStatus = function(origin, status, response) {
-  GLOBAL.eventLog.logMessage('error', "HTTP Error" + status + 
-      "received while processing your request, if this problem persists see your administrator.");
+  GLOBAL.eventLog.logMessage('error', "HTTP Error " + status + 
+      " received while processing your request, if this problem persists see your administrator.");
   console.log("HTTP Error", status, "in", origin, "Response:", response);
 }
 

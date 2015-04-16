@@ -4,6 +4,7 @@ body {
 		font-size: 14px;
 		color: #6F6F6F;
 		line-height: 150%;
+		padding-top:50px;
 }
 
 .centered{
@@ -32,7 +33,7 @@ body {
    overflow:auto
 }
 
-/* This corresponds to the message from the previous actiont hat is flashed to the user */
+/* This corresponds to the message from the previous action that is flashed to the user */
 .message{
 	color: grey;
 	text-align: center;
@@ -41,7 +42,6 @@ body {
 
 #submitButton{
 	font-size: 20px;
-	background: #7777AA;
 	border-radius: 10px;
 }
 

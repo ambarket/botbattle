@@ -58,9 +58,9 @@ function InitialConfigurationApp(initConfigAppServer) {
     require('async').series(
         [ initDatabaseTask, // Each should be 20%
           initFileSystemTask, 
-          createAdminUserTask, // Probably should be moved to last
+          //createAdminUserTask, // Admin Portal has not been implemented
           initGameModuleTask, 
-          initTournamentTask,
+          //initTournamentTask, // Tournament has not been implemented.
           saveConfigAndCleanupTask
          ], 
          function(err) {
@@ -237,7 +237,7 @@ function InitialConfigurationApp(initConfigAppServer) {
              seedCallback(null, tmpData);
            }, 
            initGameModuleTask1_CreateDirectoryFromGameName,
-           initGameModuleTask2A_MoveGameManagerSourceIntoNewDirectory,
+           initGameModuleTask2A_MoveGameManagerSourceIntoTmpDirectory,
            initGameModuleTask2B_MoveGameRulesIntoNewDirectory,
            initGameModuleTask2C_MoveGameJavascriptIntoNewDirectory,
            initGameModuleTask2D_ExtractGameResourcesIntoNewDirectory,
@@ -273,22 +273,22 @@ function InitialConfigurationApp(initConfigAppServer) {
     });
   }
       
-  function initGameModuleTask2A_MoveGameManagerSourceIntoNewDirectory(tmpData, initGameModuleTask2ACallback) {
+  function initGameModuleTask2A_MoveGameManagerSourceIntoTmpDirectory(tmpData, initGameModuleTask2ACallback) {
     var path = require('path');
-    
-    fileManager.copyFileOrFolder(paths.gameManagerSource, tmpData.newDirectories.gameManagerSource, function(err) {
+    tmpData.gameManagerSourceTmpDirectory = path.join(paths.init_config_tmp, "GameManagerSource");
+    fileManager.copyFileOrFolder(paths.gameManagerSource, tmpData.gameManagerSourceTmpDirectory, function(err) {
       if (err) {
         err.message += "&nbsp&nbsp Error creating directory for GameManager source code";
         initGameModuleTask2ACallback(err);
       } else {
-        var newSourceFilePath = path.join(tmpData.newDirectories.gameManagerSource, tmpData.gameSourceFile.originalname);
+        var newSourceFilePath = path.join(tmpData.gameManagerSourceTmpDirectory, tmpData.gameSourceFile.originalname);
         fileManager.copyFileOrFolder(tmpData.gameSourceFile.path, newSourceFilePath, function(err) {
           if (err) {
             err.message = "Failed to move '" + tmpData.gameSourceFile.path + "' to " + newSourceFilePath  + '\n' + err.message;
             initGameModuleTask2ACallback(err)
           } else {
             self.emit('progress_update', 64);
-            self.emit('status_update', '&nbsp&nbsp Copy of GameManager source code created at ' + tmpData.newDirectories.gameManagerSource);
+            self.emit('status_update', '&nbsp&nbsp Copy of GameManager source code created at ' + tmpData.gameManagerSourceTmpDirectory);
             initGameModuleTask2ACallback(null, tmpData);
           }
         });  
@@ -361,7 +361,7 @@ function InitialConfigurationApp(initConfigAppServer) {
           logger.log('compilation complete:', message);
         });
 
-    compiler.compileDirectoryJava(tmpData.newDirectories.gameManagerSource, tmpData.newDirectories.gameManagerCompiled,
+    compiler.compileDirectoryJava(tmpData.gameManagerSourceTmpDirectory, tmpData.newDirectories.gameManagerCompiled,
         function(err) {
           if (err) {
             initGameModuleTask3Callback(err);
@@ -376,7 +376,6 @@ function InitialConfigurationApp(initConfigAppServer) {
   function initGameModuleTask4_InsertGameModuleDatabaseEntry(tmpData, callback) {
     var gameModuleObject = objectFactory.GameModule.newInstance(
         tmpData.gameName, tmpData.newDirectories, tmpData.newRulesFilePath, tmpData.javascriptFilePath, tmpData.gameTimeout);
-    //(gameName, gameModuleDirectories, rulesFilePath, javascriptFilePath, moveTimeout) 
 
     database.insertGameModule(gameModuleObject, 
         function(err) {
@@ -393,6 +392,7 @@ function InitialConfigurationApp(initConfigAppServer) {
   }
 
   /**
+   * TODO: Not called since tournament is not yet implemented
    * Upon successful completion, the Tournaments collection of the database will
    * contain a TournamentMetadata document representing the configured
    * Tournament. In addition a subdirectory will exist with the tournament's
@@ -490,21 +490,6 @@ function InitialConfigurationApp(initConfigAppServer) {
                 logger.log(error)
                 next(error)
               },
-              onFileSizeLimit : function(file) {
-                logger.log('Failed: ', file.originalname)
-                fs.unlink('./' + file.path) // delete the partially written file
-                                            // // set
-                // in limit object
-              },
-              onFilesLimit : function() {
-                logger.log('Crossed file limit!')
-              },
-              onFieldsLimit : function() {
-                logger.log('Crossed fields limit!')
-              },
-              onPartsLimit : function() {
-                logger.log('Crossed parts limit!')
-              },
             }));
 
     initConfigAppServer.addDynamicRoute('post', '/processInitialConfiguration',
@@ -518,9 +503,9 @@ function InitialConfigurationApp(initConfigAppServer) {
             databaseName : sanitizer.sanitize(req.body.databaseName),
             databaseUserName : sanitizer.sanitize(req.body.databaseUserName),
             databasePassword : sanitizer.sanitize(req.body.databasePassword),
-            // admin user parameters
-            adminUserName : sanitizer.sanitize(req.body.adminUserName),
-            adminPassword : sanitizer.sanitize(req.body.adminPassword),
+            // admin user parameters 
+            //adminUserName : sanitizer.sanitize(req.body.adminUserName),
+            //adminPassword : sanitizer.sanitize(req.body.adminPassword),
             // game module parameters
             gameSelect : sanitizer.sanitize(req.body.gameSelect),
             gameName : sanitizer.sanitize(req.body.gameName),
@@ -530,10 +515,9 @@ function InitialConfigurationApp(initConfigAppServer) {
             gameJavascript : (req.files.gameJavascript) ? req.files.gameJavascript[0] : undefined,
             gameResources : (req.files.gameResources) ? req.files.gameResources[0] : undefined,
             // tournament parameters
-            tournamentName : sanitizer.sanitize(req.body.tournamentName),
-            studentList : (req.files.studentList) ? req.files.studentList[0] : undefined,
-            tournamentDeadline : sanitizer
-                .sanitize(req.body.tournamentDeadline),
+            //tournamentName : sanitizer.sanitize(req.body.tournamentName),
+            //studentList : (req.files.studentList) ? req.files.studentList[0] : undefined,
+            //tournamentDeadline : sanitizer.sanitize(req.body.tournamentDeadline),
           };
           console.log(sanitizedFormData);
           
@@ -641,6 +625,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       var valid = false;
     }
     
+    /*  Admin portal has not been fully implemented
     //-------------------------------Admin User------------------------
     if (!inputValidator.isAlphanumeric4to35Char(sanitizedFormData.adminUserName)) {
       self.emit('config_error', 'Invalid admin username, must be alphanumeric with atleast 4 and no more than 35 characters');
@@ -650,6 +635,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Invalid admin password, must be atleast 4 characters and contain atleast one number');
       var valid = false;
     }
+    */
    
     //-------------------------------Game Setup------------------------
     if (!inputValidator.is4to35Char(sanitizedFormData.gameName)) {
@@ -683,6 +669,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       var valid = false;
     }
     
+    /*
     //-------------------------------Torunament Setup------------------------
     if (!inputValidator.is4to35Char(sanitizedFormData.tournamentName)) {
       self.emit('config_error', 'Invalid tournament name, must be alphanumeric with atleast 4 and no more than 35 characters');
@@ -698,6 +685,7 @@ function InitialConfigurationApp(initConfigAppServer) {
     else {
       sanitizedFormData.tournamentDeadline = tournamentDeadlineDate;
     }
+    */
     return valid;
   }
 }
