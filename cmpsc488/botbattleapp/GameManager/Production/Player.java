@@ -72,6 +72,16 @@ public class Player implements Runnable {
     move = null;
       
   }
+  
+  public void sendPlayerNumber(int player){
+    try {
+      if(writer != null){
+        System.err.println("Sent player " + player);
+        writer.write(player + "\n");
+      }    
+    } catch (IOException e) {
+    }
+  }
 
   public String getMove(String board) {
 

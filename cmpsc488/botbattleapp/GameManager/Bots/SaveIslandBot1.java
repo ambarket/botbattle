@@ -5,19 +5,20 @@ import java.util.Scanner;
 import java.util.Random;
 
 public class SaveIslandBot1 {
-
+  public static int player;
   public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
     PrintWriter writer = new PrintWriter("STIBot1.txt", "UTF-8");//TODO: remove testing file
     System.err.print("Test");
     
     writer.println("Process started succesfully.");
     writer.flush();
-    writer.close();
     
     Scanner scner = new Scanner(System.in);
-    
     String board;
     
+    player = Integer.parseInt(scner.nextLine());
+    writer.println("Player: " + player);
+    writer.flush();
     while(scner.hasNextLine()){
         board = scner.nextLine();
         
