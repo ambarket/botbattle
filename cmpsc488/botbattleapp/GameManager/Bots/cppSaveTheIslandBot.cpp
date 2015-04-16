@@ -9,10 +9,11 @@ int main() {
 	string tilesAndBoard = "";
 
 	while (cin >> tilesAndBoard) {
-		string tiles = tilesAndBoard.substr(0, 5);
-		string board = tilesAndBoard.substr(6);
+		string playerNum = tilesAndBoard.substr(0, 1);
+		string tiles = tilesAndBoard.substr(2, 7);
+		string board = tilesAndBoard.substr(8);
 		char distance = (board.find("2") - board.find("1"));
-		cerr << "tiles: " << tiles << " board: " << board << " dist: " << (char)(distance+48) <<  endl;
+		cerr << "playerNum: " << playerNum << " tiles: " << tiles << " board: " << board << " dist: " << (int)(distance) <<  endl;
 
 		string move = "";
 		for (int i = 0; i < 5; i++) {
