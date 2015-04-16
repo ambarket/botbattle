@@ -13,9 +13,6 @@ public class ArenaGameInstance {
     this.bot2 = bot2;
     this.gameType = gameType;
     game = new Game();
-    
-    bot1.sendPlayerNumber(1);
-    bot2.sendPlayerNumber(2);
   }
 
   public void runArenaGame() {
