@@ -44,10 +44,10 @@ public class SaveIslandBot1 {
   
   public static String getMove(String board) {
     String move = "666";
-    String components = board.split(";");
+    String[] components = board.split(";");
     String playerNum = components[0];
     String s = components[1];
-    string board = components[1] + ";" + components[2];
+    board = components[1] + ";" + components[2];
     int distance = Board.getDistanceBetweenPlayers(board);
     
     for (int i = 0; i < s.length(); i++) {
