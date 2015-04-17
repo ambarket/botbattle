@@ -77,7 +77,7 @@
              stopInitConfigLogRequester();
            }
          } else {
-           GLOBAL.handleNonSuccessHttpStatus('getLatestInitConfigMessage', req.status, response);
+           GLOBAL.handleNonSuccessHttpStatus('getLatestInitConfigMessage', req.status, req.responseText);
            document.getElementById('submitButton').disabled = false;
            stopInitConfigLogRequester();
          }

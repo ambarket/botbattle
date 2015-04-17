@@ -70,15 +70,24 @@ function runInitialConfiguration() {
         logger.log("Initial configuration completed successfully!" );
          
         initConfigMessageQueue.push({ "event" : "config_success"});
-        
-        // Close the server, then load a new one to serve the botBattleApp
-        initConfigAppServer.shutdown(function(err) {
-          logger.log('initialConfig','The initial configuration server has been shutdown!');
-          runBotBattleApp(database);
-          initConfigAppServer = null;
-		  initConfigApp = null;
-        });
+        // Make sure client gets the config success message.
+        var checkQueueInterval = setInterval(function() {
+          if (initConfigMessageQueue.length == 0) {
+            clearInterval(checkQueueInterval);
+            shutdownInitConfigAndRunBotBattleApp(initConfigAppServer, database);
+          }
+        }, 1000);
       });
+}
+
+function shutdownInitConfigAndRunBotBattleApp(initConfigAppServer, database) {
+  // Close the server, then load a new one to serve the botBattleApp
+  initConfigAppServer.shutdown(function(err) {
+    logger.log('initialConfig','The initial configuration server has been shutdown!');
+    runBotBattleApp(database);
+    initConfigAppServer = null;
+    initConfigApp = null;
+  });
 }
 
 function runBotBattleApp(database) {

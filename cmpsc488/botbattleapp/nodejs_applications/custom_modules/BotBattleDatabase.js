@@ -380,7 +380,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
           }
           else {
             if (foundDocument !== null) {
-              var err = new Error("Cannot insert because there is already a document matching '" + keyFieldName + ":" + keyValue 
+              var err = new Error("Cannot insert because there is already a document matching '" + keyFieldName + ":" + document[keyFieldName] 
                   + "' in the '" + collectionName + "' collection. \n");
               callback(err);
             }
