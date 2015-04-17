@@ -19,7 +19,7 @@ public class ArenaGameInstance {
   }
 
   public void runArenaGame() {
-    String rawMove = "", rawStderr = "", jsonSafeMove = "", jsonSafeStderr = "";
+    String rawMove = "", rawStderr = "", jsonSafeMove = "", jsonSafeStderrArray = "";
 
     //Send starting board to the test arena
     game.initializeGame(gameType);
@@ -37,24 +37,24 @@ public class ArenaGameInstance {
     	rawStderr = bot2.getAnyStderr();
       }
       
-      // TODO: Use library to perform proper JSON cleaning of move and stderr.
       if (rawMove != null) {
-    	System.err.println("Reg Move: " + rawMove);
-    	jsonSafeMove =  JSONValue.toJSONString(rawMove);
-    	System.err.println("JSON Move: " + rawMove);
+        jsonSafeMove =  JSONValue.toJSONString("Player " + player + ": \"" + rawMove + "\"");
       }
       if (rawStderr != null) {
-    	System.err.println("Reg Err: " + rawStderr);
-    	jsonSafeStderr =  JSONValue.toJSONString(rawStderr);
-    	System.err.println("JSON Error: " + rawStderr);
+        String[] tmp = rawStderr.split("\n");
+        JSONArray tmpArray = new JSONArray();
+        for (String s : tmp) {
+          tmpArray.add("Player " + player + ": \"" + s + "\"");
+        }
+    	jsonSafeStderrArray =  JSONValue.toJSONString(tmpArray);
       }
       
       String reasonMoveWasInvalid = game.validateMove(rawMove, player);
       if (reasonMoveWasInvalid == null) {
         game.updateBoard(rawMove, rawStderr, player);
-        System.out.println(game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderr, player));
+        System.out.println(game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderrArray, player));
       } else {
-        System.out.println(getInvalidMoveJSON(jsonSafeMove, jsonSafeStderr, player, reasonMoveWasInvalid));
+        System.out.println(getInvalidMoveJSON(jsonSafeMove, jsonSafeStderrArray, player, reasonMoveWasInvalid));
       }
       
       // Temporary debugging info.
@@ -74,13 +74,13 @@ public class ArenaGameInstance {
         + game.getName()  + "]";
   }
   
-  public String getInvalidMoveJSON(String jsonSafeMove, String jsonSafeStderr, int player, String reasonInvalid) {
+  public String getInvalidMoveJSON(String jsonSafeMove, String jsonSafeStderrArray, int player, String reasonInvalid) {
     return "{"
         + "\"messageType\":\"invalidMove\","
         + "\"reason\":\"" + reasonInvalid + "\","
         + "\"player\":\"player" + player + "\","
         + "\"move\":" + jsonSafeMove + ","  
-        + "\"stderr\":" + jsonSafeStderr + ","  
+        + "\"stderr\":" + jsonSafeStderrArray + ","
         + "\"humanOrBot\":\"" + ((player == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "human" : "bot") + "\""
         + "}";
   }

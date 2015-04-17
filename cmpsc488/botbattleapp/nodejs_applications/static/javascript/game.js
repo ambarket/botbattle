@@ -11,7 +11,8 @@ GAME = {
 
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
-      GLOBAL.appendArrayOfDivsToHtmlElementById('stdout', debugData.stdout);
+      GLOBAL.appendDivToHtmlElementById('boardList', debugData.board);
+      GLOBAL.appendDivToHtmlElementById('stdout', debugData.stdout);
       GLOBAL.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
@@ -107,11 +108,9 @@ GAME = {
       console.log("humanInputForm",data);
       var move = "";
       move += data.moveType;
-      move += ";";
-      if (data.moveType === 'shuffle') {
-        move += '0'; // Make server side code happy when it tries to parse tiles used, it really doesnt since all tiles will be replaced.
-      }
-      else {
+      
+      if (data.moveType !== 'shuffle') {
+        move += ";";
         if (Array.isArray(data.player2Tile)) {
           for (var tile in data.player2Tile) {
             move += data.player2Tile[tile];
@@ -209,7 +208,6 @@ GAME = {
 
   var animations = {
         move : function(eventData, processAnimatableEventCallback) {
-          console.log("made it to the move fuc");
         // Setup any variables needed for the animation
         var finalPosition = (eventData.endPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width

@@ -85,6 +85,8 @@
                  "Reason: " + nextGameState.reason);
              GAME.setHumanInputElements();
              document.getElementById("humanInput").style.display = "block";
+             GLOBAL.appendDivToHtmlElementById('stdout', nextGameState.move);
+             GLOBAL.appendArrayOfDivsToHtmlElementById('stderr', nextGameState.stderr);
              processNextGameState();
            }
            else {
@@ -96,7 +98,6 @@
        var passGameStateToGAME = function() {
          async.series([passGameDataToGAME, passDebugDataToGAME, passAnimatableEventsToGAME, checkEnableHumanInput], function(err) {
            setTimeout(function() {
-             console.log("Game has processed the gamestate", err);
              if (err) {
                GLOBAL.handleClientError("passGameStateToGAME", err);
                TEST_ARENA.transitionPageToState('pageLoaded');
@@ -239,33 +240,76 @@
    });
   
  //----------------------------------Upload Bots Form------------------------------------
-   // Listen for radio checks
-   $('#human').click(humanRadioClick);    
-   function humanRadioClick() {
-     $("#human").prop("checked", true);
-     $('#uploadBotButton').val("Upload Bot");
-     $('#player2FileChoose').hide();
-     //$('#humanInput').show();
-     $('#gameControlDiv').hide();
-     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+   $('#custom_player1_bot_select').click(customPlayer1Click);
+   function customPlayer1Click() {
+     $("#custom_player1_bot_select").prop("checked", true);
+     $('#player1FileChoose').show();
      GLOBAL.resetValueAttrributeById('player1_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player1_bot_upload").required = true;
+   }
+   
+   $('#preloaded_player1_bot_select').click(preloadedPlayer1Click);
+   function preloadedPlayer1Click() {
+     $("#preloaded_player1_bot_select").prop("checked", true);
+     $('#player1FileChoose').hide();
+     GLOBAL.resetValueAttrributeById('player1_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player1_bot_upload").required = false;
+   }
+   
+   $('#custom_player2_bot_select').click(customPlayer2Click);
+   function customPlayer2Click() {
+     $("#custom_player2_bot_select").prop("checked", true);
+     $('#player2FileChoose').show();
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player2_bot_upload").required = true;
+   }
+   
+   $('#preloaded_player2_bot_select').click(preloadedPlayer2Click);
+   function preloadedPlayer2Click() {
+     $("#preloaded_player2_bot_select").prop("checked", true);
+     $('#player2FileChoose').hide();
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = false;
-   };
-   humanRadioClick();   // ALways set to human when page loads
- 
+   }
+   
+   
+   // Listen for radio checks of the Player 2 Type radio
    $('#bot').click(botRadioClick);
    function botRadioClick() {
      $("#bot").prop("checked", true);
      $('#uploadBotButton').val("Upload Bots");
      $('#player2FileChoose').show();
-     //$('#humanInput').hide();
+     $('#player_2_bot_select_div').show();
+     $("#custom_player2_bot_select").prop("checked", true);
+    
      $('#gameControlDiv').hide();
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
-     GLOBAL.resetValueAttrributeById('player1_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = true;
    };
+   botRadioClick();   // ALways set to bot when page loads
+   
+   
+   $('#human').click(humanRadioClick);    
+   function humanRadioClick() {
+     $("#human").prop("checked", true);
+     $('#uploadBotButton').val("Upload Bot");
+     $('#player2FileChoose').hide();
+     $('#player_2_bot_select_div').hide();
+     $("#custom_player2_bot_select").prop("checked", true);
+
+     $('#gameControlDiv').hide();
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player2_bot_upload").required = false;
+   };
+   
+ 
+
    
    var uploadBotsform = document.forms.namedItem("uploadBotForm");
    uploadBotsform.addEventListener('submit', function(ev) {
@@ -370,13 +414,11 @@
    
    //----------------------------------Send Move------------------------------------
 // Valid events are 'success', 'expiredID', and 'noGameRunning' anything else will be treated as unexpected
-   document.getElementById("send_move").addEventListener('click', function(ev) {
-     
-     document.getElementById("humanInput").style.display = "none";
-     document.getElementById("humanInputElements").innerHTML = "";
-     
+   document.getElementById("send_move").addEventListener('click', function(ev) {     
      var req = new XMLHttpRequest();
      req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + GAME.getMoveFromHumanInputElements(), true);
+     document.getElementById("humanInput").style.display = "none";
+     document.getElementById("humanInputElements").innerHTML = "";
      req.onreadystatechange=function() {
        if (req.readyState==4) {
          if (req.status==200) {

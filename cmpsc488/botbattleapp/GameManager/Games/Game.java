@@ -18,7 +18,7 @@ public class Game implements GameInterface {
   private int lastPlayersTurn;
   
   
-  private int shuffleLimit = Integer.MAX_VALUE;
+  private int shuffleLimit = 20;
   private int player1ShufflesUsed;
   private int player2ShufflesUsed;
   
@@ -77,26 +77,29 @@ public class Game implements GameInterface {
   @Override
   public void updateBoard(String move, String stderr, int player) {
     lastBoard = board;
-    String[] peices = move.split(";");
+    String[] pieces = move.split(";");
  
-    int value = Integer.parseInt(peices[1].substring(0, 1));
-    if (move.startsWith("attack")) {
-      board = Board.executeAttack(board, (player == 1 ? 2 : 1), peices[1].length());
-    } else if (move.startsWith("retreat")) {
-      board = Board.movePlayer(board, player, -value);
-      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
-    } else if (move.startsWith("shuffle")){
-    	replacePlayersTiles(Board.getAllNewTiles(board, player), player);
-    	if (player == 1) {
-    		player1ShufflesUsed++;
-    	}
-    	if (player == 2) {
-    		player2ShufflesUsed++;
-    	}
+    if (move.startsWith("shuffle")){
+      replacePlayersTiles(Board.getAllNewTiles(board, player), player);
+      if (player == 1) {
+          player1ShufflesUsed++;
+      }
+      if (player == 2) {
+          player2ShufflesUsed++;
+      }
     }
     else {
-      board = Board.movePlayer(board, player, value);
-      replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
+      int value = Integer.parseInt(pieces[1].substring(0, 1));
+      if (move.startsWith("attack")) {
+        board = Board.executeAttack(board, (player == 1 ? 2 : 1), pieces[1].length());
+      } else if (move.startsWith("retreat")) {
+        board = Board.movePlayer(board, player, -value);
+        replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
+      } 
+      else {
+        board = Board.movePlayer(board, player, value);
+        replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
+      }
     }
 
     lastPlayersTurn = player;
@@ -122,7 +125,7 @@ public class Game implements GameInterface {
   
   @Override
   // If this was called then it was a valid move and the game hasn't been won yet
-  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderr, int player) {
+  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderrArray, int player) {
     String jsonString = "{";
 
     jsonString += "\"messageType\":\"midGamestate\",";
@@ -136,12 +139,11 @@ public class Game implements GameInterface {
               prettyPrintMove(lastRawMove, player)) + ",";
 
     String jsonSafeBoard = JSONValue.toJSONString(board);
-    jsonSafeMove = JSONValue.toJSONString("player " + player + ": " + jsonSafeMove);
-    jsonSafeStderr = JSONValue.toJSONString("player " + player + ": " + jsonSafeStderr);
+
     jsonString += "\"debugData\" : {" +
     				   "\"board\" : " + jsonSafeBoard + "," +
-                       "\"stderr\" :" + "[" + jsonSafeStderr + "]," +
-                       "\"stdout\" :" + "[" + jsonSafeMove + "]}}";
+                       "\"stderr\" :" + jsonSafeStderrArray + "," +
+                       "\"stdout\" :" + jsonSafeMove + "}}";
     return jsonString;
   }
   
@@ -273,41 +275,42 @@ public class Game implements GameInterface {
    
     int tileValue;
     String typeOfMove;
-    String[] peices;
+    String[] pieces;
     // Attempt to get value for tile, if it doesn't parse then not a valid move
     try {
-      peices = move.split(";");
-      typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
-      if (typeOfMove != "shuffle") {
-    	  tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
+      pieces = move.split(";");
+      typeOfMove = pieces[TYPE_OF_MOVE].toLowerCase();
+      System.err.println("TYPE OF MOVE: " + typeOfMove);
+      if (typeOfMove.equals("shuffle")) {
+        if (player == 1 && player1ShufflesUsed >= shuffleLimit || player == 2 && player2ShufflesUsed >= shuffleLimit ) {
+          disqualifyPlayerIfABot(player);
+          return "You have exceeded the shuffle limit of " + shuffleLimit + " for the current game.";
+        } else {
+            return null;
+        }
       }
       else {
-    	if (player == 1 && player1ShufflesUsed >= shuffleLimit || player == 2 && player2ShufflesUsed >= shuffleLimit ) {
-            disqualifyPlayerIfABot(player);
-            return "You have exceeded the shuffle limit of " + shuffleLimit + " for the current game.";
-    	} else {
-    		return null;
-    	}
+        tileValue = Integer.parseInt(pieces[TILES_USED].substring(0, 1));
       }
     } catch (Exception e) {
       disqualifyPlayerIfABot(player);
       return "An exception was thrown trying to parse action, check your syntax.";
     }
 
-    if (peices.length != 2) {
+    if (pieces.length != 2) {
       disqualifyPlayerIfABot(player);
       return "The syntax was incorrect, should be something like move;3 or attack;22";
     }
 
     
-    if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat") && !typeOfMove.equals("shuffle")) {
+    if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat")) {
       disqualifyPlayerIfABot(player);
       return "The type of action was unrecognized, should be attack, move, or retreat.";
     }
 
     if (typeOfMove.equals("attack")) {
       // Check all given tiles are the same
-      if (!peices[TILES_USED].matches(tileValue + "+")) {
+      if (!pieces[TILES_USED].matches(tileValue + "+")) {
         disqualifyPlayerIfABot(player);
         return "The tiles given for attack must all be the same.";
       }
@@ -319,7 +322,7 @@ public class Game implements GameInterface {
       }
     } else if (typeOfMove.equals("move") || typeOfMove.equals("retreat")) {
       // Can only move or retreat by one tile
-      if (peices[TILES_USED].length() != 1) {
+      if (pieces[TILES_USED].length() != 1) {
         disqualifyPlayerIfABot(player);
         return "When moving or retreating only one tile may be used.";
       }
@@ -335,7 +338,7 @@ public class Game implements GameInterface {
     }
 
     // Check player has those tiles
-    if (!Board.checkPlayersTiles(board, player, tileValue, peices[TILES_USED].length())) {
+    if (!Board.checkPlayersTiles(board, player, tileValue, pieces[TILES_USED].length())) {
       disqualifyPlayerIfABot(player);
       return "You do not have the tiles you are trying to use.";
     }
@@ -417,40 +420,45 @@ public class Game implements GameInterface {
     String output = "Player " + player + " ";
     String tiles;
 
-    try {
-      tiles = move.split(";")[1];
-    } catch (Exception e) {
-      return "Invalid Move: " + move;
-    }
-
-    if (move.startsWith("attack")) {
-      output += "attacks with ";
-
-      switch (tiles.length()) {
-        case 1:
-          output += "one " + tiles + " tile.";
-          break;
-        case 2:
-          output += "two " + tiles.substring(0, 1) + " tiles.";
-          break;
-        case 3:
-          output += "three " + tiles.substring(0, 1) + " tiles.";
-          break;
-        case 4:
-          output += "four " + tiles.substring(0, 1) + " tiles.";
-          break;
-        case 5:
-          output += "five " + tiles.substring(0, 1) + " tiles.";
-          break;
-        default:
-          break;
+    if (move.startsWith("shuffle")) {
+      output += "shuffles tiles.";
+    } 
+    else {
+      try {
+        tiles = move.split(";")[1];
+      } catch (Exception e) {
+        return "Invalid Move: " + move;
       }
-    } else if (move.startsWith("move")) {
-      output += "moves forward " + tiles + " spaces.";
-    } else if (move.startsWith("retreat")) {
-      output += "retreats " + tiles + " spaces.";
-    }
+  
+      if (move.startsWith("attack")) {
+        output += "attacks with ";
+  
+        switch (tiles.length()) {
+          case 1:
+            output += "one " + tiles + " tile.";
+            break;
+          case 2:
+            output += "two " + tiles.substring(0, 1) + " tiles.";
+            break;
+          case 3:
+            output += "three " + tiles.substring(0, 1) + " tiles.";
+            break;
+          case 4:
+            output += "four " + tiles.substring(0, 1) + " tiles.";
+            break;
+          case 5:
+            output += "five " + tiles.substring(0, 1) + " tiles.";
+            break;
+          default:
+            break;
+        }
+      } else if (move.startsWith("move")) {
+        output += "moves forward " + tiles + " spaces.";
+      } else if (move.startsWith("retreat")) {
+        output += "retreats " + tiles + " spaces.";
+      }
 
+    }
     return output;
   }
 

@@ -23,11 +23,16 @@
   <div class="row">
     <div class="col-sm-4">
       <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
+        <div id=player_1_bot_select_div>
+          Custom Bot Upload <input id = "custom_player1_bot_select" name="player1_bot_select" type="radio" value="customBot" checked="checked" required></input>
+          Preloaded Bot <input id = "preloaded_player1_bot_select" name="player1_bot_select" display="inline" type="radio" value="preloaded" required></input>
+        </div>
         <div id="player1FileChoose" class="form-item">
           <label for="player1_bot_upload"> Select your bot for player 1 <span class="form-required"
             title="This field is required."
           > * </span>
-          </label> <input id="player1_bot_upload" name="player1_bot_upload" type="file" required></input>
+          </label> 
+          <input id="player1_bot_upload" name="player1_bot_upload" type="file" required></input>
         </div>
         <br>
         <div id="playerRadio" class="form-item">
@@ -36,6 +41,10 @@
           </label> 
           <input id="human" name="player2_bot_or_human" type="radio" value="human" checked="checked" required>Human</input>
           <input id="bot" name="player2_bot_or_human" type="radio" value="bot" required>Bot</input>
+        </div>
+        <div id=player_2_bot_select_div>
+          Custom Bot Upload <input id = "custom_player2_bot_select" name="player2_bot_select" type="radio" value="customBot" checked="checked" required></input>
+          Preloaded Bot <input id = "preloaded_player2_bot_select" name="player2_bot_select" display="inline" type="radio" value="preloaded" required></input>
         </div>
         <div style="display: none" id="player2FileChoose" class="form-item">
           <label for="player2_bot_upload"> Select your bot for player 2 </label> 
@@ -74,21 +83,26 @@
   
   <hr />
   <div class="row">
-    <div class="col-sm-4 ioPanels">
-      <h4>Move List</h4>
-      <div id="moveList" class="scrollableBox"></div>
-    </div>
-
-
-    <div class="col-sm-4 ioPanels">
+    <div class="col-sm-6 ioPanels">
       <h4>Standard Output</h5>
       <div id="stdout" class="scrollableBox"></div>
     </div>
 
-    <div class="col-sm-4 ioPanels">
+    <div class="col-sm-6 ioPanels">
       <h4>Standard Error</h5>
       <div id="stderr" class="scrollableBox"></div>
     </div>
+    <div class="col-sm-6 ioPanels">
+      <h4>Move List</h4>
+      <div id="moveList" class="scrollableBox"></div>
+    </div>
+    <div class="col-sm-6 ioPanels">
+      <h4>Board List</h4>
+      <div id="boardList" class="scrollableBox"></div>
+    </div>
+
+
+
 
   </div>
 

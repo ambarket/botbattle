@@ -70,7 +70,7 @@ public interface GameInterface {
   
   String getPlayerTwoBoard();
   
-  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderr, int player);
+  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderrArray, int player);
   
   public String getFinalGameStateJSON();
 

@@ -50,7 +50,7 @@ module.exports = {
     var multerForBotUploads = require('multer')({
       dest: paths.local_storage.test_arena_tmp,
       limits : {
-        fields : 2, // Non-file fields (2 radio buttons)
+        fields : 6, // Non-file fields (6 radio buttons)
         files: 2, // 2 bot uploads
         fileSize : 100000, //100 KB     
       },
@@ -89,54 +89,135 @@ module.exports = {
         next()
       }, 
       onFileUploadComplete : function(file, req, res) {
+        var instance = testArenaInstances.getGame(req.newGameId);
         var logPrefix = helpers.getLogMessageAboutGame(req.newGameId, file.fieldname + " : " + file.originalname);
         if (file.exceededSizeLimit === true) {
           logger.log('TestArenaBotUpload', logPrefix, 'exceeded 100 KB file size limit');
         }
         else {
           logger.log('TestArenaBotUpload', logPrefix, 'uploaded to', file.path);         
-          if (testArenaInstances.getGame(req.newGameId).numberOfBots) {
-            testArenaInstances.getGame(req.newGameId).numberOfBots++;
+          if (instance.numberOfBots) {
+            instance.numberOfBots++;
           }
           else {
-            testArenaInstances.getGame(req.newGameId).numberOfBots = 1;
+            instance.numberOfBots = 1;
           }
           if(file.fieldname === "player1_bot_upload"){
-            testArenaInstances.getGame(req.newGameId).bot1Name = file.originalname;
-            testArenaInstances.getGame(req.newGameId).bot1SourcePath = file.path;
+            instance.bot1Name = file.originalname;
+            instance.bot1SourcePath = file.path;
           }
           if(file.fieldname === "player2_bot_upload"){
-            testArenaInstances.getGame(req.newGameId).bot2Name = file.originalname;
-            testArenaInstances.getGame(req.newGameId).bot2SourcePath = file.path;
+            instance.bot2Name = file.originalname;
+            instance.bot2SourcePath = file.path;
           }
         }
       }
     });
     
+    // processPreloadedBot1Selection and processPreloadedBot2Selection simply fake the moveAndCompileBots function below into
+    //  thinking these preloaded bots were actually uploaded.
+    var processPreloadedBot1Selection = function(req, res, next) {
+      var instance = testArenaInstances.getGame(req.newGameId);
+      var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
+      var preloadedFileName = paths.built_in_games.save_the_island.preloaded_bots[0].fileName;
+      var preloadedFilePath = paths.built_in_games.save_the_island.preloaded_bots[0].filePath;
+      
+      var player1BotSelect = req.body.player1_bot_select;
+      
+      if (player1BotSelect === "preloaded") {
+        if (instance.numberOfBots) {
+          instance.numberOfBots++;
+        }
+        else {
+          instance.numberOfBots = 1;
+        }
+
+        instance.bot1Name = preloadedFileName;
+        instance.bot1SourcePath = path.resolve(gameFolder, "bot1", instance.bot1Name);
+        
+        fileManager.copyFileOrFolder(preloadedFilePath, instance.bot1SourcePath, function(err){
+          if (err) {
+            logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to copy preloaded source file"));
+            res.json({"error" : "Failed to process preloaded bot for player 1"});
+            removeIncompleteGameAfterFailure(req.newGameId);
+          }
+          else {
+            next();
+          }
+        });
+      }
+      else {
+        next();
+      }
+    }
+    
+    var processPreloadedBot2Selection = function(req, res, next) {
+      var instance = testArenaInstances.getGame(req.newGameId);
+      var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
+      var preloadedFileName = paths.built_in_games.save_the_island.preloaded_bots[0].fileName;
+      var preloadedFilePath = paths.built_in_games.save_the_island.preloaded_bots[0].filePath;
+      
+      var player2BotSelect = req.body.player2_bot_select;
+      
+      if (player2BotSelect === "preloaded") {
+        if (instance.numberOfBots) {
+          instance.numberOfBots++;
+        }
+        else {
+          instance.numberOfBots = 1;
+        }
+
+        instance.bot2Name = preloadedFileName;
+        instance.bot2SourcePath = path.resolve(gameFolder, "bot2", instance.bot1Name);
+        
+        fileManager.copyFileOrFolder(preloadedFilePath, instance.bot2SourcePath, function(err){
+          if (err) {
+            logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Failed to copy preloaded source file"));
+            res.json({"error" : "Failed to process preloaded bot for player 2"});
+            removeIncompleteGameAfterFailure(req.newGameId);
+          }
+          else {
+            if (instance.numberOfBots > 2) {
+              logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Error in preloaded bot logic, numberOfBots has exceeded 2"));
+              res.json({'error' : "Error with bot selection, numberOfBots has exceeded 2"});
+              removeIncompleteGameAfterFailure(req.newGameId);
+            }
+            else {
+              next();
+            }
+          }
+        });
+      } else {
+        next();
+      }
+    }
+    
     var moveAndCompileBots = function(req, res){
+      var instance = testArenaInstances.getGame(req.newGameId);
+      
       var humanOrBot = req.body.player2_bot_or_human;
       logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Radio button is " + humanOrBot));
       if(humanOrBot !== "human" && humanOrBot !== "bot"){
-        logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Illegal radio button value uploaded"));
-        res.json({'error' : "Bad form value"});
+        logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Illegal player 2 type radio button value uploaded"));
+        res.json({'error' : "Illegal player 2 type radio button value uploaded"});
         removeIncompleteGameAfterFailure(req.newGameId);
       }
-      else if(humanOrBot === "human" && testArenaInstances.getGame(req.newGameId).numberOfBots !== 1) {
+      else if(humanOrBot === "human" && instance.numberOfBots !== 1) {
         logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Attempt to run human v bot game with wrong number of bots"));
-        res.json({'error' : "Bad form value"});
+        res.json({'error' : "Attempt to run human v bot game with wrong number of bots"});
         removeIncompleteGameAfterFailure(req.newGameId);
       }
-      else if(humanOrBot === "bot" && testArenaInstances.getGame(req.newGameId).numberOfBots !== 2) {
+      else if(humanOrBot === "bot" && instance.numberOfBots !== 2) {
         logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Attempt to run bot v bot game with wrong number of bots"));
-        res.json({'error' : "Bad form value"}); 
+        res.json({'error' : "Attempt to run bot v bot game with wrong number of bots"}); 
         removeIncompleteGameAfterFailure(req.newGameId);
       }
       else {
         var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
         // Move and compile bot for player 1
         var newBot1Directory = path.resolve(gameFolder, "bot1");
-        var newBot1Path = path.resolve(gameFolder, "bot1", testArenaInstances.getGame(req.newGameId).bot1Name);
-        fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot1SourcePath, newBot1Path, function(err){
+        var newBot1Path = path.resolve(gameFolder, "bot1", instance.bot1Name);
+        fileManager.moveFile(instance.bot1SourcePath, newBot1Path, function(err){
           if (err) {
             logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to move source file"));
             res.json({"error" : "Failed to upload bot for player 1"});
@@ -144,8 +225,8 @@ module.exports = {
           }
           else {
             logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Successfully moved source file"));
-            testArenaInstances.getGame(req.newGameId).bot1SourcePath = newBot1Path;
-            testArenaInstances.getGame(req.newGameId).bot1Directory = newBot1Directory;
+            instance.bot1SourcePath = newBot1Path;
+            instance.bot1Directory = newBot1Directory;
             compiler.compile(newBot1Path, function(err, compiledFilePath){
               if(err){
                 logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to compile source file"));
@@ -153,7 +234,7 @@ module.exports = {
                 removeIncompleteGameAfterFailure(req.newGameId);
               }
               else{
-                testArenaInstances.getGame(req.newGameId).bot1CompiledPath = compiledFilePath;
+                instance.bot1CompiledPath = compiledFilePath;
                 logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Successfully compiled source file"));
                 if(humanOrBot !== "bot"){ 
                     logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully processed bot uploads"));
@@ -165,17 +246,17 @@ module.exports = {
                 }
                 else { // Move and compile bot for player 2
                   var newBot2Directory = path.resolve(gameFolder, "bot2");
-                  var newBot2Path = path.resolve(gameFolder, "bot2", testArenaInstances.getGame(req.newGameId).bot2Name);
+                  var newBot2Path = path.resolve(gameFolder, "bot2", instance.bot2Name);
                   
-                  fileManager.moveFile(testArenaInstances.getGame(req.newGameId).bot2SourcePath, newBot2Path, function(err){
+                  fileManager.moveFile(instance.bot2SourcePath, newBot2Path, function(err){
                     if (err) {
                       logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Failed to move source file"));
                       res.json({"error" : "Failed to upload bot for player 2"});
                       removeIncompleteGameAfterFailure(req.newGameId);
                     }
                     else {
-                      testArenaInstances.getGame(req.newGameId).bot2SourcePath = newBot2Path;
-                      testArenaInstances.getGame(req.newGameId).bot2Directory = newBot2Directory;
+                      instance.bot2SourcePath = newBot2Path;
+                      instance.bot2Directory = newBot2Directory;
                       logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Successfully moved source file"));
                       compiler.compile(newBot2Path, function(err, compiledFilePath){
                         if(err){
@@ -184,14 +265,10 @@ module.exports = {
                           removeIncompleteGameAfterFailure(req.newGameId);
                         }
                         else{
-                          testArenaInstances.getGame(req.newGameId).bot2CompiledPath = compiledFilePath;
+                          instance.bot2CompiledPath = compiledFilePath;
                           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Successfully compiled source file"));
                           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully processed bot uploads"));
-                          res.json(
-                              { "status" : "Your bots have been uploaded! Press Start Game to continue.", 
-                                'id' : req.newGameId, 
-                                'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.newGameId)
-                          }); 
+                          res.json({ "status" : "Your bots have been uploaded! Press Start Game to continue.", 'id' : req.newGameId }); 
                         }          
                       });
                     }
@@ -218,6 +295,7 @@ module.exports = {
     /**
      * Requested by the "Upload Bot/s" Button on the test arena page, immediately after newTestArenaInstance route is processed
      */
-    server.addDynamicRoute('post', '/processBotUploads', [newTestArenaInstanceRoute, multerForBotUploads, moveAndCompileBots]);
+    server.addDynamicRoute('post', '/processBotUploads', 
+        [newTestArenaInstanceRoute, multerForBotUploads, processPreloadedBot1Selection, processPreloadedBot2Selection, moveAndCompileBots]);
   }
 }

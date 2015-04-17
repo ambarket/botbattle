@@ -90,5 +90,12 @@ module.exports.built_in_games = {
       'game_java' : path.resolve(module.exports.app_root, '../GameManager', 'Games', 'Game.java'),
       'game_js' : path.resolve(module.exports.app_root, 'static', 'javascript', 'game.js'),
       'resources_zip' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'resources.zip'),
+      'preloaded_bots' : 
+        [
+          {
+            'fileName' : 'SaveIslandBot1.java',
+            'filePath' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'preloaded_bots', 'SaveIslandBot1.java'),
+          }
+        ]
     }
 }
