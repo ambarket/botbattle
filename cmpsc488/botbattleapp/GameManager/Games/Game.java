@@ -1,6 +1,6 @@
 
 import java.util.Random;
-
+import org.json.simple.JSONValue;
 /*
  * If you want to test a different game then just copy and paste its class here. E.g. if you want to
  * test the save the island game copy everything in SaveTheIsland.java and paste it here. Then just
@@ -9,17 +9,18 @@ import java.util.Random;
 
 // Save the island
 public class Game implements GameInterface {
-  
+  private GameType gameType;
+	  
   private String lastBoard;
   private String board;
-  private String lastMove;
-  private String lastDebugMessage;
-  
+  private String lastRawMove;
+  private String lastRawStderr;
   private int lastPlayersTurn;
+  
   // Will be set by updateBoard if the game has been won, or by validateMove
   //    if a bot made an invalid move.
   private String gameOverMessage;  
-  private GameType gameType;
+
 
   // TODO: Add to interface or move to GameInstance.
   public static int getBotTimeoutInMilliseconds() {
@@ -37,8 +38,12 @@ public class Game implements GameInterface {
     board = getStartingBoard();
     lastBoard = board;
     lastPlayersTurn = 0;
-    lastMove = "initial";
     gameOverMessage = null;
+  }
+  
+  @Override
+  public int getPlayerForCurrentTurn() {
+	  return lastPlayersTurn % 2 + 1;
   }
   
   @Override
@@ -65,7 +70,7 @@ public class Game implements GameInterface {
   }
   
   @Override
-  public void updateBoard(String move, String debugMessage, int player) {
+  public void updateBoard(String move, String stderr, int player) {
     lastBoard = board;
     String[] peices = move.split(";");
  
@@ -81,8 +86,8 @@ public class Game implements GameInterface {
     }
 
     lastPlayersTurn = player;
-    lastMove = move;
-    lastDebugMessage = debugMessage;
+    lastRawMove = move;
+    lastRawStderr = stderr;
     int winner = getWinner();
     if (winner != 0) {
       gameOverMessage = "Player " + winner + " has won the game.";
@@ -103,10 +108,7 @@ public class Game implements GameInterface {
   
   @Override
   // If this was called then it was a valid move and the game hasn't been won yet
-  public String getMidGameStateJSON() {
-    String move = lastMove;
-    int player = lastPlayersTurn;
-    String botsStderr = lastDebugMessage;
+  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderr, int player) {
     String jsonString = "{";
 
     jsonString += "\"messageType\":\"midGamestate\",";
@@ -114,14 +116,18 @@ public class Game implements GameInterface {
     String enableHumanInput = (((player % 2) + 1) == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "true" : "false";
     jsonString += "\"enableHumanInput\":" + enableHumanInput + ",";
 
-    jsonString += "\"animatableEvents\":[" + animatedEventJSON(move.split(";")[0], player) + "],";
+    jsonString += "\"animatableEvents\":[" + animatedEventJSON(lastRawMove.split(";")[0], player) + "],";
     
     jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-              prettyPrintMove(move, player)) + ",";
+              prettyPrintMove(lastRawMove, player)) + ",";
 
+    String jsonSafeBoard = JSONValue.toJSONString(board);
+    jsonSafeMove = JSONValue.toJSONString("player " + player + ": " + jsonSafeMove);
+    jsonSafeStderr = JSONValue.toJSONString("player " + player + ": " + jsonSafeStderr);
     jsonString += "\"debugData\" : {" +
-                       "\"stderr\" :" + (botsStderr == null ? "[]," : "[\"" + botsStderr + "\"],") +
-                       "\"stdout\" :" + (move.equals("initial") ? "[]}}" : "[\"" + move + "\"]}}");
+    				   "\"board\" : " + jsonSafeBoard + "," +
+                       "\"stderr\" :" + "[" + jsonSafeStderr + "]," +
+                       "\"stdout\" :" + "[" + jsonSafeMove + "]}}";
     return jsonString;
   }
   
@@ -289,6 +295,10 @@ public class Game implements GameInterface {
       if (peices[TILES_USED].length() != 1) {
         disqualifyPlayerIfABot(player);
         return "When moving or retreating only one tile may be used.";
+      }
+      if (typeOfMove.equals("move") && Board.getDistanceBetweenPlayers(board) <= tileValue) {
+          disqualifyPlayerIfABot(player);
+          return "You may not move to or past the opposing player.";
       }
     } else {
       // Un recognized move type
@@ -540,7 +550,7 @@ public class Game implements GameInterface {
       
       if (numOfSucesfullAttacks > 0) { // Attack was succesful       
         board = movePlayer(board, attacker, distance - 1);
-        board = movePlayer(board, victim, -numOfSucesfullAttacks * distance);
+        board = movePlayer(board, victim, -numOfSucesfullAttacks * 3);
       } 
       
       board = getNewTilesAndReplace(board, victim, distance, defenseTiles);

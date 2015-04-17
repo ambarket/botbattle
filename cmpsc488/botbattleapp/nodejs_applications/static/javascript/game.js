@@ -6,7 +6,6 @@ GAME = {
       GLOBAL.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
-      //this.drawer.drawPlayerTiles(gameData.player1Tiles, gameData.player2Tiles);
       processGameDataCallback();
     },
 
@@ -30,26 +29,9 @@ GAME = {
         animations[animatableEvent.event](animatableEvent.data, processAnimatableEventCallback);
       }
     },
-    
-    // Run each time the drawer draws?
-    'updateBackground' : function(startTime) {
-      
-      //requestAnimationFrame(self.backgroundAnimations);
-      //drawer.drawBoard();
-      var treeMove = 1;
-      treeMove *= -1;
-      // TODO  this is all messed up now but still pointless
-      // Move the trees around
-      for (treeIndex in GAME.gameboard.backgroundElements.trees1){
-          GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scale);
-      }
-      for (treeIndex in GAME.gameboard.backgroundElements.trees2){
-          GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scale);
-      }
-    },
-    
-    'gameboard' : null, // will be set by the resetGAME.gameboard method
-    'drawer' : new Drawer(),
+    'drawBoard' : function() {
+      (new Drawer()).drawBoard();
+    },       
     'setHumanInputElements' : function() { 
       var form = document.createElement('FORM');
       form.name = "humanInputForm";
@@ -129,6 +111,7 @@ GAME = {
 
       return move;
     },
+    'gameboard' : null,
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
       // TODO: Add err argument if they can occur
@@ -138,6 +121,22 @@ GAME = {
       });
     }
 }
+
+  // Run each time the drawer draws?
+  var updateBackground = function(startTime) {
+    //requestAnimationFrame(self.backgroundAnimations);
+    //drawer.drawBoard();
+    var treeMove = 1;
+    treeMove *= -1;
+    // TODO  this is all messed up now but still pointless
+    // Move the trees around
+    for (treeIndex in GAME.gameboard.backgroundElements.trees1){
+        GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scale);
+    }
+    for (treeIndex in GAME.gameboard.backgroundElements.trees2){
+        GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scale);
+    }
+  }
 
   /**
    * Move the animated object along x at speed pixels/second from its current position towards
@@ -336,7 +335,7 @@ function Drawer() {
   
   this.drawBoard = function() {
 	  
-	//GAME.updateBackground();
+    //updateBackground();
     
     for (object in GAME.gameboard.drawableObjects) {
       GAME.gameboard.drawableObjects[object].draw(TEST_ARENA.context);

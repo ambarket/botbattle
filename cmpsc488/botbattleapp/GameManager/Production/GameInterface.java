@@ -48,7 +48,7 @@ public interface GameInterface {
    * @param move
    * @param player
    */
-  void updateBoard(String move, String botsStderr, int player);
+  void updateBoard(String move, String stderr, int player);
   
   /**
    * Used as the control for the main game loop. Once this returns true, the
@@ -56,6 +56,13 @@ public interface GameInterface {
    * @return
    */
   boolean isGameOver();
+  
+  /**
+   * Return the player number of the current turn (iteration of the game loop). 
+   * This player will be asked for a move, and that move will be submitted to 
+   * the next calls to validateMove and updateBoard. 
+   */
+  int getPlayerForCurrentTurn();
 
   String getCompleteBoard();
   
@@ -63,7 +70,7 @@ public interface GameInterface {
   
   String getPlayerTwoBoard();
   
-  public String getMidGameStateJSON();
+  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderr, int player);
   
   public String getFinalGameStateJSON();
 

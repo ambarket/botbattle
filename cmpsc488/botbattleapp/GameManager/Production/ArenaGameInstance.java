@@ -1,4 +1,7 @@
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.JSONArray;
 
 public class ArenaGameInstance {
   
@@ -16,8 +19,7 @@ public class ArenaGameInstance {
   }
 
   public void runArenaGame() {
-    int i = 0;    
-    String move = "", stderr = "";
+    String rawMove = "", rawStderr = "", jsonSafeMove = "", jsonSafeStderr = "";
 
     //Send starting board to the test arena
     game.initializeGame(gameType);
@@ -25,39 +27,41 @@ public class ArenaGameInstance {
     
     while (!game.isGameOver()) {
 
-      int player = (i % 2) + 1;
+      int player = game.getPlayerForCurrentTurn();
       
       if (player == 1) {  
-        move = bot1.getMove(game.getPlayerOneBoard());  
-        stderr = bot1.getAnyStderr();
+        rawMove = bot1.getMove(game.getPlayerOneBoard());  
+        rawStderr = bot1.getAnyStderr();
       } else {
-        move = bot2.getMove(game.getPlayerTwoBoard());    
-        stderr = bot2.getAnyStderr();
+    	rawMove = bot2.getMove(game.getPlayerTwoBoard());    
+    	rawStderr = bot2.getAnyStderr();
       }
       
       // TODO: Use library to perform proper JSON cleaning of move and stderr.
-      if (move != null) {
-        move = move.replace("\n", "\\n"); 
-        move = move.replace("\"", "\\\"");
+      if (rawMove != null) {
+    	System.err.println("Reg Move: " + rawMove);
+    	jsonSafeMove =  JSONValue.toJSONString(rawMove);
+    	System.err.println("JSON Move: " + rawMove);
       }
-      if (stderr != null) {
-        stderr = stderr.replace("\n", "\\n");
-        stderr = stderr.replace("\"", "\\\"");
+      if (rawStderr != null) {
+    	System.err.println("Reg Err: " + rawStderr);
+    	jsonSafeStderr =  JSONValue.toJSONString(rawStderr);
+    	System.err.println("JSON Error: " + rawStderr);
       }
       
-      String reasonMoveWasInvalid = game.validateMove(move, player);
+      String reasonMoveWasInvalid = game.validateMove(rawMove, player);
       if (reasonMoveWasInvalid == null) {
-        game.updateBoard(move, stderr, player);
-        System.out.println(game.getMidGameStateJSON());
-        i++;
+        game.updateBoard(rawMove, rawStderr, player);
+        System.out.println(game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderr, player));
       } else {
-        System.out.println(getInvalidMoveJSON(move, stderr, player, reasonMoveWasInvalid));
+        System.out.println(getInvalidMoveJSON(jsonSafeMove, jsonSafeStderr, player, reasonMoveWasInvalid));
       }
       
       // Temporary debugging info.
-      System.err.println("\nMOVE:" + move + 
+      System.err.println(
+    	  "\nMOVE:" + rawMove + 
           ", PLAYER: " + player + "\n" + 
-          ", STDERR: " + stderr + "\n" +
+          ", STDERR: " + rawStderr + "\n" +
           ", BOARD: " + game.getCompleteBoard());
     }
     
@@ -70,13 +74,13 @@ public class ArenaGameInstance {
         + game.getName()  + "]";
   }
   
-  public String getInvalidMoveJSON(String move, String stderr, int player, String reasonInvalid) {
+  public String getInvalidMoveJSON(String jsonSafeMove, String jsonSafeStderr, int player, String reasonInvalid) {
     return "{"
         + "\"messageType\":\"invalidMove\","
         + "\"reason\":\"" + reasonInvalid + "\","
         + "\"player\":\"player" + player + "\","
-        + "\"move\":\"" + move + "\","  
-        + "\"stderr\":\"" + stderr + "\","  
+        + "\"move\":" + jsonSafeMove + ","  
+        + "\"stderr\":" + jsonSafeStderr + ","  
         + "\"humanOrBot\":\"" + ((player == 2 && gameType.equals(GameType.BOT_VS_HUMAN)) ? "human" : "bot") + "\""
         + "}";
   }

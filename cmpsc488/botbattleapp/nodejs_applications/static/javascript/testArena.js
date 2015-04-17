@@ -60,7 +60,7 @@
              TEST_ARENA.transitionPageToState('gameStarted');
              GAME.resetGameboard(function(err) {
                var draw = function() {
-                 GAME.drawer.drawBoard();
+                 GAME.drawBoard();
                  if (TEST_ARENA.state === 'gameStarted' || imRunning) {
                    requestAnimFrame(draw);
                  }
@@ -93,16 +93,19 @@
        
        var passGameStateToGAME = function() {
          async.series([passGameDataToGAME, passDebugDataToGAME, passAnimatableEventsToGAME, checkEnableHumanInput], function(err) {
-           console.log("Game has processed the gamestate", err);
-           if (err) {
-             GLOBAL.handleClientError("passGameStateToGAME", err);
-             TEST_ARENA.transitionPageToState('pageLoaded');
-             imRunning = false;
-             gameStateQueue = [];
-           }
-           else {
-             processNextGameState();
-           }
+           setTimeout(function() {
+             console.log("Game has processed the gamestate", err);
+             if (err) {
+               GLOBAL.handleClientError("passGameStateToGAME", err);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+               imRunning = false;
+               gameStateQueue = [];
+             }
+             else {
+               processNextGameState();
+             }
+           }, 50); // short delay to make it look nicer
+
          });
        }
        
