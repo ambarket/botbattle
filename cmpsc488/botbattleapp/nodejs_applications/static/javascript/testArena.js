@@ -83,6 +83,8 @@
                  "Invalid move received from " + nextGameState.player + "<br>" + 
                  "Move: " + nextGameState.move + "<br>" +
                  "Reason: " + nextGameState.reason);
+             GAME.setHumanInputElements();
+             document.getElementById("humanInput").style.display = "block";
              processNextGameState();
            }
            else {
@@ -369,7 +371,10 @@
    //----------------------------------Send Move------------------------------------
 // Valid events are 'success', 'expiredID', and 'noGameRunning' anything else will be treated as unexpected
    document.getElementById("send_move").addEventListener('click', function(ev) {
-
+     
+     document.getElementById("humanInput").style.display = "none";
+     document.getElementById("humanInputElements").innerHTML = "";
+     
      var req = new XMLHttpRequest();
      req.open("GET", "sendMove/?id=" + TEST_ARENA.myId + "&move=" + GAME.getMoveFromHumanInputElements(), true);
      req.onreadystatechange=function() {

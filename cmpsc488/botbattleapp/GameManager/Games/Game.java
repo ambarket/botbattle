@@ -17,6 +17,11 @@ public class Game implements GameInterface {
   private String lastRawStderr;
   private int lastPlayersTurn;
   
+  
+  private int shuffleLimit = Integer.MAX_VALUE;
+  private int player1ShufflesUsed;
+  private int player2ShufflesUsed;
+  
   // Will be set by updateBoard if the game has been won, or by validateMove
   //    if a bot made an invalid move.
   private String gameOverMessage;  
@@ -80,7 +85,16 @@ public class Game implements GameInterface {
     } else if (move.startsWith("retreat")) {
       board = Board.movePlayer(board, player, -value);
       replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
-    } else {
+    } else if (move.startsWith("shuffle")){
+    	replacePlayersTiles(Board.getAllNewTiles(board, player), player);
+    	if (player == 1) {
+    		player1ShufflesUsed++;
+    	}
+    	if (player == 2) {
+    		player2ShufflesUsed++;
+    	}
+    }
+    else {
       board = Board.movePlayer(board, player, value);
       replacePlayersTiles(Board.getNewTiles(board, player, value, 1), player);
     }
@@ -185,7 +199,7 @@ public class Game implements GameInterface {
     String board = "";
 
     for (int i = 0; i < 5; i++) {
-      board += rng.nextInt(5);
+      board += rng.nextInt(4) + 1;
     }
     board += ";1";
 
@@ -194,7 +208,7 @@ public class Game implements GameInterface {
     }
     board += "2;";
     for (int i = 0; i < 5; i++) {
-      board += rng.nextInt(5);
+      board += rng.nextInt(4) + 1;
     }
 
     return board;
@@ -256,12 +270,25 @@ public class Game implements GameInterface {
     }
 
     short TYPE_OF_MOVE = 0, TILES_USED = 1;
-    String[] peices = move.split(";");
+   
     int tileValue;
-
+    String typeOfMove;
+    String[] peices;
     // Attempt to get value for tile, if it doesn't parse then not a valid move
     try {
-      tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
+      peices = move.split(";");
+      typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
+      if (typeOfMove != "shuffle") {
+    	  tileValue = Integer.parseInt(peices[TILES_USED].substring(0, 1));
+      }
+      else {
+    	if (player == 1 && player1ShufflesUsed >= shuffleLimit || player == 2 && player2ShufflesUsed >= shuffleLimit ) {
+            disqualifyPlayerIfABot(player);
+            return "You have exceeded the shuffle limit of " + shuffleLimit + " for the current game.";
+    	} else {
+    		return null;
+    	}
+      }
     } catch (Exception e) {
       disqualifyPlayerIfABot(player);
       return "An exception was thrown trying to parse action, check your syntax.";
@@ -269,11 +296,11 @@ public class Game implements GameInterface {
 
     if (peices.length != 2) {
       disqualifyPlayerIfABot(player);
-      return "The syntax was incorrect, should be somthing like move;3 or attack;22";
+      return "The syntax was incorrect, should be something like move;3 or attack;22";
     }
 
-    String typeOfMove = peices[TYPE_OF_MOVE].toLowerCase();
-    if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat")) {
+    
+    if (!typeOfMove.equals("attack") && !typeOfMove.equals("move") && !typeOfMove.equals("retreat") && !typeOfMove.equals("shuffle")) {
       disqualifyPlayerIfABot(player);
       return "The type of action was unrecognized, should be attack, move, or retreat.";
     }
@@ -300,7 +327,8 @@ public class Game implements GameInterface {
           disqualifyPlayerIfABot(player);
           return "You may not move to or past the opposing player.";
       }
-    } else {
+    } 
+    else {
       // Un recognized move type
       disqualifyPlayerIfABot(player);
       return "The type of action was unrecognized, should be attack, move, or retreat.";
@@ -475,7 +503,7 @@ public class Game implements GameInterface {
 
       for (int i = 0; i < tiles.length(); i++) {
         if (Character.getNumericValue(tiles.charAt(i)) == value && numOfValues > 0) {
-          newTiles += rng.nextInt(5);
+          newTiles += rng.nextInt(4) + 1;
           numOfValues--;
         } else {
           newTiles += tiles.charAt(i);
@@ -483,6 +511,17 @@ public class Game implements GameInterface {
       }
 
       return newTiles;
+    }
+    
+    public static String getAllNewTiles(String board, int player) {
+        Random rng = new Random();
+        String newTiles = "";
+
+        for (int i = 0; i < 5; i++) {
+            newTiles += rng.nextInt(4) + 1;
+        }
+
+        return newTiles;
     }
 
     public static String getNewTilesAndReplace(String board, int player, int value, int numOfValues) {

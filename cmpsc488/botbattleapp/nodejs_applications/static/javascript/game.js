@@ -74,6 +74,15 @@ GAME = {
       var text = document.createTextNode("attack");
       form.appendChild(text);
       
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = "moveType";
+      input.value = "shuffle";
+      input.id = "shuffleButton";
+      form.appendChild(input); 
+      var text = document.createTextNode("shuffle");
+      form.appendChild(text);
+      
       document.getElementById("humanInputElements").appendChild(form);
     },
     'getMoveFromHumanInputElements' : function() {
@@ -96,17 +105,21 @@ GAME = {
       };
       data = $('form[name="humanInputForm"]').serializeObject();
       console.log("humanInputForm",data);
-      //TODO: Figure out move format with Randall
       var move = "";
       move += data.moveType;
       move += ";";
-      if (Array.isArray(data.player2Tile)) {
-        for (var tile in data.player2Tile) {
-          move += data.player2Tile[tile];
-        }
+      if (data.moveType === 'shuffle') {
+        move += '0'; // Make server side code happy when it tries to parse tiles used, it really doesnt since all tiles will be replaced.
       }
       else {
-        move += data.player2Tile;
+        if (Array.isArray(data.player2Tile)) {
+          for (var tile in data.player2Tile) {
+            move += data.player2Tile[tile];
+          }
+        }
+        else {
+          move += data.player2Tile;
+        }
       }
 
       return move;

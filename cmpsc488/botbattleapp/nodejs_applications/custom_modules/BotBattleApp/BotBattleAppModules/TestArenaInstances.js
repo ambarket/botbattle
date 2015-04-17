@@ -267,7 +267,7 @@ module.exports = new (function() {
       if(testArenaInstances[id].gameProcess && testArenaInstances[id].gameState === 'running' && testArenaInstances[id].waitingForHumanInput){
         testArenaInstances[id].waitingForHumanInput = false;
         testArenaInstances[id].gameProcess.stdin.write(move + '\n'); 
-        logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move", move, "to GameManager." ));
+        logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "Sent move"), move, "to GameManager." );
         return 'success';
       }
       else if (testArenaInstances[id].gameState === "running"){
