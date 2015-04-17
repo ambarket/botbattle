@@ -185,7 +185,7 @@ public class Game implements GameInterface {
     String board = "";
 
     for (int i = 0; i < 5; i++) {
-      board += rng.nextInt(6);
+      board += rng.nextInt(5);
     }
     board += ";1";
 
@@ -194,7 +194,7 @@ public class Game implements GameInterface {
     }
     board += "2;";
     for (int i = 0; i < 5; i++) {
-      board += rng.nextInt(6);
+      board += rng.nextInt(5);
     }
 
     return board;
@@ -475,7 +475,7 @@ public class Game implements GameInterface {
 
       for (int i = 0; i < tiles.length(); i++) {
         if (Character.getNumericValue(tiles.charAt(i)) == value && numOfValues > 0) {
-          newTiles += rng.nextInt(6);
+          newTiles += rng.nextInt(5);
           numOfValues--;
         } else {
           newTiles += tiles.charAt(i);
