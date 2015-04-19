@@ -7,16 +7,6 @@ var logger = require(paths.custom_modules.Logger).newInstance();
 module.exports = new (function() {
   var self = this;
   var testArenaInstances = {};
-  var recentBots = [];
-  
-  this.getRecentBots = function() { return recentBots; }
-  
-  this.addToRecentBot(instance){
-    recentBots.push(instance);
-    if(recentBots.length == 21){
-      recentBots.shift();
-    }
-  }
   
   // Start cleanup routine
   (function cleanTest_Arena_tmp() {
