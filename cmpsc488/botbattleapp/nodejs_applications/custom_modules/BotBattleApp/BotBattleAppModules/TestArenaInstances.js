@@ -8,6 +8,20 @@ module.exports = new (function() {
   var self = this;
   var testArenaInstances = {};
   
+  this.getAllIdNotMe = function(myId){
+    var instance;
+    var now = Date.now();
+    for(instance in testArenaInstances){
+      now = new Date(); //Date.now(); 
+     if(now < testArenaInstances[instance].gameExpireDateTime){
+        var pid = testArenaInstances[instance].gameProcess.pid;
+        logger.log("TestArenaInstances", "End Child: " + pid);          
+        testArenaInstances[instance].gameProcess.stdin.end();
+        testArenaInstances[instance].gameProcess.kill(); 
+     }
+    }
+  }
+  
   // Start cleanup routine
   (function cleanTest_Arena_tmp() {
     var count = 0;

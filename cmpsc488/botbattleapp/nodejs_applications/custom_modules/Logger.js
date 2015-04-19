@@ -38,7 +38,7 @@ function Logger() {
       message += " " + "general" + ": " + arguments[0];
     }
     
-    arguments[0] = message;
+    arguments[0] = Datemessage;
     
     if(console){
       console.log.apply(console, arguments);
