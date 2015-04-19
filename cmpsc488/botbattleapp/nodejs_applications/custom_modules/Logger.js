@@ -37,8 +37,8 @@ function Logger() {
     else {
       message += " " + "general" + ": " + arguments[0];
     }
-    
-    arguments[0] = Datemessage;
+    var now = new Date();
+    arguments[0] = now + " : " + message;
     
     if(console){
       console.log.apply(console, arguments);
