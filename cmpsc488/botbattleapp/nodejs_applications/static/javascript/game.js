@@ -419,58 +419,23 @@ function Drawer() {
         }
       }
   }
-  
+ 
   var drawPlayerTiles = function() {
-    /** options
-     *  {
-     *      x: Number
-     *      y: number
-     *      width:
-     *      height:
-     *      borderWidth:
-     *      fillStyle:
-     *      strokeStyle:
-     */
-
-    //  probably move tileParameters to gameBoard.
-    //  Maybe we actually want to move all hardcoded canvas pixel related stuff to the drawer
-    var tileParameters = {
-        'player1StartingX' : 50,
-        'player2StartingX' : 750,
-        'y' : 570,
-        'width' : 50,
-        'height' : 50,
-        'fillStyle' : '#FFFFD1',
-    }
-    
-    function drawTileArray(tileArray, startingX) { 
-      // TODO overhaul this.  Essentially, a groupd of drawable images should be made that are static and
-      //      the numbers should be changed like they are changed in the draw numbers fuction so there is not
-      //      a new drawableRectangle made each time and just the .draw function can be called and we can even
-      //      have a fixed tile image to look better.
-      for (var i = 0; i < tileArray.length; i++) {
-        var currentX = (startingX + (50* i));
-        
-        (new drawableRectangle({ 
-          x: currentX, 
-          y: tileParameters.y,
-          width: tileParameters.width,
-          height: tileParameters.height,
-          fillStyle: tileParameters.fillStyle,
-        })).draw(TEST_ARENA.context);
-        
-        // TODO: Make drawableText object instead of copying this everywhere
-        TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
-        TEST_ARENA.context.fillStyle="black";
-        TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
-      }
-    }
-    
-    drawTileArray(GAME.gameboard.player1Tiles, tileParameters.player1StartingX); 
-    drawTileArray(GAME.gameboard.player2Tiles, tileParameters.player2StartingX); 
+    var i = 0;
+    var player = GAME.gameboard.player1Tiles;
+     for(var tileSet in GAME.gameboard.tiles){
+       for(tile in GAME.gameboard.tiles[tileSet]){
+         GAME.gameboard.tiles[tileSet][tile].draw(TEST_ARENA.context);
+         TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
+         TEST_ARENA.context.fillStyle="black";
+         TEST_ARENA.context.fillText(player[i], (GAME.gameboard.tiles[tileSet][tile].x + 17) * TEST_ARENA.scale , (GAME.gameboard.tiles[tileSet][tile].y + 35) * TEST_ARENA.scale );
+         i++;
+       }
+       player = GAME.gameboard.player2Tiles;
+       i = 0;
+     }   
   }
 }
-
 
 //--------------------------The GAME.gameboard (Model)------------------------------------
 var GameBoard = function() {
@@ -750,7 +715,50 @@ var GameBoard = function() {
         }
   }
     
+    /** options
+     *  
+     *   x: Number
+     *   y: number
+     *   width:
+     *   height:
+     *   borderWidth:
+     *   fillStyle:
+     *   strokeStyle:
+     */
+    var tileParameters = {
+        'player1StartingX' : 50,
+        'player2StartingX' : 750,
+        'y' : 570,
+        'width' : 50,
+        'height' : 50,
+        'fillStyle' : '#FFFFD1',
+    }
     
+    function makeNewTile(x, y){
+      return {
+        'x' : x,
+        'y' : y,
+        'width' : tileParameters.width,
+        'height' : tileParameters.height,
+        'fillStyle' : tileParameters.fillStyle,
+      }
+    }
+    this.tiles = {
+        player1Tiles : {
+          tile1 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX, tileParameters.y)),
+          tile2 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 50, tileParameters.y)),
+          tile3 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 100, tileParameters.y)),
+          tile4 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 150, tileParameters.y)),
+          tile5 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 200, tileParameters.y))
+        },
+        player2Tiles : {
+          tile1 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX, tileParameters.y)),
+          tile2 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 50, tileParameters.y)),
+          tile3 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 100, tileParameters.y)),
+          tile4 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 150, tileParameters.y)),
+          tile5 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 200, tileParameters.y))
+        }
+    }
     function makeNewTree(x, y) {
       return {
         'imageSrc' : 'static/images/tree.png',
