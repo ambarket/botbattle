@@ -309,9 +309,6 @@
      document.getElementById("player2_bot_upload").required = false;
    };
    
- 
-
-   
    var uploadBotsform = document.forms.namedItem("uploadBotForm");
    uploadBotsform.addEventListener('submit', function(ev) {
      var data = new FormData(document.forms.namedItem("uploadBotForm"));

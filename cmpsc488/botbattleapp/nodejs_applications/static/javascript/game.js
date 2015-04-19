@@ -148,20 +148,33 @@ GAME = {
     }
 }
 
-  // Run each time the drawer draws?
   var updateBackground = function(startTime) {
-    //requestAnimationFrame(self.backgroundAnimations);
-    //drawer.drawBoard();
-    var treeMove = 1;
-    treeMove *= -1;
-    // TODO  this is all messed up now but still pointless
-    // Move the trees around
-    for (treeIndex in GAME.gameboard.backgroundElements.trees1){
-        GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scale);
+    // move a tree left and right to simulate a bird in the sky for now.
+    var tree = GAME.gameboard.backgroundElements.trees1.tree1;
+    console.log("tree direction", tree.direction);
+    if(tree.x <= -50){
+      tree.direction = "right";
+      if(TEST_ARENA.coinFlip)
+        tree.y = Math.floor((Math.random() * 75) + 1);
+      else
+        tree.y = Math.floor((Math.random() * 75) + 1);
+      tree.speed = Math.floor((Math.random() * 5) + 1);      
     }
-    for (treeIndex in GAME.gameboard.backgroundElements.trees2){
-        GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scale);
+    if(tree.x < 1100 && tree.direction === "right"){
+      tree.x += tree.speed;
     }
+    if(tree.x >= 1100){
+      tree.direction = "left";
+      if(TEST_ARENA.coinFlip)
+        tree.y = Math.floor((Math.random() * 75) + 1);
+      else
+        tree.y = Math.floor((Math.random() * 75) + 1);
+      tree.speed = Math.floor((Math.random() * 5) + 1); 
+    }
+    if(tree.x > -50 && tree.direction === "left"){
+      tree.x -= tree.speed;
+    }
+    
   }
 
   /**
@@ -365,7 +378,7 @@ function Drawer() {
   
   this.drawBoard = function() {
 	  
-    //updateBackground();
+    updateBackground();
     
     for (object in GAME.gameboard.drawableObjects) {
       GAME.gameboard.drawableObjects[object].draw(TEST_ARENA.context);
@@ -390,9 +403,7 @@ function Drawer() {
       
       //var finalPosition1 = GAME.player1GridPosition;
       //var finalPosition2 = GAME.player2GridPosition;
-      
       //var distanceBetweenPlayers = finalPosition2 - finalPosition1;
-      console.log("p1CalcGrid",p1CalcGrid,"p2CalcGrid",p2CalcGrid)
       TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
       TEST_ARENA.context.fillStyle="black";
       
@@ -758,7 +769,7 @@ var GameBoard = function() {
     
     this.backgroundElements = {
         trees1 : {
-          tree1 : new drawableImage(makeNewTree(10, 110)),
+          tree1 : new drawableImage(makeNewTree(-10, 50)),
           tree2 : new drawableImage(makeNewTree(75, 100)),
         },
         trees2 : {
@@ -767,13 +778,16 @@ var GameBoard = function() {
             tree5 : new drawableImage(makeNewTree(350, 125)),
         }
       }
-      
-      var imagesLoaded= 0, expectedImagesLoaded=16;
-      function imageLoadedCallback() {
-        imagesLoaded++;
-        if (imagesLoaded == expectedImagesLoaded) {
-          callback();
-        }
+    
+    self.backgroundElements.trees1.tree1.direction = "right";
+    self.backgroundElements.trees1.tree1.speed = 1;
+    
+    var imagesLoaded= 0, expectedImagesLoaded=16;
+    function imageLoadedCallback() {
+      imagesLoaded++;
+      if (imagesLoaded == expectedImagesLoaded) {
+        callback();
       }
+    }
   }
 }
