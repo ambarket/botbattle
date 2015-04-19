@@ -59,6 +59,7 @@
            if (nextGameState.messageType === 'initialGamestate') {
              TEST_ARENA.transitionPageToState('gameStarted');
              GAME.resetGameboard(function(err) {
+               GAME.setExtraGameControls();
                var draw = function() {
                  GAME.drawBoard();
                  if (TEST_ARENA.state === 'gameStarted' || imRunning) {

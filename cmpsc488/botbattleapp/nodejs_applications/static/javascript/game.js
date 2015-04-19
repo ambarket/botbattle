@@ -8,7 +8,6 @@ GAME = {
       this.gameboard.player2Tiles = gameData.player2Tiles;
       processGameDataCallback();
     },
-
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
       GLOBAL.appendDivToHtmlElementById('boardList', debugData.board);
@@ -16,7 +15,6 @@ GAME = {
       GLOBAL.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
-    
     'processAnimatableEvent' : function(animatableEvent, processAnimatableEventCallback) {
       // Take an object past in the animatableEvents array from the game manager
       //    and animate it on the canvas.
@@ -123,6 +121,22 @@ GAME = {
 
       return move;
     },
+    'setExtraGameControls' : function() { 
+      if(document.getElementById("toggleTiles") === null){
+        var button = document.createElement('BUTTON');
+        button.id = "toggleTiles";
+        button.innerHTML = "Toggle Tiles";
+        document.getElementById("extraGameControls").appendChild(button);
+        document.getElementById("toggleTiles").addEventListener('click', function(ev) {
+          GAME.toggleTiles();
+          console.log("Tiles Toggled");
+        });
+      }
+    },
+    'drawTiles' : true,
+    'toggleTiles' : function(){
+      GAME.drawTiles = !GAME.drawTiles;
+    },
     'gameboard' : null,
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
@@ -210,6 +224,7 @@ GAME = {
         move : function(eventData, processAnimatableEventCallback) {
         // Setup any variables needed for the animation
         var finalPosition = (eventData.endPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
+        eventData.player === 'player1' ? GAME.player1GridPosition = eventData.endPosition : GAME.player2GridPosition = eventData.endPosition
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
         var player = GAME.gameboard.playerAnimations[eventData.player];
         player.standing.visible = false;
@@ -361,38 +376,36 @@ function Drawer() {
         }
     }
     drawGridNumbers();
-    drawPlayerTiles();
+    if(GAME.drawTiles === true){
+      drawPlayerTiles();
+    }
   }
   
   var drawGridNumbers = function(){
-      var player1PositionX = GAME.gameboard.playerAnimations["player1"].current.x;
-      //var player1PositionY = GAME.gameboard.playerAnimations["player1"].current.y;
-      var player2PositionX = GAME.gameboard.playerAnimations["player2"].current.x;
-      //var player2PositionY = GAME.gameboard.playerAnimations["player2"].current.y;
+      var player1PositionX = GAME.gameboard.playerAnimations["player1"].current.x + GAME.gameboard.playerAnimations["player1"].current.width / 2;
+      var player2PositionX = GAME.gameboard.playerAnimations["player2"].current.x + GAME.gameboard.playerAnimations["player2"].current.width / 2;
+      var p1CalcGrid = Math.floor((player1PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
+      var p2CalcGrid = Math.floor((player2PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
+      var lessAccurateDistanceBetweenPlayers = p2CalcGrid - p1CalcGrid;
       
-      //  TODO wanted to update so its based on grid position, but can't becuase it's constant update.
-      //  could save lots of computations if only update when player is done moving and based on 
-      //  player position that is stored in player.  This wouldn't look as cool, but is way less error prone
-      //  and less processing.  Also this Math.floor is causeing problems here and below.
-      var p1Grid = Math.floor((player1PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
-      var p2Grid = Math.floor((player2PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
-      //console.log(p1Grid, p2Grid);
-      var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
+      //var finalPosition1 = GAME.player1GridPosition;
+      //var finalPosition2 = GAME.player2GridPosition;
       
+      //var distanceBetweenPlayers = finalPosition2 - finalPosition1;
+      console.log("p1CalcGrid",p1CalcGrid,"p2CalcGrid",p2CalcGrid)
       TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
       TEST_ARENA.context.fillStyle="black";
       
-      // TODO  fix this like above mentions
-      if((p1Grid >= 0 && p1Grid <= GAME.gameboard.numberOfGrids - 1) && (p2Grid >= 0 && p2Grid <= GAME.gameboard.numberOfGrids - 1)){
-        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 500 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+      if((p1CalcGrid >= 0 && p1CalcGrid <= GAME.gameboard.numberOfGrids - 1) && (p2CalcGrid >= 0 && p2CalcGrid <= GAME.gameboard.numberOfGrids - 1)){
+       TEST_ARENA.context.fillText(Math.floor(lessAccurateDistanceBetweenPlayers), 500 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
       else{
-          if(p1Grid < 0){
-            TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
-          }
-          if(p2Grid > GAME.gameboard.numberOfGrids - 1){
-            TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
-          }
+        if(p1CalcGrid < 0){
+          TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+        }
+        if(p2CalcGrid > GAME.gameboard.numberOfGrids - 1){
+          TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+        }
       }
   }
   
@@ -701,6 +714,9 @@ var GameBoard = function() {
     
     this.player1Tiles = [0,0,0,0,0];
     this.player2Tiles = [0,0,0,0,0];
+    
+    this.player1GridPosition = 0;
+    this.player2GridPosition = 14;
     
     this.playerAnimations = {
         player1 : {
