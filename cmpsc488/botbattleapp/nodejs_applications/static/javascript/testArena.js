@@ -643,27 +643,6 @@
          console.log("Invalid Argument to setGameControlDiv");
        }
      }
-     
-     /*
-     document.getElementById("echo_send_move").addEventListener('click', function(ev) {
-       var req = new XMLHttpRequest();
-       req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
-       req.onload = function(event) {
-         var response = JSON.parse(req.responseText);
-         if (response.error) {
-           document.getElementById("echo_status").innerHTML = response.error;
-         } else if (response.status) {
-           document.getElementById("echo_status").innerHTML = response.status;
-         } else {
-           // Something else
-           document.getElementById("echo_status").innerHTML = response;
-         }
-       };
-       req.send();
-       ev.preventDefault();
-     }, false);
-     */
-
    
  //----------------------------------Old stuff------------------------------------
  

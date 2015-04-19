@@ -223,7 +223,6 @@ function registerTestArenaRoutes(server, database) {
     // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
     // These will be handled on the client side accordingly.
     var event = testArenaInstances.spawnNewGameInstance(req.query.id);
-    //TODO: Event is sent to client and fails at Global when GLOBAL.logMessageInHTML('error' is called.
     res.json({ 'event' : event });
   });
   
@@ -274,119 +273,6 @@ function registerTestArenaRoutes(server, database) {
       res.json({ 'event' : 'expiredID' });
     }
   });
-
-  
-
-
-  
-  /**
-   * Requested by the "Echo Test" Button on the test arena page
-   */
-  /*
-  server.addDynamicRoute('get', '/echoTest', function(req, res) {
-    var id = req.query.id;
-    if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running"){
-      setTimeout(function(){ 
-        if(testArenaInstances.getGame(id) && testArenaInstances.getGame(id).gameProcess && testArenaInstances.getGame(id).gameState === "running")
-          testArenaInstances.getGame(id).gameProcess.stdin.write(req.query.echo_stdin + '\n'); 
-        }, 2000);
-      
-      res.json({'status' : "Sent to stdin"});
-    }
-    else{
-      res.json({'error' : "Game is not running"});
-    }
-  });
-  */
-  
-  
-
-  
-  /**
-   * Requested by the "Send Move" Button on the test arena page
-   */
- /* server.addDynamicRoute('post', '/testArenaUpdate', function(req, res) {
-    // Here it should be asserted that this current session has 
-    
-    setTimeout(function() {
-       res.send(
-           [ // Instead of named objects called turns, just use an array of objects, on our end were calling these gamestates
-             // and they will be processed in the order that they are defined in this array
-             // Each gaem state has three properties
-             //  animatableEvents : an array of animatableEvent objects
-             //  gameData : an arbitrary game specific object containing necessary information
-             //  debugData : an arbitrary game specific object containing necessary information
-             {
-               'animatableEvents': [     // Each animatableEvent must have an event name and data object
-                  {
-                    'event': 'move',
-                    'data': { 
-                      'objectName' : 'player1',
-                      'finalPosition' : 9 
-                    } 
-                  },
-               ],
-               'gameData' : {
-                 'player1Tiles' : [1, 3, 5, 5, 3],    // The tiles after this turn
-                 'player2Tiles' : [2, 4, 3, 5, 1],
-                 'turnDescription' : "Player 2 used a 3 tile to move to position 11.",  // May not be necessary but would be nice.
-               },
-               'debugData' : { // Only used in the test arena display
-                    'stderr' : [ "An array", "of lines output by the bot", "stderr on this turn." ],
-                    'stdout' : [ "An array", "of lines output by the bot", "stdout on this turn." ]
-               },
-             }, 
-             // Turn 2
-             {
-                'animatableEvents': 
-                  [
-                      {
-                        'event': 'defendedAttack',
-                        'data': 
-                         { 
-                          'attacker' : 'player2',
-                          'defender' : 'player1',
-                          'attackerStartingPosition' : 24,  // After a defend the attacker should move back to their original position
-                          'attackerAttackPosition' : 11
-                         } 
-                      },  
-                  ],
-                  'gameData' : {
-                    'player1Tiles' : [1, 3, 2, 2, 3],
-                    'player2Tiles' : [2, 4, 3, 5, 1],
-                    'turnDescription' : "Player 1 used two 5 tile's to attack but was defended.",
-                  },
-                  'debugData' : {
-                    'stderr' : [ "An array", "of lines output by the bot", "stderr on this turn." ],
-                    'stdout' : [ "An array", "of lines output by the bot", "stdout on this turn." ]
-                  },
-              },
-              // Turn 3
-              {
-                'animatableEvents': [     // Each animatableEvent must have an event name and data object
-                   {
-                     'event': 'move',
-                     'data': { 
-                       'objectName' : 'player1',
-                       'finalPosition' : 0 
-                     } 
-                   },
-                ],
-                'gameData' : {
-                  'player1Tiles' : [1, 3, 5, 5, 3],    // The tiles after this turn
-                  'player2Tiles' : [2, 4, 3, 5, 1],
-                  'turnDescription' : "Player 2 used a 3 tile to move to position 11.",  // May not be necessary but would be nice.
-                },
-                'debugData' : {
-                  'stderr' : [ "An array", "of lines output by the bot", "stderr on this turn." ],
-                  'stdout' : [ "An array", "of lines output by the bot", "stdout on this turn." ]
-                },
-              }, 
-            ] // End game state array
-    );
-    }, 500); 
-
-  }); */
   
 }
 
