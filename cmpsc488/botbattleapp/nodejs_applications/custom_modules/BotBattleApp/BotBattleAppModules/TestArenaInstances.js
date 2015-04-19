@@ -47,8 +47,6 @@ module.exports = new (function() {
           fileManager.deleteGameInstanceDirectory(instance, function(err){
             if(err){
               logger.log("TestArenaInstances", err);
-              // TODO: actually send an appropriate HTTP error code/message
-              res.json({"error":err});
             }
           });
         }
