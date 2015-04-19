@@ -149,32 +149,7 @@ GAME = {
 }
 
   var updateBackground = function(startTime) {
-    // move a tree left and right to simulate a bird in the sky for now.
-    var tree = GAME.gameboard.backgroundElements.trees1.tree1;
-    console.log("tree direction", tree.direction);
-    if(tree.x <= -50){
-      tree.direction = "right";
-      if(TEST_ARENA.coinFlip)
-        tree.y = Math.floor((Math.random() * 75) + 1);
-      else
-        tree.y = Math.floor((Math.random() * 75) + 1);
-      tree.speed = Math.floor((Math.random() * 5) + 1);      
-    }
-    if(tree.x < 1100 && tree.direction === "right"){
-      tree.x += tree.speed;
-    }
-    if(tree.x >= 1100){
-      tree.direction = "left";
-      if(TEST_ARENA.coinFlip)
-        tree.y = Math.floor((Math.random() * 75) + 1);
-      else
-        tree.y = Math.floor((Math.random() * 75) + 1);
-      tree.speed = Math.floor((Math.random() * 5) + 1); 
-    }
-    if(tree.x > -50 && tree.direction === "left"){
-      tree.x -= tree.speed;
-    }
-    
+    GAME.gameboard.ufo.animate();
   }
 
   /**
@@ -376,19 +351,25 @@ function Drawer() {
   
   var self = this;
   
+  // The order in which things appear here matter.  Think of it as z-index.  They will draw over each other of 
+  // the coordinates are the same. First is farthest back on the buffer.
   this.drawBoard = function() {
-	  
-    updateBackground();
     
     for (object in GAME.gameboard.drawableObjects) {
       GAME.gameboard.drawableObjects[object].draw(TEST_ARENA.context);
     }
+    
     for (list in GAME.gameboard.backgroundElements){
         for(object in GAME.gameboard.backgroundElements[list]){
             GAME.gameboard.backgroundElements[list][object].draw(TEST_ARENA.context);
         }
     }
+    
+    // set to draw in the function
+    updateBackground();
+    
     drawGridNumbers();
+    
     if(GAME.drawTiles === true){
       drawPlayerTiles();
     }
@@ -759,6 +740,7 @@ var GameBoard = function() {
           tile5 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 200, tileParameters.y))
         }
     }
+    
     function makeNewTree(x, y) {
       return {
         'imageSrc' : 'static/images/tree.png',
@@ -777,20 +759,82 @@ var GameBoard = function() {
     
     this.backgroundElements = {
         trees1 : {
-          tree1 : new drawableImage(makeNewTree(-10, 50)),
-          tree2 : new drawableImage(makeNewTree(75, 100)),
+          tree1 : new drawableImage(makeNewTree(50, 125)),
+          tree2 : new drawableImage(makeNewTree(75, 105)),
+          tree3 : new drawableImage(makeNewTree(150, 154)),
+          tree4 : new drawableImage(makeNewTree(250, 160)),
+          tree5 : new drawableImage(makeNewTree(350, 125)),
         },
         trees2 : {
-            tree3 : new drawableImage(makeNewTree(150, 154)),
-            tree4 : new drawableImage(makeNewTree(250, 160)),
-            tree5 : new drawableImage(makeNewTree(350, 125)),
+          tree1 : new drawableImage(makeNewTree(450, 125)),
+          tree2 : new drawableImage(makeNewTree(725, 120)),
+          tree3 : new drawableImage(makeNewTree(650, 154)),
+          tree4 : new drawableImage(makeNewTree(850, 160)),
+          tree5 : new drawableImage(makeNewTree(950, 125)),
         }
       }
     
-    self.backgroundElements.trees1.tree1.direction = "right";
-    self.backgroundElements.trees1.tree1.speed = 1;
+    this.ufo = new drawableImage({
+        'imageSrc' : 'static/images/ufo.png',
+        'sourceX' : 0,
+        'sourceY' : 0,
+        'sourceWidth' : 99,
+        'sourceHeight' : 40,
+        'x' : -200,
+        'y' : 50,
+        'width' : 99,
+        'height' : 40,
+        'visible' : true,
+        'loadedCallback' : imageLoadedCallback});
+    self.ufo.direction = (function(){
+      if(TEST_ARENA.coinFlip()){
+        self.ufo.direction = "right";
+        self.ufo.x = -200;
+      }
+      else{
+        self.ufo.direction = "left";
+        self.ufo.x = 1100;
+      }
+    })();
+    self.ufo.speed = 1;
+    self.ufo.leftEnd = -200;
+    self.ufo.rightEnd = 1100;
+    self.ufo.animate = function(){
+      // move a ufo left and right with random height 0 -> 50
+      var ufo = GAME.gameboard.ufo;
+      if(ufo.x <= ufo.leftEnd){
+        ufo.direction = "right";
+        setParameters();     
+      }
+      if(ufo.x < ufo.rightEnd && ufo.direction === "right"){
+        ufo.x += ufo.speed;
+      }
+      if(ufo.x >= ufo.rightEnd){
+        ufo.direction = "left";
+        setParameters();
+      }
+      if(ufo.x > ufo.leftEnd && ufo.direction === "left"){
+        ufo.x -= ufo.speed;
+      } 
+      function setParameters(){
+        if(TEST_ARENA.coinFlip()){
+          ufo.y = Math.floor((Math.random() * 75) + 1);
+          if(ufo.direction === "left"){
+            ufo.leftEnd = -200 - Math.floor((Math.random() * 800) + 1);
+          }
+          else{
+            ufo.rightEnd = 1100 + Math.floor((Math.random() * 800) + 1);
+          }
+        }
+        else{
+          ufo.y = Math.floor((Math.random() * 75) + 1);
+        }
+        ufo.speed = Math.floor((Math.random() * 5) + 1); 
+      }
+      ufo.draw(TEST_ARENA.context);
+    }
     
-    var imagesLoaded= 0, expectedImagesLoaded=16;
+    var imagesLoaded= 0, expectedImagesLoaded=22;
     function imageLoadedCallback() {
       imagesLoaded++;
       if (imagesLoaded == expectedImagesLoaded) {
