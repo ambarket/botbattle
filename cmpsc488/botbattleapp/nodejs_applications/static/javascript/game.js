@@ -269,7 +269,9 @@ GAME = {
         
         // Set current state and position of attacking player
         //TODO  change this so it is based on grid positions. And above and everywhere else too.
-        attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+        attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter * TEST_ARENA.scale;
+        if(eventData.player === "player2")
+          attackingPlayer.attack.x -= (TEST_ARENA.scale * 30);
         attackingPlayer.attack.y = attackingPlayer.standing.y;  
         attackingPlayer.standing.visible = false;
         attackingPlayer.attack.visible = true;
@@ -302,7 +304,7 @@ GAME = {
           // Set current state and position of defending player
 
           // in the future -- position changes like this need to be based on the grid position then shifted so the "winner" isn't messed up anymore
-          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter * TEST_ARENA.scale;
           defendingPlayer.defend.y = defendingPlayer.standing.y;  
           defendingPlayer.standing.visible = false;
           defendingPlayer.defend.visible = true;
@@ -310,7 +312,9 @@ GAME = {
           
           // Set current state and position of attacking player
           //TODO  change this so it is based on grid positions. And above and everywhere else too.
-          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter * TEST_ARENA.scale;
+          if(eventData.player === "player1")
+            attackingPlayer.attack.x -= (TEST_ARENA.scale * 25);
           attackingPlayer.attack.y = attackingPlayer.standing.y;  
           attackingPlayer.standing.visible = false;
           attackingPlayer.attack.visible = true;
