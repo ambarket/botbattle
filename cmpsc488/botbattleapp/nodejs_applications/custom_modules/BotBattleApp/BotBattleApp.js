@@ -218,6 +218,11 @@ function registerTestArenaRoutes(server, database) {
     });
   });
 
+  server.addDynamicRoute('get', '/getOtherPlayer', function(req, res) {
+    // Returns a set of id's that have bots uploaded that are not the same id as the req.id
+    var idArray = testArenaInstances.getAllIdNotMe(req.query.id);
+    res.json({ 'event' : idArray });
+  });
 
   server.addDynamicRoute('get', '/startGame', function(req, res) {
     // Returns a event code from the set { 'expiredID', 'gameAlreadyRunning', 'gameManagerNotFound', 'success' }
