@@ -329,6 +329,7 @@
            try {
              if (response.status) {
                TEST_ARENA.myId = response.id;
+               document.getElementById("userID").innerHTML = "Your Id: " + response.id;
                GLOBAL.eventLog.logMessage('status', response.status);
                TEST_ARENA.transitionPageToState('uploaded');
              }
