@@ -220,7 +220,6 @@
      }
      else if (state === 'gameStarted') {
        // The draw function will continue drawing until the state is no longer 'gameStarted'
-       GLOBAL.eventLog.logMessage('status', "The game has started.");
        TEST_ARENA.state = 'gameStarted';
        GAME.setExtraGameControls();
      }
