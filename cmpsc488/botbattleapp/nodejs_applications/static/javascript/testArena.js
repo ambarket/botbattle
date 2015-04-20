@@ -59,6 +59,7 @@
            if (nextGameState.messageType === 'initialGamestate') {
              TEST_ARENA.transitionPageToState('gameStarted');
              GAME.resetGameboard(function(err) {
+               GAME.setExtraGameControls();
                var draw = function() {
                  GAME.drawBoard();
                  if (TEST_ARENA.state === 'gameStarted' || imRunning) {
@@ -262,15 +263,27 @@
    function customPlayer2Click() {
      $("#custom_player2_bot_select").prop("checked", true);
      $('#player2FileChoose').show();
+     $('#idSelectBox').hide();
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = true;
    }
    
+   /*$('#another_id_player2_bot_select').click(otherIdPlayer2Click);
+   function otherIdPlayer2Click() {
+     $("#another_id_player2_bot_select").prop("checked", true);
+     $('#player2FileChoose').hide();
+     $('#idSelectBox').show();
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player2_bot_upload").required = false;
+   }*/
+   
    $('#preloaded_player2_bot_select').click(preloadedPlayer2Click);
    function preloadedPlayer2Click() {
      $("#preloaded_player2_bot_select").prop("checked", true);
      $('#player2FileChoose').hide();
+     $('#idSelectBox').hide();
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = false;
@@ -300,6 +313,7 @@
      $('#uploadBotButton').val("Upload Bot");
      $('#player2FileChoose').hide();
      $('#player_2_bot_select_div').hide();
+     $('#idSelectBox').hide();
      $("#custom_player2_bot_select").prop("checked", true);
 
      $('#gameControlDiv').hide();
@@ -307,9 +321,6 @@
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = false;
    };
-   
- 
-
    
    var uploadBotsform = document.forms.namedItem("uploadBotForm");
    uploadBotsform.addEventListener('submit', function(ev) {
@@ -331,6 +342,7 @@
            try {
              if (response.status) {
                TEST_ARENA.myId = response.id;
+               document.getElementById("userID").innerHTML = "Your Id: " + response.id;
                GLOBAL.eventLog.logMessage('status', response.status);
                TEST_ARENA.transitionPageToState('uploaded');
              }
@@ -465,6 +477,114 @@
      req.send();
      ev.preventDefault();
    }, false);
+   
+   //----------------------------------Get other IDs--------------------------------
+   $('#another_id_player2_bot_select').click(otherIdPlayer2Click);
+   function otherIdPlayer2Click() {
+   //document.getElementById("another_id_player2_bot_select").addEventListener('click', function(ev) {
+     var req = new XMLHttpRequest();
+     var response = null;
+     
+     $("#another_id_player2_bot_select").prop("checked", true);
+     $('#player2FileChoose').hide();
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+     document.getElementById("uploadBotStatus").innerHTML = "";
+     document.getElementById("player2_bot_upload").required = false;
+     
+     req.open("GET", "getOtherPlayer/?id=" + TEST_ARENA.myId, true);
+     req.onreadystatechange=function() {
+       if (req.readyState==4) {
+         if (req.status==200) {
+           try {
+             response = JSON.parse(req.responseText);
+             // populate the select box
+             var parent = document.getElementById("idSelectBox");
+             var selectList;
+             if(document.getElementById("otherIDs") === null){
+               //Create array of options to be added
+               var array = response.event;
+    
+               //Create and append select list
+               selectList = document.createElement("select");
+               selectList.id = "otherIDs";
+               parent.appendChild(selectList);
+    
+               //Create and append the options
+               for (var i = 0; i < array.length; i++) {
+                   var option = document.createElement("option");
+                   option.value = array[i];
+                   option.text = array[i];
+                   selectList.appendChild(option);
+               }
+               document.getElementById("otherIDs").addEventListener('click', function(ev) {
+                 var inReq = new XMLHttpRequest();
+                 var inResponse = null;
+                 inReq.open("GET", "getOtherPlayer/?id=" + TEST_ARENA.myId, true);
+                 inReq.onreadystatechange=function() {
+                   if (inReq.readyState==4) {
+                     if (inReq.status==200) {
+                       try {
+                         inResponse = JSON.parse(inReq.responseText);
+                         // populate the select box
+                         selectList = document.getElementById("otherIDs");
+                         selectList.innerHTML=""
+                         //Create array of options to be added
+                         var array = inResponse.event;
+              
+                         //Create and append the options
+                         for (var i = 0; i < array.length; i++) {
+                             var option = document.createElement("option");
+                             option.value = array[i];
+                             option.text = array[i];
+                             selectList.appendChild(option);
+                         }
+                       }
+                       catch (e) {
+                         GLOBAL.handleUnexpectedResponse('getOtherPlayer', inReq.responseText);
+                         return; // Don't continue unless it was a json response.
+                       }
+                     }
+                     else {
+                       GLOBAL.handleNonSuccessHttpStatus('getOtherPlayer', inReq.status, inReq.responseText);
+                     }
+                   }
+                 }
+                 inReq.send();
+                 ev.preventDefault();
+               }, false);
+             }
+             else{
+               var array = response.event;
+               
+               //Get select list and clear
+               selectList = document.getElementById("otherIDs");
+               selectList.innerHTML = "";
+               
+               //Create and append the options
+               for (var i = 0; i < array.length; i++) {
+                   var option = document.createElement("option");
+                   option.value = array[i];
+                   option.text = array[i];
+                   selectList.appendChild(option);
+               }
+             }
+             //if(selectList.innerHTML === "")
+               //$('#idSelectBox').innerHTML("No other bots available");
+             //else
+               $('#idSelectBox').show();
+           }
+           catch (e) {
+             GLOBAL.handleUnexpectedResponse('getOtherPlayer', req.responseText);
+             return; // Don't continue unless it was a json response.
+           }
+         }
+         else {
+           GLOBAL.handleNonSuccessHttpStatus('getOtherPlayer', req.status, req.responseText);
+         }
+       }
+     }
+     req.send();
+   }
    
    //----------------------------------Kill Game------------------------------------
    document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
@@ -642,27 +762,6 @@
          console.log("Invalid Argument to setGameControlDiv");
        }
      }
-     
-     /*
-     document.getElementById("echo_send_move").addEventListener('click', function(ev) {
-       var req = new XMLHttpRequest();
-       req.open("GET", "echoTest/?id=" + TEST_ARENA.myId + "&echo_stdin=" + document.getElementById("echo_stdin").value, true);
-       req.onload = function(event) {
-         var response = JSON.parse(req.responseText);
-         if (response.error) {
-           document.getElementById("echo_status").innerHTML = response.error;
-         } else if (response.status) {
-           document.getElementById("echo_status").innerHTML = response.status;
-         } else {
-           // Something else
-           document.getElementById("echo_status").innerHTML = response;
-         }
-       };
-       req.send();
-       ev.preventDefault();
-     }, false);
-     */
-
    
  //----------------------------------Old stuff------------------------------------
  

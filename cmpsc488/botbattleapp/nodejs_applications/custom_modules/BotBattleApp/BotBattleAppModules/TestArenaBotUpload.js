@@ -192,6 +192,8 @@ module.exports = {
       }
     }
     
+    // TODO: In other places we tried to make it so if someone creates a game to use in the test arena it can have more than
+    //       two players, but our bot upload only supports two players (bots) max...
     var moveAndCompileBots = function(req, res){
       var instance = testArenaInstances.getGame(req.newGameId);
       

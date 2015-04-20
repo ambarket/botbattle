@@ -9,10 +9,10 @@ module.exports = new (function() {
   var testArenaInstances = {};
   
   // Start cleanup routine
-  (function cleanTest_Arena_tmp() {
+  (function cleanTest_Arena_tmp(){
     var count = 0;
     var instance;
-    var now = Date.now();
+    var now;
     setTimeout(function () {
       logger.log("TestArenaInstances", "Cleaning");
       for(instance in testArenaInstances){
@@ -37,8 +37,6 @@ module.exports = new (function() {
           fileManager.deleteGameInstanceDirectory(instance, function(err){
             if(err){
               logger.log("TestArenaInstances", err);
-              // TODO: actually send an appropriate HTTP error code/message
-              res.json({"error":err});
             }
           });
         }
@@ -48,9 +46,22 @@ module.exports = new (function() {
     }, 3600000); // 1 hour 3600000
   })();
   
+  this.getAllIdNotMe = function(myId){
+    var notMeInstances = [];
+    var instance;
+    var now = new Date();
+    for(instance in testArenaInstances){
+      now = new Date(); //Date.now(); 
+      if(now < testArenaInstances[instance].gameExpireDateTime && instance !== myId){
+          notMeInstances.push(instance);
+      }
+    }
+    return notMeInstances;
+  }
+  
   this.getGame = function(id) { return testArenaInstances[id] }
   
-  this.getAllInstances  =  function() { return testArenaInstances };
+  this.getAllInstances  =  function() { return testArenaInstances }
   
   this.getMillisecondsBeforeInstanceExpires = function(id) {
     if (testArenaInstances[id]) {
@@ -362,8 +373,5 @@ module.exports = new (function() {
       }
     }
   }
-  
-
- 
 })(); // Immedietly execute and create the module
 
