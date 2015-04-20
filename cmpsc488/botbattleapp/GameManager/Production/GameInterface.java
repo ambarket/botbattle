@@ -6,7 +6,6 @@
  *
  */
 
-// TODO Game.getBotTimeoutInMilliseconds is a static method that isn't in this interface but used by Player class.
 
 public interface GameInterface {
  
@@ -75,4 +74,7 @@ public interface GameInterface {
   public String getFinalGameStateJSON();
 
   String getJSONstringFromGameResults(GameResults results);
+  
+  int getBotTimeoutInMilliseconds();
+  int getHumanTimeoutInMilliseconds();
 }

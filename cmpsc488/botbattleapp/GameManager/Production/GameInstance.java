@@ -37,10 +37,10 @@ public class GameInstance implements Runnable {
       System.out.flush();
       
       if (player == 1) {
-        move = player1.getMove(game.getCompleteBoard());
+        move = player1.getMove(game.getCompleteBoard(), game.getBotTimeoutInMilliseconds());
         results.addMove(move, player);
       } else {
-        move = player2.getMove(game.getCompleteBoard());
+        move = player2.getMove(game.getCompleteBoard(), game.getBotTimeoutInMilliseconds());
         results.addMove(move, player);
       }
 

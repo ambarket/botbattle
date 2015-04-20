@@ -30,11 +30,15 @@ public class ArenaGameInstance {
       int player = game.getPlayerForCurrentTurn();
       
       if (player == 1) {  
-        rawMove = bot1.getMove(game.getPlayerOneBoard());  
+        rawMove = bot1.getMove(game.getPlayerOneBoard(), game.getBotTimeoutInMilliseconds());  
         rawStderr = bot1.getAnyStderr();
-      } else {
-    	rawMove = bot2.getMove(game.getPlayerTwoBoard());    
+      } else if (player == 2 && gameType.equals(GameType.BOT_VS_HUMAN)){
+    	rawMove = bot2.getMove(game.getPlayerTwoBoard(), game.getHumanTimeoutInMilliseconds());    
     	rawStderr = bot2.getAnyStderr();
+      }
+      else {
+        rawMove = bot2.getMove(game.getPlayerTwoBoard(), game.getBotTimeoutInMilliseconds());    
+        rawStderr = bot2.getAnyStderr();
       }
       
       if (rawMove != null) {

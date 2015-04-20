@@ -26,10 +26,16 @@ public class Game implements GameInterface {
   //    if a bot made an invalid move.
   private String gameOverMessage;  
 
-
-  // TODO: Add to interface or move to GameInstance.
-  public static int getBotTimeoutInMilliseconds() {
+  // TODO: Remove this from init config bec ause it makes more sense just to specify it here when
+  //    writing the game
+  @Override
+  public int getBotTimeoutInMilliseconds() {
     return 3000;
+  }
+  
+  @Override
+  public int getHumanTimeoutInMilliseconds() {
+    return 1000 * 60 * 5;
   }
   
   @Override

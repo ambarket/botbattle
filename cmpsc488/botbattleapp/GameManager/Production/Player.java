@@ -69,10 +69,19 @@ public class Player implements Runnable {
     humanOrBot = BOT;
     read = false;
     move = null;
+    
+    Thread closeChildThread = new Thread() {
+      public void run() {
+        System.out.println("Killing before exit");
+        botProcess.destroyForcibly();
+      }
+    };
+
+    Runtime.getRuntime().addShutdownHook(closeChildThread); 
       
   }
   
-  public String getMove(String board) {
+  public String getMove(String board, int moveTimeout) {
 
     if(botProcess != null && !botProcess.isAlive()){
       return "Bot exited on its own.";
@@ -87,9 +96,9 @@ public class Player implements Runnable {
         writer.write(board + "\n");
         writer.flush();
         System.err.println("\n\tREADING FROM BOT\n");
-        readFromBotThread.join(Game.getBotTimeoutInMilliseconds());
+        readFromBotThread.join(moveTimeout);
       } else if (humanOrBot == HUMAN) {
-        readFromBotThread.join();//Humans dont have a time out so wait forever.
+        readFromBotThread.join(moveTimeout);
       }
       
 
