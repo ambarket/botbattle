@@ -72,9 +72,7 @@ public class Player implements Runnable {
     
     Thread closeChildThread = new Thread() {
       public void run() {
-        if (humanOrBot == BOT) {
-          botProcess.destroyForcibly();
-        }
+        killBotProcess();
       }
     };
 
