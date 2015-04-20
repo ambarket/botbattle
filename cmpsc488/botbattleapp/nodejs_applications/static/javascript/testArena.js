@@ -35,8 +35,17 @@
        var gameStateQueue = [];
        var imRunning = false;
        var nextGameState = null;    // Closure variable, updated at beginning of processNextGameState
+       var animateGameStates = true;
+       document.getElementById("disableAnimations").addEventListener('click', function(ev) {
+         $('#disableAnimations').hide();
+         animateGameStates = false;
+       });
        
        this.addNewGameState = function(gamestate) {
+         if (gamestate.messageType === 'finalGamestate') {
+           $('#disableAnimations').show();
+         }
+         
          gameStateQueue.push(gamestate);
      
          if (!imRunning) {
@@ -59,7 +68,6 @@
            if (nextGameState.messageType === 'initialGamestate') {
              TEST_ARENA.transitionPageToState('gameStarted');
              GAME.resetGameboard(function(err) {
-               GAME.setExtraGameControls();
                var draw = function() {
                  GAME.drawBoard();
                  if (TEST_ARENA.state === 'gameStarted' || imRunning) {
@@ -97,7 +105,15 @@
        }
        
        var passGameStateToGAME = function() {
-         async.series([passGameDataToGAME, passDebugDataToGAME, passAnimatableEventsToGAME, checkEnableHumanInput], function(err) {
+         var seriesOfEvents = null;
+         if (animateGameStates || gameStateQueue.length === 0) {
+           seriesOfEvents = [passGameDataToGAME, passDebugDataToGAME, passAnimatableEventsToGAME, checkEnableHumanInput];
+         }
+         else {
+           seriesOfEvents = [passGameDataToGAME, passDebugDataToGAME, checkEnableHumanInput];
+         }
+         
+         async.series(seriesOfEvents, function(err) {
            setTimeout(function() {
              if (err) {
                GLOBAL.handleClientError("passGameStateToGAME", err);
@@ -115,7 +131,7 @@
        
        var passGameDataToGAME = function(gameDataCallback) {
          if (nextGameState.gameData) {
-           GAME.processGameData(nextGameState.gameData, gameDataCallback);
+           GAME.processGameData(nextGameState.messageType, nextGameState.gameData, gameDataCallback);
          }
          else {
            console.log("No game data to process, moving on to debugData and animatable events");
@@ -125,7 +141,7 @@
            
        var passDebugDataToGAME = function(debugDataCallback) {
          if (nextGameState.debugData) {
-           GAME.processDebugData(nextGameState.debugData, debugDataCallback);
+           GAME.processDebugData(nextGameState.messageType, nextGameState.debugData, debugDataCallback);
          }
          else {
            debugDataCallback(null);
@@ -152,7 +168,7 @@
              document.getElementById("humanInputElements").innerHTML = "";
            }
            enableHumanInputCallback();
-       }       
+       }
      })();
    }
    
@@ -178,6 +194,7 @@
        TEST_ARENA.drawCanvasMessage();
        TEST_ARENA.resizeCanvas();
        setGameControlDiv("hide");
+       GAME.setExtraGameControls();
      }
      else if (state === 'uploaded') {
        TEST_ARENA.state = 'uploaded';
@@ -187,6 +204,7 @@
        TEST_ARENA.canvasMessage = "Press Start Game to continue...";
        TEST_ARENA.drawCanvasMessage();
        setGameControlDiv("startGame");
+       GAME.setExtraGameControls();
      }
      else if (state === 'loadingGame') {
        TEST_ARENA.state = 'loading';
@@ -197,18 +215,21 @@
        TEST_ARENA.drawCanvasMessage();
        
        setGameControlDiv('killGame');
+       GAME.setExtraGameControls();
 
      }
      else if (state === 'gameStarted') {
        // The draw function will continue drawing until the state is no longer 'gameStarted'
        GLOBAL.eventLog.logMessage('status', "The game has started.");
        TEST_ARENA.state = 'gameStarted';
+       GAME.setExtraGameControls();
      }
      else if (state === 'gameFinished') {
        stopGameStateRequester();
        setGameControlDiv("startGame");
        TEST_ARENA.canvasMessage = "The game has ended, press start game to play again, or upload to try new bots...";
        TEST_ARENA.state = 'gameFinished';
+       GAME.setExtraGameControls();
      }
    }
    
@@ -635,6 +656,7 @@
      ev.preventDefault();
    }, false);
    
+
  //----------------------------------GameState Requester------------------------------------
    var GameStateRequester = null;
    function startGameStateRequester() {
@@ -738,6 +760,7 @@
          $('#startNewGame').show();
          $('#killCurrentGame').hide();
          $('#humanInput').hide();
+         $('#disableAnimations').hide();
        }
        else if (startGame_or_killGame_or_hide === "killGame") {
          $('#gameControlDiv').show();
@@ -747,6 +770,8 @@
          $('#moveList').html("");
          $('#stdout').html("");
          $('#stderr').html("");
+         $('#boardList').html("");
+         $('#disableAnimations').hide();
        }
        else if (startGame_or_killGame_or_hide === "hide") {
          $('#gameControlDiv').hide();
@@ -757,6 +782,8 @@
          $('#moveList').html("");
          $('#stdout').html("");
          $('#stderr').html("");
+         $('#boardList').html("");
+         $('#disableAnimations').hide();
        }
        else {
          console.log("Invalid Argument to setGameControlDiv");
