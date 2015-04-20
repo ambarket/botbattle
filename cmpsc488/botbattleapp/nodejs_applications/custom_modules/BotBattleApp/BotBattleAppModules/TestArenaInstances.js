@@ -226,12 +226,13 @@ module.exports = new (function() {
                   
                   testArenaInstances[id].gameStateQueue.push(message);
                   
-                  logger.log("TestArenaInstances", 
-                      helpers.getLogMessageAboutGame(id, "gameStateQueue: "), JSON.stringify(testArenaInstances[id].gameStateQueue));
+                  // THis was blowing up the logs.
+                  //logger.log("TestArenaInstances", 
+                  //    helpers.getLogMessageAboutGame(id, "gameStateQueue: "), JSON.stringify(testArenaInstances[id].gameStateQueue));
                 }
                 catch(e) {
                   logger.log("TestArenaInstances", 
-                      helpers.getLogMessageAboutGame(id, "Invalid JSON sent: "), e, array[i]);
+                      helpers.getLogMessageAboutGame(id, "Invalid JSON sent: "),  array[i], e);
                 }
               }
             }
