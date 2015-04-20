@@ -65,13 +65,18 @@ function registerGameResourceRoutes(server, database) {
           res.status(404).send("Failed to find the requested resource. Please see your administrator if this problem persists.");
         }
         else {
-          if (!gameModule.resourcesDirectory) {
+          if (!gameModule.directories.resources) {
             logger.log("BotBattleApp", "Failed to serve resource file for game", urlComponents[2], 
                 "because no resource directory was not defined in the game module's database entry\n", gameModule);
             res.status(404).send("Failed to find the requested resource. Please see your administrator if this problem persists.");
           }
           else {
-            var fileName = req.url.substring(req.url.indexOf('resources/') + 10);
+            var filenameStartIndex = req.url.indexOf('resources/') + 10;    // 10 characters in 'resources/'
+            var filename = req.url.substring(filenameStartIndex);
+            if (!filename || filenameStartIndex === 9 /*It was -1 before adding 10*/) {
+              res.status(404).end("The requested resource does not exist.");
+              return;
+            }
             res.sendFile(filename, { root: gameModule.directories.resources }, function (err) {
               if (err) {
                 if (err.code === "ECONNABORT" && res.statusCode == 304) {
@@ -81,14 +86,11 @@ function registerGameResourceRoutes(server, database) {
                 }
                 logger.log("BotBattleApp", "Failed to serve request for", req.url, ".", err, " (status: " + err.status + ")");
                 if (err.status) {
-                  res.status(err.status).end();
+                  res.status(err.status).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
                 }
                 else {
                   res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
                 }
-              }
-              else {
-                logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
               }
             });
           }
@@ -134,14 +136,11 @@ function registerGameResourceRoutes(server, database) {
                 }
                 logger.log("BotBattleApp", "Failed to serve request for", req.url, ".", err, " (status: " + err.status + ")");
                 if (err.status) {
-                  res.status(err.status).end();
+                  res.status(err.status).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
                 }
                 else {
                   res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
                 }
-              }
-              else {
-                logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
               }
             });
           }
@@ -186,14 +185,11 @@ function registerGameResourceRoutes(server, database) {
                 }
                 logger.log("BotBattleApp", "Failed to serve request for", req.url, ".", err, " (status: " + err.status + ")");
                 if (err.status) {
-                  res.status(err.status).end();
+                  res.status(err.status).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
                 }
                 else {
                   res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
                 }
-              }
-              else {
-                logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
               }
             });
           }

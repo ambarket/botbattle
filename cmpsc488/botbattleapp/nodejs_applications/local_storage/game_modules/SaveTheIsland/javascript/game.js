@@ -485,7 +485,7 @@ var GameBoard = function() {
      */
     
     var backgroundImgOptions = {
-         'imageSrc' : 'static/images/SaveTheIslandBackGround3.png', 
+         'imageSrc' : 'game/SaveTheIsland/resources/images/SaveTheIslandBackGround3.png', 
          'x' : 0,          
          'y' : 0,       
          'width' : self.backGroundWidth, 
@@ -494,7 +494,7 @@ var GameBoard = function() {
     }
     
     var player1StandingSpriteOptions = {
-      'imageSrc' : 'static/images/StandingRight.png',
+      'imageSrc' : 'game/SaveTheIsland/resources/images/StandingRight.png',
       'sourceX' : 0,
       'sourceY' : 0,
       'sourceHeight' : 101,
@@ -511,7 +511,7 @@ var GameBoard = function() {
     }
 
     var player2StandingSpriteOptions = {
-        'imageSrc' : 'static/images/StandingLeft.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/StandingLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -528,7 +528,7 @@ var GameBoard = function() {
       }
     
     var player1RunningSpriteOptions = {
-        'imageSrc' : 'static/images/RunningRight.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/RunningRight.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -545,7 +545,7 @@ var GameBoard = function() {
       }
     
     var player2RunningSpriteOptions = {
-        'imageSrc' : 'static/images/RunningLeft.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/RunningLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -562,7 +562,7 @@ var GameBoard = function() {
       }
     
     var player1BlockingSpriteOptions = {
-        'imageSrc' : 'static/images/BlockingRight.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/BlockingRight.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -579,7 +579,7 @@ var GameBoard = function() {
       }
     
     var player2BlockingSpriteOptions = {
-        'imageSrc' : 'static/images/BlockingLeft.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/BlockingLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -596,7 +596,7 @@ var GameBoard = function() {
       }
     
     var player1AttackingSpriteOptions = {
-        'imageSrc' : 'static/images/ShootingRight2.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/ShootingRight2.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -613,7 +613,7 @@ var GameBoard = function() {
       }
     
     var player2AttackingSpriteOptions = {
-        'imageSrc' : 'static/images/ShootingLeft2.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/ShootingLeft2.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -630,7 +630,7 @@ var GameBoard = function() {
       }
     
     var player1FallingSpriteOptions = {
-        'imageSrc' : 'static/images/FallingRight.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/FallingRight.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -647,7 +647,7 @@ var GameBoard = function() {
       }
     
     var player2FallingSpriteOptions = {
-        'imageSrc' : 'static/images/FallingLeft.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/FallingLeft.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceHeight' : 101,
@@ -751,7 +751,7 @@ var GameBoard = function() {
     
     function makeNewTree(x, y) {
       return {
-        'imageSrc' : 'static/images/tree.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/tree.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceWidth' : 32,
@@ -783,7 +783,7 @@ var GameBoard = function() {
       }
     
     this.ufo = new drawableImage({
-        'imageSrc' : 'static/images/ufo.png',
+        'imageSrc' : 'game/SaveTheIsland/resources/images/ufo.png',
         'sourceX' : 0,
         'sourceY' : 0,
         'sourceWidth' : 99,

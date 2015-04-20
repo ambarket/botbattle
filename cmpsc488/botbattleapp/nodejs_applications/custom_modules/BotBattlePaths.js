@@ -89,7 +89,7 @@ module.exports.built_in_games = {
     'save_the_island' : {
       'rules_pdf' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'SaveTheIslandGameRules.pdf'),
       'game_java' : path.resolve(module.exports.app_root, '../GameManager', 'Games', 'Game.java'),
-      'game_js' : path.resolve(module.exports.app_root, 'static', 'javascript', 'game.js'),
+      'game_js' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'game.js'),
       'resources_zip' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'resources.zip'),
       'preloaded_bots' : 
         [
