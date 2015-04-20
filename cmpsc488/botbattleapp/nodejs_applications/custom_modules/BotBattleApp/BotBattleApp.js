@@ -77,7 +77,7 @@ function registerGameResourceRoutes(server, database) {
             res.sendFile(fileName, { root: gameModule.directories.resources }, function (err) {
               if (err) {
                 logger.log("BotBattleApp", "Failed to serve request for", req.url, ", likely this file doesn't exist on the file system.", err.message);
-                res.status(err.status).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
               }
             });
           }
@@ -116,7 +116,7 @@ function registerGameResourceRoutes(server, database) {
               console.log(err);
               if (err) {
                 logger.log("BotBattleApp", "Error during request for ", req.url, err.message);
-                res.status(err.status).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
               }
             });
           }
@@ -155,7 +155,7 @@ function registerGameResourceRoutes(server, database) {
             res.sendFile(gameModule.javascriptFilePath, function (err) {
               if (err) {
                 logger.log("BotBattleApp", "Failed to serve request for", req.url, ", likely this file doesn't exist on the file system.", err.message);
-                res.status(err.status).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
               }
             });
           }
