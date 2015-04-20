@@ -286,7 +286,6 @@ public class Game implements GameInterface {
     try {
       pieces = move.split(";");
       typeOfMove = pieces[TYPE_OF_MOVE].toLowerCase();
-      System.err.println("TYPE OF MOVE: " + typeOfMove);
       if (typeOfMove.equals("shuffle")) {
         if (player == 1 && player1ShufflesUsed >= shuffleLimit || player == 2 && player2ShufflesUsed >= shuffleLimit ) {
           disqualifyPlayerIfABot(player);

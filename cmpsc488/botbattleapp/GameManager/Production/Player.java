@@ -45,7 +45,7 @@ public class Player implements Runnable {
     // Process p =  Runtime.getRuntime().exec("/home/amb6470/testuid");
     // p.waitFor();
     
-    System.err.println("Cmd:"+ cmd + ", name: " + executable + ", \nPATH: " + botFilePath);
+   // System.err.println("Cmd:"+ cmd + ", name: " + executable + ", \nPATH: " + botFilePath);
     ProcessBuilder builder;
     if (!cmd.equals("")) {
       builder = new ProcessBuilder(cmd , executable);    // For java it has to be just the class name
@@ -72,8 +72,9 @@ public class Player implements Runnable {
     
     Thread closeChildThread = new Thread() {
       public void run() {
-        System.out.println("Killing before exit");
-        botProcess.destroyForcibly();
+        if (humanOrBot == BOT) {
+          botProcess.destroyForcibly();
+        }
       }
     };
 
@@ -95,7 +96,6 @@ public class Player implements Runnable {
       if (humanOrBot == BOT) {
         writer.write(board + "\n");
         writer.flush();
-        System.err.println("\n\tREADING FROM BOT\n");
         readFromBotThread.join(moveTimeout);
       } else if (humanOrBot == HUMAN) {
         readFromBotThread.join(moveTimeout);

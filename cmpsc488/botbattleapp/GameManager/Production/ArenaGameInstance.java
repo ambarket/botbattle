@@ -60,13 +60,6 @@ public class ArenaGameInstance {
       } else {
         System.out.println(getInvalidMoveJSON(jsonSafeMove, jsonSafeStderrArray, player, reasonMoveWasInvalid));
       }
-      
-      // Temporary debugging info.
-      System.err.println(
-    	  "\nMOVE:" + rawMove + 
-          ", PLAYER: " + player + "\n" + 
-          ", STDERR: " + rawStderr + "\n" +
-          ", BOARD: " + game.getCompleteBoard());
     }
     
     System.out.println(game.getFinalGameStateJSON());

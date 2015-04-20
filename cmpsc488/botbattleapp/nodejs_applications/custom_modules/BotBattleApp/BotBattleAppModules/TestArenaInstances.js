@@ -208,7 +208,11 @@ module.exports = new (function() {
 
           testArenaInstances[id].gameProcess.stdout.on('data', function(data) {
             var array = data.toString().split(/\n/);
-            console.log("Split array:", array)
+            for (var i = 0; i < array.length; i++) {
+              if (array[i] === '') {
+                array.splice(i, 1);
+              }
+            }
             if(!self.hasInstanceExpired(id)) {
               testArenaInstances[id].resetExpirationTime();
               
