@@ -157,9 +157,7 @@ module.exports = function BotBattleServer() {
       saveUninitialized : false,
       rolling : true,
       genid: function(req) {
-        //console.log(shortid.generate())
         return shortid.generate(); // use UUIDs for session IDs
-        //return genuuid()
       },
     });
     self.addMiddleware(sessionStore);

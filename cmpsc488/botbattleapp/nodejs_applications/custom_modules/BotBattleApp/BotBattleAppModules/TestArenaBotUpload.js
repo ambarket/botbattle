@@ -32,7 +32,6 @@ module.exports = {
           res.json({'error' : "An unexpected error occured while uploading your bots. Please try again or see your administrator"});
         }
         else {
-          //console.log(gameModule);
           testArenaInstances.createNewGame(gameModule, function(err, newGameId) {
             if (err) {
               res.status(500).json({'error' : "An unexpected error occured while uploading your bots. Please try again or see your administrator"});

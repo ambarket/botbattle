@@ -1,5 +1,4 @@
 // TODO: Eliminate the evert emitter stuff, overly complicates this for no reason.
-//  Also replace all emits and console.log statmenets with logger.log('BotBattleCompiler', message)
 
 
 /**
@@ -17,7 +16,7 @@ function BotBattleCompiler() {
   
   this.compileDirectoryJava = function(folder, outputFolder, callback) {
     if (!callback || typeof(callback) != "function") {
-      console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
+      logger.log("BotBattleCompiler", "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
       self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
     }
     else if (!folder) {
@@ -40,7 +39,7 @@ function BotBattleCompiler() {
     sourceFiles.unshift("-classpath", paths.gameManagerJars);
     sourceFiles.push("-d");
     sourceFiles.push(outputFolder);
-    console.log("Compiling", sourceFiles);
+    logger.log("BotBattleCompiler", "Compiling", sourceFiles);
     compilationProcess = spawn('javac', sourceFiles);
     compilationProcess
     .on('close', function (code, signal) 
@@ -94,7 +93,7 @@ function BotBattleCompiler() {
     var language = undefined;
     // Validate arguments before going further
     if (!callback || typeof(callback) != "function" /*|| callback.getClass() != '[object Function]' TODO Doesn't work find another way*/) {
-      console.log("Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
+      logger.log("BotBattleCompiler", "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
       self.emit('warning', "Undefined or non-function object sent as callback to BotBattleCompiler.compile(...)");
     }
     else if (!sourceFilePath) {

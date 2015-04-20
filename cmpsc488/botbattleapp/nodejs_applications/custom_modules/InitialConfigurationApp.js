@@ -333,8 +333,8 @@ function InitialConfigurationApp(initConfigAppServer) {
     var exec = require('child_process').exec;
     var child = child = exec('unzip ' + tmpData.gameResourcesFile.path + " -d " + tmpData.newDirectories.resources,
         function (err, stdout, stderr) {
-          console.log('unzip resources stdout: ' + stdout);
-          console.log('unzip resources stderr: ' + stderr);
+          logger.log("InitialConfigurationApp", 'unzip resources stdout: ' + stdout);
+          logger.log("InitialConfigurationApp", 'unzip resources stderr: ' + stderr);
           if (err) {
             err.message = "&nbsp&nbsp Failed to extract game resources to new directory " + err.message;
             initGameModuleTask2DCallback(err)
@@ -519,7 +519,7 @@ function InitialConfigurationApp(initConfigAppServer) {
             //studentList : (req.files.studentList) ? req.files.studentList[0] : undefined,
             //tournamentDeadline : sanitizer.sanitize(req.body.tournamentDeadline),
           };
-          console.log(sanitizedFormData);
+          logger.log("InitialConfigurationApp", sanitizedFormData);
           
           if (sanitizedFormData.gameSelect === 'saveTheIsland') {
             loadSaveTheIsland(sanitizedFormData);
@@ -642,8 +642,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Invalid game module name, must be alphanumeric with atleast 4 and no more than 35 characters');
       var valid = false;
     }
-    console.log(sanitizedFormData.gameSource);
-    console.log(sanitizedFormData.gameSource.originalname);
+    
     if (!inputValidator.isCorrectGameName(sanitizedFormData.gameSource.originalname)) {
       self.emit('config_error', 'Game Module Source must be named Game.java');
       var valid = false;
@@ -653,7 +652,7 @@ function InitialConfigurationApp(initConfigAppServer) {
       self.emit('config_error', 'Game Module Rules file must have a .pdf extension');
       var valid = false;
     }
-    console.log(sanitizedFormData);
+    
     if (!inputValidator.isJavascriptFile(sanitizedFormData.gameJavascript.originalname)) {
       self.emit('config_error', 'Game Module Javascript file must have a .js extension');
       var valid = false;
