@@ -273,8 +273,14 @@ public class Game implements GameInterface {
   // Used for internally for validation on a previous board.
   protected String validateMove(String move, int player, String board) {
     if (move == null) {
-      disqualifyPlayerIfABot(player);
-      return "The action was null.";
+      gameOverMessage = "Player " + player + " was disqualified.";
+      return "The move was null.";
+    } else if (move.equals("MoveTimeoutExceeded")) {
+      gameOverMessage = "Player " + player + " was disqualified for exceeding the move timeout.";
+      return "The move timeout was exceeded.";
+    } else if (move.equals("ExpectionWhileReadingMove")) {
+      gameOverMessage = "Player " + player + " was disqualified.";
+      return "An exception occured while reading the move from the player.";
     }
 
     short TYPE_OF_MOVE = 0, TILES_USED = 1;

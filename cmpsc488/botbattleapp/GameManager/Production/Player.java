@@ -106,15 +106,15 @@ public class Player implements Runnable {
         return move;
       } else {
         botProcess.destroyForcibly();
-        return "Bot Timed Out";
+        return "MoveTimeoutExceeded";
       }
 
     } catch (IOException e) {
       botProcess.destroyForcibly();
-      return "Bot Threw Exception";
+      return "ExpectionWhileReadingMove";
     } catch (InterruptedException e) {
       botProcess.destroyForcibly();
-      return null;
+      return "ExpectionWhileReadingMove";
     }
   }
   

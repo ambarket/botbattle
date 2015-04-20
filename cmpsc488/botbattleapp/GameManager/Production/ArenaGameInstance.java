@@ -52,7 +52,7 @@ public class ArenaGameInstance {
         }
     	jsonSafeStderrArray =  JSONValue.toJSONString(tmpArray);
       }
-      
+
       String reasonMoveWasInvalid = game.validateMove(rawMove, player);
       if (reasonMoveWasInvalid == null) {
         game.updateBoard(rawMove, rawStderr, player);
