@@ -90,6 +90,7 @@ function registerGameResourceRoutes(server, database) {
               else {
                 logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
               }
+            });
           }
         }
       }
@@ -142,7 +143,7 @@ function registerGameResourceRoutes(server, database) {
               else {
                 logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
               }
-            }
+            });
           }
         }
       }
@@ -194,7 +195,7 @@ function registerGameResourceRoutes(server, database) {
               else {
                 logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
               }
-            }
+            });
           }
         }
       }
@@ -246,8 +247,7 @@ function registerTestArenaRoutes(server, database) {
       else {
         
         var locals = helpers.copyLocalsAndDeleteMessage(req.session);
-        //locals.gameJavascriptUrl = "/game/" + gameModule.gameName + "/javascript";
-        locals.gameJavascriptUrl = "/static/javascript/game.js";    // Switch to the way above once changes to game.js have been finalized
+        locals.gameJavascriptUrl = "/game/" + gameModule.gameName + "/javascript";
         locals.gameRulesUrl = "/game/" + gameModule.gameName + "/rules";
         res.render(paths.static_content.views + 'pages/testArena', { 'locals' : locals});
       }

@@ -72,8 +72,9 @@ var local_storage_directory = path.join(module.exports.app_root, 'local_storage'
 module.exports.local_storage = {
     'directory' : local_storage_directory,
     'game_modules' :  path.join(local_storage_directory, 'game_modules'),
-    'private_tournaments' :  path.join(local_storage_directory, 'private_tournaments'),
-    'public_tournaments' :  path.join(local_storage_directory, 'public_tournaments'),
+    // Tournaments have not been fully implemented
+    //'private_tournaments' :  path.join(local_storage_directory, 'private_tournaments'),
+    //'public_tournaments' :  path.join(local_storage_directory, 'public_tournaments'),
     'test_arena_tmp' :  path.join(local_storage_directory, 'test_arena_tmp'),
 }
 
