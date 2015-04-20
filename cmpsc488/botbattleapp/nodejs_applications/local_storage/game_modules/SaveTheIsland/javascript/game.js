@@ -8,7 +8,6 @@ GAME = {
       this.gameboard.player2Tiles = gameData.player2Tiles;
       processGameDataCallback();
     },
-
     'processDebugData' : function(debugData, processDebugDataCallback) {
       //Add debugging data to the page
       GLOBAL.appendDivToHtmlElementById('boardList', debugData.board);
@@ -16,7 +15,6 @@ GAME = {
       GLOBAL.appendArrayOfDivsToHtmlElementById('stderr', debugData.stderr);
       processDebugDataCallback();
     },
-    
     'processAnimatableEvent' : function(animatableEvent, processAnimatableEventCallback) {
       // Take an object past in the animatableEvents array from the game manager
       //    and animate it on the canvas.
@@ -123,6 +121,22 @@ GAME = {
 
       return move;
     },
+    'setExtraGameControls' : function() { 
+      if(document.getElementById("toggleTiles") === null){
+        var button = document.createElement('BUTTON');
+        button.id = "toggleTiles";
+        button.innerHTML = "Toggle Tiles";
+        document.getElementById("extraGameControls").appendChild(button);
+        document.getElementById("toggleTiles").addEventListener('click', function(ev) {
+          GAME.toggleTiles();
+          console.log("Tiles Toggled");
+        });
+      }
+    },
+    'drawTiles' : true,
+    'toggleTiles' : function(){
+      GAME.drawTiles = !GAME.drawTiles;
+    },
     'gameboard' : null,
     'resetGameboard' : function(readyCallback) {
       var gb = new GameBoard();
@@ -134,20 +148,8 @@ GAME = {
     }
 }
 
-  // Run each time the drawer draws?
   var updateBackground = function(startTime) {
-    //requestAnimationFrame(self.backgroundAnimations);
-    //drawer.drawBoard();
-    var treeMove = 1;
-    treeMove *= -1;
-    // TODO  this is all messed up now but still pointless
-    // Move the trees around
-    for (treeIndex in GAME.gameboard.backgroundElements.trees1){
-        GAME.gameboard.backgroundElements.trees1[treeIndex].x += (treeMove * 5 * TEST_ARENA.scale);
-    }
-    for (treeIndex in GAME.gameboard.backgroundElements.trees2){
-        GAME.gameboard.backgroundElements.trees2[treeIndex].y += (treeMove * 5 * TEST_ARENA.scale);
-    }
+    GAME.gameboard.ufo.animate();
   }
 
   /**
@@ -210,6 +212,7 @@ GAME = {
         move : function(eventData, processAnimatableEventCallback) {
         // Setup any variables needed for the animation
         var finalPosition = (eventData.endPosition * GAME.gameboard.gridWidth) + GAME.gameboard.islandStart;
+        eventData.player === 'player1' ? GAME.player1GridPosition = eventData.endPosition : GAME.player2GridPosition = eventData.endPosition
         var pixelsPerSecond = GAME.gameboard.islandWidth * 0.183908046; // 0.183908046 is 160/870  should be changed to be based on island width
         var player = GAME.gameboard.playerAnimations[eventData.player];
         player.standing.visible = false;
@@ -269,7 +272,9 @@ GAME = {
         
         // Set current state and position of attacking player
         //TODO  change this so it is based on grid positions. And above and everywhere else too.
-        attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+        attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter * TEST_ARENA.scale;
+        if(eventData.player === "player2")
+          attackingPlayer.attack.x -= (TEST_ARENA.scale * 30);
         attackingPlayer.attack.y = attackingPlayer.standing.y;  
         attackingPlayer.standing.visible = false;
         attackingPlayer.attack.visible = true;
@@ -302,7 +307,7 @@ GAME = {
           // Set current state and position of defending player
 
           // in the future -- position changes like this need to be based on the grid position then shifted so the "winner" isn't messed up anymore
-          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+          defendingPlayer.defend.x = defendingPlayer.standing.x - ((defendingPlayer.defend.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter * TEST_ARENA.scale;
           defendingPlayer.defend.y = defendingPlayer.standing.y;  
           defendingPlayer.standing.visible = false;
           defendingPlayer.defend.visible = true;
@@ -310,7 +315,9 @@ GAME = {
           
           // Set current state and position of attacking player
           //TODO  change this so it is based on grid positions. And above and everywhere else too.
-          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter;
+          attackingPlayer.attack.x = attackingPlayer.standing.x - ((attackingPlayer.attack.width * TEST_ARENA.scale)/2) + GAME.gameboard.gridCenter * TEST_ARENA.scale;
+          if(eventData.player === "player1")
+            attackingPlayer.attack.x -= (TEST_ARENA.scale * 25);
           attackingPlayer.attack.y = attackingPlayer.standing.y;  
           attackingPlayer.standing.visible = false;
           attackingPlayer.attack.visible = true;
@@ -344,105 +351,72 @@ function Drawer() {
   
   var self = this;
   
+  // The order in which things appear here matter.  Think of it as z-index.  They will draw over each other of 
+  // the coordinates are the same. First is farthest back on the buffer.
   this.drawBoard = function() {
-	  
-    //updateBackground();
     
     for (object in GAME.gameboard.drawableObjects) {
       GAME.gameboard.drawableObjects[object].draw(TEST_ARENA.context);
     }
+    
     for (list in GAME.gameboard.backgroundElements){
         for(object in GAME.gameboard.backgroundElements[list]){
             GAME.gameboard.backgroundElements[list][object].draw(TEST_ARENA.context);
         }
     }
+    
+    // set to draw in the function
+    updateBackground();
+    
     drawGridNumbers();
-    drawPlayerTiles();
+    
+    if(GAME.drawTiles === true){
+      drawPlayerTiles();
+    }
   }
   
   var drawGridNumbers = function(){
-      var player1PositionX = GAME.gameboard.playerAnimations["player1"].current.x;
-      //var player1PositionY = GAME.gameboard.playerAnimations["player1"].current.y;
-      var player2PositionX = GAME.gameboard.playerAnimations["player2"].current.x;
-      //var player2PositionY = GAME.gameboard.playerAnimations["player2"].current.y;
+      var player1PositionX = GAME.gameboard.playerAnimations["player1"].current.x + GAME.gameboard.playerAnimations["player1"].current.width / 2;
+      var player2PositionX = GAME.gameboard.playerAnimations["player2"].current.x + GAME.gameboard.playerAnimations["player2"].current.width / 2;
+      var p1CalcGrid = Math.floor((player1PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
+      var p2CalcGrid = Math.floor((player2PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
+      var lessAccurateDistanceBetweenPlayers = p2CalcGrid - p1CalcGrid;
       
-      //  TODO wanted to update so its based on grid position, but can't becuase it's constant update.
-      //  could save lots of computations if only update when player is done moving and based on 
-      //  player position that is stored in player.  This wouldn't look as cool, but is way less error prone
-      //  and less processing.  Also this Math.floor is causeing problems here and below.
-      var p1Grid = Math.floor((player1PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
-      var p2Grid = Math.floor((player2PositionX - GAME.gameboard.islandStart)/ GAME.gameboard.gridWidth);
-      //console.log(p1Grid, p2Grid);
-      var distanceBetweenPlayers = Math.abs(p1Grid - p2Grid);
-      
+      //var finalPosition1 = GAME.player1GridPosition;
+      //var finalPosition2 = GAME.player2GridPosition;
+      //var distanceBetweenPlayers = finalPosition2 - finalPosition1;
       TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
       TEST_ARENA.context.fillStyle="black";
       
-      // TODO  fix this like above mentions
-      if((p1Grid >= 0 && p1Grid <= GAME.gameboard.numberOfGrids - 1) && (p2Grid >= 0 && p2Grid <= GAME.gameboard.numberOfGrids - 1)){
-        TEST_ARENA.context.fillText(Math.floor(distanceBetweenPlayers), 500 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+      if((p1CalcGrid >= 0 && p1CalcGrid <= GAME.gameboard.numberOfGrids - 1) && (p2CalcGrid >= 0 && p2CalcGrid <= GAME.gameboard.numberOfGrids - 1)){
+       TEST_ARENA.context.fillText(Math.floor(lessAccurateDistanceBetweenPlayers), 500 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
       }
       else{
-          if(p1Grid < 0){
-            TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
-          }
-          if(p2Grid > GAME.gameboard.numberOfGrids - 1){
-            TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
-          }
+        if(p1CalcGrid < 0){
+          TEST_ARENA.context.fillText("Player 2 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+        }
+        if(p2CalcGrid > GAME.gameboard.numberOfGrids - 1){
+          TEST_ARENA.context.fillText("Player 1 Wins", 405 * TEST_ARENA.scale, 550 * TEST_ARENA.scale);
+        }
       }
   }
-  
+ 
   var drawPlayerTiles = function() {
-    /** options
-     *  {
-     *      x: Number
-     *      y: number
-     *      width:
-     *      height:
-     *      borderWidth:
-     *      fillStyle:
-     *      strokeStyle:
-     */
-
-    //  probably move tileParameters to gameBoard.
-    //  Maybe we actually want to move all hardcoded canvas pixel related stuff to the drawer
-    var tileParameters = {
-        'player1StartingX' : 50,
-        'player2StartingX' : 750,
-        'y' : 570,
-        'width' : 50,
-        'height' : 50,
-        'fillStyle' : '#FFFFD1',
-    }
-    
-    function drawTileArray(tileArray, startingX) { 
-      // TODO overhaul this.  Essentially, a groupd of drawable images should be made that are static and
-      //      the numbers should be changed like they are changed in the draw numbers fuction so there is not
-      //      a new drawableRectangle made each time and just the .draw function can be called and we can even
-      //      have a fixed tile image to look better.
-      for (var i = 0; i < tileArray.length; i++) {
-        var currentX = (startingX + (50* i));
-        
-        (new drawableRectangle({ 
-          x: currentX, 
-          y: tileParameters.y,
-          width: tileParameters.width,
-          height: tileParameters.height,
-          fillStyle: tileParameters.fillStyle,
-        })).draw(TEST_ARENA.context);
-        
-        // TODO: Make drawableText object instead of copying this everywhere
-        TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
-        TEST_ARENA.context.fillStyle="black";
-        TEST_ARENA.context.fillText(tileArray[i], (currentX + 17) * TEST_ARENA.scale , (tileParameters.y + 35) * TEST_ARENA.scale );
-      }
-    }
-    
-    drawTileArray(GAME.gameboard.player1Tiles, tileParameters.player1StartingX); 
-    drawTileArray(GAME.gameboard.player2Tiles, tileParameters.player2StartingX); 
+    var i = 0;
+    var player = GAME.gameboard.player1Tiles;
+     for(var tileSet in GAME.gameboard.tiles){
+       for(tile in GAME.gameboard.tiles[tileSet]){
+         GAME.gameboard.tiles[tileSet][tile].draw(TEST_ARENA.context);
+         TEST_ARENA.context.font= 30  * TEST_ARENA.scale + 'px Arial';
+         TEST_ARENA.context.fillStyle="black";
+         TEST_ARENA.context.fillText(player[i], (GAME.gameboard.tiles[tileSet][tile].x + 17) * TEST_ARENA.scale , (GAME.gameboard.tiles[tileSet][tile].y + 35) * TEST_ARENA.scale );
+         i++;
+       }
+       player = GAME.gameboard.player2Tiles;
+       i = 0;
+     }   
   }
 }
-
 
 //--------------------------The GAME.gameboard (Model)------------------------------------
 var GameBoard = function() {
@@ -698,6 +672,9 @@ var GameBoard = function() {
     this.player1Tiles = [0,0,0,0,0];
     this.player2Tiles = [0,0,0,0,0];
     
+    this.player1GridPosition = 0;
+    this.player2GridPosition = 14;
+    
     this.playerAnimations = {
         player1 : {
             current : self.drawableObjects.player1,
@@ -719,6 +696,50 @@ var GameBoard = function() {
         }
   }
     
+    /** options
+     *  
+     *   x: Number
+     *   y: number
+     *   width:
+     *   height:
+     *   borderWidth:
+     *   fillStyle:
+     *   strokeStyle:
+     */
+    var tileParameters = {
+        'player1StartingX' : 50,
+        'player2StartingX' : 750,
+        'y' : 570,
+        'width' : 50,
+        'height' : 50,
+        'fillStyle' : '#FFFFD1',
+    }
+    
+    function makeNewTile(x, y){
+      return {
+        'x' : x,
+        'y' : y,
+        'width' : tileParameters.width,
+        'height' : tileParameters.height,
+        'fillStyle' : tileParameters.fillStyle,
+      }
+    }
+    this.tiles = {
+        player1Tiles : {
+          tile1 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX, tileParameters.y)),
+          tile2 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 50, tileParameters.y)),
+          tile3 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 100, tileParameters.y)),
+          tile4 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 150, tileParameters.y)),
+          tile5 : new drawableRectangle(makeNewTile(tileParameters.player1StartingX + 200, tileParameters.y))
+        },
+        player2Tiles : {
+          tile1 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX, tileParameters.y)),
+          tile2 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 50, tileParameters.y)),
+          tile3 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 100, tileParameters.y)),
+          tile4 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 150, tileParameters.y)),
+          tile5 : new drawableRectangle(makeNewTile(tileParameters.player2StartingX + 200, tileParameters.y))
+        }
+    }
     
     function makeNewTree(x, y) {
       return {
@@ -738,22 +759,87 @@ var GameBoard = function() {
     
     this.backgroundElements = {
         trees1 : {
-          tree1 : new drawableImage(makeNewTree(10, 110)),
-          tree2 : new drawableImage(makeNewTree(75, 100)),
+          tree1 : new drawableImage(makeNewTree(50, 125)),
+          tree2 : new drawableImage(makeNewTree(75, 105)),
+          tree3 : new drawableImage(makeNewTree(150, 154)),
+          tree4 : new drawableImage(makeNewTree(250, 160)),
+          tree5 : new drawableImage(makeNewTree(350, 125)),
         },
         trees2 : {
-            tree3 : new drawableImage(makeNewTree(150, 154)),
-            tree4 : new drawableImage(makeNewTree(250, 160)),
-            tree5 : new drawableImage(makeNewTree(350, 125)),
+          tree1 : new drawableImage(makeNewTree(450, 125)),
+          tree2 : new drawableImage(makeNewTree(725, 120)),
+          tree3 : new drawableImage(makeNewTree(650, 154)),
+          tree4 : new drawableImage(makeNewTree(850, 160)),
+          tree5 : new drawableImage(makeNewTree(950, 125)),
         }
       }
-      
-      var imagesLoaded= 0, expectedImagesLoaded=16;
-      function imageLoadedCallback() {
-        imagesLoaded++;
-        if (imagesLoaded == expectedImagesLoaded) {
-          callback();
-        }
+    
+    this.ufo = new drawableImage({
+        'imageSrc' : 'static/images/ufo.png',
+        'sourceX' : 0,
+        'sourceY' : 0,
+        'sourceWidth' : 99,
+        'sourceHeight' : 40,
+        'x' : -200,
+        'y' : 50,
+        'width' : 99,
+        'height' : 40,
+        'visible' : true,
+        'loadedCallback' : imageLoadedCallback});
+    self.ufo.direction = (function(){
+      if(TEST_ARENA.coinFlip()){
+        self.ufo.direction = "right";
+        self.ufo.x = -200;
       }
+      else{
+        self.ufo.direction = "left";
+        self.ufo.x = 1100;
+      }
+    })();
+    self.ufo.speed = 1;
+    self.ufo.leftEnd = -200;
+    self.ufo.rightEnd = 1100;
+    self.ufo.animate = function(){
+      // move a ufo left and right with random height 0 -> 50
+      var ufo = GAME.gameboard.ufo;
+      if(ufo.x <= ufo.leftEnd){
+        ufo.direction = "right";
+        setParameters();     
+      }
+      if(ufo.x < ufo.rightEnd && ufo.direction === "right"){
+        ufo.x += ufo.speed;
+      }
+      if(ufo.x >= ufo.rightEnd){
+        ufo.direction = "left";
+        setParameters();
+      }
+      if(ufo.x > ufo.leftEnd && ufo.direction === "left"){
+        ufo.x -= ufo.speed;
+      } 
+      function setParameters(){
+        if(TEST_ARENA.coinFlip()){
+          ufo.y = Math.floor((Math.random() * 75) + 1);
+          if(ufo.direction === "left"){
+            ufo.leftEnd = -200 - Math.floor((Math.random() * 800) + 1);
+          }
+          else{
+            ufo.rightEnd = 1100 + Math.floor((Math.random() * 800) + 1);
+          }
+        }
+        else{
+          ufo.y = Math.floor((Math.random() * 75) + 1);
+        }
+        ufo.speed = Math.floor((Math.random() * 5) + 1); 
+      }
+      ufo.draw(TEST_ARENA.context);
+    }
+    
+    var imagesLoaded= 0, expectedImagesLoaded=22;
+    function imageLoadedCallback() {
+      imagesLoaded++;
+      if (imagesLoaded == expectedImagesLoaded) {
+        callback();
+      }
+    }
   }
 }
