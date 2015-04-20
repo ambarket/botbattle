@@ -71,20 +71,32 @@ function registerGameResourceRoutes(server, database) {
             res.status(404).send("Failed to find the requested resource. Please see your administrator if this problem persists.");
           }
           else {
-            //var resolvedFilePath = path.join(gameModule.resourcesDirectory, );
-            //res.sendFile(resolvedFilePath);
             var fileName = req.url.substring(req.url.indexOf('resources/') + 10);
-            res.sendFile(fileName, { root: gameModule.directories.resources }, function (err) {
+            res.sendFile(filename, { root: gameModule.directories.resources }, function (err) {
               if (err) {
-                logger.log("BotBattleApp", "Failed to serve request for", req.url, ", likely this file doesn't exist on the file system.", err.message);
-                res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                if (err.code === "ECONNABORT" && res.statusCode == 304) {
+                  // No problem, 304 means client cache hit, so no data sent.
+                  logger.log("BotBattleApp", "Failed to serve request for", req.url, " 304 client cache hit.", err);
+                  return;
+                }
+                logger.log("BotBattleApp", "Failed to serve request for", req.url, ".", err, " (status: " + err.status + ")");
+                if (err.status) {
+                  res.status(err.status).end();
+                }
+                else {
+                  res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                }
               }
-            });
+              else {
+                logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
+              }
           }
         }
       }
     });
   });
+  
+
 
   server.addDynamicRoute('get', /^\/game\/(.*)\/rules$/, function(req, res) {
     // To get the filePath just strip /game/ off and append to game_modules directory.
@@ -113,12 +125,24 @@ function registerGameResourceRoutes(server, database) {
           }
           else {
             res.sendFile(gameModule.rulesFilePath, function (err) {
-              console.log(err);
               if (err) {
-                logger.log("BotBattleApp", "Error during request for ", req.url, err.message);
-                res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                if (err.code === "ECONNABORT" && res.statusCode == 304) {
+                  // No problem, 304 means client cache hit, so no data sent.
+                  logger.log("BotBattleApp", "Failed to serve request for", req.url, " 304 client cache hit.", err);
+                  return;
+                }
+                logger.log("BotBattleApp", "Failed to serve request for", req.url, ".", err, " (status: " + err.status + ")");
+                if (err.status) {
+                  res.status(err.status).end();
+                }
+                else {
+                  res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                }
               }
-            });
+              else {
+                logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
+              }
+            }
           }
         }
       }
@@ -154,10 +178,23 @@ function registerGameResourceRoutes(server, database) {
           else {
             res.sendFile(gameModule.javascriptFilePath, function (err) {
               if (err) {
-                logger.log("BotBattleApp", "Failed to serve request for", req.url, ", likely this file doesn't exist on the file system.", err.message);
-                res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                if (err.code === "ECONNABORT" && res.statusCode == 304) {
+                  // No problem, 304 means client cache hit, so no data sent.
+                  logger.log("BotBattleApp", "Failed to serve request for", req.url, " 304 client cache hit.", err);
+                  return;
+                }
+                logger.log("BotBattleApp", "Failed to serve request for", req.url, ".", err, " (status: " + err.status + ")");
+                if (err.status) {
+                  res.status(err.status).end();
+                }
+                else {
+                  res.status(404).end("Failed to find the requested resource. Please see your administrator if this problem persists.");
+                }
               }
-            });
+              else {
+                logger.log("BotBattleApp", "Successfully served request for ", req.url, ".", err, " (status: " + err.status + ")");
+              }
+            }
           }
         }
       }
@@ -207,7 +244,6 @@ function registerTestArenaRoutes(server, database) {
         res.status(500).send("An unexpected error occured while loading the test arena. Please see your administrator if this problem persists.");
       }
       else {
-        console.log(gameModule);
         
         var locals = helpers.copyLocalsAndDeleteMessage(req.session);
         //locals.gameJavascriptUrl = "/game/" + gameModule.gameName + "/javascript";
