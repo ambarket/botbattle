@@ -150,6 +150,10 @@ public class Player implements Runnable {
   public String toString() {
     return "Player [\n\t\tbotFilePath=" + botFilePath + ",\n\t\t usersName=" + usersName + "]";
   }
-
-
+  
+  public void killBotProcess() {
+    if (humanOrBot == BOT) {
+      botProcess.destroyForcibly();
+    }
+  }
 }

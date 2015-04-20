@@ -66,6 +66,9 @@ public class ArenaGameInstance {
     }
     
     System.out.println(game.getFinalGameStateJSON());
+    
+    bot1.killBotProcess();
+    bot2.killBotProcess();
   }
 
   @Override
