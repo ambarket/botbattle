@@ -144,8 +144,8 @@ public class Game implements GameInterface {
     jsonString += gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
               prettyPrintMove(lastRawMove, player)) + ",";
 
-    String jsonSafeBoard = JSONValue.toJSONString(board);
-
+    String jsonSafeBoard = (player == 1) ? JSONValue.toJSONString(getPlayerOneBoard()) : JSONValue.toJSONString(getPlayerTwoBoard());
+    
     jsonString += "\"debugData\" : {" +
     				   "\"board\" : " + jsonSafeBoard + "," +
                        "\"stderr\" :" + jsonSafeStderrArray + "," +

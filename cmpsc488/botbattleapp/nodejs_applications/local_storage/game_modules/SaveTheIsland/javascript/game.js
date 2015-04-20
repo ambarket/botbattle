@@ -1,14 +1,17 @@
 
 
 GAME = {
-    'processGameData' : function(gameData, processGameDataCallback) {
+    'processGameData' : function(messageType, gameData, processGameDataCallback) {
       // Add tiles and turn description to the page
       GLOBAL.appendDivToHtmlElementById('moveList', gameData.turnDescription);
       this.gameboard.player1Tiles = gameData.player1Tiles;
       this.gameboard.player2Tiles = gameData.player2Tiles;
+      if (messageType === 'finalGamestate' || messageType === 'initialGamestate') {
+        GLOBAL.eventLog.logMessage('status', gameData.turnDescription);
+      }
       processGameDataCallback();
     },
-    'processDebugData' : function(debugData, processDebugDataCallback) {
+    'processDebugData' : function(messageType, debugData, processDebugDataCallback) {
       //Add debugging data to the page
       GLOBAL.appendDivToHtmlElementById('boardList', debugData.board);
       GLOBAL.appendDivToHtmlElementById('stdout', debugData.stdout);
@@ -122,15 +125,20 @@ GAME = {
       return move;
     },
     'setExtraGameControls' : function() { 
-      if(document.getElementById("toggleTiles") === null){
-        var button = document.createElement('BUTTON');
-        button.id = "toggleTiles";
-        button.innerHTML = "Toggle Tiles";
-        document.getElementById("extraGameControls").appendChild(button);
-        document.getElementById("toggleTiles").addEventListener('click', function(ev) {
-          GAME.toggleTiles();
-          console.log("Tiles Toggled");
-        });
+      if(TEST_ARENA.state === 'gameStarted') {
+        if (document.getElementById("toggleTiles") === null){
+          var button = document.createElement('BUTTON');
+          button.id = "toggleTiles";
+          button.innerHTML = "Toggle Tiles";
+          document.getElementById("extraGameControls").appendChild(button);
+          document.getElementById("toggleTiles").addEventListener('click', function(ev) {
+            GAME.toggleTiles();
+            console.log("Tiles Toggled");
+          });
+        }
+      }
+      else {
+        document.getElementById("extraGameControls").innerHTML = "";
       }
     },
     'drawTiles' : true,
