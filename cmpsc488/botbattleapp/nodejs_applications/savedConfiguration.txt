@@ -1,4 +1,4 @@
-databaseHost	127.0.0.1
+databaseHost	ambarket.info
 databasePort	27017
 databaseName	testDB
 databaseUserName	testUser
