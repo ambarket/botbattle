@@ -207,6 +207,7 @@ module.exports = new (function() {
           }
 
           //testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
+          testArenaInstances[id].gameStateQueue = [];
           testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerJars + ":" + testArenaInstances[id].gameModule.directories.gameManagerCompiled, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
           testArenaInstances[id].gameState = "running";
           testArenaInstances[id].waitingForHumanInput = false;
@@ -259,7 +260,6 @@ module.exports = new (function() {
           testArenaInstances[id].gameProcess.on('close', function(code) {
             if (!self.hasInstanceExpired(id)) {
               testArenaInstances[id].gameState = "closed";
-              testArenaInstances[id].gameStateQueue = [];
             }
             logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager closed with code " + code));
           });
@@ -267,7 +267,6 @@ module.exports = new (function() {
           testArenaInstances[id].gameProcess.on('exit', function(code) {
             if (!self.hasInstanceExpired(id)) {
               testArenaInstances[id].gameState = "exited";
-              testArenaInstances[id].gameStateQueue = [];
             }
             logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager exited with code " + code));
           });
@@ -275,7 +274,6 @@ module.exports = new (function() {
           testArenaInstances[id].gameProcess.on('error', function(err) {
             if (!self.hasInstanceExpired(id)) {
               testArenaInstances[id].gameState = "error";
-              testArenaInstances[id].gameStateQueue = [];
             }
             logger.log("TestArenaInstances", helpers.getLogMessageAboutGame(id, "GameManager threw the following error "  + err.message));
           });
