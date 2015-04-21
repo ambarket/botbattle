@@ -56,15 +56,21 @@
        
        this.stop = function() {
          imRunning = false;
+         gameStateQueue = [];
        }
        
        var processNextGameState = function() {
          nextGameState = gameStateQueue.splice(0, 1)[0];
      
          if (!nextGameState) {
-           imRunning = false;
+           imRunning = false;           
          } 
          else {
+           if (!imRunning) {
+             
+             return;
+           }
+           
            if (nextGameState.messageType === 'initialGamestate') {
              TEST_ARENA.transitionPageToState('gameStarted');
              GAME.resetGameboard(function(err) {
@@ -225,6 +231,7 @@
      }
      else if (state === 'gameFinished') {
        stopGameStateRequester();
+       TEST_ARENA.resetGameStateQueue();
        setGameControlDiv("startGame");
        TEST_ARENA.canvasMessage = "The game has ended, press start game to play again, or upload to try new bots...";
        TEST_ARENA.state = 'gameFinished';
@@ -269,6 +276,7 @@
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player1_bot_upload").required = true;
    }
+   customPlayer1Click();  
    
    $('#preloaded_player1_bot_select').click(preloadedPlayer1Click);
    function preloadedPlayer1Click() {
@@ -278,6 +286,7 @@
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player1_bot_upload").required = false;
    }
+
    
    $('#custom_player2_bot_select').click(customPlayer2Click);
    function customPlayer2Click() {
@@ -288,16 +297,7 @@
      document.getElementById("uploadBotStatus").innerHTML = "";
      document.getElementById("player2_bot_upload").required = true;
    }
-   
-   /*$('#another_id_player2_bot_select').click(otherIdPlayer2Click);
-   function otherIdPlayer2Click() {
-     $("#another_id_player2_bot_select").prop("checked", true);
-     $('#player2FileChoose').hide();
-     $('#idSelectBox').show();
-     GLOBAL.resetValueAttrributeById('player2_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
-     document.getElementById("player2_bot_upload").required = false;
-   }*/
+   customPlayer2Click();  
    
    $('#preloaded_player2_bot_select').click(preloadedPlayer2Click);
    function preloadedPlayer2Click() {

@@ -208,23 +208,8 @@ function registerTestArenaRoutes(server, database) {
    * i.e. when the page is reloaded.
    */
   server.addDynamicRoute('get', '/deleteTestArenaInstance', function(req, res) {
-    var id = req.query.id;
     res.end(); // This is only called after navigating away from the page. No point in sending anything.
-    if(testArenaInstances.hasInstanceExpired(id)) {
-      logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "The record associated with " + id + 
-          " has already expired, no further action needed in deleteTestArenaInstance"));
-    }
-    else {
-      logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Deleting all files and references to testArenaInstance"));
-      testArenaInstances.deleteTestArenaInstanceAndGameForId(id, function(err){
-         if(err){
-           logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Error in deleteTestArenaInstance " + err.message));
-         }
-         else{
-           logger.log("BotBattleApp", helpers.getLogMessageAboutGame(id, "Successfully deleted all files and references"));
-         }
-      });
-    }
+    testArenaInstances.deleteTestArenaInstanceAndGameForId(req.query.id);
   });
   
   /**
@@ -278,16 +263,8 @@ function registerTestArenaRoutes(server, database) {
   //    If anything changes there may have to change this too.
   server.addDynamicRoute('get', '/killCurrentGame', function(req, res) {
     var id = req.query.id;
-    testArenaInstances.killSpawnedGameForId(id, function(err){
-       if(err){
-         logger.log("BotBattleApp", "Error in killCurrentGame", err.message);
-         res.json({ 'event' : 'expiredID' });
-       }
-       else{
-         res.json(
-           { 'event' : 'success' });
-       }
-    });
+    var event = testArenaInstances.killSpawnedGameForId(id);
+    res.json({ 'event' : event });
   });
  
   

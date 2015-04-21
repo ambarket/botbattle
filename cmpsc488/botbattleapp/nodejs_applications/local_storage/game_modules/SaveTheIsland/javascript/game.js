@@ -428,12 +428,6 @@ function Drawer() {
 
 //--------------------------The GAME.gameboard (Model)------------------------------------
 var GameBoard = function() {
-  // Implements the singleton pattern so animator and drawer share the same GAME.gameboard
-  if ( arguments.callee._singletonInstance ){
-        return arguments.callee._singletonInstance;
-  }
-  arguments.callee._singletonInstance = this;
-  
   var canvas = document.getElementById("GameCanvas");
   var context = canvas.getContext('2d');
   

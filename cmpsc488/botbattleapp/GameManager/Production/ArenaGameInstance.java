@@ -66,6 +66,7 @@ public class ArenaGameInstance {
     
     bot1.killBotProcess();
     bot2.killBotProcess();
+    System.exit(0);
   }
 
   @Override

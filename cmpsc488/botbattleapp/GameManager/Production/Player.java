@@ -96,7 +96,7 @@ public class Player implements Runnable {
         writer.flush();
         readFromBotThread.join(moveTimeout);
       } else if (humanOrBot == HUMAN) {
-        readFromBotThread.join(moveTimeout);
+    	  readFromBotThread.join(moveTimeout);
       }
       
 
