@@ -308,9 +308,8 @@ module.exports = {
                     logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully processed bot uploads"));
                     res.json(
                         { "status" : "Your bot has been uploaded! Press Start Game to continue.", 
-                          'id' : req.newGameId, 
-                          'millisecondsUntilExpiration' : testArenaInstances.getMillisecondsBeforeInstanceExpires(req.newGameId)
-                    }); 
+                          'id' : req.newGameId
+                        }); 
                 }
                 else { // Move and compile bot for player 2
                   var newBot2Directory = path.resolve(gameFolder, "bot2");
@@ -488,7 +487,8 @@ module.exports = {
               
               res.json(
                   { "status" : "Your bot has been shared! Other uses can now select your bot by the id displayed on this page.", 
-                    'id' : req.newGameId 
+                    'id' : req.newGameId,
+                    'expirationDate' : testArenaInstances.getGame(req.newGameId).gameExpireDateTime.getTime()
                   }); 
             }
           });

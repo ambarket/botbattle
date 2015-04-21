@@ -480,6 +480,10 @@
                document.getElementById("userID").innerHTML = "Your Id: " + response.id;
                GLOBAL.eventLog.logMessage('status', response.status);
                TEST_ARENA.transitionPageToState('pageLoaded');
+               console.log(response);
+               if (response.expirationDate) {
+                 GLOBAL.eventLog.logMessage('status', "Your bot will be available until " + (new Date(response.expirationDate)).toLocaleString() + " with id " + response.id );
+               }
              }
              else if (response.error) {
                GLOBAL.eventLog.logMessage('error', response.error);
