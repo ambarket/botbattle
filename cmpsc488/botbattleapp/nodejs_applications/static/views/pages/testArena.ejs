@@ -35,17 +35,20 @@
         <br>
         
         <form name="shareBotForm" id="shareBotForm" enctype="multipart/form-data">
-          <p> Bots uploaded here will be made available system wide to all other users for up to 2 hours. 
+          <p> Bots uploaded here will be made available system wide to all other users for up to the duration specified below. 
             Navigating away from this page, sharing another bot, or playing a game on this tab will end the
             sharing session.</p>
             <br>
           <div id="sharedBotFileChoose" class="form-item">
             <label for="shared_bot_id_prefix"> Optionally prefix your shared id with a more meaningful name </label> 
             <input id="shared_bot_id_prefix" name="shared_bot_id_prefix" type="text"></input>
-            
+           
+            <label for="shared_bot_timeout"> Optionally enter a duration in hours to share the bot. Default is 2 hours. </label> 
+            <input type="number" name="shared_bot_timeout" min="1" max="336">
             <label for="shared_bot_upload"> Select your bot to share <span class="form-required"
               title="This field is required."> * </span>
             </label> 
+            
             <input id="shared_bot_upload" name="shared_bot_upload" type="file" required></input>
           </div>
           <br>

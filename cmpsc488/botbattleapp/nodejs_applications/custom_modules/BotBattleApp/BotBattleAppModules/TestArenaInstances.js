@@ -134,8 +134,10 @@ module.exports = new (function() {
         'bot2CompiledPath' : null,
         'gameStateQueue' : [],
         'resetExpirationTime' : function() {
-          this.gameExpireDateTime = new Date().addHours(2);
-          //this.gameExpireDateTime = new Date().addSeconds(30);
+          if (!this.shared) {
+            this.gameExpireDateTime = new Date().addHours(2);
+            //this.gameExpireDateTime = new Date().addSeconds(30);
+          }
         },   
       };
     testArenaInstances[newGameId].resetExpirationTime();

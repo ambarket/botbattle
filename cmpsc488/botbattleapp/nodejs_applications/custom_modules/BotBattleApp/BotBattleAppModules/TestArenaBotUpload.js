@@ -51,7 +51,7 @@ module.exports = {
       limits : {
         fields : 6, // Non-file fields (6 radio buttons)
         files: 2, // 2 bot uploads
-        fileSize : 100000, //100 KB     
+        fileSize : 50000, //50 KB     
       },
       putSingleFilesInArray: true, // this needs done for future compat.
       changeDest: function(dest, req, res) {
@@ -91,7 +91,7 @@ module.exports = {
         var instance = testArenaInstances.getGame(req.newGameId);
         var logPrefix = helpers.getLogMessageAboutGame(req.newGameId, file.fieldname + " : " + file.originalname);
         if (file.exceededSizeLimit === true) {
-          logger.log('TestArenaBotUpload', logPrefix, 'exceeded 100 KB file size limit');
+          logger.log('TestArenaBotUpload', logPrefix, 'exceeded 50 KB file size limit');
         }
         else {
           logger.log('TestArenaBotUpload', logPrefix, 'uploaded to', file.path);         
@@ -371,9 +371,9 @@ module.exports = {
     var multerForSharedBotUpload = require('multer')({
       dest: paths.local_storage.test_arena_tmp,
       limits : {
-        fields : 2, // Non-file fields (6 radio buttons)
+        fields : 3, // Non-file fields (6 radio buttons)
         files: 1, // 2 bot uploads
-        fileSize : 100000, //100 KB     
+        fileSize : 50000, //50 KB     
       },
       putSingleFilesInArray: true, // this needs done for future compat.
       changeDest: function(dest, req, res) {
@@ -413,7 +413,7 @@ module.exports = {
         var instance = testArenaInstances.getGame(req.newGameId);
         var logPrefix = helpers.getLogMessageAboutGame(req.newGameId, file.fieldname + " : " + file.originalname);
         if (file.exceededSizeLimit === true) {
-          logger.log('TestArenaBotUpload', logPrefix, 'exceeded 100 KB file size limit');
+          logger.log('TestArenaBotUpload', logPrefix, 'exceeded 50 KB file size limit');
         }
         else {
           logger.log('TestArenaBotUpload', logPrefix, 'uploaded to', file.path);         
@@ -445,10 +445,23 @@ module.exports = {
       instance.shared = true;
       if (instance.numberOfBots !== 1) {
         res.json(
-            { "error" : "Failed to upload bot, please ensure the bot is a java or c++ file and is no more than 100 KB" }); 
+            { "error" : "Failed to upload bot, please ensure the bot is a java or c++ file and is no more than 50 KB" }); 
         return;
       }
 
+      
+      if (req.body.shared_bot_timeout) {
+        var timeout = parseInt(req.body.shared_bot_timeout);
+        if (timeout && timeout <= 336 && timeout > 0) {
+          instance.gameExpireDateTime = new Date().addHours(timeout);
+        }
+        else {
+          logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to set timeout. Out of bounds."));
+          res.json({"error" : "Failed to set the timeout to " + timeout + ". Out of bounds."});
+          removeIncompleteGameAfterFailure(req.newGameId);
+          return;
+        }
+      }
       
       var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
       // Move and compile shared bot 
