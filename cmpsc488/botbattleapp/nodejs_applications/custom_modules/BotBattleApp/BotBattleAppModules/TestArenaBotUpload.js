@@ -371,7 +371,7 @@ module.exports = {
     var multerForSharedBotUpload = require('multer')({
       dest: paths.local_storage.test_arena_tmp,
       limits : {
-        fields : 1, // Non-file fields (6 radio buttons)
+        fields : 2, // Non-file fields (6 radio buttons)
         files: 1, // 2 bot uploads
         fileSize : 100000, //100 KB     
       },
@@ -428,6 +428,20 @@ module.exports = {
     
     var moveAndCompileSharedBot = function(req, res){
       var instance = testArenaInstances.getGame(req.newGameId);
+      
+      var prefixedId = req.newGameId;
+      if (req.body.shared_bot_id_prefix) {
+          prefixedId = testArenaInstances.addPrefixToInstanceId(req.body.shared_bot_id_prefix, req.newGameId);
+          if (prefixedId === req.newGameId) {
+            res.json(
+                { "error" : "Failed to prefix your id. Likely your session expired or the prefixed id is already taken." }); 
+            return;
+          }
+      }
+      
+      req.newGameId = prefixedId;
+      
+      
       instance.shared = true;
       if (instance.numberOfBots !== 1) {
         res.json(
@@ -458,6 +472,7 @@ module.exports = {
             else{
               instance.bot1CompiledPath = compiledFilePath;
               logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully shared bot"));
+              
               res.json(
                   { "status" : "Your bot has been shared! Other uses can now select your bot by the id displayed on this page.", 
                     'id' : req.newGameId 

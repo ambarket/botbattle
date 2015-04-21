@@ -22,76 +22,86 @@
 
   <div class="row">
     <div class="col-sm-4">
-      <p id="userID"><p>
-      
-      <div id="botShareRadio" class="form-item">
-          <label for="play_or_share"> Either share a bot with others or play a game
-            <span class="form-required" title="This field is required."> * </span>
-          </label> 
-          <input id="playRadio" name="play_or_share" type="radio" value="play" checked="checked" required>Play A Game</input>
-          <input id="shareRadio" name="play_or_share" type="radio" value="share"  required>Share a Bot</input> 
-      </div>
-      <br>
-      
-      <form name="shareBotForm" id="shareBotForm" enctype="multipart/form-data">
-        <div id="sharedBotFileChoose" class="form-item">
-          <label for="shared_bot_upload"> Select your bot to share <span class="form-required"
-            title="This field is required."> * </span>
-          </label> 
-          <input id="shared_bot_upload" name="shared_bot_upload" type="file" required></input>
+    <div id="upload_and_share_form_container" >
+        <p id="userID"><p>
+        
+        <div id="botShareRadio" class="form-item">
+            <label for="play_or_share"> Either player a game or share a bot with others.
+              <span class="form-required" title="This field is required."> * </span>
+            </label> 
+            <input id="playRadio" name="play_or_share" type="radio" value="play" checked="checked" required>Play A Game</input>
+            <input id="shareRadio" name="play_or_share" type="radio" value="share"  required>Share a Bot</input> 
         </div>
         <br>
-        <input id="uploadSharedBotButton" type="submit" value="Share Bot">
-      </form>
-      
-      
-      <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
-        <label> Player 1 Selection: </label> 
-        <div id=player_1_bot_select_div  data-toggle="buttons">
-          Upload Bot <input  id = "custom_player1_bot_select" name="player1_bot_select" type="radio" value="customBot" checked="checked" required></input>
-          Shared Bot <input id = "shared_player1_bot_select" name="player1_bot_select"  type="radio" value="shared" required></input>
-          Preloaded Bot <input id = "preloaded_player1_bot_select" name="player1_bot_select"  type="radio" value="preloaded" required></input>
-        </div>
         
-        <div id="player1_shared_bot_div" style="display: none;" >
-          <input type="text" name="player1_shared_bot_id"  id="player1_shared_bot_id" list="shared_bot_id_list" placeholder="Begin typing a shared id">
-        </div>
+        <form name="shareBotForm" id="shareBotForm" enctype="multipart/form-data">
+          <p> Bots uploaded here will be made available system wide to all other users for up to 2 hours. 
+            Navigating away from this page, sharing another bot, or playing a game on this tab will end the
+            sharing session.</p>
+            <br>
+          <div id="sharedBotFileChoose" class="form-item">
+            <label for="shared_bot_id_prefix"> Optionally prefix your shared id with a more meaningful name </label> 
+            <input id="shared_bot_id_prefix" name="shared_bot_id_prefix" type="text"></input>
+            
+            <label for="shared_bot_upload"> Select your bot to share <span class="form-required"
+              title="This field is required."> * </span>
+            </label> 
+            <input id="shared_bot_upload" name="shared_bot_upload" type="file" required></input>
+          </div>
+          <br>
+          <input id="uploadSharedBotButton" type="submit" value="Share Bot">
+        </form>
         
-        <div id="player1FileChoose" class="form-item">
-          <input id="player1_bot_upload" name="player1_bot_upload" type="file" required></input>
-        </div>
         
+        <form name="uploadBotForm" id="uploadBotForm" enctype="multipart/form-data">
+          <label> Player 1 Selection: </label> 
+          <div id=player_1_bot_select_div  data-toggle="buttons">
+            Upload Bot <input  id = "custom_player1_bot_select" name="player1_bot_select" type="radio" value="customBot" checked="checked" required></input>
+            Shared Bot <input id = "shared_player1_bot_select" name="player1_bot_select"  type="radio" value="shared" required></input>
+            Preloaded Bot <input id = "preloaded_player1_bot_select" name="player1_bot_select"  type="radio" value="preloaded" required></input>
+          </div>
+          
+          <div id="player1_shared_bot_div" style="display: none;" >
+            <input type="text" name="player1_shared_bot_id"  id="player1_shared_bot_id" list="shared_bot_id_list" placeholder="Begin typing a shared id">
+          </div>
+          
+          <div id="player1FileChoose" class="form-item">
+            <input id="player1_bot_upload" name="player1_bot_upload" type="file" required></input>
+          </div>
+          
+          <hr>
+          
+          <label> Player 2 Selection: </label> 
+         
+          <div id="playerRadio" class="form-item">
+            <input id="human" name="player2_bot_or_human" type="radio" value="human" checked="checked" required>Human</input>
+            <input id="bot" name="player2_bot_or_human" type="radio" value="bot" required>Bot</input>
+          </div>
+          <br>
+          <div id=player_2_bot_select_div>
+            Upload Bot <input id = "custom_player2_bot_select" name="player2_bot_select" type="radio" value="customBot" checked="checked" required></input>
+            Shared Bot <input id = "shared_player2_bot_select" name="player2_bot_select"  type="radio" value="shared" required></input>
+            Preloaded Bot <input id = "preloaded_player2_bot_select" name="player2_bot_select"  type="radio" value="preloaded" required></input>
+          </div>
+  
+          <div id="player2_shared_bot_div" style="display: none;" >
+            <input type="text" name="player2_shared_bot_id" id="player2_shared_bot_id" list="shared_bot_id_list" placeholder="Begin typing a shared id">
+          </div>
+          
+          <div style="display: none" id="player2FileChoose" class="form-item">
+            <input id="player2_bot_upload"name="player2_bot_upload" type="file"></input>
+          </div>
+          <br>
+          <input id="uploadBotButton" type="submit" value="Upload Bot">
+          <br>
+          <div id="uploadBotStatus"></div>
+          
+          <datalist id="shared_bot_id_list"></datalist>
+        </form>
         <hr>
-        
-        <label> Player 2 Selection: </label> 
-       
-        <div id="playerRadio" class="form-item">
-          <input id="human" name="player2_bot_or_human" type="radio" value="human" checked="checked" required>Human</input>
-          <input id="bot" name="player2_bot_or_human" type="radio" value="bot" required>Bot</input>
-        </div>
-        <br>
-        <div id=player_2_bot_select_div>
-          Upload Bot <input id = "custom_player2_bot_select" name="player2_bot_select" type="radio" value="customBot" checked="checked" required></input>
-          Shared Bot <input id = "shared_player2_bot_select" name="player2_bot_select"  type="radio" value="shared" required></input>
-          Preloaded Bot <input id = "preloaded_player2_bot_select" name="player2_bot_select"  type="radio" value="preloaded" required></input>
-        </div>
-
-        <div id="player2_shared_bot_div" style="display: none;" >
-          <input type="text" name="player2_shared_bot_id" id="player2_shared_bot_id" list="shared_bot_id_list" placeholder="Begin typing a shared id">
-        </div>
-        
-        <div style="display: none" id="player2FileChoose" class="form-item">
-          <input id="player2_bot_upload"name="player2_bot_upload" type="file"></input>
-        </div>
-        <br>
-        <input id="uploadBotButton" type="submit" value="Upload Bot">
-        <br>
-        <div id="uploadBotStatus"></div>
-        
-        <datalist id="shared_bot_id_list"></datalist>
-      </form>
+      </div>
       
-      <hr>
+     
       
       <div id="gameControlDiv" style="display: none">
         <input id="startNewGame" type="button" value="Start Game" style="display: none">

@@ -226,6 +226,7 @@
      }
      else if (state === 'gameStarted') {
        // The draw function will continue drawing until the state is no longer 'gameStarted'
+       
        TEST_ARENA.state = 'gameStarted';
        GAME.setExtraGameControls();
      }
@@ -460,7 +461,8 @@
      var data = new FormData(document.forms.namedItem("shareBotForm"));
      var req = new XMLHttpRequest();
      var response = null;
-     req.open("POST", "processSharedBot/?oldId=" + TEST_ARENA.myId, true);
+     
+     req.open("POST", "processSharedBot/?oldId=" + TEST_ARENA.myId,  true);
      req.onreadystatechange=function() {
        if (req.readyState==4) {
          if (req.status==200) {
@@ -814,6 +816,8 @@
          $('#killCurrentGame').hide();
          $('#humanInput').hide();
          $('#disableAnimations').hide();
+         
+         $('#upload_and_share_form_container').show();
        }
        else if (startGame_or_killGame_or_hide === "killGame") {
          $('#gameControlDiv').show();
@@ -825,6 +829,8 @@
          $('#stderr').html("");
          $('#boardList').html("");
          $('#disableAnimations').hide();
+         
+         $('#upload_and_share_form_container').hide();
        }
        else if (startGame_or_killGame_or_hide === "hide") {
          $('#gameControlDiv').hide();
@@ -837,6 +843,8 @@
          $('#stderr').html("");
          $('#boardList').html("");
          $('#disableAnimations').hide();
+         
+         $('#upload_and_share_form_container').show();
        }
        else {
          console.log("Invalid Argument to setGameControlDiv");

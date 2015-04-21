@@ -71,6 +71,30 @@ module.exports = new (function() {
     }
   }
   
+  // Note this doesn't change the folder path but that shouldn't be a big deal.
+  // Returns the id after attempting to change it. If it fails you just get the old id back.
+  this.addPrefixToInstanceId = function(prefix, oldId) {
+    if (!prefix) {
+      logger.log("TestArenaBotUpload", "Failed to prefix " + oldId + " the prefix was undefined");
+      return oldId;
+    }
+    
+    var newId = prefix + "_" + oldId;
+    if (!self.hasInstanceExpired(newId)) {
+      logger.log("TestArenaBotUpload", "Failed to change " + oldId + " to " + newId + ", the newId already exists");
+      return oldId;
+    }
+
+    if (self.hasInstanceExpired(oldId)) {
+      logger.log("TestArenaBotUpload", "Failed to change " + oldId + " to " + newId + ", the old id has expired");
+      return oldId;
+    }
+    
+    testArenaInstances[newId] = testArenaInstances[oldId];
+    delete testArenaInstances[oldId];
+    return newId;
+  }
+  
   // Just a boolean version of getMillisecondsBeforeInstanceExpires
   this.hasInstanceExpired = function(id) {
     return this.getMillisecondsBeforeInstanceExpires(id) === 0;
