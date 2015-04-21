@@ -267,78 +267,143 @@
      });
    });
   
- //----------------------------------Upload Bots Form------------------------------------
+   
+
+   //--------------------------Play Or Share Radio------------------------------------
+   $('#playRadio').click(playRadioClick);
+   function playRadioClick() {
+     $("#playRadio").prop("checked", true);
+     $('#uploadBotForm').show();
+     $('#shareBotForm').hide();
+     
+     document.getElementById("userID").innerHTML = "";
+     
+     botRadioClick();
+     customPlayer1Click();
+     customPlayer2Click();
+   }
+   playRadioClick();    // Also clicks others so this is the only default we should need.
+   
+   $('#shareRadio').click(shareRadioClick);
+   function shareRadioClick() {
+     $("#shareRadio").prop("checked", true);
+     $('#uploadBotForm').hide();
+     $('#shareBotForm').show();
+   }
+     
+ //--------------------------Custom Bot Radio Buttons------------------------------------
    $('#custom_player1_bot_select').click(customPlayer1Click);
    function customPlayer1Click() {
      $("#custom_player1_bot_select").prop("checked", true);
+     
+     $('#player1_shared_bot_div').hide();
      $('#player1FileChoose').show();
+     
+     GLOBAL.resetValueAttrributeById('player1_shared_bot_id');
      GLOBAL.resetValueAttrributeById('player1_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
+
+     document.getElementById("player1_shared_bot_id").required = false;
      document.getElementById("player1_bot_upload").required = true;
    }
-   customPlayer1Click();  
-   
-   $('#preloaded_player1_bot_select').click(preloadedPlayer1Click);
-   function preloadedPlayer1Click() {
-     $("#preloaded_player1_bot_select").prop("checked", true);
-     $('#player1FileChoose').hide();
-     GLOBAL.resetValueAttrributeById('player1_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
-     document.getElementById("player1_bot_upload").required = false;
-   }
-
    
    $('#custom_player2_bot_select').click(customPlayer2Click);
    function customPlayer2Click() {
      $("#custom_player2_bot_select").prop("checked", true);
+     
+     $('#player2_shared_bot_div').hide();
      $('#player2FileChoose').show();
-     $('#idSelectBox').hide();
+     
+     GLOBAL.resetValueAttrributeById('player2_shared_bot_id');
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
+
+     document.getElementById("player2_shared_bot_id").required = false;
      document.getElementById("player2_bot_upload").required = true;
-   }
-   customPlayer2Click();  
+   } 
    
+ //--------------------------Preloaded Bot Radio Buttons------------------------------------
+   $('#preloaded_player1_bot_select').click(preloadedPlayer1Click);
+   function preloadedPlayer1Click() {
+     $("#preloaded_player1_bot_select").prop("checked", true);
+     
+     $('#player1_shared_bot_div').hide();
+     $('#player1FileChoose').hide();
+     
+     GLOBAL.resetValueAttrributeById('player1_shared_bot_id');
+     GLOBAL.resetValueAttrributeById('player1_bot_upload');
+
+     document.getElementById("player1_shared_bot_id").required = false;
+     document.getElementById("player1_bot_upload").required = false;
+   }
+
    $('#preloaded_player2_bot_select').click(preloadedPlayer2Click);
    function preloadedPlayer2Click() {
      $("#preloaded_player2_bot_select").prop("checked", true);
+     
+     $('#player2_shared_bot_div').hide();
      $('#player2FileChoose').hide();
-     $('#idSelectBox').hide();
+     
+     GLOBAL.resetValueAttrributeById('player2_shared_bot_id');
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
+
+     document.getElementById("player2_shared_bot_id").required = false;
      document.getElementById("player2_bot_upload").required = false;
    }
    
+   //--------------------------Shared Bot Radio Buttons------------------------------------
+   $('#shared_player1_bot_select').click(sharedPlayer1Click);
+   function sharedPlayer1Click() {
+     $("#shared_player1_bot_select").prop("checked", true);
+     
+     $('#player1_shared_bot_div').show();
+     $('#player1FileChoose').hide();
+     
+     GLOBAL.resetValueAttrributeById('player1_shared_bot_id');
+     GLOBAL.resetValueAttrributeById('player1_bot_upload');
+
+     document.getElementById("player1_shared_bot_id").required = true;
+     document.getElementById("player1_bot_upload").required = false;
+   }
    
+   $('#shared_player2_bot_select').click(sharedPlayer2Click);
+   function sharedPlayer2Click() {
+     $("#shared_player2_bot_select").prop("checked", true);
+     
+     $('#player2_shared_bot_div').show();
+     $('#player2FileChoose').hide();
+     
+     GLOBAL.resetValueAttrributeById('player2_shared_bot_id');
+     GLOBAL.resetValueAttrributeById('player2_bot_upload');
+
+     document.getElementById("player2_shared_bot_id").required = true;
+     document.getElementById("player2_bot_upload").required = false;
+   }
+   
+   //-----------------------------Player 2 Type Radio (Human or Bot) --------------------------------
    // Listen for radio checks of the Player 2 Type radio
    $('#bot').click(botRadioClick);
    function botRadioClick() {
      $("#bot").prop("checked", true);
      $('#uploadBotButton').val("Upload Bots");
-     $('#player2FileChoose').show();
-     $('#player_2_bot_select_div').show();
-     $("#custom_player2_bot_select").prop("checked", true);
-    
      $('#gameControlDiv').hide();
-     GLOBAL.resetValueAttrributeById('player2_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
-     document.getElementById("player2_bot_upload").required = true;
+     
+     $('#player_2_bot_select_div').show();
+     customPlayer2Click();
    };
-   botRadioClick();   // ALways set to bot when page loads
    
    
    $('#human').click(humanRadioClick);    
    function humanRadioClick() {
      $("#human").prop("checked", true);
-     $('#uploadBotButton').val("Upload Bot");
-     $('#player2FileChoose').hide();
-     $('#player_2_bot_select_div').hide();
-     $('#idSelectBox').hide();
-     $("#custom_player2_bot_select").prop("checked", true);
-
+     $('#uploadBotButton').val("Upload Bots");
      $('#gameControlDiv').hide();
+     
+     $('#player_2_bot_select_div').hide();
+     $('#player2_shared_bot_div').hide();
+     $('#player2FileChoose').hide();
+     GLOBAL.resetValueAttrributeById('player2_shared_bot_id');
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
+
+     document.getElementById("player2_shared_bot_id").required = false;
      document.getElementById("player2_bot_upload").required = false;
    };
    
@@ -362,7 +427,7 @@
            try {
              if (response.status) {
                TEST_ARENA.myId = response.id;
-               document.getElementById("userID").innerHTML = "Your Id: " + response.id;
+               document.getElementById("userID").innerHTML = "";
                GLOBAL.eventLog.logMessage('status', response.status);
                TEST_ARENA.transitionPageToState('uploaded');
              }
@@ -381,6 +446,54 @@
            }
          } else {
            GLOBAL.handleNonSuccessHttpStatus('processBotUploads', req.status, req.responseText);
+           TEST_ARENA.transitionPageToState('pageLoaded');
+         }
+       }
+     };
+     req.send(data);
+     ev.preventDefault();
+   }, false);
+   
+ //---------------------------------Share a Bot Form------------------------------------
+   var shareBotForm = document.forms.namedItem("shareBotForm");
+   shareBotForm.addEventListener('submit', function(ev) {
+     var data = new FormData(document.forms.namedItem("shareBotForm"));
+     var req = new XMLHttpRequest();
+     var response = null;
+     req.open("POST", "processSharedBot/?oldId=" + TEST_ARENA.myId, true);
+     req.onreadystatechange=function() {
+       if (req.readyState==4) {
+         if (req.status==200) {
+           try {
+             response = JSON.parse(req.responseText);
+           }
+           catch (e) {
+             GLOBAL.handleUnexpectedResponse('processBotShare', req.responseText);
+             TEST_ARENA.transitionPageToState('pageLoaded');
+             return; // Don't continue unless it was a json response.
+           }
+           try {
+             if (response.status) {
+               TEST_ARENA.myId = response.id;
+               document.getElementById("userID").innerHTML = "Your Id: " + response.id;
+               GLOBAL.eventLog.logMessage('status', response.status);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+             }
+             else if (response.error) {
+               GLOBAL.eventLog.logMessage('error', response.error);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+             } 
+             else {
+               GLOBAL.handleUnexpectedResponse('processBotShare', response);
+               TEST_ARENA.transitionPageToState('pageLoaded');
+             }
+           }
+           catch(err) {
+             GLOBAL.handleClientError('processBotShare', err);
+             TEST_ARENA.transitionPageToState('pageLoaded');
+           }
+         } else {
+           GLOBAL.handleNonSuccessHttpStatus('processBotShare', req.status, req.responseText);
            TEST_ARENA.transitionPageToState('pageLoaded');
          }
        }
@@ -499,112 +612,60 @@
    }, false);
    
    //----------------------------------Get other IDs--------------------------------
-   $('#another_id_player2_bot_select').click(otherIdPlayer2Click);
-   function otherIdPlayer2Click() {
-   //document.getElementById("another_id_player2_bot_select").addEventListener('click', function(ev) {
-     var req = new XMLHttpRequest();
-     var response = null;
-     
-     $("#another_id_player2_bot_select").prop("checked", true);
-     $('#player2FileChoose').hide();
-     GLOBAL.resetValueAttrributeById('player2_bot_upload');
-     document.getElementById("uploadBotStatus").innerHTML = "";
-     document.getElementById("player2_bot_upload").required = false;
-     
-     req.open("GET", "getOtherPlayer/?id=" + TEST_ARENA.myId, true);
-     req.onreadystatechange=function() {
-       if (req.readyState==4) {
-         if (req.status==200) {
-           try {
-             response = JSON.parse(req.responseText);
-             // populate the select box
-             var parent = document.getElementById("idSelectBox");
-             var selectList;
-             if(document.getElementById("otherIDs") === null){
-               //Create array of options to be added
-               var array = response.event;
-    
-               //Create and append select list
-               selectList = document.createElement("select");
-               selectList.id = "otherIDs";
-               parent.appendChild(selectList);
-    
-               //Create and append the options
-               for (var i = 0; i < array.length; i++) {
-                   var option = document.createElement("option");
-                   option.value = array[i];
-                   option.text = array[i];
-                   selectList.appendChild(option);
+   document.getElementById("player1_shared_bot_id").addEventListener('keypress', getAllSharedInstanceIds);
+   document.getElementById("player2_shared_bot_id").addEventListener('keypress', getAllSharedInstanceIds);
+       
+    // Valid events are 'success', 'expiredID', and 'noGameRunning' anything else will be treated as unexpected
+   function getAllSharedInstanceIds(ev) {     
+         var req = new XMLHttpRequest();
+         req.open("GET", "getAllSharedInstanceIds", true);
+
+         req.onreadystatechange=function() {
+           if (req.readyState==4) {
+             if (req.status==200) {
+               try {
+                 response = JSON.parse(req.responseText);
                }
-               document.getElementById("otherIDs").addEventListener('click', function(ev) {
-                 var inReq = new XMLHttpRequest();
-                 var inResponse = null;
-                 inReq.open("GET", "getOtherPlayer/?id=" + TEST_ARENA.myId, true);
-                 inReq.onreadystatechange=function() {
-                   if (inReq.readyState==4) {
-                     if (inReq.status==200) {
-                       try {
-                         inResponse = JSON.parse(inReq.responseText);
-                         // populate the select box
-                         selectList = document.getElementById("otherIDs");
-                         selectList.innerHTML=""
-                         //Create array of options to be added
-                         var array = inResponse.event;
-              
-                         //Create and append the options
-                         for (var i = 0; i < array.length; i++) {
-                             var option = document.createElement("option");
-                             option.value = array[i];
-                             option.text = array[i];
-                             selectList.appendChild(option);
-                         }
-                       }
-                       catch (e) {
-                         GLOBAL.handleUnexpectedResponse('getOtherPlayer', inReq.responseText);
-                         return; // Don't continue unless it was a json response.
+               catch (e) {
+                 GLOBAL.handleUnexpectedResponse('getAllSharedInstanceIds', req.responseText);
+                 TEST_ARENA.transitionPageToState('pageLoaded');
+                 return; // Don't continue unless it was a json response.
+               }
+               try {
+                 switch(response.event) {
+                   case 'success':
+                     if (response.data) {
+                       var dataList = document.getElementById('shared_bot_id_list');
+                       dataList.innerHTML = "";
+                       for (var index in response.data) {
+                         var option = document.createElement('option');
+                         option.value = response.data[index];
+                         dataList.appendChild(option);
                        }
                      }
                      else {
-                       GLOBAL.handleNonSuccessHttpStatus('getOtherPlayer', inReq.status, inReq.responseText);
+                       GLOBAL.handleUnexpectedResponse('getAllSharedInstanceIds', response);
+                       TEST_ARENA.transitionPageToState('pageLoaded');
                      }
-                   }
+                     break;
+                   default:
+                     GLOBAL.handleUnexpectedResponse('getAllSharedInstanceIds', response);
+                     TEST_ARENA.transitionPageToState('pageLoaded');
+                     break;
                  }
-                 inReq.send();
-                 ev.preventDefault();
-               }, false);
-             }
-             else{
-               var array = response.event;
-               
-               //Get select list and clear
-               selectList = document.getElementById("otherIDs");
-               selectList.innerHTML = "";
-               
-               //Create and append the options
-               for (var i = 0; i < array.length; i++) {
-                   var option = document.createElement("option");
-                   option.value = array[i];
-                   option.text = array[i];
-                   selectList.appendChild(option);
                }
+               catch(err) {
+                 GLOBAL.handleClientError('sendMove', err);
+                 TEST_ARENA.transitionPageToState('pageLoaded');
+               }
+             } else {
+               GLOBAL.handleNonSuccessHttpStatus('sendMove', req.status, req.responseText);
+               TEST_ARENA.transitionPageToState('pageLoaded');
              }
-             //if(selectList.innerHTML === "")
-               //$('#idSelectBox').innerHTML("No other bots available");
-             //else
-               $('#idSelectBox').show();
-           }
-           catch (e) {
-             GLOBAL.handleUnexpectedResponse('getOtherPlayer', req.responseText);
-             return; // Don't continue unless it was a json response.
            }
          }
-         else {
-           GLOBAL.handleNonSuccessHttpStatus('getOtherPlayer', req.status, req.responseText);
-         }
-       }
-     }
-     req.send();
-   }
+         req.send();
+       };
    
    //----------------------------------Kill Game------------------------------------
    document.getElementById("killCurrentGame").addEventListener('click', function(ev) {
@@ -744,14 +805,7 @@
            return (coin <= .50);
        }
      }
-     
-     $('#player1_bot_upload').click(function() {
-       document.getElementById("uploadBotStatus").innerHTML = "";
-     });
-   
-     $('#player2_bot_upload').click(function() {
-       document.getElementById("uploadBotStatus").innerHTML = "";
-     });
+
      
      function setGameControlDiv(startGame_or_killGame_or_hide) {
        if (startGame_or_killGame_or_hide === "startGame") {

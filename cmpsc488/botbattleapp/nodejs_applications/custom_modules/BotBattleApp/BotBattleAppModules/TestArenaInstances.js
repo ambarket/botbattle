@@ -46,17 +46,16 @@ module.exports = new (function() {
     }, 3600000); // 1 hour 3600000
   })();
   
-  this.getAllIdNotMe = function(myId){
-    var notMeInstances = [];
+  this.getAllSharedInstanceIds = function(){
+    var sharedInstanceIds = [];
     var instance;
     var now = new Date();
-    for(instance in testArenaInstances){
-      now = new Date(); //Date.now(); 
-      if(now < testArenaInstances[instance].gameExpireDateTime && instance !== myId){
-          notMeInstances.push(instance);
+    for(id in testArenaInstances){
+      if(!self.hasInstanceExpired(id) && testArenaInstances[id].shared){
+        sharedInstanceIds.push(id);
       }
     }
-    return notMeInstances;
+    return sharedInstanceIds;
   }
   
   this.getGame = function(id) { return testArenaInstances[id] }
@@ -95,6 +94,7 @@ module.exports = new (function() {
     // create new gameId, create new testArenaInstance, create file structure for the instance, and finally pass the newGameId to the callback.
     var newGameId = require('shortid').generate();
     testArenaInstances[newGameId] = { 
+        'shared' : false,   // Only set to true by processSharedBot route. Use this to find shared test arena instances.
         'gameProcess' : null,
         'gameState' : null,   // 'running', 'closed', 'exited', 'error'
         'waitingForHumanInput' : false,

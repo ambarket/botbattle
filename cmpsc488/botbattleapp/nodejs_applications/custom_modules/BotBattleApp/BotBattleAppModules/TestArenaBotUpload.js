@@ -145,11 +145,45 @@ module.exports = {
           }
         });
       }
-      else {
+      else if (player1BotSelect === "shared"){
+        var player1SharedID = req.body.player1_shared_bot_id;
+        console.log(player1SharedID);
+        if (testArenaInstances.hasInstanceExpired(player1SharedID)) {
+          logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to copy preloaded source file"));
+          res.json({"error" : "Shared id doesnt exist"});
+          removeIncompleteGameAfterFailure(req.newGameId);
+          return;
+        }
+        
+        if (instance.numberOfBots) {
+          instance.numberOfBots++;
+        }
+        else {
+          instance.numberOfBots = 1;
+        }
+
+        var sharedFileName = testArenaInstances.getGame(player1SharedID).bot1Name;
+        var sharedFilePath = testArenaInstances.getGame(player1SharedID).bot1SourcePath;
+        
+        console.log(sharedFileName, sharedFilePath);
+        instance.bot1Name = sharedFileName;
+        instance.bot1SourcePath = path.resolve(gameFolder, "bot1", instance.bot1Name);
+        
+        fileManager.copyFileOrFolder(sharedFilePath, instance.bot1SourcePath, function(err){
+          if (err) {
+            logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to copy shared source file"));
+            res.json({"error" : "Failed to process shared bot for player 1"});
+            removeIncompleteGameAfterFailure(req.newGameId);
+          }
+          else {
+            next();
+          }
+        });
+      } else {
         next();
       }
     }
-    
+   
     var processPreloadedBot2Selection = function(req, res, next) {
       var instance = testArenaInstances.getGame(req.newGameId);
       var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
@@ -167,7 +201,7 @@ module.exports = {
         }
 
         instance.bot2Name = preloadedFileName;
-        instance.bot2SourcePath = path.resolve(gameFolder, "bot2", instance.bot1Name);
+        instance.bot2SourcePath = path.resolve(gameFolder, "bot2", instance.bot2Name);
         
         fileManager.copyFileOrFolder(preloadedFilePath, instance.bot2SourcePath, function(err){
           if (err) {
@@ -186,7 +220,40 @@ module.exports = {
             }
           }
         });
-      } else {
+      } else if (player2BotSelect === "shared"){
+        var player2SharedID = req.body.player2_shared_bot_id;
+        console.log(player2SharedID);
+        if (testArenaInstances.hasInstanceExpired(player2SharedID)) {
+          logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Failed to copy preloaded source file"));
+          res.json({"error" : "Shared id doesnt exist"});
+          removeIncompleteGameAfterFailure(req.newGameId);
+          return;
+        }
+        
+        if (instance.numberOfBots) {
+          instance.numberOfBots++;
+        }
+        else {
+          instance.numberOfBots = 1;
+        }
+
+        var sharedFileName = testArenaInstances.getGame(player2SharedID).bot1Name;
+        var sharedFilePath = testArenaInstances.getGame(player2SharedID).bot1SourcePath;
+        
+        instance.bot2Name = sharedFileName;
+        instance.bot2SourcePath = path.resolve(gameFolder, "bot2", instance.bot2Name);
+        
+        fileManager.copyFileOrFolder(sharedFilePath, instance.bot2SourcePath, function(err){
+          if (err) {
+            logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 2, "Failed to copy shared source file"));
+            res.json({"error" : "Failed to process shared bot for player 2"});
+            removeIncompleteGameAfterFailure(req.newGameId);
+          }
+          else {
+            next();
+          }
+        });
+      }else {
         next();
       }
     }
@@ -298,5 +365,113 @@ module.exports = {
      */
     server.addDynamicRoute('post', '/processBotUploads', 
         [newTestArenaInstanceRoute, multerForBotUploads, processPreloadedBot1Selection, processPreloadedBot2Selection, moveAndCompileBots]);
+    
+    
+    //-----------------------------------------------------Shared Bot Upload----------------------------------------------------------
+    var multerForSharedBotUpload = require('multer')({
+      dest: paths.local_storage.test_arena_tmp,
+      limits : {
+        fields : 1, // Non-file fields (6 radio buttons)
+        files: 1, // 2 bot uploads
+        fileSize : 100000, //100 KB     
+      },
+      putSingleFilesInArray: true, // this needs done for future compat.
+      changeDest: function(dest, req, res) {
+        return path.resolve(dest, req.newGameId);
+      },
+      onFileUploadStart : function(file, req, res) {
+        var logPrefix = helpers.getLogMessageAboutGame(req.newGameId, file.fieldname + " : " + file.originalname);
+        if (file.fieldname == 'shared_bot_upload') {
+          if (file.extension.match(/cxx|cpp|java/)) {
+            logger.log('TestArenaBotUpload', logPrefix, 'is a .java/.cpp/.cxx file, uploading will continue');
+            return true; 
+          } else {
+            logger.log('TestArenaBotUpload', logPrefix, 'is NOT a .java/.cpp/.cxx file');
+          }
+        }
+        else {
+          logger.log('TestArenaBotUpload', logPrefix, 'is not a supported fieldname');
+        }
+        logger.log('TestArenaBotUpload', logPrefix, 'uploading has been cancelled');
+        return false;
+      },
+      onFileSizeLimit : function(file) {
+        file.exceededSizeLimit = true;
+        fileManager.removeFileOrFolder(file.path) // delete the partially written file
+      },
+      onFilesLimit : function() {
+        logger.log('TestArenaBotUpload', 'Form submission exceeded number of file fields limit');
+      },
+      onFieldsLimit : function() {
+        logger.log('TestArenaBotUpload', 'Form submission exceeded number of non-file fields limit');
+      },
+      onError : function(err, next) {
+        logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame('Error in multer', err.message));     
+        next()
+      }, 
+      onFileUploadComplete : function(file, req, res) {
+        var instance = testArenaInstances.getGame(req.newGameId);
+        var logPrefix = helpers.getLogMessageAboutGame(req.newGameId, file.fieldname + " : " + file.originalname);
+        if (file.exceededSizeLimit === true) {
+          logger.log('TestArenaBotUpload', logPrefix, 'exceeded 100 KB file size limit');
+        }
+        else {
+          logger.log('TestArenaBotUpload', logPrefix, 'uploaded to', file.path);         
+          instance.numberOfBots = 1;
+          if(file.fieldname === "shared_bot_upload"){
+            instance.bot1Name = file.originalname;
+            instance.bot1SourcePath = file.path;
+          }
+        }
+      }
+    });
+    
+    var moveAndCompileSharedBot = function(req, res){
+      var instance = testArenaInstances.getGame(req.newGameId);
+      instance.shared = true;
+      if (instance.numberOfBots !== 1) {
+        res.json(
+            { "error" : "Failed to upload bot, please ensure the bot is a java or c++ file and is no more than 100 KB" }); 
+        return;
+      }
+
+      
+      var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
+      // Move and compile shared bot 
+      var newBot1Directory = path.resolve(gameFolder, "bot1");
+      var newBot1Path = path.resolve(gameFolder, "bot1", instance.bot1Name);
+      fileManager.moveFile(instance.bot1SourcePath, newBot1Path, function(err){
+        if (err) {
+          logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to move source file"));
+          res.json({"error" : "Failed to share bot"});
+          removeIncompleteGameAfterFailure(req.newGameId);
+        }
+        else {
+          instance.bot1SourcePath = newBot1Path;
+          instance.bot1Directory = newBot1Directory;
+          compiler.compile(newBot1Path, function(err, compiledFilePath){
+            if(err){
+              logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to compile source file"));
+              res.json({"error" : "Failed to compile shared bot"});
+              removeIncompleteGameAfterFailure(req.newGameId);
+            }
+            else{
+              instance.bot1CompiledPath = compiledFilePath;
+              logger.log('TestArenaBotUpload', helpers.getLogMessageAboutGame(req.newGameId, "Successfully shared bot"));
+              res.json(
+                  { "status" : "Your bot has been shared! Other uses can now select your bot by the id displayed on this page.", 
+                    'id' : req.newGameId 
+                  }); 
+            }
+          });
+        }
+      });
+    }
+    
+    /**
+     * Requested by the "Share Bot" Button on the test arena page
+     */
+    server.addDynamicRoute('post', '/processSharedBot', [newTestArenaInstanceRoute, multerForSharedBotUpload, moveAndCompileSharedBot]);
+    
   }
 }

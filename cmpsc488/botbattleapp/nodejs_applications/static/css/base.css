@@ -74,6 +74,7 @@ label {
     margin-bottom: 5px;
 }
 
+/*
 label, input, button, select, textarea {
     font-size: 13px;
     font-weight: normal;
@@ -85,6 +86,7 @@ button, input, select, textarea {
     font-size: 100%;
     vertical-align: middle;
 }
+*/
     
 a:focus, .btn:focus, * {
     outline: medium none;
