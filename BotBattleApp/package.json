@@ -1,0 +1,26 @@
+{
+  "name": "Bot!Battle!",
+  "description": "Best app ever!!!",
+  "version": "0.0.2",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.9.2",    //used
+    "cookie-parser": "^1.3.3",  //used
+    "express": "^4.10.2",   //used
+    "express-session": "^1.9.1",    //used
+    "sanitizer": "^0.1.2",  //used
+    "async": "0.9.0",   //used
+    "mongodb": "1.3.19",    //used
+    //"bson": "0.2.4",
+    //"assert": "1.3.0",
+    "util": "0.10.3",   //used
+    "multer": "~0.1.8", //used
+    "fs-extra": "0.16.3",   //used
+    "shortid": "~2.1.3",    //used
+    "passport": "~0.2.1",   //used
+    "passport-local": "~1.0.0", // used
+    //"ejs": "~2.3.1",
+    // path, events, https, fs
+    
+  }
+}

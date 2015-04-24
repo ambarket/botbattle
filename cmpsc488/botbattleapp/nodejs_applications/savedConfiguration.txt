@@ -1,5 +1,0 @@
-databaseHost	ambarket.info
-databasePort	27017
-databaseName	testDB
-databaseUserName	testUser
-databasePassword	testPass
