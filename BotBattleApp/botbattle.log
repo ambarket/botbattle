@@ -1,7 +1,0 @@
-20150424 01:22:02 daemon: client (pid 36294) exited with 1 status
-20150424 01:22:02 daemon: client (pid 36295) exited with 1 status
-20150424 01:22:02 daemon: client (pid 36296) exited with 1 status
-20150424 01:22:02 daemon: client (pid 36297) exited with 1 status
-20150424 01:22:02 daemon: client (pid 36298) exited with 1 status
-20150424 01:22:02 daemon: terminating too quickly, waiting 300 seconds
-20150424 01:23:49 daemon: fatal: terminated
