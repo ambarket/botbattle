@@ -1,0 +1,164 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/nodejs',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'forever-service' ]
+2 info using npm@1.3.10
+3 info using node@v0.10.25
+4 verbose cache add [ 'forever-service', null ]
+5 verbose cache add name=undefined spec="forever-service" args=["forever-service",null]
+6 verbose parsed url { protocol: null,
+6 verbose parsed url   slashes: null,
+6 verbose parsed url   auth: null,
+6 verbose parsed url   host: null,
+6 verbose parsed url   port: null,
+6 verbose parsed url   hostname: null,
+6 verbose parsed url   hash: null,
+6 verbose parsed url   search: null,
+6 verbose parsed url   query: null,
+6 verbose parsed url   pathname: 'forever-service',
+6 verbose parsed url   path: 'forever-service',
+6 verbose parsed url   href: 'forever-service' }
+7 silly lockFile 115b4480-forever-service forever-service
+8 verbose lock forever-service /home/botbattle/.npm/115b4480-forever-service.lock
+9 silly lockFile 115b4480-forever-service forever-service
+10 silly lockFile 115b4480-forever-service forever-service
+11 verbose addNamed [ 'forever-service', '' ]
+12 verbose addNamed [ null, '*' ]
+13 silly lockFile a036784e-forever-service forever-service@
+14 verbose lock forever-service@ /home/botbattle/.npm/a036784e-forever-service.lock
+15 silly addNameRange { name: 'forever-service', range: '*', hasData: false }
+16 verbose url raw forever-service
+17 verbose url resolving [ 'https://registry.npmjs.org/', './forever-service' ]
+18 verbose url resolved https://registry.npmjs.org/forever-service
+19 info trying registry request attempt 1 at 01:26:20
+20 verbose etag "22Q3HP901GNN3E7K4RB1SBP1Z"
+21 http GET https://registry.npmjs.org/forever-service
+22 http 304 https://registry.npmjs.org/forever-service
+23 silly registry.get cb [ 304,
+23 silly registry.get   { date: 'Fri, 24 Apr 2015 05:26:20 GMT',
+23 silly registry.get     server: 'Apache',
+23 silly registry.get     via: '1.1 varnish',
+23 silly registry.get     'last-modified': 'Fri, 24 Apr 2015 05:26:20 GMT',
+23 silly registry.get     'cache-control': 'max-age=60',
+23 silly registry.get     etag: '"22Q3HP901GNN3E7K4RB1SBP1Z"',
+23 silly registry.get     age: '0',
+23 silly registry.get     'x-served-by': 'cache-jfk1022-JFK',
+23 silly registry.get     'x-cache': 'MISS',
+23 silly registry.get     'x-cache-hits': '0',
+23 silly registry.get     'x-timer': 'S1429853180.770671,VS0,VE171',
+23 silly registry.get     vary: 'Accept',
+23 silly registry.get     'content-length': '0',
+23 silly registry.get     'keep-alive': 'timeout=10, max=50',
+23 silly registry.get     connection: 'Keep-Alive' } ]
+24 verbose etag forever-service from cache
+25 silly addNameRange number 2 { name: 'forever-service', range: '*', hasData: true }
+26 silly addNameRange versions [ 'forever-service',
+26 silly addNameRange   [ '0.1.0',
+26 silly addNameRange     '0.1.1',
+26 silly addNameRange     '0.2.1',
+26 silly addNameRange     '0.2.3',
+26 silly addNameRange     '0.2.4',
+26 silly addNameRange     '0.2.5',
+26 silly addNameRange     '0.2.7',
+26 silly addNameRange     '0.2.8',
+26 silly addNameRange     '0.2.9',
+26 silly addNameRange     '0.2.10',
+26 silly addNameRange     '0.3.0',
+26 silly addNameRange     '0.3.2',
+26 silly addNameRange     '0.4.0',
+26 silly addNameRange     '0.4.1',
+26 silly addNameRange     '0.4.2',
+26 silly addNameRange     '0.4.3',
+26 silly addNameRange     '0.4.4',
+26 silly addNameRange     '0.4.5',
+26 silly addNameRange     '0.4.6' ] ]
+27 verbose addNamed [ 'forever-service', '0.4.6' ]
+28 verbose addNamed [ '0.4.6', '0.4.6' ]
+29 silly lockFile b2b2f153-forever-service-0-4-6 forever-service@0.4.6
+30 verbose lock forever-service@0.4.6 /home/botbattle/.npm/b2b2f153-forever-service-0-4-6.lock
+31 silly lockFile b2b2f153-forever-service-0-4-6 forever-service@0.4.6
+32 silly lockFile b2b2f153-forever-service-0-4-6 forever-service@0.4.6
+33 silly lockFile a036784e-forever-service forever-service@
+34 silly lockFile a036784e-forever-service forever-service@
+35 silly resolved [ { name: 'forever-service',
+35 silly resolved     version: '0.4.6',
+35 silly resolved     preferGlobal: 'true',
+35 silly resolved     description: 'Provision node script as a service via forever, allowing it to automatically start on boot, working across various Linux distros and OS',
+35 silly resolved     main: 'lib/api.js',
+35 silly resolved     dependencies:
+35 silly resolved      { swig: '~1.4.2',
+35 silly resolved        commander: '~2.3.0',
+35 silly resolved        async: '~0.9.0',
+35 silly resolved        shelljs: '~0.3.0',
+35 silly resolved        walker: '~1.0.6' },
+35 silly resolved     devDependencies: { mocha: '*', should: '*' },
+35 silly resolved     scripts: { test: 'mocha test/*.js' },
+35 silly resolved     repository:
+35 silly resolved      { type: 'git',
+35 silly resolved        url: 'https://github.com/zapty/forever-service.git' },
+35 silly resolved     keywords:
+35 silly resolved      [ 'forever',
+35 silly resolved        'nodejs',
+35 silly resolved        'aws',
+35 silly resolved        'amazon',
+35 silly resolved        'linux',
+35 silly resolved        'initd',
+35 silly resolved        'service',
+35 silly resolved        'logrotate',
+35 silly resolved        'reboot',
+35 silly resolved        'start',
+35 silly resolved        'service',
+35 silly resolved        'amazon linux',
+35 silly resolved        'centos',
+35 silly resolved        'redhat',
+35 silly resolved        'debian',
+35 silly resolved        'raspbian',
+35 silly resolved        'ubuntu' ],
+35 silly resolved     bin: { 'forever-service': './bin/forever-service' },
+35 silly resolved     author: { name: 'Arvind Agarwal' },
+35 silly resolved     bugs: { url: 'https://github.com/zapty/forever-service/issues' },
+35 silly resolved     homepage: 'https://github.com/zapty/forever-service',
+35 silly resolved     readme: 'forever-service\n===============\n\nMake provisioning node script as a service simple. \n\nWe love nodejs for server development. But, It is surprising to find that there is no standard tool to provision script as a service. Forever kind of tools comes close but they only demonize the process and not provision as service; which can be automatically started on reboots. To make matter worse, each OS and Linux distro has its own unique way of provisioning the services correctly.\n\nGoals\n-----\n1. Make an universal service installer across various Linux distros and other OS.\n2. Automatically configure other useful things such as Logrotation scripts, port monitoring scripts etc.\n3. Graceful shutdown of services as default behaviour.\n\nPlatforms supported\n-------------------\n* Amazon Linux\n* Redhat Linux\n* CentOS\n* Ubuntu\n* Debian\n* Raspbian\n* OSMC Linux\n* more to come..\n\nPrerequisite\n------------\nforever must be installed globally using \n\n```npm install -g forever```\n\nInstall\n-------\n```npm install -g forever-service```\n\nUsage\n-----\n```\n$ forever-service --help\n\nforever-service version 0.x.x\n\n\n  Usage: forever-service [options] [command]\n\n  Commands:\n\n    install [options] [service]\n       Install node script (defaults to app.js in current directory) as service via forever\n    \n    \n    \n    delete [service]\n       Delete all provisioned files for the service, will stop service if running before delete\n    \n\n  Options:\n\n    -h, --help     output usage information\n    -V, --version  output the version number\n```\n\nInstall new service\n-------------------\n```\n$ forever-service install --help\n\nforever-service version 0.x.x\n\n\n  Usage: install [options] [service]\n\n  Options:\n\n    -h, --help                         output usage information\n    -s, --script [script]              Script to run as service e.g. app.js, defaults to app.js\n\n    -e --envVars [vars]                Environment Variables for the script\n                                       e.g. -e "PORT=80 ENV=prod FOO=bar"\n\n    -o --scriptOptions [options]       Command line options for the script\n\n    --minUptime [value]                Minimum uptime (millis) for a script to not be considered "spinning", default 5000\n                                       \n    --spinSleepTime [value]            Time to wait (millis) between launches of a spinning script., default 2000\n                                       \n    --noGracefulShutdown               Disable graceful shutdown\n                                       \n    -t --forceKillWaitTime [waittime]  Time to wait in milliseconds before force killing; after failed graceful stop\n                                       defaults to 5000 ms, after which entire process tree is forcibly terminated\n                                       \n    -f --foreverOptions " [options]"   Extra command line options for forever\n                                       e.g. -f " --watchDirectory /your/watch/directory -w -c /custom/cli" etc..\n                                       NOTE: a mandatory space is required after double quotes, if begining with -\n                                       \n    --start                            Start service after provisioning\n                                       \n    --nologroate                       Do not generate logrotate script\n                                       \n    --logrotateFrequency [frequency]   Frequency of logrotation\n                                       valid values are daily, weekly, monthly, "size 100k" etc, default daily\n                                       \n    --logrotateMax [value]             Maximum logrotated files to retain, default 10 (logrotate parameter)\n                                       \n    --logrotateCompress                Enable compression for logrotate\n\n    -p --foreverPath                   Path for forever cli e.g. /usr/local/bin,\n                                       by default forever cli is searched in system Path variable\n\n    -u --applyUlimits                  Apply increased ulimits in supported environment\n\n```\n\nDelete service\n--------------\n```\n$ forever-service delete --help\n\nforever-service version 0.x.x\n\n\n  Usage: delete [options] [service]\n\n  Options:\n\n    -h, --help  output usage information\n```\nExamples\n--------\n* Provision a service \'test\' with app.js script in current directory\n\n```\n$ sudo forever-service install test\n```\nOn Amazon Linux, This command will setup initd script and provision service using chkconfig,\nCreate logrotate scripts\n\n\n\n* Provision a service \'test\' with main.js script in current directory\n\n```\n$ sudo forever-service install test --script main.js\n```\n\n\n\n* Custom options for forever \n\n```\n$ sudo forever-service install test -f " -watchDirectory /your/watch/directory -w"\n```\n\n\n\n\n* Command line parameters for the script\n\n```\n$ sudo forever-service install test --script main.js -o " param1 param2"\n```\n\n\n\n* Delete service\n\n```\n$ sudo forever-service delete test\n```\nThis command will stop service if running, clean up all provisioned files and service\n\n\n\n\n* Get list of running services (Remember all forever command line options are available since we use forever internally)\n```\n$ sudo forever list\n```\n\nRun non nodejs scripts as service\n---------------------------------\n\nforever allows to use -c command line parameter to point to alternate command line for execution, using that one can easily launch non-node apps also as service\n\n\n* Run Java Program as service\n\n```\n$ sudo forever-service install javaservice1 -s start.jar -f " -c \'java -Xms1024m -Xmx1024m -jar\'"\n```\nThis command will run start.jar using java command line \n\n\n\n* Run PHP Program as service\n```\n$ sudo forever-service install phpservice1 -s info.php -f " -c php"\n```\nThis command will run info.php using php command line \n\n\n\nKnown Issue(s)\n--------------\n"restart service" command works like stop in Ubuntu due to bug in upstart https://bugs.launchpad.net/upstart/+bug/703800 \n\n\nRoadmap\n-------\nSupport other Linux distros, OSX, Windows etc.\n\nContributions are welcome, please send pull requests\n',
+35 silly resolved     readmeFilename: 'README.md',
+35 silly resolved     _id: 'forever-service@0.4.6',
+35 silly resolved     _from: 'forever-service@' } ]
+36 info install forever-service@0.4.6 into /usr/local/lib
+37 info installOne forever-service@0.4.6
+38 info /usr/local/lib/node_modules/forever-service unbuild
+39 verbose tar unpack /home/botbattle/.npm/forever-service/0.4.6/package.tgz
+40 silly lockFile 453c1206-lib-node-modules-forever-service tar:///usr/local/lib/node_modules/forever-service
+41 verbose lock tar:///usr/local/lib/node_modules/forever-service /home/botbattle/.npm/453c1206-lib-node-modules-forever-service.lock
+42 silly lockFile 69937694-orever-service-0-4-6-package-tgz tar:///home/botbattle/.npm/forever-service/0.4.6/package.tgz
+43 verbose lock tar:///home/botbattle/.npm/forever-service/0.4.6/package.tgz /home/botbattle/.npm/69937694-orever-service-0-4-6-package-tgz.lock
+44 silly gunzTarPerm modes [ '755', '644' ]
+45 error Error: EACCES, mkdir '/usr/local/lib/node_modules'
+45 error  { [Error: EACCES, mkdir '/usr/local/lib/node_modules']
+45 error   errno: 3,
+45 error   code: 'EACCES',
+45 error   path: '/usr/local/lib/node_modules',
+45 error   fstream_type: 'Directory',
+45 error   fstream_path: '/usr/local/lib/node_modules/forever-service',
+45 error   fstream_class: 'DirWriter',
+45 error   fstream_stack:
+45 error    [ '/usr/lib/nodejs/fstream/lib/writer.js:171:23',
+45 error      '/usr/lib/nodejs/mkdirp/index.js:37:53',
+45 error      'Object.oncomplete (fs.js:107:15)' ] }
+46 error Please try running this command again as root/Administrator.
+47 error System Linux 3.16.0-30-generic
+48 error command "/usr/bin/nodejs" "/usr/bin/npm" "install" "-g" "forever-service"
+49 error cwd /home/botbattle/git/botbattle/BotBattleApp
+50 error node -v v0.10.25
+51 error npm -v 1.3.10
+52 error path /usr/local/lib/node_modules
+53 error fstream_path /usr/local/lib/node_modules/forever-service
+54 error fstream_type Directory
+55 error fstream_class DirWriter
+56 error code EACCES
+57 error errno 3
+58 error stack Error: EACCES, mkdir '/usr/local/lib/node_modules'
+59 error fstream_stack /usr/lib/nodejs/fstream/lib/writer.js:171:23
+59 error fstream_stack /usr/lib/nodejs/mkdirp/index.js:37:53
+59 error fstream_stack Object.oncomplete (fs.js:107:15)
+60 verbose exit [ 3, true ]

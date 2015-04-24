@@ -4,7 +4,24 @@
  *
  */
 
+
 var port = process.argv[2] || 6058;
+
+// In order to set this up as a service that runs on startup using forever-service, the process
+//   is launched as root, so have to reliquish priviledges immedietly. 
+if ( process.getuid() === 0) {
+  try {
+    console.log('Old User ID: ' + process.getuid() + ', Old Group ID: ' + process.getgid());
+    process.setgid('botbattle');
+    process.setuid('botbattle');
+    console.log('New User ID: ' + process.getuid() + ', New Group ID: ' + process.getgid());
+  } catch (err) {
+    console.log('Cowardly refusing to keep the process alive as root.');
+    process.exit(1);
+  }
+} else {
+  console.log("Wasn't started as root, no need to relinquish priviledges");
+}
 
 var paths = require('./custom_modules/BotBattlePaths');
 var BotBattleServer = require(paths.custom_modules.BotBattleServer);
