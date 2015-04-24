@@ -77,7 +77,7 @@ module.exports = function BotBattleDatabase(host, port, dbName, uName, pass) {
      */
     this.dropDatabaseAndDisconnect = function(callback) {
       if (databaseClient != null) {
-        databaseClient.dropDatabase(function(err) {
+        clearDatabaseTask(function(err) {
           databaseClient.close();
           databaseClient = null;
           callback(err);
