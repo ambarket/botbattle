@@ -38,7 +38,7 @@ module.exports = {
             }
             else {
               // Set the game id in request object so multer and moveAndCompile can access it.
-              req.newGameId = newGameId 
+              req.newGameId = newGameId;
               next();
             }
           });
@@ -370,8 +370,8 @@ module.exports = {
     var multerForSharedBotUpload = require('multer')({
       dest: paths.local_storage.test_arena_tmp,
       limits : {
-        fields : 3, // Non-file fields (6 radio buttons)
-        files: 1, // 2 bot uploads
+        fields : 3, // Non-file fields (1 instance timeout, 1 prefix, 1 file)
+        files: 1, // 1 bot uploads
         fileSize : 50000, //50 KB     
       },
       putSingleFilesInArray: true, // this needs done for future compat.
@@ -429,11 +429,14 @@ module.exports = {
       var instance = testArenaInstances.getGame(req.newGameId);
       
       var prefixedId = req.newGameId;
+      var removeNonPrefixedFolder = false;
       if (req.body.shared_bot_id_prefix) {
+          oldIdToBeRemoved = req.newGameId;
           prefixedId = testArenaInstances.addPrefixToInstanceId(req.body.shared_bot_id_prefix, req.newGameId);
           if (prefixedId === req.newGameId) {
             res.json(
                 { "error" : "Failed to prefix your id. Likely your session expired or the prefixed id is already taken." }); 
+            removeIncompleteGameAfterFailure(req.newGameId);
             return;
           }
       }
@@ -445,6 +448,7 @@ module.exports = {
       if (instance.numberOfBots !== 1) {
         res.json(
             { "error" : "Failed to upload bot, please ensure the bot is a java or c++ file and is no more than 50 KB" }); 
+        removeIncompleteGameAfterFailure(req.newGameId);
         return;
       }
 
@@ -462,10 +466,15 @@ module.exports = {
         }
       }
       
+      
       var gameFolder = path.resolve(paths.local_storage.test_arena_tmp, req.newGameId);
       // Move and compile shared bot 
+      
+      // If this there was a prefix, this creates the whole new directory structure test_arena_tmp/prefix_origId/bot1
+      //  this is good but we also need to delete the old test_arena_tmp/origId after the files are moved.
       var newBot1Directory = path.resolve(gameFolder, "bot1");
       var newBot1Path = path.resolve(gameFolder, "bot1", instance.bot1Name);
+      
       fileManager.moveFile(instance.bot1SourcePath, newBot1Path, function(err){
         if (err) {
           logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to move source file"));
@@ -475,6 +484,9 @@ module.exports = {
         else {
           instance.bot1SourcePath = newBot1Path;
           instance.bot1Directory = newBot1Directory;
+          
+          fileManager.deleteGameInstanceDirectory(oldIdToBeRemoved);
+          
           compiler.compile(newBot1Path, function(err, compiledFilePath){
             if(err){
               logger.log('TestArenaBotUpload', helpers.getLogMessageAboutPlayer(req.newGameId, 1, "Failed to compile source file"));

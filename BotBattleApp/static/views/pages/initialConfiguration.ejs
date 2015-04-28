@@ -73,13 +73,6 @@
   				</label> <input id ="gameName" name="gameName" type="text" maxlength="100"
   					size="30" value="SuperAwesomeFunGame" ></input>
   			</div>
-        
-        <div class="form-item">
-          <label id="title" for="gameMoveTimeout"> Game Move Timeout (seconds)<span
-            class="form-required" title="This field is required."> * </span>
-          </label> <input id ="gameMoveTimeout" name="gameMoveTimeout" type="number" value=30 ></input>
-            <p></p>
-        </div>
             
         <div class="form-item">
           <label id="title" for="gameRules"> Game Rules (.pdf) <span
@@ -115,7 +108,6 @@
         document.getElementById('saveTheIslandRadio').addEventListener("click", function() {
           document.getElementById("customGameUpload").style.display = "none";
           document.getElementById("gameName").required = false;
-          document.getElementById("gameMoveTimeout").required = false;
           document.getElementById("gameRules").required = false;
           document.getElementById("gameSource").required = false;
           document.getElementById("gameJavascript").required = false;
@@ -124,7 +116,6 @@
         document.getElementById('customGameRadio').addEventListener("click", function() {
           document.getElementById("customGameUpload").style.display = "block";
           document.getElementById("gameName").required = true;
-          document.getElementById("gameMoveTimeout").required = true;
           document.getElementById("gameRules").required = true;
           document.getElementById("gameSource").required = true;
           document.getElementById("gameJavascript").required = true;

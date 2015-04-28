@@ -124,6 +124,7 @@ module.exports = new (function() {
         'waitingForHumanInput' : false,
         'gameExpireDateTime' : null,
         'gameModule' : gameModule,
+        'realId' : null,
         'bot1Name' : null,
         'bot2Name' : null,
         'bot1Directory' : null,
@@ -186,15 +187,7 @@ module.exports = new (function() {
             helpers.getLogMessageAboutGame(id, "Game Manager already running"));
         return 'gameAlreadyRunning';
       } 
-      /*
-      else if (testArenaInstances[id].gameStateQueue.length != 0) {
-        logger.log("TestArenaInstances", 
-            helpers.getLogMessageAboutGame(id, "Game Manager isn't running but the client hasn't received the states yet."));
-        return 'gameAlreadyRunning';
-      }
-      */
       else {
-        //TODO : added test for bad database
         if (!testArenaInstances[id].gameModule.directories || !testArenaInstances[id].gameModule.directories.gameManagerCompiled) {
           logger.log("TestArenaInstances", 
               helpers.getLogMessageAboutGame(id, "Path to GameManager classFiles is null, cannot spawn"));

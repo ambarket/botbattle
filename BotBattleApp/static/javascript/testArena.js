@@ -401,6 +401,8 @@
      $('#player_2_bot_select_div').hide();
      $('#player2_shared_bot_div').hide();
      $('#player2FileChoose').hide();
+     
+     $("#custom_player2_bot_select").prop("checked", true);
      GLOBAL.resetValueAttrributeById('player2_shared_bot_id');
      GLOBAL.resetValueAttrributeById('player2_bot_upload');
 

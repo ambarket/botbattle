@@ -228,7 +228,6 @@ function InitialConfigurationApp(initConfigAppServer) {
       gameSourceFile : sanitizedFormData.gameSource,
       gameJavascriptFile : sanitizedFormData.gameJavascript,
       gameResourcesFile : sanitizedFormData.gameResources,
-      gameTimeout : sanitizedFormData.gameMoveTimeout
     }
     async.waterfall(
         [
@@ -375,7 +374,7 @@ function InitialConfigurationApp(initConfigAppServer) {
 
   function initGameModuleTask4_InsertGameModuleDatabaseEntry(tmpData, callback) {
     var gameModuleObject = objectFactory.GameModule.newInstance(
-        tmpData.gameName, tmpData.newDirectories, tmpData.newRulesFilePath, tmpData.javascriptFilePath, tmpData.gameTimeout);
+        tmpData.gameName, tmpData.newDirectories, tmpData.newRulesFilePath, tmpData.javascriptFilePath);
 
     database.insertGameModule(gameModuleObject, 
         function(err) {
@@ -509,7 +508,6 @@ function InitialConfigurationApp(initConfigAppServer) {
             // game module parameters
             gameSelect : sanitizer.sanitize(req.body.gameSelect),
             gameName : encodeURIComponent(sanitizer.sanitize(req.body.gameName)),
-            gameMoveTimeout: sanitizer.sanitize(req.body.gameMoveTimeout),
             gameRules : (req.files.gameRules) ? req.files.gameRules[0] : undefined,
             gameSource : (req.files.gameSource) ? req.files.gameSource[0] : undefined,
             gameJavascript : (req.files.gameJavascript) ? req.files.gameJavascript[0] : undefined,
@@ -555,7 +553,6 @@ function InitialConfigurationApp(initConfigAppServer) {
   
   function loadSaveTheIsland(sanitizedFormData) {
     sanitizedFormData.gameName = "SaveTheIsland";
-    sanitizedFormData.gameMoveTimeout = "30";
     sanitizedFormData.gameRules = 
      { fieldname: 'gameRules',
        originalname: 'SaveTheIslandGameRules.pdf',
@@ -660,11 +657,6 @@ function InitialConfigurationApp(initConfigAppServer) {
     
     if (!inputValidator.isZipFile(sanitizedFormData.gameResources.originalname)) {
       self.emit('config_error', 'Game Module Resources file must have a .zip extension');
-      var valid = false;
-    }
-    
-    if (!inputValidator.isMoveTimeout(sanitizedFormData.gameMoveTimeout)) {
-      self.emit('config_error', 'Invalid game move timeout, must be a number of seconds between 0 and 300');
       var valid = false;
     }
     

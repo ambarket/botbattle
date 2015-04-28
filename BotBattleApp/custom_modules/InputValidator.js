@@ -3,7 +3,6 @@ function InputValidator() {
   var hostnameRegex = "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$";
   var passwordRegex = /^(?=.*\d).{4,16}$/; // 4 to 16 characters with atleast one numeric digit
   var alphanumericRegex = /^([0-9A-Za-z]{4,35})$/;
-  var moveTimeoutRegex = /^(\d|[1-9]\d|[1-2]\d\d|[3][0][0])$/; // 0 - 300
   var portNumberRegex = /^(\d|[1-9]\d|[1-9]\d\d|[1-9]\d\d\d|[1-5]\d\d\d\d|[6][0-5][0-5][0-3][0-6])$/; //0 - 65536
   var gameModuleSourceRegex = "Game.java";
   var javascriptFileRegex = /.js$/;
@@ -43,10 +42,6 @@ function InputValidator() {
   
   this.isAlphanumeric4to35Char = function(string) {
     return string.match(alphanumericRegex);
-  }
-  
-  this.isMoveTimeout = function(string) {
-    return string.match(moveTimeoutRegex);
   }
   
   this.is4to35Char = function(string) {
