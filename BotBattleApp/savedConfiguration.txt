@@ -1,0 +1,5 @@
+databaseHost	ambarket.info
+databasePort	27017
+databaseName	euler
+databaseUserName	euler
+databasePassword	password

@@ -34,8 +34,8 @@ public interface GameInterface {
   /**
    *  Must return null if it was a valid move. If invalid you may provide a string
    *  indicating the reason the move was invalid. This will be logged on the client side.
-   * @param move
-   * @param player
+   * @param move The last line received from the players standard output stream
+   * @param player Either 1 or 2.
    * @return
    */
   public String validateMove(String move, int player);
@@ -44,8 +44,8 @@ public interface GameInterface {
    * Will be called only if move was valid according to validateMove. Expected to
    * evaluate and store any changes to the game state as a result of this move.
    * Note: getMidGamestate will be called immediately after this.
-   * @param move
-   * @param player
+   * @param move The last line received from the players standard output stream
+   * @param player Either 1 or 2.
    */
   void updateBoard(String move, String stderr, int player);
   

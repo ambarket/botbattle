@@ -1,0 +1,455 @@
+Wasn't started as root, no need to relinquish priviledges
+Tue Apr 28 2015 17:06:57 GMT-0400 (EDT) :  general: initialConfig Successfuly read configuration file at /home/amb6470/git/botbattle/BotBattleApp/savedConfiguration.txt
+Tue Apr 28 2015 17:06:58 GMT-0400 (EDT) :  general: initialConfig Successfully connected to the database found in the configuration file
+Tue Apr 28 2015 17:06:58 GMT-0400 (EDT) :  httpsServer: Running Bot!Battle! at https://localhost:6058
+Tue Apr 28 2015 17:06:58 GMT-0400 (EDT) :  fileManager: Deleted /home/amb6470/git/botbattle/BotBattleApp/init_config_tmp
+Tue Apr 28 2015 17:06:58 GMT-0400 (EDT) :  fileManager: Deleted /home/amb6470/git/botbattle/BotBattleApp/local_storage/test_arena_tmp
+Tue Apr 28 2015 18:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Tue Apr 28 2015 18:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Tue Apr 28 2015 18:24:41 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:25:25 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:25:42 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:25:43 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:25:50 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:26:06 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:26:35 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:26:49 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:27:18 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:28:28 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:28:41 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:16 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:20 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:23 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:34 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:43 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:44 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:45 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:47 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:29:49 GMT-0400 (EDT) :  BotBattleApp: Failed to serve rules file for game SaveTheIsland because no game module was found under that name.
+Tue Apr 28 2015 18:29:52 GMT-0400 (EDT) :  BotBattleApp: Failed to serve rules file for game SaveTheIsland because no game module was found under that name.
+Tue Apr 28 2015 18:29:58 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:02 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:17 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:19 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:33 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:45 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:47 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:51 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:30:54 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:32:40 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:32:44 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:32:50 GMT-0400 (EDT) :  BotBattleApp: Failed to serve rules file for game SaveTheIsland because no game module was found under that name.
+Tue Apr 28 2015 18:32:55 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:33:44 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:33:58 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:34:07 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:34:20 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:34:36 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:35:03 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:35:15 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:35:19 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:36:01 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:36:29 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:36:50 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:37:53 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:37:57 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:38:02 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:38:06 GMT-0400 (EDT) :  BotBattleApp: Failed to serve rules file for game SaveTheIsland because no game module was found under that name.
+Tue Apr 28 2015 18:38:39 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:38:40 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:39:53 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 18:40:57 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 19:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Tue Apr 28 2015 19:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Tue Apr 28 2015 19:11:36 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Tue Apr 28 2015 20:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Tue Apr 28 2015 20:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Tue Apr 28 2015 21:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Tue Apr 28 2015 21:06:58 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Tue Apr 28 2015 22:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Tue Apr 28 2015 22:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Tue Apr 28 2015 23:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Tue Apr 28 2015 23:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 00:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 00:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 01:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 01:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 02:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 02:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 03:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 03:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 04:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 04:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 05:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 05:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 06:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 06:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 07:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 07:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 08:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 08:06:59 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 09:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 09:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 10:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 10:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 11:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 11:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 12:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 12:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 13:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 13:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 14:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 14:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 14:24:38 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:04 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:04 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:21 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:21 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:23 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:50 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:50 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:57 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 14:25:57 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 15:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 15:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 15:48:20 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 15:48:20 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 16:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 16:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 17:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 17:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 17:22:25 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 17:22:47 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 17:22:55 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 18:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 18:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 18:12:53 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 18:13:13 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 18:13:18 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 19:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 19:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 19:59:54 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 19:59:57 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 20:00:05 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 20:00:09 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 20:00:19 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+Wed Apr 29 2015 20:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 20:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 21:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 21:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 22:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 22:07:00 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Wed Apr 29 2015 23:07:01 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Wed Apr 29 2015 23:07:01 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Thu Apr 30 2015 00:07:01 GMT-0400 (EDT) :  TestArenaInstances: Cleaning
+Thu Apr 30 2015 00:07:01 GMT-0400 (EDT) :  TestArenaInstances: Cleaned : 0  instances.
+Thu Apr 30 2015 00:35:48 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/javascript . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/javascript/game.js',
+  status: 404 }  (status: 404)
+Thu Apr 30 2015 00:36:04 GMT-0400 (EDT) :  BotBattleApp: Failed to serve request for /game/SuperAwesomeFunGame/rules . { [Error: ENOENT, stat '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf']
+  errno: 34,
+  code: 'ENOENT',
+  path: '/home/amb6470/git/botbattle/BotBattleApp/local_storage/game_modules/SuperAwesomeFunGame/rules/SaveTheIslandGameRules.pdf',
+  status: 404 }  (status: 404)
+here
+here
+here
+here
+here
+here
+here
+here
