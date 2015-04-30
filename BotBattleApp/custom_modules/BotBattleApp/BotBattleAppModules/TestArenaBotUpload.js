@@ -429,7 +429,7 @@ module.exports = {
       var instance = testArenaInstances.getGame(req.newGameId);
       
       var prefixedId = req.newGameId;
-      var removeNonPrefixedFolder = false;
+      var oldIdToBeRemoved = null;
       if (req.body.shared_bot_id_prefix) {
           oldIdToBeRemoved = req.newGameId;
           prefixedId = testArenaInstances.addPrefixToInstanceId(req.body.shared_bot_id_prefix, req.newGameId);
@@ -484,8 +484,10 @@ module.exports = {
         else {
           instance.bot1SourcePath = newBot1Path;
           instance.bot1Directory = newBot1Directory;
-          
-          fileManager.deleteGameInstanceDirectory(oldIdToBeRemoved);
+         
+          if (oldIdToBeRemoved) {
+            fileManager.deleteGameInstanceDirectory(oldIdToBeRemoved);
+          }
           
           compiler.compile(newBot1Path, function(err, compiledFilePath){
             if(err){

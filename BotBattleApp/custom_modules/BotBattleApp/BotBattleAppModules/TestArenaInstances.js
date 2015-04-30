@@ -124,7 +124,6 @@ module.exports = new (function() {
         'waitingForHumanInput' : false,
         'gameExpireDateTime' : null,
         'gameModule' : gameModule,
-        'realId' : null,
         'bot1Name' : null,
         'bot2Name' : null,
         'bot1Directory' : null,
