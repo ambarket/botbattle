@@ -84,50 +84,34 @@ runArenaGame() {
   
   game = new Game();
   game.initializeGame(gameType);
+  game.getInitialGameStateJSON();
   
-  System.out.println(game.getInitialGameStateJSON());
+  Send Initial GameState to TestArena
   
   while (!game.isGameOver()) {
-
     int player = game.getPlayerForCurrentTurn();
     
     if (player == 1) {  
-      move = bot1.getMove(game.getPlayerOneBoard(), game.getBotTimeoutInMilliseconds());  
-    } else if (player == 2 && gameType.equals(GameType.BOT_VS_HUMAN)){
-  	  rawMove = bot2.getMove(game.getPlayerTwoBoard(), game.getHumanTimeoutInMilliseconds());    
-  	rawStderr = bot2.getAnyStderr();
+      player1Board <- game.getPlayerOneBoard(), game.getBotTimeoutInMilliseconds());  
+    } else if (player == 2 and gameType == BOT_VS_HUMAN){
+  	 move = bot2.getMove(game.getPlayerTwoBoard(), game.getHumanTimeoutInMilliseconds());    
     }
     else {
-      rawMove = bot2.getMove(game.getPlayerTwoBoard(), game.getBotTimeoutInMilliseconds());    
-      rawStderr = bot2.getAnyStderr();
-    }
-    
-    if (rawMove != null) {
-      jsonSafeMove =  JSONValue.toJSONString("Player " + player + ": \"" + rawMove + "\"");
-    }
-    if (rawStderr != null) {
-      String[] tmp = rawStderr.split("\n");
-      JSONArray tmpArray = new JSONArray();
-      for (String s : tmp) {
-        tmpArray.add("Player " + player + ": \"" + s + "\"");
-      }
-  	jsonSafeStderrArray =  JSONValue.toJSONString(tmpArray);
+      move = bot2.getMove(game.getPlayerTwoBoard(), game.getBotTimeoutInMilliseconds());    
     }
 
-    String reasonMoveWasInvalid = game.validateMove(rawMove, player);
+    reasonMoveWasInvalid = game.validateMove(rawMove, player);
+    
     if (reasonMoveWasInvalid == null) {
       game.updateBoard(rawMove, rawStderr, player);
-      System.out.println(game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderrArray, player));
+      game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderrArray, player)
+      Send Mid GameState to TestArena
     } else {
-      System.out.println(getInvalidMoveJSON(jsonSafeMove, jsonSafeStderrArray, player, reasonMoveWasInvalid));
+      Send invalid move message to TestArena
     }
   }
   
   System.out.println(game.getFinalGameStateJSON());
-  
-  bot1.killBotProcess();
-  bot2.killBotProcess();
-  System.exit(0);
 }
 </pre>
        <h3> Write a class named "Game" that implements the following interface </h3>
