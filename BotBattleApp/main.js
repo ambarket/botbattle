@@ -6,7 +6,6 @@
 
 
 var port = process.argv[2] || 6058;
-console.log("Command Line Args:", process.argv);
 // In order to set this up as a service that runs on startup using forever-service, the process
 //   is launched as root, so have to reliquish priviledges immedietly. 
 if ( process.getuid() === 0) {
