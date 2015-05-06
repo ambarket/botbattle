@@ -73,7 +73,7 @@ public void runArenaGame() {
 
       String reasonMoveWasInvalid = game.validateMove(rawMove, player);
       if (reasonMoveWasInvalid == null) {
-        game.updateBoard(rawMove, rawStderr, player);
+        game.updateBoard(rawMove, player);
         System.out.println(game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderrArray, player));
       } else {
         System.out.println(getInvalidMoveJSON(jsonSafeMove, jsonSafeStderrArray, player, reasonMoveWasInvalid));

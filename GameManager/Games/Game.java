@@ -14,7 +14,6 @@ public class Game implements GameInterface {
   private String lastBoard;
   private String board;
   private String lastRawMove;
-  private String lastRawStderr;
   private int lastPlayersTurn;
   
   
@@ -26,8 +25,6 @@ public class Game implements GameInterface {
   //    if a bot made an invalid move.
   private String gameOverMessage;  
 
-  // TODO: Remove this from init config bec ause it makes more sense just to specify it here when
-  //    writing the game
   @Override
   public int getBotTimeoutInMilliseconds() {
     return 3000;
@@ -81,7 +78,7 @@ public class Game implements GameInterface {
   }
   
   @Override
-  public void updateBoard(String move, String stderr, int player) {
+  public void updateBoard(String move, int player) {
     lastBoard = board;
     String[] pieces = move.split(";");
  
@@ -110,7 +107,6 @@ public class Game implements GameInterface {
 
     lastPlayersTurn = player;
     lastRawMove = move;
-    lastRawStderr = stderr;
     int winner = getWinner();
     if (winner != 0) {
       gameOverMessage = "Player " + winner + " has won the game.";
