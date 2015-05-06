@@ -18,7 +18,13 @@ public class ArenaGameInstance {
     game = new Game();
   }
 
-  public void runArenaGame() {
+  /*
+   * The compiler was warning about the use of the add method of JSONArray below
+   * when building the array of standard error output. Maybe look into this but for
+   * now I don't see any harm.
+   */
+  @SuppressWarnings("unchecked")
+public void runArenaGame() {
     String rawMove = "", rawStderr = "", jsonSafeMove = "", jsonSafeStderrArray = "";
 
     //Send starting board to the test arena

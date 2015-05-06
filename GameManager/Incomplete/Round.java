@@ -4,12 +4,12 @@ import java.io.IOException;
 
 public class Round {
 
-  private GameInstance games[];
+  private TournGameInstance games[];
 
   public Round(CompetitorData competitors) throws IOException {
     
     //With n competitors this round we need n/2 games
-    games = new GameInstance[(int) Math.ceil(competitors.getNumberOfCompetitors() / 2)];
+    games = new TournGameInstance[(int) Math.ceil(competitors.getNumberOfCompetitors() / 2)];
 
     for (int i = 0; i < games.length; i++) {
       Player p1 = new Player(competitors.getBotPath(i), competitors.getUser(i), Language.JAVA);
@@ -21,12 +21,12 @@ public class Round {
         p2 = new Player(competitors.getBotPath(i + 1), competitors.getUser(i + 1), Language.JAVA);
       }
 
-      games[i] = new GameInstance(p1, p2);
+      games[i] = new TournGameInstance(p1, p2);
     }
   }
 
   public void runRound() {
-    for (GameInstance gameManager : games) {
+    for (TournGameInstance gameManager : games) {
       gameManager.run();
     }
   }
@@ -47,7 +47,7 @@ public class Round {
   public String toHTML() { // TODO toHTML for round
     String html = "";
 
-    for (GameInstance gameManager : games) {
+    for (TournGameInstance gameManager : games) {
       html += gameManager.getHTMLForEntireGame();
     }
 

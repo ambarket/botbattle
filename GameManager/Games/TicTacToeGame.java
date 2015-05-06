@@ -1,7 +1,13 @@
 
-
+/*
 import java.util.List;
 
+
+ * TODO: The GameInterface has changed significantly, and this Game is no longer playable.
+ * Also the Game State JSON methods were never implemented for this. It was used as an
+ * initial test game for the GameManager and it was only ever playable via command line
+ * 
+ * 
 //TIC-TAC-TOE 
 public class TicTacToeGame implements GameInterface {
   public String getStartingBoard() {
@@ -228,3 +234,4 @@ public class TicTacToeGame implements GameInterface {
     
   }
 }
+*/

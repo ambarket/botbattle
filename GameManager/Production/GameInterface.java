@@ -1,9 +1,9 @@
 /**
  * 	An implementation of this interface by a public class named Game must
  *  be uploaded to the initial configuration page along with the other
- *  game componenets to define a new game in the Bot!Battle! system.
+ *  game components to define a new game in the Bot!Battle! system.
  *  
- *  For your convienience in generating JSON strings, version 1.1.1 of the 
+ *  For your convenience in generating JSON strings, version 1.1.1 of the 
  *  following library is provided in the class path of the GameManager.
  *  https://code.google.com/p/json-simple/
  *  
@@ -82,29 +82,56 @@ public interface GameInterface {
   boolean isGameOver();
   
   /**
+   * Number of milliseconds to wait for a bot's move (via their stdout stream) before
+   * giving up and reporting a "null" move.
+   */
+  int getBotTimeoutInMilliseconds();
+  
+  /**
+   * Number of milliseconds to wait for a human's move (via their stdout stream) before
+   * giving up and reporting a "null" move.
+   */
+  int getHumanTimeoutInMilliseconds();
+  
+  /**
    * Return the player number of the current turn (iteration of the game loop). 
    * This player will be asked for a move, and that move will be submitted to 
    * the next calls to validateMove and updateBoard.
    * @return Either 1 or 2
    */
   int getPlayerForCurrentTurn();
-
-  /**
-   * Currently unused, except by the Incomplete/GameInstance
-   * @return
-   */
-  String getCompleteBoard();
   
+  /**
+   * This method will be called when getPlayerForCurrentTurn() has indicated that it's
+   * player 1's turn. This string will be sent verbatim to standard input stream of the 
+   * bot playing as player 1.
+   * @return Player 1's view of the game board.
+   */
   String getPlayerOneBoard();
   
   /**
+   * This method will be called when getPlayerForCurrentTurn() has indicated that it's
+   * player 2's turn. This string will be sent verbatim to standard input stream of the 
+   * bot playing as player 2. Or ignored if player two is a human. 
    * 
+   * Note in the case of human players in the test arena, it's the job of game.js 
+   * to display the human input elements to the user. The recommendation is to 
+   * include the necessary information to generate the human input elements in 
+   * the gameData attribute of the midGameState preceding the human's turn.
+   * @return Player 2's view of the game board.
    */
   String getPlayerTwoBoard();
   
-
-
-  String getJSONstringFromGameResults(GameResults results);
+  /**
+   * Currently unused, except by Incomplete/TournGameInstance.
+   *  
+   * The idea was to combine both player 1 and player 2's view of the board into an
+   * overall string representation of the board. User feedback of the test arena indicated 
+   * they'd rather see the actual playerOne and playerTwo boards using the other getters above.
+   * 
+   * In all likelihood this method is not needed at all and could be removed from the interface.
+   * @return An overall view of the game board.
+   */
+  String getCompleteBoard();
+}
   
-  int getBotTimeoutInMilliseconds();
-  int getHumanTimeoutInMilliseconds();

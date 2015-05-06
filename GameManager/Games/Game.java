@@ -163,44 +163,6 @@ public class Game implements GameInterface {
 
     return jsonString;
   }
-  
-  @Override
-  // TODO: Not relevant for test arena, maybe remove from this class.
-  public String getJSONstringFromGameResults(GameResults results) {
-    Object[] p1Moves = results.getPlayer1Moves().toArray();
-    Object[] p2Moves = results.getPlayer2Moves().toArray();
-    String board = results.getBoards().get(0);
-    String desc = "";
-    String animation = "";
-    String jsonString = "[{";
-
-    jsonString += animatedEventJSON("Initial Board", -1) + ",";
-    jsonString +=
-        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
-            "initial board") + "}";
-
-
-    for (int i = 1; i < results.getBoards().size(); i++) {
-      jsonString += ",{";
-      board = results.getBoards().get(i);
-
-      if (i % 2 == 1) {
-        desc = prettyPrintMove((String) p1Moves[i / 2], 1);
-        animation = animatedEventJSON((String) p1Moves[i / 2], 1);
-      } else {
-        desc = prettyPrintMove((String) p2Moves[i / 2], 2);
-        animation = animatedEventJSON((String) p1Moves[i / 2], 2);
-      }
-      jsonString += animation + ",";
-      jsonString +=
-          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc)
-              + "}";
-    }
-
-    jsonString += "]";
-
-    return jsonString;
-  }
 
   public String getStartingBoard() {
     Random rng = new Random();
@@ -472,6 +434,45 @@ public class Game implements GameInterface {
     }
     return output;
   }
+  
+  /*
+   * TODO: Removed from the GameInterface, will leave here for now since it's not hurting anything
+  public String getJSONstringFromGameResults(GameResults results) {
+    Object[] p1Moves = results.getPlayer1Moves().toArray();
+    Object[] p2Moves = results.getPlayer2Moves().toArray();
+    String board = results.getBoards().get(0);
+    String desc = "";
+    String animation = "";
+    String jsonString = "[{";
+
+    jsonString += animatedEventJSON("Initial Board", -1) + ",";
+    jsonString +=
+        gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board),
+            "initial board") + "}";
+
+
+    for (int i = 1; i < results.getBoards().size(); i++) {
+      jsonString += ",{";
+      board = results.getBoards().get(i);
+
+      if (i % 2 == 1) {
+        desc = prettyPrintMove((String) p1Moves[i / 2], 1);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 1);
+      } else {
+        desc = prettyPrintMove((String) p2Moves[i / 2], 2);
+        animation = animatedEventJSON((String) p1Moves[i / 2], 2);
+      }
+      jsonString += animation + ",";
+      jsonString +=
+          gameDataJSON(Board.getPlayersTiles(1, board), Board.getPlayersTiles(2, board), desc)
+              + "}";
+    }
+
+    jsonString += "]";
+
+    return jsonString;
+  }
+  */
 
   // -------------------------- BOARD CLASS ---------------------
   public static class Board {
