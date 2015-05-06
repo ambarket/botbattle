@@ -1,4 +1,15 @@
-// TODO: Eliminate the evert emitter stuff, overly complicates this for no reason.
+/* TODO: 
+ * This module is quite important to the application and was somewhat neglected due to
+ * time constraints. It works, but could be a lot cleaner. Specifically instead of using
+ * child_process.spawn, the child_process.exec command makes more sense here. Spawn should
+ * only be used for long running processes that require binding the streams mid execution. 
+ * Here we can simple execute the process and receive the resulting stdout and stderr after
+ * the compilation has completed in a callback.
+ * 
+ * Making this change would require changes to the initial configuration page which uses it to
+ * compile the GameManager. As well as the TestArenaBotUpload module which uses it to compile the
+ * user's bots.
+ */
 
 
 /**
@@ -35,8 +46,8 @@ function BotBattleCompiler() {
     }
     var compilationProcess = undefined;
     directoryPath = path.resolve(folder, folderContentList[item]);
-    // TODO: THis is terrible coding.
-    sourceFiles.unshift("-classpath", paths.gameManagerJars);
+    // TODO: THis is ugly coding.
+    sourceFiles.unshift("-classpath", paths.gameManagerClassPath);
     sourceFiles.push("-d");
     sourceFiles.push(outputFolder);
     logger.log("BotBattleCompiler", "Compiling", sourceFiles);
