@@ -45,10 +45,10 @@ public class TournGameInstance implements Runnable {
       System.out.flush();
       
       if (player == 1) {
-        move = player1.getMove(game.getCompleteBoard(), game.getBotTimeoutInMilliseconds());
+        move = player1.getMove(game.getPlayerOneBoard(), game.getBotTimeoutInMilliseconds());
         results.addMove(move, player);
       } else {
-        move = player2.getMove(game.getCompleteBoard(), game.getBotTimeoutInMilliseconds());
+        move = player2.getMove(game.getPlayerTwoBoard(), game.getBotTimeoutInMilliseconds());
         results.addMove(move, player);
       }
 
