@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Bot!Battle! Documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Bot!Battle!</h1>
+	  <br>
+      <a href="./index.html" class="btn">Main</a>
+      <a href="./downloads.html" class="btn">Downloads</a>
+      <a href="./documentation.html" class="btn">Documentation</a>
+      <a href="./support.html" class="btn">Support</a>
+      <a href="./about.html" class="btn">About</a>
+      <br>
+	  <h2> System Documentation! </h2>
+      <a href="./designDocuments.html" class="btn">Design Documents</a>
+      <a href="./createAGame.html" class="btn">Creating a Game</a>
+
+    </section>
+
+    <section class="main-content">
+      <h2> Creating a Game </h2>
+      
+      <h3> What makes up a Game? </h3>
+      <p>A Bot!Battle! Game consists of 4 components that must be uploaded to the initial configuration page.</p>
+      <ul>
+		<li> 
+			<p>Game Name: This name will be URL encoded and then used both in local storage file paths and urls to all game specific files and resources.
+			<ul> 
+				<li>  All  files uploaded and derived from your uploads to initial configuration page will be stored in
+					<ul>
+						<li>  application_root/local_storage/game_modules/[Game Name]
+					</ul>
+				<li>  All game specific hosted files will be available at urls rooted at
+					<ul>
+						<li>  /game/[Game Name]
+					</ul>
+				</li>
+		
+			</ul>
+		</li>
+		<br/>
+		<li> 
+			<p>Game Rules: A pdf file containing the rules of the game.
+			<ul>
+				<li> Hosted at: /game/[Game Name]/rules
+			</ul>
+		</li>
+		<br>
+		<li>  
+			<p>Game Javascript - [fileName].js
+			<ul>
+				<li>  Hosted at: /game/[Game Name]/javascript
+				<li>  The built in test arena javascript file (testArena.js) will automatically load this file when the test arena page is loaded.
+				<li>  This file must implement a global javascript object named GAME that has a number of required methods that are called directly by the built in test arena javascript file. These will be described in detail below.
+			</ul>
+		</li>
+		<br>
+		<li>  
+			<p> Game.java file – Please refer to the following java doc for help writing this class and implementing
+				the GameInterface.
+			<ul>
+				<li> <a href = "GameInterfaceJavaDoc/index.html"> GameInterface JavaDoc</a>
+			</ul>
+		</li>
+		<br>
+		<li>  
+			<p> Game Module Resources: A zip archive containing any additional files and folders that you would like to be hosted by Bot!Battle!
+			<ul>
+				<li>  Hosted at: /game/[Game Name]/resources/[Unzipped Resources]
+				<li>  This allows you to upload sprites, images, audio, and any anything else that your game javascript file might require to display and animate the game to the user. 
+			</ul>
+		</li>
+      </ul>
+      <!-- ------------------------------------------------------------------------ -->
+
+<h2> JSON Game States </h2>
+
+	<p>
+		If you've glanced at the GameInterface in the referred javadoc above, you've noticed that your Java Game class 
+		is responsible for implementing all game logic required for validating moves, tracking the state of the game, and
+		determining when someone has won or the game has otherwise ended.
+		Your game javascript file is then responsible for actually animating and presenting the results of the game to the user
+		in the test arena. 
+	</p>
+	
+	<p>	There are three key GameInterface methods related to the generation of JSON GameStates, namely </p>
+		<ul>
+			<li> <a href="GameInterfaceJavaDoc/GameInterface.html#getInitialGameStateJSON--">getInitialGameStateJSON()</a>
+			<li> <a href="GameInterfaceJavaDoc/GameInterface.html#getMidGameStateJSON-java.lang.String-java.lang.String-int-">getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderrArray, int player)</a>
+			<li> <a href="GameInterfaceJavaDoc/GameInterface.html#getFinalGameStateJSON--">getFinalGameStateJSON()</a>
+		</ul>
+	
+	<p>
+		As you might expect, getInitialGameStateJSON() is called once before the game has begun.
+		getMidGameStateJSON(...) is called after each valid move is performed. And getFinalGameStateJSON() is
+		called once after the game has ended. To gain an understanding of what these game state contain and 
+		how they are handled requires 
+	</p>
+	
+	<h3>Components of a GameState</h3>
+	<p> Each game state whether, initial, mid, or final, may have the following top level properties. These
+		will be discussed in turn </p>
+	<pre>
+    "{
+    	"messageType":"initialGameState"|"midGameState"|"finalGameState",
+    	"gameData": {	
+    	    // Arbitrary game specific object
+    	},
+    	"debugData": {
+    	    // Arbitrary game specific object
+    	}
+    	"animatableEvents":[
+    	    // Array of arbitrary game specific objects.
+    	],
+		"enableHumanInput": truthy|falsy,
+    }"
+	</pre>
+	<h4> TEST_ARENA.passGameStateToGame()</h4>
+	<p> Before diving into the specifics of these 5 properties...
+	
+	<h4>"messageType" : "initialGameState"|"midGameState"|"finalGameState" <p style="color:red;display:inline">(Required)</h4>  
+			<ul>
+				<li> <p>Tells the built in testArena.js file how to interpret your message
+				<li> <p><b>initialGameState</b>: Receipt of a GameState with this special messageType triggers the 
+					test arena to reset itself and prepare to animate a new game, entering what is known as the <i>gameStarted</i>
+					state. In the process it calls several methods of the GAME object implemented in your game javascript file.
+					<ol>
+						<li> <i>GAME.resetGameboard(callback)</i>
+							<p> Should completely clear out and lose reference to any data or state related to a previous game
+								that was played. Since the test arena is never reloaded, its important to make sure this is
+								done fully at this step to avoid quirky behavior with your game.
+						<li> <i>GAME.drawBoard()</i> 
+							<p>Upon receipt of the resetGameboard callback, the Test Arena starts the draw loop. 
+							Now approximately 60 times a second your drawBoard function will be called 
+							by the Test Arena to redraw the canvas.
+							<p>This will automatically end once the user has chosen to end the game, or the game 
+							has finished animating all game states.
+						<li> <i>TEST_ARENA.passGameStateToGame()</i> 
+							<p>A built in Test Arena method that handles sending all game
+							specific information of the GameState to your GAME object. This will be defined in detail below.
+					</ol>
+				<li> <p> After these initial setup tasks are out of the way, the remaining components of the InitialGameState
+					are processed normally. That is you may include animatableEvents, gameData, debugData, or enableHumanInput
+					components in the initial game state if you wish and they will be processed in the same manner as if they were
+					in a MidGameState or FinalGameState. 
+				<li> <p><b>midGameState</b>: Receipt of a GameState with the "midGameState" message type simply tells the 
+					test arena that game is still in progress. The Test Arena calls <i>TEST_ARENA.passGameStateToGame()</i> 
+					and continues waiting for more GameStates.
+				<li> <p><b>finalGameState</b>: Receipt of a GameState with the "finalGameState" message type informs the
+					Test Arena that the game is ending. The Test Arena first calls <i>TEST_ARENA.passGameStateToGame()</i> 
+					so that your javascript file can handle and end of game animations or cleanup. Then the test arena performs
+					its own cleanup and transitions to what's known as the <i>gameFinished</i> state. In this state the last frame of
+					the canvas is still visible as well as any standout out, standard error, move list, and board information on the
+					screen, however the draw loop has been halted and the Test Arena is no longer requesting new GameStates from the 
+					server via AJAX. The start game button is redisplayed so that the user can play again with the same configuration,
+					or if they'd like upload other bots.	
+			</ul>
+	<
+	<h4>"enableHumanInput" : truthy|falsy </h4>  
+		<ul>
+			<li> <p> If falsey (including undefined or not present), the Test Arena javascript will do nothing.
+			<li> <p> If truthy, you're indicating to the Test Arena javascript that the human player is up next. 
+						In response the Test Arena performs the following actions in order.
+				<ol>
+					<li> <i>GAME.setHumanInputElements()</i>
+						<p> Expected to set the innerHTML of the div with id "humanInputElements". 
+						<p> Note you do not need to worry about unsetting anything previously added to 
+							this div, the Test Arena automatically clears out any contents after the human 
+							submits their move. You also do not need to provide any kind of submit button,
+							the Test Arena provides one for you.
+						<ul>
+							<li> document.getElementById("humanInputElements").appendChild(form);
+						</ul>
+						<p>
+					<li> <p>The humanInputElements div is then displayed to the user. And the application waits for
+							their input.
+					<li> <i>GAME.getMoveFromHumanInputElements()</i> 
+						<p> Called after the human has submitted their move. This method is expected to read
+							and parse the move from the humanInputElements div. It must then return a string
+							that has the same exact structure that bots are expected to submit via their standard
+							output streams. This move will be passed along through the system all the way to your Game.java
+							file, where you'll be able to perform validation and update the internal game state before
+							sending back the next GameState.
+					<li> After sending the move out to the GameManager the contents of the humanInputElements div are cleared,
+						and the Test Arena continues to wait for new GameStates from your java Game class.
+				</ol>
+		</ul>
+
+
+	
+
+<h2>Other GAME methods</h2>	
+<ul>
+	<li> <i>GAME.setExtraGameControls()</i>
+		<p> Setup and extraneous UI elements you'd like to have for your game. For SaveTheIsland we used this
+			for the toggle tiles button.
+		<p> Note for future developers: this should probably be called after the resetGameboard callback, 
+			the fact that its not is an oversight.
+</ul>
+
+   * The receipt of this GameState will trigger the client javascript to call 
+   * GAME.resetGameboard, and then pass this GameState along to 
+   * GAME.processGameData, GAME.processDebugData, and GAME.processAnimatableEvent
+<h3> InitialGameState</h3>
+<pre>
+"{
+	"messageType":"initialGamestate",
+	"enableHumanInput":false,
+	"gameData":{"player1Tiles":[3,4,3,4,4],
+	"player2Tiles":[1,4,1,2,3],
+	"turnDescription":"The game has started"}
+ }"
+</pre>
+	
+<pre>
+"{
+	"messageType":"midGamestate",
+	"enableHumanInput":false,
+	"animatableEvents":[
+		{	
+			"event":"move",
+			"data": {
+				"player":"player1",
+				"endPosition":4,
+				"startPosition":0
+			}
+		}
+	],
+	"gameData": {
+		"player1Tiles":[3,4,3,4,4],
+		"player2Tiles":[1,4,1,2,3],
+		"turnDescription":"Player 1 moves forward 4 spaces."
+	},
+	"debugData": {
+		"board":"1;34344;000010000000002",
+		"stderr":["Player 1: \"1;34344;100000000000002\""],
+		"stdout":"Player 1: \"move;4\""
+	}
+}"
+</pre>
+	
+"{
+	"messageType":"finalGamestate",
+	"enableHumanInput":false,
+	"gameData":{
+		"player1Tiles":[3,2,3,3,3],
+		"player2Tiles":[3,3,2,3,2],
+		"turnDescription":"Player 2 has won the game."
+	}
+}"
+</pre>
+
+Games are 
+
+JS Methods
+
+1. processGameData
+2. processDebugData
+3. processAnimatableEvent
+4. drawBoard
+5. setHumanInputElements
+6. getMoveFromHumanInputElements
+7. setExtraGameControls
+8. resetGameboard
+
+	
+      <footer class="site-footer">
+        <span class="site-footer-credits">Parts of this page were generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
