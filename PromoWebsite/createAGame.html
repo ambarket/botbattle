@@ -58,7 +58,7 @@
 			<p>Game Javascript - [fileName].js
 			<ul>
 				<li>  Hosted at: /game/[Game Name]/javascript
-				<li>  The built in test arena javascript file (testArena.js) will automatically load this file when the test arena page is loaded.
+				<li>  This file will be automatically loaded when the test arena page is loaded.
 				<li>  This file must implement a global javascript object named GAME that has a number of required methods that are called directly by the built in test arena javascript file. These will be described in detail below.
 			</ul>
 		</li>
@@ -81,6 +81,22 @@
       </ul>
       <!-- ------------------------------------------------------------------------ -->
 
+Games are 
+
+JS Methods
+
+	<ul>
+		<li> <p> resetGameboard(callback)
+			<P> 
+		<li> <p> drawBoard()
+		<li> <p> processGameData(messageType, gameData, callback)
+		<li> <p> processDebugData(messageType, debugData, callback)
+		<li> <p> processAnimatableEvent(animatableEvent, callback)
+		<li> <p> setHumanInputElements()
+		<li> <p> getMoveFromHumanInputElements()
+		<li> <p> setExtraGameControls()
+	</ul>
+		
 <h2> JSON Game States </h2>
 
 	<p>
@@ -123,8 +139,6 @@
         "enableHumanInput": truthy|falsy,
     }"
 	</pre>
-	<h4> TEST_ARENA.passGameStateToGame()</h4>
-	<p> Before diving into the specifics of these 5 properties...
 	
 	<h4>"messageType" : "initialGameState"|"midGameState"|"finalGameState" <p style="color:red;display:inline">(Required)</h4>  
 			<ul>
@@ -163,7 +177,23 @@
 					server via AJAX. The start game button is redisplayed so that the user can play again with the same configuration,
 					or if they'd like upload other bots.	
 			</ul>
-	<
+			
+	<p> Before diving into the specifics of these 5 properties...
+	<h4> TEST_ARENA.passGameStateToGame()</h4>
+			<p> This built in testArena.js method will be called each time you're game needs to process a new game state.
+				To do so, the three game specific properties of your game state are parsed and passed to the following
+				functions in turn.
+				
+			<ol>
+				<li> <i>GAME.processGameData()</i>
+					<p>What this does
+				<li> <i>GAME.processDebugData()</i> 
+					<p>What this does
+				<li> <i>GAME.processAnimatableEvent()</i> 
+					<p>What this does
+			</ol>
+	
+
 	<h4>"enableHumanInput" : truthy|falsy </h4>  
 		<ul>
 			<li> <p> If falsey (including undefined or not present), the Test Arena javascript will do nothing.
@@ -209,6 +239,9 @@
    * The receipt of this GameState will trigger the client javascript to call 
    * GAME.resetGameboard, and then pass this GameState along to 
    * GAME.processGameData, GAME.processDebugData, and GAME.processAnimatableEvent
+
+<h2> GameState Examples</h2>
+
 <h3> InitialGameState</h3>
 <pre>
 "{
@@ -220,6 +253,7 @@
  }"
 </pre>
 	
+<h3> MidGameState</h3>
 <pre>
 "{
 	"messageType":"midGamestate",
@@ -246,7 +280,9 @@
 	}
 }"
 </pre>
-	
+
+<h3> FinalGameState</h3>
+<pre>
 "{
 	"messageType":"finalGamestate",
 	"enableHumanInput":false,
@@ -258,18 +294,7 @@
 }"
 </pre>
 
-Games are 
 
-JS Methods
-
-1. processGameData
-2. processDebugData
-3. processAnimatableEvent
-4. drawBoard
-5. setHumanInputElements
-6. getMoveFromHumanInputElements
-7. setExtraGameControls
-8. resetGameboard
 
 	
       <footer class="site-footer">
