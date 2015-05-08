@@ -104,3 +104,5 @@ module.exports.built_in_games = {
         ]
     }
 }
+
+module.exports.promo_website_dir = path.resolve(module.exports.app_root, '../', "PromoWebsite");
