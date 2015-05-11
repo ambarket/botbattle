@@ -226,7 +226,7 @@ module.exports = new (function() {
 
           //testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", classPath, "GameManager", JSON.stringify(testArenaInstances[id])], {cwd : workingGamePath});
           testArenaInstances[id].gameStateQueue = [];
-          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerJars + ":" + testArenaInstances[id].gameModule.directories.gameManagerCompiled, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
+          testArenaInstances[id].gameProcess = spawn('java', [ "-classpath", paths.gameManagerClassPath + ":" + testArenaInstances[id].gameModule.directories.gameManagerCompiled, "ArenaGameManager", 'testarena', JSON.stringify(jsonArgument)], {cwd : workingGamePath});
           testArenaInstances[id].gameState = "running";
           testArenaInstances[id].waitingForHumanInput = false;
 

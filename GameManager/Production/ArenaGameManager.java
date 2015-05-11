@@ -1,4 +1,18 @@
 
+/* TODO: If tournaments were fully implemented, the idea was to send the first argument
+ * as "tournament" from the BotBattleApp, the second argument should then be all 
+ * other data needed to run the tournament and generate an HTML page to view it. 
+ * At a minimum this would likely include all the player's usernames, and the path to their bots.
+ * 
+ * The code found in the Incomplete folder of this project pertains to the unfinished tournament feature
+ * of this project. It's somewhat in disarray at this point because of the many changes necessary to the
+ * GameInterface and the structure of the main game loop once we implemented and finalized communication
+ * with the BotBattleApp's test arena. 
+ * 
+ * Most of the ideas and code needed to run the tournament should be there however, it will just need to
+ * be extended to properly store the JSON game states in some way, and then have methods to output all of 
+ * those game states into a larger static web site that could be used to view the tournament. 
+ */
 
 import java.io.IOException;
 import java.util.Random;
@@ -11,8 +25,6 @@ import org.json.simple.JSONArray;
 import java.util.ArrayList;
 
 public class ArenaGameManager {
-  
-  //TODO change it so players can only see their own tiles.
   
   // arg[0] should be "testarena"
   // arg[1] should be a JSON string containing all other information.

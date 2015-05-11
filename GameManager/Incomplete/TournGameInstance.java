@@ -1,17 +1,25 @@
+/*
+ * TODO: This was the original game instance class before implementing communication
+ * with the test arena, and was designed mostly with tournaments in mind. Several changes 
+ * were required to the GameInterface and logic of the game loop at that time, and thus 
+ * the code below would need updated if it were to be functional again.
+ * 
+ * The goal if we had time was to create a single GameInstance class that handles both arena and
+ * tournament games. See the comment in ArenaGameInstance class for an idea of how it could be
+ * quickly extended to support tournament games as well. If that was done, this class would no 
+ * longer be needed at all.
+ */
 
 
-public class GameInstance implements Runnable {
+public class TournGameInstance implements Runnable {
 
   private Player player1;
   private Player player2;
   private GameInterface game;
   private GameResults results;
 
-  /**
-   * @param player1
-   * @param player2
-   */
-  public GameInstance(Player player1, Player player2) {
+
+  public TournGameInstance(Player player1, Player player2) {
     this.player1 = player1;
     this.player2 = player2;
     results = new GameResults();
@@ -37,10 +45,10 @@ public class GameInstance implements Runnable {
       System.out.flush();
       
       if (player == 1) {
-        move = player1.getMove(game.getCompleteBoard(), game.getBotTimeoutInMilliseconds());
+        move = player1.getMove(game.getPlayerOneBoard(), game.getBotTimeoutInMilliseconds());
         results.addMove(move, player);
       } else {
-        move = player2.getMove(game.getCompleteBoard(), game.getBotTimeoutInMilliseconds());
+        move = player2.getMove(game.getPlayerTwoBoard(), game.getBotTimeoutInMilliseconds());
         results.addMove(move, player);
       }
 
@@ -83,7 +91,11 @@ public class GameInstance implements Runnable {
   }
 
   public String getJSONStringOfResults() {
-    return game.getJSONstringFromGameResults(results);
+	  //TODO: JSON String should be the underlying representation of this object.
+	  //	The interface methods for get(Initial|Mid|Final)GameState should be called
+	  //	to populate this object as the game is running.
+	  return null;
+	  //return game.getJSONstringFromGameResults(results);
   }
 
   @Override
@@ -94,3 +106,4 @@ public class GameInstance implements Runnable {
 
 
 }
+

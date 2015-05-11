@@ -1,5 +1,17 @@
 
-import org.json.simple.JSONObject;
+/* TODO:
+ * To extend this to support tournaments:
+ * 	Don't simply output the game states to system.out, instead send them to this instance's 
+ * 		GameResults object. (Add a GameResults member variable to GameInstance).
+ *
+ *  I envision GameResults as an abstract class having two subclasses, one for 
+ *  	arenaGames and one for tournamentGames. GameResults would then have a method such as
+ *  	processJSONGameState(String jsonGameState) that would always be called from this game 
+ *  	loop. In the arenaGameResults implementation, this would just output it via stdout to
+ *  	the TestArena. In the tournamentGameResults implementation, this would be stored in a
+ *  	list structure of Strings for later use in generating the tournament web site.
+ *
+ */
 import org.json.simple.JSONValue;
 import org.json.simple.JSONArray;
 
@@ -18,7 +30,13 @@ public class ArenaGameInstance {
     game = new Game();
   }
 
-  public void runArenaGame() {
+  /*
+   * The compiler was warning about the use of the add method of JSONArray below
+   * when building the array of standard error output. Maybe look into this but for
+   * now I don't see any harm.
+   */
+  @SuppressWarnings("unchecked")
+public void runArenaGame() {
     String rawMove = "", rawStderr = "", jsonSafeMove = "", jsonSafeStderrArray = "";
 
     //Send starting board to the test arena
@@ -55,7 +73,7 @@ public class ArenaGameInstance {
 
       String reasonMoveWasInvalid = game.validateMove(rawMove, player);
       if (reasonMoveWasInvalid == null) {
-        game.updateBoard(rawMove, rawStderr, player);
+        game.updateBoard(rawMove, player);
         System.out.println(game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderrArray, player));
       } else {
         System.out.println(getInvalidMoveJSON(jsonSafeMove, jsonSafeStderrArray, player, reasonMoveWasInvalid));

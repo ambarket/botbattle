@@ -1,16 +1,72 @@
-
-
-
 /**
- * @author Randall Hudson
- *
+ * To write a new game for the Bot!Battle! system, a java class must be written
+ * that extends this interface with exactly the following signature. 	
+ *  <ul>
+ *  	<li>public class Game implements GameInterface
+ *  </ul>
+ *  
+ *  <h3> External Libraries and Class Path </h3>
+ *  <p>
+ *  For your convenience in generating JSON strings, version 1.1.1 of the 
+ *  following library is provided in the class path of the GameManager.
+ *  </p>
+ *  <ul>
+ *  	<li><a href="https://code.google.com/p/json-simple/">https://code.google.com/p/json-simple/</a>
+ *  </ul>
+ *  <p>
+ *  If you'd like or require additional libraries they can be added to the class path 
+ *  easily by modifying the following export in /BotBattleApp/custom_modules/BotBattlePaths.js
+ *  </p>
+ *  <ul>
+ *  	<li>module.exports.gameManagerClassPath
+ *  </ul>
+ *  <h3> Simplified Pseudocode for the Main Game Loop</h3>
+ *  <p> This has been simplified to emphasize the order in which the game interface methods
+ *  	are called. The actual Main Game Loop can be found in ArenaGameInstance.java. 
+ *   	Familiarizing yourself with the game loop's structure and the order and timing in 
+ *   	which the interface methods are called should make the life of a game developer much easier.
+ *  </p>
+ *  <pre>
+ *	runArenaGame() {
+ *	 
+ *	  game.initializeGame(gameType)
+ *	  
+ *	  game.getInitialGameStateJSON()
+ *	  
+ *	  while (!game.isGameOver()) {
+ *	    int player = game.getPlayerForCurrentTurn()
+ *	    
+ *	    if (player == 1) {
+ *	        board = game.getPlayerOneBoard()
+ *	        timeout = game.getBotTimeoutInMilliseconds()   
+ *	    } else {
+ *	        board = game.getPlayerTwoBoard()
+ *	        if (gameType == BOT_VS_HUMAN)
+ *	            timeout = game.getHumanTimeoutInMilliseconds()
+ *	        else
+ *	            timeout = game.getBotTimeoutInMilliseconds()
+ *	    }
+ *	    
+ *	    move = Get move from player(board, timeout)
+ *	
+ *	    reasonMoveWasInvalid = game.validateMove(move, player);
+ *	    
+ *	    if (reasonMoveWasInvalid == null) 
+ *	      game.updateBoard(move, stderr, player);
+ *	      game.getMidGameStateJSON(jsonSafeMove, jsonSafeStderrArray, player)
+ *	    } else {
+ *	      Send invalid move message to TestArena
+ *	    }
+ *	  }
+ *	  
+ *	  game.getFinalGameStateJSON()
+ *	}
+ *	</pre>
  */
-
-
 public interface GameInterface {
  
   /**
-   * 
+   * Currently unused.
    * @return A user friendly game name. E.g. Save The Island or Tic-Tac-Toe
    */
   public String getName();
@@ -18,63 +74,125 @@ public interface GameInterface {
   /**
    * Called before any other interface methods. Must setup the game to be ready to
    * play. Most likely involves initializing the board and any private members.
+   * The default no-arg constructor is also called before this if you'd like to
+   * perform some setup there.
    * @param gameType A GameType enum specifying BotVsBot or BotVsHuman.
    */
   public void initializeGame(GameType gameType);
   
   /**
-   * Called after initializeGame and before the main game loop starts. Must generate
-   * a valid JSON GameState object as defined in the documentation. The receipt of this
-   * GameState will trigger the client javascript to call GAME.resetGameboard, and then
-   * pass this GameState along to GAME.processGameData, GAME.processDebugData, GAME.processAnimatableEvent
-   * @return A string containing a valid JSON GameState.
+   * A string containing a valid InitialGameState as defined in the documentation.
+   * @return A string containing a valid Initial GameState as defined in the documentation.
    */
   public String getInitialGameStateJSON();
   
+  /** 
+   * A string containing a valid MidGameState as defined in the documentation.
+   * 
+   * The move and stderr messages are recommended to be included 
+   *	in the debugData attribute of the returned JSON String. Your client 
+   *	side game.js file can then display these in the lists at the 
+   *	bottom of the Test Arena, as done for the Save The Island game.
+   *
+   * @param jsonSafeMove The player's move, cleaned with JSONSimple's 
+   *	JSONValue.toJSONString(...) method.
+   * @param jsonSafeStderrArray A String representing a JSON array of 
+   *	new line separated strings received from the player since the 
+   *	last turn, cleaned with JSONSimple's JSONValue.toJSONString(...) method.
+   * @param player Either 1 or 2.
+   * @return A string containing a valid Mid GameState as defined in the documentation.
+   */
+  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderrArray, int player);
+  
   /**
-   *  Must return null if it was a valid move. If invalid you may provide a string
-   *  indicating the reason the move was invalid. This will be logged on the client side.
+   * A string containing a valid FinalGameState as defined in the documentation.
+   * @return A string containing a valid final GameState as defined in the documentation.
+   */
+  public String getFinalGameStateJSON();
+  
+  /**
+   * Determine if the player's move was valid, and provide the reason if not.
+   * If the move was invalid, please provide a helpful description of the violation.
+   * This description will be sent to the Test Arena, along with the exact move text 
+   * generated by the bot or human player to be logged in the Event Log.
    * @param move The last line received from the players standard output stream
    * @param player Either 1 or 2.
    * @return
+   *	If the move was valid: null  
+   * 	If the move was invalid: [String describing the reason the move was invalid]
    */
   public String validateMove(String move, int player);
   
   /**
+   * Update internal state of the board based on a valid move.
    * Will be called only if move was valid according to validateMove. Expected to
    * evaluate and store any changes to the game state as a result of this move.
    * Note: getMidGamestate will be called immediately after this.
    * @param move The last line received from the players standard output stream
    * @param player Either 1 or 2.
    */
-  void updateBoard(String move, String stderr, int player);
+  void updateBoard(String move, int player);
   
   /**
    * Used as the control for the main game loop. Once this returns true, the
    * game is considered over and the GameInstance will call getFinalGameStateJSON.
-   * @return
+   * @return true if the game is over, false otherwise.
    */
   boolean isGameOver();
   
   /**
+   * Number of milliseconds to wait for a bot's move (via their stdout stream) before
+   * giving up and reporting a "null" move.
+   * @return Timeout for bot players.
+   */
+  int getBotTimeoutInMilliseconds();
+  
+  /**
+   * Number of milliseconds to wait for a human's move (via their stdout stream) before
+   * giving up and reporting a "null" move.
+   * @return timeout for human test arena player
+   */
+  int getHumanTimeoutInMilliseconds();
+  
+  /**
    * Return the player number of the current turn (iteration of the game loop). 
    * This player will be asked for a move, and that move will be submitted to 
-   * the next calls to validateMove and updateBoard. 
+   * the next calls to validateMove and updateBoard.
+   * @return Either 1 or 2
    */
   int getPlayerForCurrentTurn();
-
-  String getCompleteBoard();
   
+  /**
+   * Called when getPlayerForCurrentTurn() has indicated that it's
+   * player 1's turn. This string will be sent verbatim to standard input stream of the 
+   * bot playing as player 1.
+   * @return Player 1's view of the game board.
+   */
   String getPlayerOneBoard();
   
+  /**
+   * Called when getPlayerForCurrentTurn() has indicated that it's player 2's turn. 
+   * This string will be sent verbatim to standard input stream of the 
+   * bot playing as player 2. Or ignored if player two is a human. 
+   * 
+   * Note in the case of human players in the test arena, it's the job of game.js 
+   * to display the human input elements to the user. The recommendation is to 
+   * include the necessary information to generate the human input elements in 
+   * the gameData attribute of the midGameState preceding the human's turn.
+   * @return Player 2's view of the game board.
+   */
   String getPlayerTwoBoard();
   
-  public String getMidGameStateJSON(String jsonSafeMove, String jsonSafeStderrArray, int player);
-  
-  public String getFinalGameStateJSON();
-
-  String getJSONstringFromGameResults(GameResults results);
-  
-  int getBotTimeoutInMilliseconds();
-  int getHumanTimeoutInMilliseconds();
+  /**
+   * Currently unused
+   *  
+   * The idea was to combine both player 1 and player 2's view of the board into an
+   * overall string representation of the board. User feedback of the test arena indicated 
+   * they'd rather see the actual playerOne and playerTwo boards using the other getters above.
+   * 
+   * In all likelihood this method is not needed at all and could be removed from the interface.
+   * @return An overall view of the game board.
+   */
+  String getCompleteBoard();
 }
+  

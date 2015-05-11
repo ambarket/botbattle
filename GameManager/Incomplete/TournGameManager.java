@@ -1,4 +1,12 @@
-
+/*
+ * TODO: This was the original GameManager class before implementing communication
+ * with the test arena, and was designed mostly with tournaments in mind. 
+ * 
+ * Moving forward there should be no real need to separate the program entry points 
+ * if its a tournament to be run or just a single test arena instance, and the 
+ * ArenaGameManager class should simply be extended to support tournaments as well,
+ * and renamed accordingly.
+ */
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -6,7 +14,8 @@ import java.util.Scanner;
  * @author Randall Hudson
  *
  */
-public class GameManager {
+
+public class TournGameManager {
  
   // TODO write unit tests for rounds
   // TODO write unit tests for tournaments 
@@ -27,7 +36,7 @@ public class GameManager {
     System.out.flush();
     Player p2 = new Player(path, "rvh5220", Language.JAVA);
     
-    GameInstance game = new GameInstance(p1, p2);
+    TournGameInstance game = new TournGameInstance(p1, p2);
     Thread runningGame = new Thread(game);
     runningGame.start();
     runningGame.join();
@@ -50,4 +59,5 @@ public class GameManager {
     }
   }
 }
+
   

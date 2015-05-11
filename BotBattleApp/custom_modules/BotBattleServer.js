@@ -192,6 +192,7 @@ module.exports = function BotBattleServer() {
     self.addStaticFolderRoute('/static/javascript', paths.static_content.javascript);
     self.addStaticFolderRoute('/static/images', paths.static_content.images);
     self.addStaticFolderRoute('/static/icons', paths.static_content.icons);
+    self.addStaticFolderRoute('/promo', paths.promo_website_dir);
   }
 }
 

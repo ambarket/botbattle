@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="Production"/>
+	<classpathentry kind="src" path="Incomplete"/>
 	<classpathentry kind="src" path="Bots"/>
 	<classpathentry kind="src" path="Tests"/>
 	<classpathentry kind="src" path="Games"/>

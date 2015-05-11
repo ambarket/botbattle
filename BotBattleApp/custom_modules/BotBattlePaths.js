@@ -82,13 +82,17 @@ module.exports.init_config_tmp =  path.join(module.exports.app_root,'init_config
 
 module.exports.configuration_file = path.join(module.exports.app_root,'savedConfiguration.txt');
 
-module.exports.gameManagerJars = path.resolve(module.exports.app_root,'../GameManager/Jars/json-simple-1.1.1.jar');
+/* Currently only a single jar, but works as a colon separated list of class path elements.
+ * If you'd like more just append ":" + [path to your jar]
+ * This is used in the BotBattleCompiler and TestArenaInstances modules to compile and run the GameManager 
+ */
+module.exports.gameManagerClassPath = path.resolve(module.exports.app_root,'../GameManager/Jars/json-simple-1.1.1.jar');
 module.exports.gameManagerSource = path.resolve(module.exports.app_root,'../GameManager/Production/');
 
 module.exports.built_in_games = {
     'save_the_island' : {
       'rules_pdf' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'SaveTheIslandGameRules.pdf'),
-      'game_java' : path.resolve(module.exports.app_root, '../GameManager', 'Games', 'Game.java'),
+      'game_java' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'Game.java'),
       'game_js' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'game.js'),
       'resources_zip' : path.resolve(module.exports.app_root, 'built_in_games', 'save_the_island', 'resources.zip'),
       'preloaded_bots' : 
@@ -100,3 +104,5 @@ module.exports.built_in_games = {
         ]
     }
 }
+
+module.exports.promo_website_dir = path.resolve(module.exports.app_root, '../', "PromoWebsite");
