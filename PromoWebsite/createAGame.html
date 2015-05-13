@@ -29,6 +29,21 @@
     </section>
 
     <section class="main-content">
+
+	
+	<h1> Initial Configuration </h1>
+	<p> The initial configuration must be run in order to upload and use a new game on the system.
+	<p> Upon startup, main.js looks for a file named savedConfiguration.txt in the application root directory.
+		If this file doesn't exist then the initial configuration app is loaded, otherwise the system uses a
+		pre-existing database and continues straight to the Test Arena.
+		
+	<p> To get the initial configuration to run again, just delete the savedConfiguration.txt file.
+	
+	       <h1> JSON GameStates </h1>
+      <p> JSON Game states are used to communicate between your java Game class and your Game javascript file. 
+	See <a href = "./jsonGameStates.html" > JSON Game States</a> to learn more about
+	these game states, what components they must include, and see some examples.
+	
       <h1> What makes up a Game? </h1>
       
       <p>A Bot!Battle! Game consists of 4 components that must be uploaded to the initial configuration page.</p>
@@ -81,18 +96,5 @@
 			</ul>
 		</li>
       </ul>
-      
-   <h1> JSON GameStates </h1>
-      <p> JSON Game states are used to communicate between your java Game class and your Game javascript file. 
-	See <a href = "./jsonGameStates.html" > JSON Game States</a> to learn more about
-	these game states, what components they must include, and see some examples.
-	
-	<h1> Initial Configuration </h1>
-	<p> The initial configuration must be run in order to upload and use a new game on the system.
-	<p> Upon startup, main.js looks for a file named savedConfiguration.txt in the application root directory.
-		If this file doesn't exist then the initial configuration app is loaded, otherwise the system uses a
-		pre-existing database and continues straight to the Test Arena.
-		
-	<p> To get the initial configuration to run again, just delete the savedConfiguration.txt file.
 	
       <!-- ------------------------------------------------------------------------ -->
