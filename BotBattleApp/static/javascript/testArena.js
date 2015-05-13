@@ -226,6 +226,8 @@
      }
      else if (state === 'gameStarted') {
        // The draw function will continue drawing until the state is no longer 'gameStarted'
+    	 //	or there are still game states in the game state queue and the user hasn't clicked
+    	 // kill game.
        
        TEST_ARENA.state = 'gameStarted';
        GAME.setExtraGameControls();
