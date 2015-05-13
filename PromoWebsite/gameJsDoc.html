@@ -35,8 +35,11 @@
 		Your Game java class is responsible for implementing all game logic required for validating moves, tracking the state of the game, and
 		determining when someone has won or the game has otherwise ended. Your game javascript file is then responsible for 
 		actually animating and presenting the results of the game to the user in the test arena. 
-	<p>	The code in your Game java class sends updates to your Game javascript file using JSON GameStates. These will be
-		described in detail below.
+     
+    <p> JSON Game states are used to communicate between your java Game class and your Game javascript file. 
+		See <a href = "./jsonGameStates.html" > JSON Game States</a> to learn more about
+		these game states, what components they must include, and see some examples.
+		
 	<p> Your game javascript file must implement the following functions as properties of a global object named GAME. These functions
 		will be invoked by the built in testArena.js file when necessary.
 		
